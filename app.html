@@ -411,22 +411,26 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-page);color:var(--text
 <h1 class="login-title">STOCKAI-PRO</h1>
 <p class="login-tagline" data-i18n="tagline">Intelligence a click away</p>
 <form id="login-form" class="login-form">
-<div class="input-line"><input type="text" id="login-username" placeholder="Username" data-i18n-ph="username" placeholder="Enter your username" required></div>
-<div class="input-line"><input type="password" id="login-password" placeholder="Password" data-i18n-ph="password" placeholder="Enter your password" required></div>
-<div class="input-line"><label data-i18n="login_as">Login As</label><select id="login-role">
-<option value="Owner">Owner</option>
-<option value="General Manager">General Manager</option>
-<option value="Area Manager">Area Manager</option>
-<option value="Operations Manager">Operations Manager</option>
-<option value="Manager">Manager</option>
-<option value="Stock Controller">Stock Controller</option>
-<option value="Kitchen Manager">Kitchen Manager</option>
-<option value="Bar Manager">Bar Manager</option>
-<option value="Floor Supervisor">Floor Supervisor</option>
-<option value="Bar Supervisor">Bar Supervisor</option>
-</select></div>
-<button type="submit" class="btn-login" data-i18n="log_in">Log In</button>
-<button type="button" class="btn-signup" onclick="startSignUp()" data-i18n="sign_up">Sign Up</button>
+    <div class="input-line">
+        <input type="email" id="login-username" 
+               placeholder="Email Address" 
+               data-i18n-ph="email" required>
+    </div>
+    <div class="input-line">
+        <input type="password" id="login-password" 
+               placeholder="Password" 
+               data-i18n-ph="password" required>
+    </div>
+    <div id="login-error" style="color:#ff4444;font-size:13px;text-align:center;margin-top:5px;display:none;"></div>
+    <div id="login-loading" style="text-align:center;display:none;">
+        <i class="fas fa-spinner fa-spin"></i> Signing in...
+    </div>
+    <button type="button" class="btn-login" data-i18n="log_in" onclick="doLogin(event)">Log In</button>
+    <button type="button" class="btn-signup" onclick="startSignUp()" data-i18n="sign_up">Sign Up</button>
+    <button type="button" class="btn-forgot" onclick="forgotPassword()" 
+            style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;margin-top:8px;text-decoration:underline;">
+        Forgot Password?
+    </button>
 </form>
 </div>
 </div>
@@ -548,6 +552,27 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-page);color:var(--text
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <!-- PASTE PART 2 (JAVASCRIPT) BELOW THIS LINE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ============ FIREBASE INITIALIZATION ============
+var firebaseConfig = {
+    apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain: "stockai-pro-b232e.firebaseapp.com",
+    projectId: "stockai-pro-b232e",
+    storageBucket: "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId: "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+var auth = firebase.auth();
+
+
+</script>
 <script>
 // ============ STATE ============
 let S = {
@@ -646,14 +671,168 @@ const GLOBAL_NAV = [
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
-    loadFromStorage();
     fillLangSelectors();
     applyLang();
     bindEvents();
     startClock();
+
+    auth.signOut().finally(function() {
+        loadFromStorage();
+    });
 });
-function saveToStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e){} }
-function loadFromStorage() {
+// ============================================
+// FIREBASE SAVE & LOAD FUNCTIONS
+// ============================================
+
+// Get the current entity ID from the logged in user
+function getEntityId() {
+    return S.user && S.user.entityId ? S.user.entityId : null;
+}
+
+// SAVE to Firebase instead of localStorage
+async function saveToStorage() {
+    try {
+        const entityId = getEntityId();
+        if (!entityId) {
+            console.log('No entity ID found, cannot save');
+            return;
+        }
+
+        // Save each data section to its own Firebase collection
+        const db = firebase.firestore();
+        const entityRef = db.collection('entities').doc(entityId);
+
+        // Save inventory
+        if (S.inventory) {
+            await entityRef.collection('inventory').doc('data').set({
+                items: S.inventory,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save suppliers
+        if (S.suppliers) {
+            await entityRef.collection('suppliers').doc('data').set({
+                items: S.suppliers,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save menu
+        if (S.menu) {
+            await entityRef.collection('menu').doc('data').set({
+                items: S.menu,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save purchases
+        if (S.purchases) {
+            await entityRef.collection('purchases').doc('data').set({
+                items: S.purchases,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save wastage
+        if (S.wastage) {
+            await entityRef.collection('wastage').doc('data').set({
+                items: S.wastage,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save cashups
+        if (S.cashups) {
+            await entityRef.collection('cashups').doc('data').set({
+                items: S.cashups,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save reports
+        if (S.reports) {
+            await entityRef.collection('reports').doc('data').set({
+                items: S.reports,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Save settings
+        if (S.settings) {
+            await entityRef.collection('settings').doc('data').set({
+                items: S.settings,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        console.log('Data saved to Firebase successfully');
+
+    } catch(e) {
+        console.log('Firebase save error:', e);
+        // Fallback to localStorage if Firebase fails
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+        } catch(le) {}
+    }
+}
+
+// LOAD from Firebase instead of localStorage
+async function loadFromStorage() {
+    try {
+        const entityId = getEntityId();
+        if (!entityId) {
+            console.log('No entity ID, loading from localStorage as fallback');
+            loadFromLocalStorage();
+            return;
+        }
+
+        const db = firebase.firestore();
+        const entityRef = db.collection('entities').doc(entityId);
+
+        // Load inventory
+        const inventoryDoc = await entityRef.collection('inventory').doc('data').get();
+        if (inventoryDoc.exists) S.inventory = inventoryDoc.data().items || [];
+
+        // Load suppliers
+        const suppliersDoc = await entityRef.collection('suppliers').doc('data').get();
+        if (suppliersDoc.exists) S.suppliers = suppliersDoc.data().items || [];
+
+        // Load menu
+        const menuDoc = await entityRef.collection('menu').doc('data').get();
+        if (menuDoc.exists) S.menu = menuDoc.data().items || [];
+
+        // Load purchases
+        const purchasesDoc = await entityRef.collection('purchases').doc('data').get();
+        if (purchasesDoc.exists) S.purchases = purchasesDoc.data().items || [];
+
+        // Load wastage
+        const wastageDoc = await entityRef.collection('wastage').doc('data').get();
+        if (wastageDoc.exists) S.wastage = wastageDoc.data().items || [];
+
+        // Load cashups
+        const cashupsDoc = await entityRef.collection('cashups').doc('data').get();
+        if (cashupsDoc.exists) S.cashups = cashupsDoc.data().items || [];
+
+        // Load reports
+        const reportsDoc = await entityRef.collection('reports').doc('data').get();
+        if (reportsDoc.exists) S.reports = reportsDoc.data().items || [];
+
+        // Load settings
+        const settingsDoc = await entityRef.collection('settings').doc('data').get();
+        if (settingsDoc.exists) S.settings = settingsDoc.data().items || [];
+
+        console.log('Data loaded from Firebase successfully');
+
+    } catch(e) {
+        console.log('Firebase load error:', e);
+        // Fallback to localStorage if Firebase fails
+        loadFromLocalStorage();
+    }
+}
+
+// Keep localStorage as fallback only
+function loadFromLocalStorage() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
@@ -669,7 +848,7 @@ function loadFromStorage() {
                 }, 100);
             }
         }
-    } catch(e){}
+    } catch(e) {}
 }
 function startClock() {
     function tick() {
@@ -681,6 +860,7 @@ function startClock() {
     tick(); setInterval(tick, 1000);
 }
 function bindEvents() {
+    
     document.getElementById('login-form').addEventListener('submit', doLogin);
     document.getElementById('owner-form').addEventListener('submit', handleOwnerSubmit);
     document.getElementById('profile-form').addEventListener('submit', handleProfileSubmit);
@@ -700,16 +880,92 @@ function bindEvents() {
 // ============ LOGIN ============
 function doLogin(e) {
     e.preventDefault();
-    const name = document.getElementById('login-username').value || 'User';
-    const role = document.getElementById('login-role').value;
-    S.user = { name, role, assignedEntity: 0 };
-    if (S.entities.length > 0) {
-        document.getElementById('login-screen').classList.add('hidden');
-        showEntitySelector();
-    } else {
-        startSignUp();
-    }
-    logAction('Login', `${name} logged in as ${role}`);
+    
+    const email = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorDiv = document.getElementById('login-error');
+    const loadingDiv = document.getElementById('login-loading');
+
+    // Hide any previous errors
+    errorDiv.style.display = 'none';
+    loadingDiv.style.display = 'block';
+
+    // Sign in with Firebase Authentication
+    auth.signInWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+            const firebaseUser = userCredential.user;
+
+            // Load this user's profile from Firestore
+            return db.collection('users').doc(firebaseUser.uid).get();
+        })
+        .then(function(userDoc) {
+            loadingDiv.style.display = 'none';
+
+            if (!userDoc.exists) {
+                errorDiv.textContent = 'User profile not found. Please contact your administrator.';
+                errorDiv.style.display = 'block';
+                auth.signOut();
+                return;
+            }
+
+            const userData = userDoc.data();
+
+            // Set the user in our app state
+            S.user = {
+                uid: userData.uid,
+                name: userData.name,
+                email: userData.email,
+                role: userData.role,
+                assignedEntity: userData.assignedEntity || 0,
+                entityId: userData.entityId || null,
+                entityIds: userData.entityIds || []
+            };
+
+            // Set the owner info
+            if (userData.owner) {
+                S.owner = userData.owner;
+            }
+
+            // Set entities list
+            if (userData.entities) {
+                S.entities = userData.entities;
+            }
+
+            logAction('Login', `${userData.name} logged in as ${userData.role}`);
+
+            // Route based on role
+            if (userData.role === 'Owner') {
+                // Owner sees entity selector with Global View option
+                document.getElementById('login-screen').classList.add('hidden');
+                showEntitySelector();
+            } else {
+                // Staff goes directly to their assigned entity
+                if (S.entities && S.entities.length > 0) {
+                    const assignedEntity = S.entities.find(en => en.id === userData.entityId) 
+                                          || S.entities[0];
+                    S.currentEntity = assignedEntity;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    loadFromCloud(function(loaded) {
+                        startCloudSync();
+                        showApp();
+                    });
+                } else {
+                    errorDiv.textContent = 'No entity assigned. Please contact your administrator.';
+                    errorDiv.style.display = 'block';
+                    auth.signOut();
+                }
+            }
+        })
+        .catch(function(error) {
+            loadingDiv.style.display = 'none';
+            var message = 'Login failed. Please try again.';
+            if (error.code === 'auth/user-not-found') message = 'Email address not found.';
+            if (error.code === 'auth/wrong-password') message = 'Incorrect password.';
+            if (error.code === 'auth/invalid-email') message = 'Invalid email address.';
+            if (error.code === 'auth/too-many-requests') message = 'Too many attempts. Please try again later.';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        });
 }
 function startSignUp() {
     S.user = S.user || { name:'Owner', role:'Owner', assignedEntity:0 };
@@ -718,14 +974,46 @@ function startSignUp() {
     document.getElementById('login-screen').classList.add('hidden');
     showOwnerScreen();
 }
+function forgotPassword() {
+    const email = document.getElementById('login-username').value.trim();
+    if (!email) {
+        alert('Please enter your email address first then click Forgot Password.');
+        return;
+    }
+    auth.sendPasswordResetEmail(email)
+        .then(function() {
+            alert('Password reset email sent to ' + email + '. Please check your inbox.');
+        })
+        .catch(function(error) {
+            alert('Error: ' + error.message);
+        });
+}
 function doLogout() {
     if (S.user) logAction('Logout', `${S.user.name} logged out`);
-    document.getElementById('app').classList.add('hidden');
-    document.getElementById('login-screen').classList.remove('hidden');
-    S.isGlobalMode = false;
-    toast('info', 'Logged out');
+    
+    // Stop real-time sync
+    stopCloudSync();
+    
+    // Sign out of Firebase
+    auth.signOut().then(function() {
+        // Clear app state
+        S.user = null;
+        S.currentEntity = null;
+        S.isGlobalMode = false;
+        
+        // Show login screen
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+        
+        toast('info', 'Logged out successfully');
+    }).catch(function(error) {
+        console.warn('Logout error:', error);
+        // Force logout anyway
+        S.user = null;
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    });
 }
-
 // ============ OWNER & PROFILE SCREENS ============
 function showOwnerScreen() {
     document.getElementById('owner-screen').classList.remove('hidden');
@@ -831,16 +1119,78 @@ function handleProfileSubmit(e) {
         S.profileStep++;
         showProfileStep();
         toast('success', `"${entity.name}" saved!`);
-    } else {
+        } else {
         S.entities = S.tempEntities.slice(0, S.totalEntities);
         S.tempEntities = [];
         S.entities.forEach(ent => generateDataForEntity(ent));
         document.getElementById('profile-screen').classList.add('hidden');
+        
+        // Save to localStorage as backup
         saveToStorage();
-        showEntitySelector();
-        toast('success', 'Setup complete! 🎉');
+        
+        // Save to Firebase so entities appear on any device
+        var ownerId = getOwnerId();
+        if (ownerId) {
+            // Save owner data with entities to Firebase
+            db.collection('owners').doc(ownerId).set({
+                owner: S.owner,
+                entities: S.entities,
+                users: S.users || [],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true })
+            .then(function() {
+                console.log('☁️ Entities saved to Firebase');
+                
+                // Save each entity's data separately
+                S.entities.forEach(function(ent) {
+                    db.collection('owners').doc(ownerId)
+                        .collection('entities').doc(ent.id)
+                        .set({
+                            name: ent.name,
+                            contact: ent.contact,
+                            phone: ent.phone,
+                            email: ent.email,
+                            address: ent.address,
+                            vat: ent.vat,
+                            foodCostTarget: ent.foodCostTarget,
+                            sections: ent.sections,
+                            inventory: S.inventory || [],
+                            purchases: S.purchases || [],
+                            wastage: S.wastage || [],
+                            suppliers: S.suppliers || [],
+                            menuItems: S.menuItems || [],
+                            cashups: S.cashups || [],
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true })
+                        .then(function() {
+                            console.log('☁️ Entity data saved for: ' + ent.name);
+                        });
+                });
+
+                // Also update the user document with entities
+                if (auth.currentUser) {
+                    db.collection('users').doc(auth.currentUser.uid).update({
+                        entities: S.entities,
+                        owner: S.owner,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(function() {
+                        console.log('☁️ User document updated with entities');
+                    });
+                }
+
+                toast('success', 'Setup complete! 🎉');
+                showEntitySelector();
+            })
+            .catch(function(err) {
+                console.warn('Firebase save error:', err);
+                toast('success', 'Setup complete! 🎉');
+                showEntitySelector();
+            });
+        } else {
+            toast('success', 'Setup complete! 🎉');
+            showEntitySelector();
+        }
     }
-}
 
 // ============ ENTITY SELECTOR ============
 function showEntitySelector() {
@@ -3707,15 +4057,28 @@ var ADMIN_CREDENTIALS = {
     email: 'cidraism@gmail.com'
 };
 
+// ============ SUPER ADMIN SYSTEM ============
+var ADMIN_CREDENTIALS = {
+    username: 'Miguel_Cidrais',
+    pin: '1173',
+    email: 'cidraism@gmail.com'
+};
+
 // Override login to check for admin
 var originalDoLoginForAdmin = doLogin;
 doLogin = function(e) {
     e.preventDefault();
-    var name = document.getElementById('login-username').value || '';
-    var password = document.getElementById('login-password').value || '';
     
+    var emailOrUsername = document.getElementById('login-username').value || '';
+    var password = document.getElementById('login-password').value || '';
+    const errorDiv = document.getElementById('login-error');
+    const loadingDiv = document.getElementById('login-loading');
+
+    // Hide any previous errors
+    if (errorDiv) errorDiv.style.display = 'none';
+
     // Check if this is the super admin
-    if (name === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
+    if (emailOrUsername === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
         S.user = {
             name: 'StockAI Admin',
             role: 'Owner',
@@ -3724,7 +4087,6 @@ doLogin = function(e) {
         };
         
         logAction('Admin Login', 'Super Admin logged in');
-        
         document.getElementById('login-screen').classList.add('hidden');
         
         if (S.entities.length > 0) {
@@ -3737,25 +4099,92 @@ doLogin = function(e) {
         toast('success', '🔑 Super Admin access granted. You can see all entities.');
         return;
     }
-    
-    // Normal login
-    var role = document.getElementById('login-role').value;
-    S.user = { name: name, role: role, assignedEntity: 0 };
-    
-    if (!name.trim()) {
-        toast('error', 'Please enter your username');
+
+    // Normal Firebase login
+    if (!emailOrUsername.trim()) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Please enter your email address';
+            errorDiv.style.display = 'block';
+        }
         return;
     }
-    
-    if (S.entities.length > 0) {
-        document.getElementById('login-screen').classList.add('hidden');
-        showEntitySelector();
-    } else {
-        startSignUp();
-    }
-    logAction('Login', name + ' logged in as ' + role);
-};
 
+    if (loadingDiv) loadingDiv.style.display = 'block';
+
+    // Sign in with Firebase Authentication
+    auth.signInWithEmailAndPassword(emailOrUsername, password)
+        .then(function(userCredential) {
+            const firebaseUser = userCredential.user;
+            return db.collection('users').doc(firebaseUser.uid).get();
+        })
+        .then(function(userDoc) {
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            alert('Firestore read complete! Document exists: ' + userDoc.exists);
+
+            if (!userDoc.exists) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'User profile not found. Please contact your administrator.';
+                    errorDiv.style.display = 'block';
+                }
+                auth.signOut();
+                return;
+            }
+
+            const userData = userDoc.data();
+
+            // Set the user in app state
+            S.user = {
+                uid: userData.uid,
+                name: userData.name,
+                email: userData.email,
+                role: userData.role,
+                assignedEntity: userData.assignedEntity || 0,
+                entityId: userData.entityId || null,
+                entityIds: userData.entityIds || []
+            };
+
+            if (userData.owner) S.owner = userData.owner;
+            if (userData.entities) S.entities = userData.entities;
+
+            logAction('Login', userData.name + ' logged in as ' + userData.role);
+
+            // Route based on role
+            if (userData.role === 'Owner') {
+                document.getElementById('login-screen').classList.add('hidden');
+                showEntitySelector();
+            } else {
+                if (S.entities && S.entities.length > 0) {
+                    const assignedEntity = S.entities.find(function(en) { 
+                        return en.id === userData.entityId; 
+                    }) || S.entities[0];
+                    S.currentEntity = assignedEntity;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    loadFromCloud(function(loaded) {
+                        startCloudSync();
+                        showApp();
+                    });
+                } else {
+                    if (errorDiv) {
+                        errorDiv.textContent = 'No entity assigned. Please contact your administrator.';
+                        errorDiv.style.display = 'block';
+                    }
+                    auth.signOut();
+                }
+            }
+        })
+        .catch(function(error) {
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            var message = 'Login failed. Please try again.';
+            if (error.code === 'auth/user-not-found') message = 'Email address not found.';
+            if (error.code === 'auth/wrong-password') message = 'Incorrect password.';
+            if (error.code === 'auth/invalid-email') message = 'Invalid email address.';
+            if (error.code === 'auth/too-many-requests') message = 'Too many attempts. Please try again later.';
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        });
+};
 // Admin always has full access to everything
 var originalPermsCheck = enterApp;
 enterApp = function() {
@@ -3773,19 +4202,10 @@ enterApp = function() {
 console.log('🔑 Super Admin module loaded');
 </script>
 <!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 
 <script>
-// ============ FIREBASE INITIALIZATION ============
-var firebaseConfig = {
-    apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
-    authDomain: "stockai-pro-b232e.firebaseapp.com",
-    projectId: "stockai-pro-b232e",
-    storageBucket: "stockai-pro-b232e.firebasestorage.app",
-    messagingSenderId: "424200946359",
-    appId: "1:424200946359:web:4c638eccd4e422ccc94332"
+
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -3943,193 +4363,247 @@ function stopCloudSync() {
 }
 
 // ============ ACCOUNT ID HELPER ============
+// ============ ENTITY-BASED CLOUD FUNCTIONS ============
+
 function getAccountId() {
-    // Use owner email as account ID (unique per customer)
+    // Keep this for backwards compatibility
     if (S.owner && S.owner.email) {
         return S.owner.email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     }
-    // Fallback: use first entity ID
     if (S.entities && S.entities.length > 0) {
         return S.entities[0].id;
     }
     return null;
 }
 
-// ============ ADMIN: LIST ALL CUSTOMERS ============
-function adminListAllCustomers() {
-    if (!S.user || !S.user.isSuperAdmin) {
-        toast('error', 'Admin access required');
+function getCurrentEntityId() {
+    // If in global mode (Owner viewing all), return null
+    if (S.isGlobalMode) return null;
+    // Return the currently selected entity ID
+    if (S.currentEntity && S.currentEntity.id) return S.currentEntity.id;
+    // Fallback to first entity
+    if (S.entities && S.entities.length > 0) return S.entities[0].id;
+    return null;
+}
+
+function getOwnerId() {
+    // Use owner email as unique owner identifier
+    if (S.owner && S.owner.email) {
+        return S.owner.email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    }
+    return null;
+}
+
+// ============ CLOUD SAVE ============
+function saveToCloud() {
+    if (!S.user) return;
+
+    var entityId = getCurrentEntityId();
+    var ownerId = getOwnerId();
+    if (!ownerId) return;
+
+    try {
+        // Always save owner-level data
+        var ownerData = {
+            owner: S.owner || null,
+            entities: S.entities || [],
+            users: S.users || [],
+            billing: S.billing || {},
+            integrations: S.integrations || {},
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+            lastUpdatedBy: S.user ? S.user.name : 'Unknown'
+        };
+
+        // Save owner data at top level
+        db.collection('owners').doc(ownerId).set(ownerData, { merge: true })
+            .then(function() {
+                console.log('☁️ Owner data saved');
+            })
+            .catch(function(err) {
+                console.warn('Owner save error:', err);
+            });
+
+        // Save entity-specific data only if we have an active entity
+        if (entityId) {
+            var entityData = {
+                inventory: S.inventory || [],
+                purchases: S.purchases || [],
+                wastage: S.wastage || [],
+                suppliers: S.suppliers || [],
+                menuItems: S.menuItems || [],
+                cashups: S.cashups || [],
+                notifs: S.notifs || [],
+                activities: S.activities || [],
+                pendingPOs: S.pendingPOs || [],
+                internalTransfers: S.internalTransfers || [],
+                userLogs: S.userLogs || [],
+                invoices: S.invoices || {},
+                dayEnds: S.dayEnds || {},
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                lastUpdatedBy: S.user ? S.user.name : 'Unknown',
+                lastUpdatedDevice: navigator.platform || 'Unknown'
+            };
+
+            // Save under owners/{ownerId}/entities/{entityId}
+            db.collection('owners').doc(ownerId)
+                .collection('entities').doc(entityId)
+                .set(entityData, { merge: true })
+                .then(function() {
+                    console.log('☁️ Entity data saved for:', entityId);
+                })
+                .catch(function(err) {
+                    console.warn('Entity save error:', err);
+                });
+        }
+
+    } catch(e) {
+        console.warn('Cloud save error:', e);
+    }
+}
+
+// ============ CLOUD LOAD ============
+function loadFromCloud(callback) {
+    var ownerId = getOwnerId();
+    if (!ownerId) {
+        if (callback) callback(false);
         return;
     }
-    
-    db.collection('accounts').get()
-        .then(function(snapshot) {
-            var customers = [];
-            snapshot.forEach(function(doc) {
-                var data = doc.data();
-                customers.push({
-                    id: doc.id,
-                    owner: data.owner ? data.owner.name : 'Unknown',
-                    email: data.owner ? data.owner.email : 'N/A',
-                    entities: data.entities ? data.entities.length : 0,
-                    lastUpdated: data.lastUpdated ? data.lastUpdated.toDate().toLocaleString('en-ZA') : 'Never'
-                });
-            });
-            
-            console.log('📋 All customers:', customers);
-            showAdminCustomerList(customers);
-        })
-        .catch(function(err) {
-            console.warn('Admin list error:', err);
-            toast('error', 'Could not load customer list');
-        });
-}
 
-function showAdminCustomerList(customers) {
-    var html = '<h3 style="margin-bottom:14px;color:#0d4a5c">📋 All Customer Accounts (' + customers.length + ')</h3>';
-    
-    if (customers.length === 0) {
-        html += '<p style="color:#5a8a96;text-align:center;padding:20px">No customers yet</p>';
-    } else {
-        html += '<div style="max-height:60vh;overflow-y:auto">';
-        customers.forEach(function(c) {
-            html += '<div style="background:#f5f9fa;padding:14px;border-radius:10px;margin-bottom:8px;border-left:3px solid #1a8ba8;cursor:pointer" onclick="adminLoadCustomer(\'' + c.id + '\')">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                    '<div><strong style="color:#0d4a5c">' + c.owner + '</strong><br><span style="font-size:.78rem;color:#5a8a96">' + c.email + ' • ' + c.entities + ' entities</span></div>' +
-                    '<span style="font-size:.72rem;color:#8aabb5">' + c.lastUpdated + '</span>' +
-                '</div>' +
-            '</div>';
-        });
-        html += '</div>';
-    }
-    
-    document.getElementById('modal-container').innerHTML = '<div class="modal"><div class="modal-bg" onclick="closeModal()"></div><div class="modal-window"><div class="modal-top"><h2>🔑 Admin — Customer Accounts</h2><button onclick="closeModal()"><i class="fas fa-times"></i></button></div><div class="modal-mid">' + html + '</div><div class="modal-bot"><button class="btn-outline" onclick="closeModal()">Close</button></div></div></div>';
-}
+    var entityId = getCurrentEntityId();
 
-function adminLoadCustomer(accountId) {
-    closeModal();
-    toast('info', 'Loading customer data...');
-    
-    db.collection('accounts').doc(accountId).get()
+    // First load owner-level data
+    db.collection('owners').doc(ownerId).get()
         .then(function(doc) {
             if (doc.exists) {
                 var data = doc.data();
-                
-                // Load customer data into current state
-                S.entities = data.entities || [];
-                S.inventory = data.inventory || {};
-                S.purchases = data.purchases || {};
-                S.wastage = data.wastage || {};
-                S.suppliers = data.suppliers || {};
-                S.users = data.users || {};
-                S.menuItems = data.menuItems || {};
-                S.cashups = data.cashups || {};
-                S.notifs = data.notifs || [];
-                S.activities = data.activities || {};
-                S.pendingPOs = data.pendingPOs || {};
-                S.internalTransfers = data.internalTransfers || [];
-                S.billing = data.billing || null;
-                S.userLogs = data.userLogs || {};
-                S.owner = data.owner || null;
-                
+                console.log('☁️ Owner data loaded');
+
+                if (data.entities) S.entities = data.entities;
+                if (data.users) S.users = data.users;
+                if (data.billing) S.billing = data.billing;
+                if (data.integrations) S.integrations = data.integrations;
+                if (data.owner) S.owner = data.owner;
+
+                // Now load entity-specific data if we have an entity
+                if (entityId) {
+                    return db.collection('owners').doc(ownerId)
+                        .collection('entities').doc(entityId).get();
+                }
+            }
+            return null;
+        })
+        .then(function(entityDoc) {
+            if (entityDoc && entityDoc.exists) {
+                var data = entityDoc.data();
+                console.log('☁️ Entity data loaded for:', entityId);
+
+                if (data.inventory) S.inventory = data.inventory;
+                if (data.purchases) S.purchases = data.purchases;
+                if (data.wastage) S.wastage = data.wastage;
+                if (data.suppliers) S.suppliers = data.suppliers;
+                if (data.menuItems) S.menuItems = data.menuItems;
+                if (data.cashups) S.cashups = data.cashups;
+                if (data.notifs) S.notifs = data.notifs;
+                if (data.activities) S.activities = data.activities;
+                if (data.pendingPOs) S.pendingPOs = data.pendingPOs;
+                if (data.internalTransfers) S.internalTransfers = data.internalTransfers;
+                if (data.userLogs) S.userLogs = data.userLogs;
+                if (data.invoices) S.invoices = data.invoices;
+                if (data.dayEnds) S.dayEnds = data.dayEnds;
+
                 saveToStorage();
-                
-                toast('success', '✅ Loaded customer: ' + (data.owner ? data.owner.name : accountId));
-                
-                // Refresh — show entity selector
-                showEntitySelector();
+                if (callback) callback(true);
+            } else {
+                console.log('☁️ No entity data found — using local');
+                if (callback) callback(false);
             }
         })
         .catch(function(err) {
-            toast('error', 'Failed to load customer');
+            console.warn('Cloud load error:', err);
+            if (callback) callback(false);
         });
 }
 
-// ============ OVERRIDE SAVE TO INCLUDE CLOUD ============
-var originalSaveForCloud = saveToStorage;
-saveToStorage = function() {
-    // Save locally first (fast)
-    originalSaveForCloud();
-    
-    // Then save to cloud (async)
-    clearTimeout(window._cloudSaveTimer);
-    window._cloudSaveTimer = setTimeout(function() {
-        saveToCloud();
-    }, 2000); // Debounce: wait 2 seconds of no changes before syncing
-};
-
-// ============ HOOK INTO LOGIN ============
-var originalLoginForCloud = doLogin;
-doLogin = function(e) {
-    e.preventDefault();
-    var name = document.getElementById('login-username').value || '';
-    var password = document.getElementById('login-password').value || '';
-    var role = document.getElementById('login-role').value;
-    
-    if (!name.trim()) {
-        toast('error', 'Please enter your username');
+// ============ LOAD ALL ENTITIES (Owner Global View) ============
+function loadAllEntitiesFromCloud(callback) {
+    var ownerId = getOwnerId();
+    if (!ownerId) {
+        if (callback) callback(false);
         return;
     }
-    
-    // Check super admin
-    if (typeof ADMIN_CREDENTIALS !== 'undefined' && name === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
-        S.user = {
-            name: 'StockAI Admin',
-            role: 'Owner',
-            assignedEntity: 0,
-            isSuperAdmin: true
-        };
-        
-        logAction('Admin Login', 'Super Admin logged in');
-        document.getElementById('login-screen').classList.add('hidden');
-        
-        // Try to load from cloud first
-        toast('info', '🔄 Loading cloud data...');
-        loadFromCloud(function(found) {
-            if (found) {
-                toast('success', '☁️ Cloud data loaded');
-            }
-            if (S.entities.length > 0) {
-                showEntitySelector();
-            } else {
-                toast('info', 'No customer data found. Use Admin panel to browse customers.');
-            }
-            startCloudSync();
+
+    // Load all entities under this owner
+    db.collection('owners').doc(ownerId)
+        .collection('entities').get()
+        .then(function(snapshot) {
+            var allEntityData = {};
+
+            snapshot.forEach(function(doc) {
+                allEntityData[doc.id] = doc.data();
+            });
+
+            console.log('☁️ All entities loaded for Global View');
+            S.allEntityData = allEntityData;
+
+            if (callback) callback(true, allEntityData);
+        })
+        .catch(function(err) {
+            console.warn('Global load error:', err);
+            if (callback) callback(false);
         });
-        
-        toast('success', '🔑 Super Admin access granted');
-        return;
-    }
-    
-    // Normal login
-    S.user = { name: name, role: role, assignedEntity: 0 };
-    
-    document.getElementById('login-screen').classList.add('hidden');
-    
-    // Try cloud data first
-    toast('info', '🔄 Checking cloud data...');
-    loadFromCloud(function(found) {
-        if (found) {
-            toast('success', '☁️ Data loaded from cloud');
-            showEntitySelector();
-        } else if (S.entities.length > 0) {
-            toast('info', 'Using local data');
-            showEntitySelector();
-        } else {
-            startSignUp();
-        }
-        startCloudSync();
-    });
-    
-    logAction('Login', name + ' logged in as ' + role);
-};
+}
 
-// ============ HOOK INTO LOGOUT ============
-var originalLogoutForCloud = doLogout;
-doLogout = function() {
-    // Save to cloud before logging out
-    saveToCloud();
-    stopCloudSync();
+// ============ REAL-TIME SYNC ============
+var cloudSyncListener = null;
+
+function startCloudSync() {
+    var ownerId = getOwnerId();
+    var entityId = getCurrentEntityId();
+    if (!ownerId || !entityId) return;
+
+    // Listen for changes on the current entity only
+    cloudSyncListener = db.collection('owners').doc(ownerId)
+        .collection('entities').doc(entityId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+
+            // Only update if change came from another device
+            if (data.lastUpdatedDevice && 
+                data.lastUpdatedDevice !== (navigator.platform || 'Unknown')) {
+                
+                console.log('🔄 Received update from another device');
+
+                if (data.inventory) S.inventory = data.inventory;
+                if (data.purchases) S.purchases = data.purchases;
+                if (data.wastage) S.wastage = data.wastage;
+                if (data.suppliers) S.suppliers = data.suppliers;
+                if (data.menuItems) S.menuItems = data.menuItems;
+                if (data.cashups) S.cashups = data.cashups;
+                if (data.notifs) S.notifs = data.notifs;
+                if (data.activities) S.activities = data.activities;
+                if (data.pendingPOs) S.pendingPOs = data.pendingPOs;
+                if (data.internalTransfers) S.internalTransfers = data.internalTransfers;
+                if (data.userLogs) S.userLogs = data.userLogs;
+
+                saveToStorage();
+
+                if (typeof renderPages === 'function') {
+                    renderPages();
+                    toast('info', '🔄 Data updated from another device');
+                }
+            }
+        }, function(err) {
+            console.warn('Sync listener error:', err);
+        });
+}
+
+function stopCloudSync() {
+    if (cloudSyncListener) {
+        cloudSyncListener();
+        cloudSyncListener = null;
+    }
+}
     
     if (S.user) logAction('Logout', S.user.name + ' logged out');
     document.getElementById('app').classList.add('hidden');
