@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockAI-Pro — Customer Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--teal-pale:#a0e9f8;--bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;--text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;--gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;--border:#c4dde4;--border-light:#e0eff3;--shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15);--radius:14px;--radius-sm:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
+
+/* HEADER */
+.portal-header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.15)}
+.portal-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:1.2rem;font-weight:900;letter-spacing:1px}
+.portal-logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--teal-light),var(--teal-mid));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.portal-nav{display:flex;gap:14px;align-items:center}
+.portal-nav a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s;padding:6px 12px;border-radius:6px}
+.portal-nav a:hover{background:rgba(255,255,255,.15);color:#fff}
+.portal-nav .btn-app{background:var(--gold);color:#fff;font-weight:600;border-radius:8px;padding:8px 16px}
+.portal-nav .btn-app:hover{background:var(--gold-dark)}
+
+/* LOGIN SCREEN */
+.login-screen{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d4a5c 0%,#1a8ba8 50%,#0d4a5c 100%);padding:40px 20px}
+.login-card{background:#fff;border-radius:24px;padding:44px 48px;width:440px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.login-card h2{font-size:1.5rem;font-weight:800;color:var(--text-dark);margin-bottom:4px}
+.login-card .sub{font-size:.88rem;color:var(--text-light);margin-bottom:28px}
+.login-field{margin-bottom:18px;text-align:left}
+.login-field label{font-size:.82rem;color:var(--text-mid);font-weight:600;display:block;margin-bottom:5px}
+.login-field input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-family:inherit;color:var(--text-dark);transition:.2s}
+.login-field input:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(26,139,168,.1)}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:600;cursor:pointer;margin-top:10px;transition:.3s;font-family:inherit}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,139,168,.4)}
+.login-footer{margin-top:20px;font-size:.82rem;color:var(--text-light)}
+.login-footer a{color:var(--teal-mid);text-decoration:none;font-weight:600}
+
+/* PORTAL DASHBOARD */
+.portal-body{max-width:1200px;margin:0 auto;padding:28px 24px}
+.portal-welcome{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:14px}
+.portal-welcome h1{font-size:1.8rem;font-weight:800;color:var(--text-dark)}
+.portal-welcome h1 span{color:var(--teal-mid)}
+.portal-welcome p{font-size:.9rem;color:var(--text-light);margin-top:4px}
+.portal-actions{display:flex;gap:10px}
+.btn-portal{padding:10px 20px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit;transition:.3s;border:none}
+.btn-portal.primary{background:var(--teal-mid);color:#fff}
+.btn-portal.primary:hover{background:var(--teal-dark);transform:translateY(-2px)}
+.btn-portal.outline{background:transparent;color:var(--text-mid);border:1px solid var(--border)}
+.btn-portal.outline:hover{border-color:var(--teal-mid);color:var(--teal-mid)}
+.btn-portal.gold{background:var(--gold);color:#fff}
+.btn-portal.gold:hover{background:var(--gold-dark)}
+.btn-portal.danger{background:var(--danger);color:#fff}
+.btn-portal.danger:hover{background:#a83232}
+
+/* PORTAL STATS */
+.portal-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.portal-stat{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--teal-mid);transition:.3s}
+.portal-stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.portal-stat small{font-size:.75rem;color:var(--text-light);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.portal-stat strong{font-size:1.6rem;font-weight:800;color:var(--text-dark);display:block}
+.portal-stat.gold{border-left-color:var(--gold)}
+.portal-stat.green{border-left-color:var(--success)}
+.portal-stat.blue{border-left-color:var(--info)}
+
+/* SECTIONS */
+.portal-section{background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;position:relative}
+.portal-section::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:4px;background:var(--teal-mid);border-radius:0 4px 4px 0}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-left:10px}
+.section-title h3{font-size:1.1rem;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:8px}
+.section-title h3 i{color:var(--teal-mid)}
+
+/* ENTITY CARDS */
+.entity-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding-left:10px}
+.entity-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.3s;position:relative}
+.entity-card:hover{border-color:var(--teal-mid);box-shadow:var(--shadow)}
+.entity-card-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.entity-avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;flex-shrink:0}
+.entity-card-name{font-weight:700;font-size:1rem;color:var(--text-dark)}
+.entity-card-plan{font-size:.75rem;padding:3px 10px;border-radius:12px;font-weight:600;display:inline-block;margin-top:2px}
+.entity-card-plan.starter{background:rgba(26,139,168,.1);color:var(--teal-mid)}
+.entity-card-plan.professional{background:rgba(245,158,11,.1);color:var(--gold-dark)}
+.entity-card-plan.enterprise{background:rgba(156,39,176,.1);color:#9c27b0}
+.entity-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.entity-info-item{font-size:.78rem;color:var(--text-mid)}
+.entity-info-item strong{display:block;color:var(--text-dark);font-size:.85rem}
+.entity-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.entity-card-actions button{flex:1;min-width:80px}
+.entity-status{position:absolute;top:14px;right:14px;width:10px;height:10px;border-radius:50%;background:var(--success)}
+.entity-status.inactive{background:var(--danger)}
+
+/* INVOICE TABLE */
+.invoice-table{width:100%;border-collapse:collapse;margin-top:12px}
+.invoice-table th{padding:10px 14px;text-align:left;font-size:.75rem;font-weight:600;color:var(--text-mid);background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
+.invoice-table td{padding:10px 14px;font-size:.85rem;color:var(--text-dark);border-bottom:1px solid var(--border-light)}
+.invoice-table tbody tr:hover{background:var(--bg)}
+.invoice-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:600}
+.invoice-badge.paid{background:rgba(46,168,113,.12);color:var(--success)}
+.invoice-badge.pending{background:rgba(212,160,23,.12);color:var(--warning)}
+.invoice-badge.overdue{background:rgba(201,69,69,.12);color:var(--danger)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:#fff;border-radius:var(--radius);width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modIn .3s ease}
+@keyframes modIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:1.1rem;font-weight:700;color:var(--text-dark)}
+.modal-close{background:none;border:none;color:var(--text-mid);font-size:1.1rem;cursor:pointer;padding:8px}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.form-field label{font-size:.82rem;color:var(--text-mid);font-weight:600}
+.form-field input,.form-field select,.form-field textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dark);font-size:.9rem;font-family:inherit}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(26,139,168,.1)}
+
+/* DISCLAIMER */
+.disclaimer-box{background:rgba(245,158,11,.08);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:16px;margin:16px 0}
+.disclaimer-box h4{font-size:.9rem;color:var(--gold-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.disclaimer-box p{font-size:.82rem;color:var(--text-mid);line-height:1.6;margin-bottom:10px}
+.disclaimer-check{display:flex;align-items:flex-start;gap:8px;font-size:.82rem;color:var(--text-dark);cursor:pointer}
+.disclaimer-check input{accent-color:var(--teal-mid);width:16px;height:16px;margin-top:2px;flex-shrink:0}
+
+/* PLAN SELECTOR */
+.plan-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.plan-option{padding:16px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:.3s}
+.plan-option:hover{border-color:var(--teal-mid);background:var(--bg)}
+.plan-option.selected{border-color:var(--gold);background:rgba(245,158,11,.05);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.plan-option h4{font-size:.9rem;color:var(--text-dark);margin-bottom:4px}
+.plan-option .price{font-size:1.4rem;font-weight:900;color:var(--teal-mid)}
+.plan-option .per{font-size:.7rem;color:var(--text-light)}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#fff;padding:12px 18px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;min-width:280px;animation:tIn .3s ease;border-left:4px solid var(--teal-mid)}
+@keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left-color:var(--success)}.toast.error{border-left-color:var(--danger)}.toast.info{border-left-color:var(--info)}
+.toast i{font-size:1rem}.toast.success i{color:var(--success)}.toast.error i{color:var(--danger)}.toast.info i{color:var(--info)}
+.toast span{flex:1;font-size:.88rem;color:var(--text-dark)}.toast button{background:none;border:none;color:var(--text-muted);cursor:pointer}
+
+.hidden{display:none!important}
+@media(max-width:768px){.portal-welcome{flex-direction:column;text-align:center}.portal-actions{justify-content:center}.entity-cards{grid-template-columns:1fr}.plan-selector{grid-template-columns:1fr}.portal-nav{gap:8px}.portal-nav a{font-size:.78rem;padding:4px 8px}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="portal-header">
+    <a href="index.html" class="portal-logo">
+        <div class="portal-logo-icon"><i class="fas fa-chart-line"></i></div>
+        STOCKAI-PRO
+    </a>
+    <nav class="portal-nav" id="portal-nav-logged-out">
+        <a href="index.html">← Back to Website</a>
+    </nav>
+    <nav class="portal-nav hidden" id="portal-nav-logged-in">
+        <a href="index.html">Website</a>
+        <a href="#" class="btn-app" id="launch-app-btn"><i class="fas fa-external-link-alt"></i> Launch App</a>
+        <a href="#" onclick="portalLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div id="portal-login" class="login-screen">
+    <div class="login-card">
+        <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;margin:0 auto 16px"><i class="fas fa-chart-line"></i></div>
+        <h2>Customer Portal</h2>
+        <p class="sub">Manage your subscription, entities & invoices</p>
+        <form onsubmit="portalLogin(event)">
+            <div class="login-field">
+                <label>Email Address</label>
+                <input type="email" id="portal-email" placeholder="your@email.com" placeholder="your@email.com" required>
+            </div>
+            <div class="login-field">
+                <label>Password</label>
+                <input type="password" id="portal-password" placeholder="Enter your password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+        </form>
+        <div class="login-footer">
+    <p>Don't have an account? <a href="index.html#pricing">Get Started</a></p>
+    <p style="margin-top:8px"><a href="#" onclick="portalForgotPassword();return false"><i class="fas fa-key"></i> Forgot password?</a></p>
+</div>
+    </div>
+</div>
+
+<!-- PORTAL DASHBOARD -->
+<div id="portal-dashboard" class="hidden">
+    <div class="portal-body">
+        
+        <!-- WELCOME -->
+        <div class="portal-welcome">
+            <div>
+                <h1>Welcome back, <span id="portal-user-name">Miguel</span>!</h1>
+                <p>Manage your StockAI-Pro subscription and entities</p>
+            </div>
+            <div class="portal-actions">
+                <button class="btn-portal primary" onclick="showAddEntityModal()"><i class="fas fa-plus"></i> Add Entity</button>
+                <button class="btn-portal outline" onclick="printDashboard()"><i class="fas fa-print"></i> Print Dashboard</button>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="portal-stats">
+            <div class="portal-stat"><small>Account Status</small><strong style="color:var(--success)"><i class="fas fa-check-circle"></i> Active</strong></div>
+            <div class="portal-stat gold"><small>Active Entities</small><strong id="portal-entity-count">3</strong></div>
+            <div class="portal-stat green"><small>Current Plan</small><strong id="portal-plan-name">Professional</strong></div>
+            <div class="portal-stat blue"><small>Monthly Total</small><strong id="portal-monthly-total">R2,697</strong></div>
+        </div>
+
+        <!-- ENTITIES -->
+        <div class="portal-section">
+            <div class="section-title">
+                <h3><i class="fas fa-building"></i> Your Entities</h3>
+                <button class="btn-portal primary" onclick="showAddEntityModal()"><i class="fas fa-plus"></i> Add New Entity</button>
+            </div>
+            <div class="entity-cards" id="portal-entities">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- INVOICES -->
+        <div class="portal-section">
+            <div class="section-title">
+                <h3><i class="fas fa-file-invoice"></i> Invoice History</h3>
+                <div style="display:flex;gap:8px">
+                    <select id="invoice-entity-filter" onchange="renderInvoices()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.82rem">
+                        <option value="all">All Entities</option>
+                    </select>
+                    <button class="btn-portal outline" onclick="printInvoices()"><i class="fas fa-print"></i> Print All</button>
+                </div>
+            </div>
+            <table class="invoice-table">
+                <thead>
+                    <tr><th>Invoice #</th><th>Entity</th><th>Plan</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="portal-invoices"></tbody>
+            </table>
+        </div>
+
+        <!-- ACCOUNT SETTINGS -->
+        <div class="portal-section">
+            <div class="section-title">
+                <h3><i class="fas fa-cog"></i> Account Settings</h3>
+            </div>
+            <div style="padding-left:10px">
+                <div class="form-row">
+                    <div class="form-field"><label>Account Email</label><input type="email" id="acc-email" disabled></div>
+                    <div class="form-field"><label>Account Holder</label><input type="text" id="acc-name" disabled></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field"><label>Company</label><input type="text" id="acc-company" disabled></div>
+                    <div class="form-field"><label>Member Since</label><input type="text" id="acc-since" disabled></div>
+                </div>
+                <div style="margin-top:14px;display:flex;gap:10px">
+                    <button class="btn-portal outline" onclick="toast('info','Contact support to update account details: 079 044 0508')"><i class="fas fa-edit"></i> Request Changes</button>
+                    <button class="btn-portal outline" onclick="toast('info','Contact WhatsApp: 079 044 0508')"><i class="fab fa-whatsapp"></i> Support</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-container"></div>
+<div id="toast-wrap" class="toast-wrap"></div>
+
+<script>
+// ============ PORTAL STATE ============
+const PORTAL_KEY = 'stockai_portal';
+let P = {
+    loggedIn: false,
+    user: null,
+    entities: [],
+    invoices: [],
+    notifications: []
+};
+
+const PLANS = {
+    starter: { name: 'Starter', price: 499, features: '1 entity, 3 users, basic features' },
+    professional: { name: 'Professional', price: 899, features: 'Up to 3 entities, unlimited users, AI features' },
+    enterprise: { name: 'Enterprise', price: 1499, features: 'Unlimited entities, POS + accounting integration' }
+};
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+    loadPortal();
+});
+
+function savePortal() {
+    try { localStorage.setItem(PORTAL_KEY, JSON.stringify(P)); } catch(e){}
+}
+
+function loadPortal() {
+    try {
+        const raw = localStorage.getItem(PORTAL_KEY);
+        if (raw) {
+            const d = JSON.parse(raw);
+            Object.assign(P, d);
+            if (P.loggedIn && P.user) {
+                showPortalDashboard();
+                return;
+            }
+        }
+    } catch(e){}
+    
+    // Check if app has existing data we can use
+    try {
+        const appData = localStorage.getItem('stockai_pro_v5');
+        if (appData) {
+            const app = JSON.parse(appData);
+            if (app.owner && app.entities && app.entities.length > 0) {
+                P.user = {
+                    name: app.owner.name || 'Customer',
+                    email: app.owner.email || '',
+                    company: app.owner.groupName || '',
+                    phone: app.owner.phone || '',
+                    memberSince: new Date().toLocaleDateString('en-ZA')
+                };
+                P.entities = app.entities.map((ent, idx) => ({
+                    id: ent.id,
+                    name: ent.name,
+                    plan: idx === 0 ? 'professional' : 'starter',
+                    status: 'active',
+                    contact: ent.contact || '',
+                    email: ent.email || '',
+                    phone: ent.phone || '',
+                    createdDate: new Date().toLocaleDateString('en-ZA')
+                }));
+                generateInvoices();
+            }
+        }
+    } catch(e){}
+}
+
+function generateInvoices() {
+    if (P.invoices.length > 0) return;
+    P.entities.forEach((ent, idx) => {
+        const plan = PLANS[ent.plan];
+        for (let m = 0; m < 3; m++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - m);
+            P.invoices.push({
+                id: `INV-${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}-${String(idx+1).padStart(2,'0')}`,
+                entityId: ent.id,
+                entityName: ent.name,
+                plan: plan.name,
+                amount: plan.price,
+                date: date.toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}),
+                dateRaw: date.toISOString(),
+                status: m === 0 ? 'paid' : 'paid'
+            });
+        }
+    });
+    savePortal();
+}
+
+// ============ LOGIN ============
+function portalLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('portal-email').value;
+    const password = document.getElementById('portal-password').value;
+    
+    if (!email || !password) { toast('error','Please fill in all fields'); return; }
+    
+    if (!P.user) {
+        P.user = {
+            name: 'Customer',
+            email: email,
+            company: 'My Restaurant Group',
+            phone: '',
+            memberSince: new Date().toLocaleDateString('en-ZA')
+        };
+    }
+    
+    if (P.entities.length === 0) {
+        P.entities = [{
+            id: 'ENT-PORTAL-' + Date.now(),
+            name: 'My Restaurant',
+            plan: 'professional',
+            status: 'active',
+            contact: P.user.name,
+            email: email,
+            phone: '',
+            createdDate: new Date().toLocaleDateString('en-ZA')
+        }];
+        generateInvoices();
+    }
+    
+    P.loggedIn = true;
+    savePortal();
+    showPortalDashboard();
+    toast('success', `Welcome back, ${P.user.name}!`);
+}
+
+function portalLogout() {
+    P.loggedIn = false;
+    savePortal();
+    document.getElementById('portal-dashboard').classList.add('hidden');
+    document.getElementById('portal-login').classList.remove('hidden');
+    document.getElementById('portal-nav-logged-in').classList.add('hidden');
+    document.getElementById('portal-nav-logged-out').classList.remove('hidden');
+    toast('info', 'Logged out');
+}
+
+// ============ DASHBOARD ============
+function showPortalDashboard() {
+    document.getElementById('portal-login').classList.add('hidden');
+    document.getElementById('portal-dashboard').classList.remove('hidden');
+    document.getElementById('portal-nav-logged-out').classList.add('hidden');
+    document.getElementById('portal-nav-logged-in').classList.remove('hidden');
+    
+    // Set launch app link
+    document.getElementById('launch-app-btn').href = 'app.html';
+    
+    renderPortalStats();
+    renderEntities();
+    renderInvoices();
+    renderAccountInfo();
+}
+
+function renderPortalStats() {
+    document.getElementById('portal-user-name').textContent = P.user.name;
+    
+    const activeEntities = P.entities.filter(e => e.status === 'active');
+    document.getElementById('portal-entity-count').textContent = activeEntities.length;
+    
+    const plans = {};
+    activeEntities.forEach(e => {
+        if (!plans[e.plan]) plans[e.plan] = 0;
+        plans[e.plan]++;
+    });
+    const mainPlan = Object.keys(plans).sort((a,b) => plans[b]-plans[a])[0];
+    document.getElementById('portal-plan-name').textContent = mainPlan ? PLANS[mainPlan].name : 'None';
+    
+    const monthlyTotal = activeEntities.reduce((s, e) => s + (PLANS[e.plan] ? PLANS[e.plan].price : 0), 0);
+    document.getElementById('portal-monthly-total').textContent = 'R' + monthlyTotal.toLocaleString();
+}
+
+function renderEntities() {
+    const grid = document.getElementById('portal-entities');
+    
+    // Update entity filter dropdown
+    const filter = document.getElementById('invoice-entity-filter');
+    filter.innerHTML = '<option value="all">All Entities</option>' + P.entities.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+    
+    grid.innerHTML = P.entities.map(ent => {
+        const plan = PLANS[ent.plan] || PLANS.starter;
+        const isActive = ent.status === 'active';
+        return `
+        <div class="entity-card">
+            <div class="entity-status ${isActive?'':'inactive'}"></div>
+            <div class="entity-card-header">
+                <div class="entity-avatar">${ent.name.charAt(0)}</div>
+                <div>
+                    <div class="entity-card-name">${ent.name}</div>
+                    <span class="entity-card-plan ${ent.plan}">${plan.name} — R${plan.price}/mo</span>
+                </div>
+            </div>
+            <div class="entity-info-grid">
+                <div class="entity-info-item"><small>Contact</small><strong>${ent.contact || 'N/A'}</strong></div>
+                <div class="entity-info-item"><small>Status</small><strong style="color:${isActive?'var(--success)':'var(--danger)'}"><i class="fas fa-${isActive?'check':'times'}-circle"></i> ${isActive?'Active':'Cancelled'}</strong></div>
+                <div class="entity-info-item"><small>Email</small><strong>${ent.email || 'N/A'}</strong></div>
+                <div class="entity-info-item"><small>Created</small><strong>${ent.createdDate}</strong></div>
+            </div>
+            <div class="entity-card-actions">
+                <button class="btn-portal outline" onclick="showUpgradeModal('${ent.id}')"><i class="fas fa-arrow-up"></i> Change Plan</button>
+                ${isActive ? `<button class="btn-portal danger" onclick="showCancelModal('${ent.id}')"><i class="fas fa-times"></i> Cancel</button>` : `<button class="btn-portal primary" onclick="reactivateEntity('${ent.id}')"><i class="fas fa-redo"></i> Reactivate</button>`}
+            </div>
+        </div>`;
+    }).join('') || '<p style="color:var(--text-light);padding:20px;text-align:center">No entities yet. Click "Add Entity" to get started.</p>';
+}
+
+function renderInvoices() {
+    const filter = document.getElementById('invoice-entity-filter').value;
+    let invoices = P.invoices;
+    if (filter !== 'all') invoices = invoices.filter(i => i.entityId === filter);
+    
+    const tbody = document.getElementById('portal-invoices');
+    tbody.innerHTML = invoices.length === 0 ? `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-light)">No invoices found</td></tr>` : invoices.map(inv => `
+        <tr>
+            <td><strong>${inv.id}</strong></td>
+            <td>${inv.entityName}</td>
+            <td>${inv.plan}</td>
+            <td>R${inv.amount.toLocaleString()}</td>
+            <td>${inv.date}</td>
+            <td><span class="invoice-badge ${inv.status}">${inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}</span></td>
+            <td>
+                <button class="btn-portal outline" style="padding:4px 10px;font-size:.75rem" onclick="printSingleInvoice('${inv.id}')"><i class="fas fa-print"></i></button>
+                <button class="btn-portal outline" style="padding:4px 10px;font-size:.75rem" onclick="downloadInvoice('${inv.id}')"><i class="fas fa-download"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderAccountInfo() {
+    document.getElementById('acc-email').value = P.user.email || '';
+    document.getElementById('acc-name').value = P.user.name || '';
+    document.getElementById('acc-company').value = P.user.company || '';
+    document.getElementById('acc-since').value = P.user.memberSince || '';
+}
+
+// ============ ADD ENTITY ============
+function showAddEntityModal() {
+    document.getElementById('modal-container').innerHTML = `
+    <div class="modal-overlay" onclick="closePortalModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Entity</h2>
+                <button class="modal-close" onclick="closePortalModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-field"><label>Entity Name *</label><input type="text" id="new-ent-name" placeholder="e.g. Ocean View Restaurant"></div>
+                    <div class="form-field"><label>Contact Person *</label><input type="text" id="new-ent-contact" placeholder="Manager name"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field"><label>Email</label><input type="email" id="new-ent-email" placeholder="entity@email.com"></div>
+                    <div class="form-field"><label>Phone</label><input type="tel" id="new-ent-phone" placeholder="+27 "></div>
+                </div>
+                
+                <h4 style="font-size:.95rem;color:var(--text-dark);margin:18px 0 10px">Select Plan for this Entity</h4>
+                <div class="plan-selector" id="new-ent-plans">
+                    <div class="plan-option" onclick="selectNewPlan(this,'starter')">
+                        <h4>Starter</h4>
+                        <div class="price">R499</div>
+                        <div class="per">per month</div>
+                    </div>
+                    <div class="plan-option selected" onclick="selectNewPlan(this,'professional')">
+                        <h4>Professional ⭐</h4>
+                        <div class="price">R899</div>
+                        <div class="per">per month</div>
+                    </div>
+                    <div class="plan-option" onclick="selectNewPlan(this,'enterprise')">
+                        <h4>Enterprise</h4>
+                        <div class="price">R1,499</div>
+                        <div class="per">per month</div>
+                    </div>
+                </div>
+                
+                <div class="disclaimer-box">
+                    <h4><i class="fas fa-info-circle"></i> Payment Information</h4>
+                    <p>You will be charged the selected plan amount monthly. The first charge will occur immediately upon confirmation.</p>
+                    <p><strong>Founding members:</strong> If you're one of our first 20 customers, the 50% discount applies automatically.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-portal outline" onclick="closePortalModal()">Cancel</button>
+                <button class="btn-portal gold" onclick="purchaseNewEntity()"><i class="fas fa-credit-card"></i> Purchase & Add Entity</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+let selectedNewPlan = 'professional';
+function selectNewPlan(el, plan) {
+    document.querySelectorAll('#new-ent-plans .plan-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedNewPlan = plan;
+}
+
+function purchaseNewEntity() {
+    const name = document.getElementById('new-ent-name').value;
+    const contact = document.getElementById('new-ent-contact').value;
+    if (!name || !contact) { toast('error','Entity name and contact required'); return; }
+    
+    const plan = PLANS[selectedNewPlan];
+    
+    // Simulate payment
+    if (!confirm(`Confirm purchase:\n\n🏢 Entity: ${name}\n📋 Plan: ${plan.name}\n💰 Amount: R${plan.price}/month\n\nYou will be charged R${plan.price} now.\n\nProceed?`)) return;
+    
+    const newEntity = {
+        id: 'ENT-PORTAL-' + Date.now(),
+        name: name,
+        plan: selectedNewPlan,
+        status: 'active',
+        contact: contact,
+        email: document.getElementById('new-ent-email').value,
+        phone: document.getElementById('new-ent-phone').value,
+        createdDate: new Date().toLocaleDateString('en-ZA'),
+        pendingSetup: true  // Flag for web app to show "Add New Entity" tab
+    };
+    
+    P.entities.push(newEntity);
+    
+    // Create invoice for this purchase
+    P.invoices.unshift({
+        id: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(P.entities.length).padStart(2,'0')}`,
+        entityId: newEntity.id,
+        entityName: newEntity.name,
+        plan: plan.name,
+        amount: plan.price,
+        date: new Date().toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}),
+        dateRaw: new Date().toISOString(),
+        status: 'paid'
+    });
+    
+    // Communicate with web app
+    notifyWebApp('entity_purchased', {
+        entityId: newEntity.id,
+        entityName: newEntity.name,
+        plan: selectedNewPlan,
+        contact: contact,
+        email: document.getElementById('new-ent-email').value,
+        phone: document.getElementById('new-ent-phone').value
+    });
+    
+    // Send email notifications
+    sendNotificationEmail('new_entity', newEntity);
+    
+    savePortal();
+    closePortalModal();
+    renderPortalStats();
+    renderEntities();
+    renderInvoices();
+    
+    toast('success', `✅ ${name} has been added! Open the StockAI-Pro app to complete setup.`);
+}
+
+// ============ UPGRADE/DOWNGRADE ============
+function showUpgradeModal(entityId) {
+    const ent = P.entities.find(e => e.id === entityId);
+    if (!ent) return;
+    const currentPlan = PLANS[ent.plan];
+    
+    document.getElementById('modal-container').innerHTML = `
+    <div class="modal-overlay" onclick="closePortalModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2><i class="fas fa-exchange-alt"></i> Change Plan — ${ent.name}</h2>
+                <button class="modal-close" onclick="closePortalModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:.9rem;color:var(--text-mid);margin-bottom:14px">Current plan: <strong>${currentPlan.name}</strong> (R${currentPlan.price}/month)</p>
+                
+                <h4 style="font-size:.95rem;color:var(--text-dark);margin-bottom:10px">Select New Plan</h4>
+                <div class="plan-selector" id="upgrade-plans">
+                    <div class="plan-option ${ent.plan==='starter'?'selected':''}" onclick="selectUpgradePlan(this,'starter')">
+                        <h4>Starter</h4>
+                        <div class="price">R499</div>
+                        <div class="per">per month</div>
+                    </div>
+                    <div class="plan-option ${ent.plan==='professional'?'selected':''}" onclick="selectUpgradePlan(this,'professional')">
+                        <h4>Professional ⭐</h4>
+                        <div class="price">R899</div>
+                        <div class="per">per month</div>
+                    </div>
+                    <div class="plan-option ${ent.plan==='enterprise'?'selected':''}" onclick="selectUpgradePlan(this,'enterprise')">
+                        <h4>Enterprise</h4>
+                        <div class="price">R1,499</div>
+                        <div class="per">per month</div>
+                    </div>
+                </div>
+                
+                <div class="disclaimer-box">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Important — 30-Day Notice Period</h4>
+                    <p>All plan changes (upgrades and downgrades) are subject to a <strong>30-day notice period</strong>. This means:</p>
+                    <p>• <strong>Upgrades:</strong> Your new plan features will be available immediately, but billing changes take effect on your next billing cycle (within 30 days).</p>
+                    <p>• <strong>Downgrades:</strong> Your current plan will remain active for 30 days from today. After the notice period, you will be moved to the new plan and features may be reduced.</p>
+                    <p>• You will receive a confirmation email with the details of your plan change.</p>
+                    <p>• The 30-day notice period cannot be waived.</p>
+                    <label class="disclaimer-check" id="upgrade-disclaimer">
+                        <input type="checkbox" id="upgrade-agree">
+                        <span>I understand and accept the 30-day notice period for plan changes</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-portal outline" onclick="closePortalModal()">Cancel</button>
+                <button class="btn-portal primary" onclick="confirmPlanChange('${entityId}')"><i class="fas fa-check"></i> Confirm Plan Change</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+let selectedUpgradePlan = '';
+function selectUpgradePlan(el, plan) {
+    document.querySelectorAll('#upgrade-plans .plan-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedUpgradePlan = plan;
+}
+
+function confirmPlanChange(entityId) {
+    const ent = P.entities.find(e => e.id === entityId);
+    if (!ent) return;
+    
+    if (!document.getElementById('upgrade-agree').checked) {
+        toast('error', 'Please accept the 30-day notice period disclaimer');
+        return;
+    }
+    
+    if (!selectedUpgradePlan || selectedUpgradePlan === ent.plan) {
+        toast('info', 'Please select a different plan');
+        return;
+    }
+    
+    const oldPlan = PLANS[ent.plan];
+    const newPlan = PLANS[selectedUpgradePlan];
+    const isUpgrade = newPlan.price > oldPlan.price;
+    const changeType = isUpgrade ? 'Upgrade' : 'Downgrade';
+    const effectiveDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-ZA', {day:'2-digit', month:'long', year:'numeric'});
+    
+    if (!confirm(`Confirm ${changeType}:\n\n🏢 Entity: ${ent.name}\n📋 From: ${oldPlan.name} (R${oldPlan.price}/mo)\n📋 To: ${newPlan.name} (R${newPlan.price}/mo)\n\n⏰ 30-day notice applies\n📅 Effective date: ${effectiveDate}\n\nProceed?`)) return;
+    
+    ent.plan = selectedUpgradePlan;
+    ent.planChangeDate = new Date().toISOString();
+    ent.planEffectiveDate = effectiveDate;
+    ent.planChangeType = changeType;
+    
+    // Send confirmation emails
+    sendNotificationEmail('plan_change', {
+        entityName: ent.name,
+        oldPlan: oldPlan.name,
+        newPlan: newPlan.name,
+        changeType: changeType,
+        effectiveDate: effectiveDate
+    });
+    
+    // Notify web app
+    notifyWebApp('plan_changed', {
+        entityId: ent.id,
+        newPlan: selectedUpgradePlan,
+        changeType: changeType
+    });
+    
+    savePortal();
+    closePortalModal();
+    renderPortalStats();
+    renderEntities();
+    
+    toast('success', `✅ ${changeType} confirmed! ${newPlan.name} plan takes effect ${isUpgrade ? 'immediately' : 'on ' + effectiveDate}. Confirmation emails sent.`);
+}
+
+// ============ CANCEL ENTITY ============
+function showCancelModal(entityId) {
+    const ent = P.entities.find(e => e.id === entityId);
+    if (!ent) return;
+    
+    document.getElementById('modal-container').innerHTML = `
+    <div class="modal-overlay" onclick="closePortalModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 style="color:var(--danger)"><i class="fas fa-exclamation-triangle"></i> Cancel Entity — ${ent.name}</h2>
+                <button class="modal-close" onclick="closePortalModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="disclaimer-box" style="background:rgba(201,69,69,.08);border-color:var(--danger)">
+                    <h4 style="color:var(--danger)"><i class="fas fa-exclamation-triangle"></i> Warning — This Action Has Consequences</h4>
+                    <p>Cancelling this entity means:</p>
+                    <p>• <strong>30-day notice period applies</strong> — the entity remains active for 30 days</p>
+                    <p>• After 30 days, all data for this entity will become <strong>read-only</strong></p>
+                    <p>• You can reactivate within 90 days to restore full access</p>
+                    <p>• After 90 days, data may be permanently deleted</p>
+                    <label class="disclaimer-check">
+                        <input type="checkbox" id="cancel-agree">
+                        <span>I understand the consequences and wish to cancel this entity</span>
+                    </label>
+                </div>
+                <div class="form-field" style="margin-top:14px">
+                    <label>Reason for cancellation (optional)</label>
+                    <textarea id="cancel-reason" rows="3" placeholder="Help us improve — tell us why you're cancelling..." style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;resize:vertical;width:100%"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-portal outline" onclick="closePortalModal()">Keep Entity</button>
+                <button class="btn-portal danger" onclick="confirmCancelEntity('${entityId}')"><i class="fas fa-times"></i> Confirm Cancellation</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function confirmCancelEntity(entityId) {
+    if (!document.getElementById('cancel-agree').checked) {
+        toast('error', 'Please accept the disclaimer to proceed');
+        return;
+    }
+    
+    const ent = P.entities.find(e => e.id === entityId);
+    if (!ent) return;
+    
+    ent.status = 'cancelled';
+    ent.cancelDate = new Date().toISOString();
+    ent.cancelReason = document.getElementById('cancel-reason').value;
+    ent.cancelEffective = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-ZA');
+    
+    sendNotificationEmail('entity_cancelled', {
+        entityName: ent.name,
+        reason: ent.cancelReason,
+        effectiveDate: ent.cancelEffective
+    });
+    
+    notifyWebApp('entity_cancelled', { entityId: ent.id });
+    
+    savePortal();
+    closePortalModal();
+    renderPortalStats();
+    renderEntities();
+    
+    toast('info', `${ent.name} will be cancelled on ${ent.cancelEffective}. Confirmation email sent.`);
+}
+
+function reactivateEntity(entityId) {
+    const ent = P.entities.find(e => e.id === entityId);
+    if (!ent) return;
+    
+    if (!confirm(`Reactivate ${ent.name}?\n\nYou will be charged R${PLANS[ent.plan].price}/month starting today.`)) return;
+    
+    ent.status = 'active';
+    delete ent.cancelDate;
+    delete ent.cancelReason;
+    delete ent.cancelEffective;
+    
+    sendNotificationEmail('entity_reactivated', { entityName: ent.name });
+    notifyWebApp('entity_reactivated', { entityId: ent.id });
+    
+    savePortal();
+    renderPortalStats();
+    renderEntities();
+    
+    toast('success', `✅ ${ent.name} has been reactivated!`);
+}
+
+// ============ INVOICES ============
+function printSingleInvoice(invoiceId) {
+    const inv = P.invoices.find(i => i.id === invoiceId);
+    if (!inv) return;
+    
+    const html = `<html><head><title>Invoice ${inv.id}</title><style>body{font-family:Arial;padding:30px;color:#0d4a5c}.header{border-bottom:3px solid #1a8ba8;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between}.brand{font-size:20px;font-weight:bold;color:#1a8ba8}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:10px;text-align:left}th{background:#1a8ba8;color:#fff}.total{text-align:right;font-size:18px;font-weight:bold;margin-top:20px;color:#1a8ba8}.footer{margin-top:40px;padding-top:14px;border-top:1px solid #ccc;font-size:11px;color:#666;text-align:center}</style></head><body><div class="header"><div><div class="brand">STOCKAI-PRO</div><h1>Tax Invoice</h1></div><div style="text-align:right"><p><strong>Invoice #:</strong> ${inv.id}</p><p><strong>Date:</strong> ${inv.date}</p><p><strong>Status:</strong> ${inv.status.toUpperCase()}</p></div></div><p><strong>Bill To:</strong> ${P.user.name}</p><p>${P.user.company || ''}</p><p>${P.user.email || ''}</p><table><thead><tr><th>Description</th><th>Entity</th><th>Period</th><th>Amount</th></tr></thead><tbody><tr><td>${inv.plan} Plan — Monthly Subscription</td><td>${inv.entityName}</td><td>${inv.date}</td><td>R${inv.amount.toFixed(2)}</td></tr></tbody></table><div class="total">Total: R${inv.amount.toFixed(2)}</div><div class="footer">StockAI-Pro • Intelligence a click away • StockAi.co.za • 079 044 0508</div></body></html>`;
+    const w = window.open('','_blank'); w.document.write(html); w.document.close(); setTimeout(() => w.print(), 500);
+}
+
+function downloadInvoice(invoiceId) {
+    printSingleInvoice(invoiceId);
+}
+
+function printInvoices() {
+    toast('info', 'Opening print view for all invoices...');
+    window.print();
+}
+
+function printDashboard() {
+    window.print();
+}
+
+// ============ COMMUNICATION WITH WEB APP ============
+function notifyWebApp(action, data) {
+    // Store pending actions for the web app to pick up
+    try {
+        let pending = JSON.parse(localStorage.getItem('stockai_portal_pending') || '[]');
+        pending.push({
+            action: action,
+            data: data,
+            timestamp: new Date().toISOString(),
+            processed: false
+        });
+        localStorage.setItem('stockai_portal_pending', JSON.stringify(pending));
+    } catch(e) {
+        console.warn('Could not notify web app:', e);
+    }
+}
+
+function sendNotificationEmail(type, data) {
+    // Prepare email content based on type
+    let subject = '';
+    let body = '';
+    const ownerEmail = P.user.email || 'cidraism@gmail.com';
+    
+    if (type === 'new_entity') {
+        subject = `StockAI-Pro — New Entity Created: ${data.name}`;
+        body = `New entity "${data.name}" has been purchased and added to your account.\n\nPlan: ${PLANS[data.plan]?.name || data.plan}\nContact: ${data.contact}\n\nPlease open the StockAI-Pro app to complete the entity setup.`;
+    } else if (type === 'plan_change') {
+        subject = `StockAI-Pro — Plan ${data.changeType}: ${data.entityName}`;
+        body = `Plan change confirmed for "${data.entityName}".\n\nFrom: ${data.oldPlan}\nTo: ${data.newPlan}\nType: ${data.changeType}\nEffective: ${data.effectiveDate}\n\n30-day notice period applies.`;
+    } else if (type === 'entity_cancelled') {
+        subject = `StockAI-Pro — Entity Cancellation: ${data.entityName}`;
+        body = `Entity "${data.entityName}" has been cancelled.\n\nEffective date: ${data.effectiveDate}\nReason: ${data.reason || 'Not specified'}\n\n30-day notice period applies. You can reactivate within 90 days.`;
+    } else if (type === 'entity_reactivated') {
+        subject = `StockAI-Pro — Entity Reactivated: ${data.entityName}`;
+        body = `Entity "${data.entityName}" has been reactivated. Billing resumes immediately.`;
+    }
+    
+    // Log the email (in production this would use SendGrid/Resend)
+    console.log(`📧 Email notification: ${type}`, {to: ownerEmail, subject, body});
+    console.log(`📧 Admin notification: ${type}`, {to: 'cidraism@gmail.com', subject: '[ADMIN] ' + subject, body});
+    
+    // For now, we can open mailto as a fallback demonstration
+    // In Phase 2 (online), this will use a real email service
+}
+
+// ============ HELPERS ============
+function closePortalModal() {
+    document.getElementById('modal-container').innerHTML = '';
+}
+
+function toast(type, msg) {
+    const ic = {success:'check-circle',error:'times-circle',info:'info-circle'};
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<i class="fas fa-${ic[type]}"></i><span>${msg}</span><button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+    document.getElementById('toast-wrap').appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(100%)'; setTimeout(()=>t.remove(),300); }, 5000);
+}
+function portalForgotPassword() {
+    var email = prompt('Enter your email address:');
+    if (!email || !email.trim()) return;
+    // For now, show contact info. Firebase auth will handle this in full integration
+    alert('Password Reset\n\nPlease contact StockAI-Pro support:\n\nWhatsApp: 079 044 0508\nEmail: cidraism@gmail.com\n\nOr use the main app login page for automated password reset.');
+}
+</script>
+</body>
+</html>
