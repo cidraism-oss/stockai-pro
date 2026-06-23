@@ -1149,14 +1149,27 @@ function doLogin(e) {
     if (errorDiv) errorDiv.style.display = 'none';
 
     // ---- SUPER ADMIN CHECK ----
-    if (emailOrUsername === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
-        S.user = { name:'StockAI Admin', role:'Owner', assignedEntity:0, isSuperAdmin:true };
-        logAction('Admin Login', 'Super Admin logged in');
-        document.getElementById('login-screen').classList.add('hidden');
-        showEntitySelector();
-        toast('success', '🔑 Super Admin access granted.');
-        return;
-    }
+if (emailOrUsername === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
+    S.user = { name:'StockAI Admin', role:'Owner', assignedEntity:0, isSuperAdmin:true };
+    logAction('Admin Login', 'Super Admin logged in');
+
+    // Sign in anonymously so Firestore rules allow reading
+    auth.signInAnonymously()
+        .then(function() {
+            console.log('✅ Super Admin signed in anonymously to Firebase');
+            document.getElementById('login-screen').classList.add('hidden');
+            showEntitySelector();
+            toast('success', '🔑 Super Admin access granted.');
+        })
+        .catch(function(err) {
+            console.warn('Anonymous auth failed:', err);
+            // Try anyway without Firebase auth
+            document.getElementById('login-screen').classList.add('hidden');
+            showEntitySelector();
+            toast('success', '🔑 Super Admin access granted.');
+        });
+    return;
+}
 
     if (!emailOrUsername) {
         if (errorDiv) { errorDiv.textContent = 'Please enter your email address'; errorDiv.style.display = 'block'; }
