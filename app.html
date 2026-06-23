@@ -248,8 +248,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg-page);color:var(--text
 .cost-summary{padding:16px;background:var(--bg-page);border-radius:var(--radius-sm);margin-top:16px}
 .cost-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.9rem;color:var(--text-mid)}
 .cost-row strong{color:var(--text-dark)}
-
-    .cost-row.highlight{border-top:2px solid var(--accent);margin-top:8px;padding-top:12px;font-size:1.05rem;font-weight:700;color:var(--accent)}
+.cost-row.highlight{border-top:2px solid var(--accent);margin-top:8px;padding-top:12px;font-size:1.05rem;font-weight:700;color:var(--accent)}
 
 .invoice-items-table{background:var(--bg-page);border-radius:var(--radius-sm);padding:14px;margin-top:12px}
 .invoice-line{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
@@ -4065,20 +4064,24 @@ var ADMIN_CREDENTIALS = {
     email: 'cidraism@gmail.com'
 };
 
-// Override login to check for admin
-var originalDoLoginForAdmin = doLogin;
-doLogin = function(e) {
-    e.preventDefault();
-    
-    var emailOrUsername = document.getElementById('login-username').value || '';
-    var password = document.getElementById('login-password').value || '';
-    const errorDiv = document.getElementById('login-error');
-    const loadingDiv = document.getElementById('login-loading');
+// ============ FINAL CLEAN LOGIN (REPLACES ALL PREVIOUS VERSIONS) ============
+var ADMIN_CREDENTIALS = {
+    username: 'Miguel_Cidrais',
+    pin: '1173',
+    email: 'cidraism@gmail.com'
+};
 
-    // Hide any previous errors
+doLogin = function(e) {
+    if (e) e.preventDefault();
+
+    var emailOrUsername = document.getElementById('login-username').value.trim() || '';
+    var password = document.getElementById('login-password').value || '';
+    var errorDiv = document.getElementById('login-error');
+    var loadingDiv = document.getElementById('login-loading');
+
     if (errorDiv) errorDiv.style.display = 'none';
 
-    // Check if this is the super admin
+    // ---- SUPER ADMIN CHECK ----
     if (emailOrUsername === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.pin) {
         S.user = {
             name: 'StockAI Admin',
@@ -4086,23 +4089,15 @@ doLogin = function(e) {
             assignedEntity: 0,
             isSuperAdmin: true
         };
-        
         logAction('Admin Login', 'Super Admin logged in');
         document.getElementById('login-screen').classList.add('hidden');
-        
-        if (S.entities.length > 0) {
-            showEntitySelector();
-        } else {
-            toast('info', 'No entities found. Customer has not set up yet.');
-            showEntitySelector();
-        }
-        
-        toast('success', '🔑 Super Admin access granted. You can see all entities.');
+        showEntitySelector();
+        toast('success', '🔑 Super Admin access granted.');
         return;
     }
 
-    // Normal Firebase login
-    if (!emailOrUsername.trim()) {
+    // ---- FIREBASE LOGIN ----
+    if (!emailOrUsername) {
         if (errorDiv) {
             errorDiv.textContent = 'Please enter your email address';
             errorDiv.style.display = 'block';
@@ -4112,66 +4107,129 @@ doLogin = function(e) {
 
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    // Sign in with Firebase Authentication
     auth.signInWithEmailAndPassword(emailOrUsername, password)
         .then(function(userCredential) {
-            const firebaseUser = userCredential.user;
-            return db.collection('users').doc(firebaseUser.uid).get();
+            return db.collection('users').doc(userCredential.user.uid).get();
         })
         .then(function(userDoc) {
             if (loadingDiv) loadingDiv.style.display = 'none';
-            alert('Firestore read complete! Document exists: ' + userDoc.exists);
 
             if (!userDoc.exists) {
+                // No user profile — try loading from accounts collection
+                return auth.currentUser ? 
+                    db.collection('accounts').get().then(function(snapshot) {
+                        var found = null;
+                        snapshot.forEach(function(doc) {
+                            var data = doc.data();
+                            if (data.owner && data.owner.email === emailOrUsername) {
+                                found = { doc: doc, data: data };
+                            }
+                        });
+                        return found;
+                    }) : null;
+            }
+
+            return { isUserDoc: true, data: userDoc.data() };
+        })
+        .then(function(result) {
+            if (loadingDiv) loadingDiv.style.display = 'none';
+
+            if (!result) {
                 if (errorDiv) {
-                    errorDiv.textContent = 'User profile not found. Please contact your administrator.';
+                    errorDiv.textContent = 'User profile not found. Contact your administrator.';
                     errorDiv.style.display = 'block';
                 }
                 auth.signOut();
                 return;
             }
 
-            const userData = userDoc.data();
+            // ---- LOADED FROM USERS COLLECTION ----
+            if (result.isUserDoc) {
+                var userData = result.data;
+                S.user = {
+                    uid: userData.uid,
+                    name: userData.name,
+                    email: userData.email,
+                    role: userData.role,
+                    assignedEntity: userData.assignedEntity || 0,
+                    entityId: userData.entityId || null,
+                    entityIds: userData.entityIds || []
+                };
+                if (userData.owner) S.owner = userData.owner;
+                if (userData.entities) S.entities = userData.entities;
 
-            // Set the user in app state
-            S.user = {
-                uid: userData.uid,
-                name: userData.name,
-                email: userData.email,
-                role: userData.role,
-                assignedEntity: userData.assignedEntity || 0,
-                entityId: userData.entityId || null,
-                entityIds: userData.entityIds || []
-            };
+                logAction('Login', userData.name + ' logged in as ' + userData.role);
 
-            if (userData.owner) S.owner = userData.owner;
-            if (userData.entities) S.entities = userData.entities;
+                if (userData.role === 'Owner') {
+                    document.getElementById('login-screen').classList.add('hidden');
+                    showEntitySelector();
+                } else {
+                    if (S.entities && S.entities.length > 0) {
+                        var assignedEntity = S.entities.find(function(en) {
+                            return en.id === userData.entityId;
+                        }) || S.entities[0];
+                        S.currentEntity = assignedEntity;
+                        document.getElementById('login-screen').classList.add('hidden');
+                        loadFromCloud(function() {
+                            startCloudSync();
+                            showApp ? showApp() : enterApp();
+                        });
+                    } else {
+                        if (errorDiv) {
+                            errorDiv.textContent = 'No entity assigned. Contact your administrator.';
+                            errorDiv.style.display = 'block';
+                        }
+                        auth.signOut();
+                    }
+                }
+                return;
+            }
 
-            logAction('Login', userData.name + ' logged in as ' + userData.role);
+            // ---- LOADED FROM ACCOUNTS COLLECTION (OWNER LOGIN) ----
+            if (result.doc) {
+                var accountData = result.data;
+                S.owner = accountData.owner || null;
+                S.entities = accountData.entities || [];
+                S.inventory = accountData.inventory || {};
+                S.purchases = accountData.purchases || {};
+                S.wastage = accountData.wastage || {};
+                S.suppliers = accountData.suppliers || {};
+                S.users = accountData.users || {};
+                S.menuItems = accountData.menuItems || {};
+                S.cashups = accountData.cashups || {};
+                S.notifs = accountData.notifs || [];
+                S.activities = accountData.activities || {};
+                S.pendingPOs = accountData.pendingPOs || {};
+                S.internalTransfers = accountData.internalTransfers || [];
+                S.billing = accountData.billing || null;
+                S.userLogs = accountData.userLogs || {};
+                S.invoices = accountData.invoices || {};
+                S.dayEnds = accountData.dayEnds || {};
+                S.integrations = accountData.integrations || { pos: null, accounting: null };
 
-            // Route based on role
-            if (userData.role === 'Owner') {
+                S.user = {
+                    uid: auth.currentUser ? auth.currentUser.uid : '',
+                    name: accountData.owner ? accountData.owner.name : 'Owner',
+                    email: emailOrUsername,
+                    role: 'Owner',
+                    assignedEntity: 0,
+                    entityId: null,
+                    entityIds: []
+                };
+
+                saveToStorage();
+                logAction('Login', S.user.name + ' logged in as Owner');
+
                 document.getElementById('login-screen').classList.add('hidden');
                 showEntitySelector();
-            } else {
-                if (S.entities && S.entities.length > 0) {
-                    const assignedEntity = S.entities.find(function(en) { 
-                        return en.id === userData.entityId; 
-                    }) || S.entities[0];
-                    S.currentEntity = assignedEntity;
-                    document.getElementById('login-screen').classList.add('hidden');
-                    loadFromCloud(function(loaded) {
-                        startCloudSync();
-                        showApp();
-                    });
-                } else {
-                    if (errorDiv) {
-                        errorDiv.textContent = 'No entity assigned. Please contact your administrator.';
-                        errorDiv.style.display = 'block';
-                    }
-                    auth.signOut();
-                }
+                return;
             }
+
+            if (errorDiv) {
+                errorDiv.textContent = 'Account not found. Please contact support.';
+                errorDiv.style.display = 'block';
+            }
+            auth.signOut();
         })
         .catch(function(error) {
             if (loadingDiv) loadingDiv.style.display = 'none';
@@ -4179,28 +4237,16 @@ doLogin = function(e) {
             if (error.code === 'auth/user-not-found') message = 'Email address not found.';
             if (error.code === 'auth/wrong-password') message = 'Incorrect password.';
             if (error.code === 'auth/invalid-email') message = 'Invalid email address.';
-            if (error.code === 'auth/too-many-requests') message = 'Too many attempts. Please try again later.';
+            if (error.code === 'auth/invalid-credential') message = 'Invalid email or password.';
+            if (error.code === 'auth/too-many-requests') message = 'Too many attempts. Try again later.';
             if (errorDiv) {
                 errorDiv.textContent = message;
                 errorDiv.style.display = 'block';
             }
         });
 };
-// Admin always has full access to everything
-var originalPermsCheck = enterApp;
-enterApp = function() {
-    if (S.user && S.user.isSuperAdmin) {
-        // Force Owner permissions for admin
-        S.user.role = 'Owner';
-    }
-    originalPermsCheck();
-    
-    if (S.user && S.user.isSuperAdmin) {
-        toast('info', '🔑 Admin Mode: You have full access to all entities and data');
-    }
-};
 
-console.log('🔑 Super Admin module loaded');
+console.log('🔑 Clean login system loaded');
 </script>
 <!-- FIREBASE SDK -->
 
