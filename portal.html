@@ -712,8 +712,35 @@ function renderProfile() {
 }
 
 function showProfileSection() {
-    var el = document.getElementById('profile-section');
-    if (el) el.classList.toggle('hidden');
+    var o = P.owner || {};
+    document.getElementById('modal-container').innerHTML =
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-user-circle"></i> Owner & Group Profile</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user" style="color:var(--teal-mid)"></i> Owner Information</h4>' +
+            '<div class="profile-grid">' +
+                '<div class="profile-field"><label>Full Name</label><span>' + (o.name || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Email</label><span>' + (o.email || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Phone</label><span>' + (o.phone || '—') + '</span></div>' +
+                '<div class="profile-field"><label>ID Number</label><span>' + (o.idNumber || '—') + '</span></div>' +
+            '</div>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Group Information</h4>' +
+            '<div class="profile-grid">' +
+                '<div class="profile-field"><label>Group / Company Name</label><span>' + (o.groupName || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Group VAT</label><span>' + (o.groupVat || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Business Type</label><span>' + (o.bizType || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Number of Entities</label><span>' + P.entities.length + '</span></div>' +
+            '</div>' +
+            (o.groupAddress ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>' : '') +
+        '</div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>' +
+            '<button class="btn-portal primary" onclick="closeModal();showEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>' +
+        '</div>' +
+        '</div></div>';
 }
 </script>
 <script>
@@ -726,20 +753,27 @@ function showCreateEntityModal() {
     }).join('');
 
     document.getElementById('modal-container').innerHTML =
-        '<div class="modal-overlay"><div class="modal-box">' +
-        '<div class="modal-header"><h2><i class="fas fa-plus-circle"></i> Create New Entity</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-plus-circle"></i> Add New Entity</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
-            '<div style="background:rgba(26,139,168,.08);padding:12px;border-radius:var(--radius-sm);margin-bottom:18px;font-size:.82rem;color:var(--text-mid)"><i class="fas fa-info-circle" style="color:var(--teal-mid)"></i> This entity will be created as <strong>inactive</strong>. You will need to activate it by selecting a plan and making payment.</div>' +
+            '<div style="background:rgba(26,139,168,.08);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:.82rem;color:var(--text-mid);border-left:3px solid var(--teal-mid)"><i class="fas fa-info-circle" style="color:var(--teal-mid)"></i> This entity will be created as <strong>inactive</strong>. Activate it by selecting a plan and making payment.</div>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Entity Information</h4>' +
             '<div class="form-row"><div class="form-field"><label>Entity Name *</label><input type="text" id="ne-name" placeholder="e.g. The Main Restaurant"></div><div class="form-field"><label>Contact Person *</label><input type="text" id="ne-contact" placeholder="e.g. Manager name" value="' + (P.owner ? P.owner.name : '') + '"></div></div>' +
             '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ne-phone" placeholder="+27 11 555 0000"></div><div class="form-field"><label>Email</label><input type="email" id="ne-email" placeholder="entity@email.com"></div></div>' +
             '<div class="form-row"><div class="form-field full"><label>Address</label><textarea id="ne-address" rows="2" placeholder="Physical address..." style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%"></textarea></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ne-vat" placeholder="e.g. 4123456789"></div><div class="form-field"><label>Food Cost Target %</label><input type="number" id="ne-foodcost" value="28" min="1" max="100" step="0.1"></div></div>' +
-            '<div class="form-field" style="margin-top:14px"><label style="font-weight:700;display:block;margin-bottom:8px"><i class="fas fa-warehouse"></i> Stock Sheet Sections</label><div class="sections-grid">' + sectionChecks + '</div></div>' +
+            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ne-vat" placeholder="e.g. 4123456789"></div><div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ne-foodcost" value="28" min="1" max="100" step="0.1"></div></div>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-warehouse" style="color:var(--teal-mid)"></i> Stock Sheet Sections</h4>' +
+            '<div class="sections-grid">' + sectionChecks + '</div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Cancel</button><button class="btn-portal primary" onclick="processCreateEntity()"><i class="fas fa-plus-circle"></i> Create Entity</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
+            '<button class="btn-portal primary" onclick="processCreateEntity()"><i class="fas fa-plus-circle"></i> Create Entity</button>' +
+        '</div>' +
         '</div></div>';
 }
-
 function processCreateEntity() {
     var name = document.getElementById('ne-name').value.trim();
     var contact = document.getElementById('ne-contact').value.trim();
@@ -847,16 +881,24 @@ function showEditEntityModal(idx) {
     }).join('');
 
     document.getElementById('modal-container').innerHTML =
-        '<div class="modal-overlay"><div class="modal-box">' +
-        '<div class="modal-header"><h2><i class="fas fa-edit"></i> Edit Entity — ' + ent.name + '</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-edit"></i> Edit Entity — ' + ent.name + '</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Entity Information</h4>' +
             '<div class="form-row"><div class="form-field"><label>Entity Name *</label><input type="text" id="ee-name" value="' + (ent.name || '') + '"></div><div class="form-field"><label>Contact Person *</label><input type="text" id="ee-contact" value="' + (ent.contact || '') + '"></div></div>' +
             '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ee-phone" value="' + (ent.phone || '') + '"></div><div class="form-field"><label>Email</label><input type="email" id="ee-email" value="' + (ent.email || '') + '"></div></div>' +
             '<div class="form-row"><div class="form-field full"><label>Address</label><textarea id="ee-address" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (ent.address || '') + '</textarea></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ee-vat" value="' + (ent.vat || '') + '"></div><div class="form-field"><label>Food Cost Target %</label><input type="number" id="ee-foodcost" value="' + (ent.foodCostTarget || 28) + '" min="1" max="100" step="0.1"></div></div>' +
-            '<div class="form-field" style="margin-top:14px"><label style="font-weight:700;display:block;margin-bottom:8px"><i class="fas fa-warehouse"></i> Stock Sheet Sections</label><div class="sections-grid">' + sectionChecks + '</div></div>' +
+            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ee-vat" value="' + (ent.vat || '') + '"></div><div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ee-foodcost" value="' + (ent.foodCostTarget || 28) + '" min="1" max="100" step="0.1"></div></div>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-warehouse" style="color:var(--teal-mid)"></i> Stock Sheet Sections</h4>' +
+            '<div class="sections-grid">' + sectionChecks + '</div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Cancel</button><button class="btn-portal primary" onclick="processSaveEntity(' + idx + ')"><i class="fas fa-save"></i> Save Changes</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
+            '<button class="btn-portal primary" onclick="processSaveEntity(' + idx + ')"><i class="fas fa-save"></i> Save Changes</button>' +
+        '</div>' +
         '</div></div>';
 }
 
