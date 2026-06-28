@@ -13,7 +13,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// ============ FIREBASE INITIALIZATION ============
 var firebaseConfig = {
     apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
     authDomain: "stockai-pro-b232e.firebaseapp.com",
@@ -25,40 +24,22 @@ var firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 var auth = firebase.auth();
-console.log('🔥 Firebase initialized — Portal');
 </script>
 
 <style>
 :root{
-    --teal-dark:#0d4a5c;
-    --teal-mid:#1a8ba8;
-    --teal-light:#4dbdd5;
-    --teal-pale:#a0e9f8;
-    --bg:#f0f7f9;
-    --bg-alt:#e4f1f5;
-    --white:#fff;
-    --text-dark:#0d4a5c;
-    --text-mid:#2a5f70;
-    --text-light:#5a8a96;
-    --text-muted:#8aabb5;
-    --gold:#f59e0b;
-    --gold-dark:#d97706;
-    --success:#2ea871;
-    --danger:#c94545;
-    --warning:#d4a017;
-    --info:#2b8eb3;
-    --border:#c4dde4;
-    --border-light:#e0eff3;
-    --shadow:0 4px 20px rgba(13,74,92,.08);
-    --shadow-lg:0 12px 50px rgba(13,74,92,.15);
-    --radius:14px;
-    --radius-sm:8px
+    --teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--teal-pale:#a0e9f8;
+    --bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;
+    --text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
+    --gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;
+    --border:#c4dde4;--border-light:#e0eff3;
+    --shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15);
+    --radius:14px;--radius-sm:8px
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
 .hidden{display:none!important}
 
-/* ============ HEADER ============ */
 .portal-header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.15)}
 .portal-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:1.2rem;font-weight:900;letter-spacing:1px}
 .portal-logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
@@ -71,7 +52,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-header.app{background:var(--gold);color:#fff}
 .btn-header.app:hover{background:var(--gold-dark)}
 
-/* ============ LOGIN SCREEN ============ */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d4a5c 0%,#1a8ba8 50%,#0d4a5c 100%);padding:40px 20px;position:fixed;inset:0;z-index:9999}
 .login-card{background:#fff;border-radius:24px;padding:48px;width:440px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
 .login-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;margin:0 auto 20px;box-shadow:0 8px 24px rgba(26,139,168,.3)}
@@ -88,7 +68,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,139,168,.4)}
 .btn-forgot{background:none;border:none;color:var(--teal-mid);font-size:.82rem;cursor:pointer;font-family:inherit;margin-top:12px;text-decoration:underline;width:100%}
 
-/* ============ PORTAL BODY ============ */
 .portal-body{max-width:1200px;margin:0 auto;padding:28px 24px}
 .portal-welcome{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:14px}
 .portal-welcome-text h1{font-size:1.8rem;font-weight:800;color:var(--text-dark)}
@@ -96,7 +75,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .portal-welcome-text p{font-size:.88rem;color:var(--text-light);margin-top:4px}
 .portal-actions{display:flex;gap:10px;flex-wrap:wrap}
 
-/* ============ BUTTONS ============ */
 .btn-portal{padding:10px 20px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit;transition:.3s;border:none}
 .btn-portal.primary{background:var(--teal-mid);color:#fff}
 .btn-portal.primary:hover{background:var(--teal-dark);transform:translateY(-2px)}
@@ -110,7 +88,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-portal.danger:hover{background:#a83232}
 .btn-portal.small{padding:7px 14px;font-size:.80rem}
 
-/* ============ STATS ============ */
 .portal-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
 .portal-stat{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--teal-mid);transition:.3s}
 .portal-stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
@@ -121,14 +98,12 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .portal-stat.red{border-left-color:var(--danger)}
 .portal-stat.blue{border-left-color:var(--info)}
 
-/* ============ SECTION ============ */
 .portal-section{background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;position:relative}
 .portal-section::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:4px;background:var(--teal-mid);border-radius:0 4px 4px 0}
 .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-left:12px}
 .section-title h3{font-size:1.05rem;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:8px}
 .section-title h3 i{color:var(--teal-mid)}
 
-/* ============ ENTITY CARDS ============ */
 .entity-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
 .entity-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius);padding:22px;transition:.3s;position:relative;overflow:hidden}
 .entity-card:hover{border-color:var(--teal-mid);box-shadow:var(--shadow)}
@@ -141,7 +116,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.3px}
 .status-pill.active{background:rgba(46,168,113,.12);color:var(--success)}
 .status-pill.inactive{background:rgba(201,69,69,.12);color:var(--danger)}
-.status-pill.pending{background:rgba(212,160,23,.12);color:var(--warning)}
 .entity-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;padding:12px;background:#fff;border-radius:var(--radius-sm);border:1px solid var(--border-light)}
 .entity-detail{display:flex;flex-direction:column;gap:2px}
 .entity-detail-label{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
@@ -150,21 +124,16 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .section-tag{padding:3px 8px;background:rgba(26,139,168,.08);color:var(--teal-mid);border-radius:6px;font-size:.68rem;font-weight:600}
 .entity-card-footer{display:flex;gap:8px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--border-light)}
 .entity-card-footer button{flex:1;min-width:80px}
-
-/* INACTIVE BANNER */
 .inactive-banner{background:linear-gradient(135deg,rgba(201,69,69,.08),rgba(201,69,69,.04));border:1px solid rgba(201,69,69,.2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .inactive-banner i{color:var(--danger);font-size:1.1rem;flex-shrink:0}
 .inactive-banner-text{flex:1}
 .inactive-banner-text strong{display:block;font-size:.85rem;color:var(--danger);margin-bottom:2px}
 .inactive-banner-text span{font-size:.75rem;color:var(--text-mid)}
-
-/* ACTIVE BANNER */
 .active-banner{background:linear-gradient(135deg,rgba(46,168,113,.08),rgba(46,168,113,.04));border:1px solid rgba(46,168,113,.2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .active-banner i{color:var(--success);font-size:1.1rem;flex-shrink:0}
 .active-banner-text strong{display:block;font-size:.85rem;color:var(--success);margin-bottom:2px}
 .active-banner-text span{font-size:.75rem;color:var(--text-mid)}
 
-/* ============ PLAN SELECTOR ============ */
 .plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
 .plan-card{padding:18px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:.3s;position:relative}
 .plan-card:hover{border-color:var(--teal-mid);background:var(--bg)}
@@ -177,16 +146,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .plan-card .plan-features li{list-style:none;display:flex;align-items:center;gap:5px}
 .plan-card .plan-features li::before{content:'✓';color:var(--success);font-weight:700}
 
-/* ============ PAYMENT METHODS ============ */
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-.payment-method{padding:14px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:.3s}
-.payment-method:hover{border-color:var(--teal-mid);background:var(--bg)}
-.payment-method.selected{border-color:var(--teal-mid);background:rgba(26,139,168,.05)}
-.payment-method i{font-size:1.5rem;color:var(--teal-mid);margin-bottom:6px;display:block}
-.payment-method span{font-size:.82rem;font-weight:600;color:var(--text-dark);display:block}
-.payment-method small{font-size:.72rem;color:var(--text-light)}
-
-/* ============ BILLING HISTORY ============ */
 .billing-table{width:100%;border-collapse:collapse}
 .billing-table th{padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;color:var(--text-mid);background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 .billing-table td{padding:11px 14px;font-size:.85rem;color:var(--text-dark);border-bottom:1px solid var(--border-light)}
@@ -196,13 +155,11 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .badge.pending{background:rgba(212,160,23,.12);color:var(--warning)}
 .badge.overdue{background:rgba(201,69,69,.12);color:var(--danger)}
 
-/* ============ PROFILE SECTION ============ */
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .profile-field{display:flex;flex-direction:column;gap:4px}
 .profile-field label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .profile-field span{font-size:.9rem;color:var(--text-dark);font-weight:600;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border-light)}
 
-/* ============ MODAL ============ */
 .modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:#fff;border-radius:var(--radius);width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modIn .3s ease}
 @keyframes modIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -213,7 +170,24 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .modal-body{padding:22px 24px}
 .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
 
-/* ============ TOAST ============ */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.form-field label{font-size:.82rem;color:var(--text-mid);font-weight:600}
+.form-field input,.form-field select,.form-field textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dark);font-size:.9rem;font-family:inherit}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(26,139,168,.1)}
+
+.sections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
+.section-check{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;transition:.2s}
+.section-check:hover{border-color:var(--teal-mid)}
+.section-check input{accent-color:var(--teal-mid);width:15px;height:15px}
+.section-check span{font-size:.82rem;color:var(--text-dark)}
+
+.empty-state{text-align:center;padding:48px 24px}
+.empty-state i{font-size:3rem;color:var(--border);margin-bottom:16px;display:block}
+.empty-state h3{font-size:1.1rem;color:var(--text-mid);margin-bottom:8px}
+.empty-state p{font-size:.85rem;color:var(--text-light);max-width:400px;margin:0 auto 20px}
+
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px}
 .toast{background:#fff;padding:12px 18px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;min-width:280px;animation:tIn .3s ease;border-left:4px solid var(--teal-mid)}
 @keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -222,29 +196,15 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .toast span{flex:1;font-size:.88rem;color:var(--text-dark)}
 .toast button{background:none;border:none;color:var(--text-muted);cursor:pointer}
 
-/* ============ NEW ENTITY FORM ============ */
-.sections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
-.section-check{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;transition:.2s}
-.section-check:hover{border-color:var(--teal-mid)}
-.section-check input{accent-color:var(--teal-mid);width:15px;height:15px}
-.section-check span{font-size:.82rem;color:var(--text-dark)}
-
-/* ============ EMPTY STATE ============ */
-.empty-state{text-align:center;padding:48px 24px}
-.empty-state i{font-size:3rem;color:var(--border);margin-bottom:16px;display:block}
-.empty-state h3{font-size:1.1rem;color:var(--text-mid);margin-bottom:8px}
-.empty-state p{font-size:.85rem;color:var(--text-light);max-width:400px;margin:0 auto 20px}
-
-/* ============ RESPONSIVE ============ */
 @media(max-width:768px){
     .portal-welcome{flex-direction:column}
     .portal-actions{width:100%}
     .portal-actions .btn-portal{flex:1;justify-content:center}
     .entity-cards{grid-template-columns:1fr}
     .plan-cards{grid-template-columns:1fr}
-    .payment-methods{grid-template-columns:1fr}
     .profile-grid{grid-template-columns:1fr}
     .portal-stats{grid-template-columns:repeat(2,1fr)}
+    .entity-details-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){
     .portal-stats{grid-template-columns:1fr}
@@ -335,15 +295,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
         <div id="billing-content"></div>
     </div>
 
-    <!-- PROFILE SECTION -->
-    <div class="portal-section hidden" id="profile-section">
-        <div class="section-title">
-            <h3><i class="fas fa-user-circle"></i> Owner & Group Profile</h3>
-            <button class="btn-portal outline small" onclick="showEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>
-        </div>
-        <div id="profile-content"></div>
-    </div>
-
 </div>
 </div>
 
@@ -390,7 +341,6 @@ function portalLogin(e) {
 
     auth.signInWithEmailAndPassword(email, password)
         .then(function(userCredential) {
-            // Search accounts collection for this owner
             return db.collection('accounts').get()
                 .then(function(snapshot) {
                     var found = null;
@@ -412,7 +362,6 @@ function portalLogin(e) {
                 return;
             }
 
-            // Load account data
             P.accountId = result.id;
             P.accountData = result.data;
             P.owner = result.data.owner || {};
@@ -424,14 +373,12 @@ function portalLogin(e) {
                 uid: auth.currentUser ? auth.currentUser.uid : ''
             };
 
-            // Check if account is suspended
             if (result.data.accountStatus === 'suspended') {
                 showLoginError('Your account has been suspended. Reason: ' + (result.data.suspendedReason || 'Contact support.'));
                 auth.signOut();
                 return;
             }
 
-            // Show portal
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('portal-dashboard').classList.remove('hidden');
             renderPortal();
@@ -519,7 +466,6 @@ function renderPortal() {
     renderStats();
     renderEntityCards();
     renderBilling();
-    renderProfile();
 }
 
 function renderHeader() {
@@ -550,7 +496,6 @@ function renderStats() {
     var billingStatus = P.billing ? P.billing.status : 'current';
     var statusColor = billingStatus === 'current' ? 'green' : billingStatus === 'due_soon' ? 'gold' : 'red';
     var statusText = billingStatus === 'current' ? 'Current' : billingStatus === 'due_soon' ? 'Due Soon' : 'Overdue';
-
     container.innerHTML =
         '<div class="portal-stat"><small>Total Entities</small><strong>' + P.entities.length + '</strong></div>' +
         '<div class="portal-stat green"><small>Active</small><strong>' + activeCount + '</strong></div>' +
@@ -568,7 +513,7 @@ function renderEntityCards() {
             '<div class="empty-state" style="grid-column:1/-1">' +
                 '<i class="fas fa-building"></i>' +
                 '<h3>No Entities Yet</h3>' +
-                '<p>You don\'t have any entities set up yet. Create your first entity to get started.</p>' +
+                '<p>Create your first entity to get started.</p>' +
                 '<button class="btn-portal primary" onclick="showCreateEntityModal()"><i class="fas fa-plus-circle"></i> Create First Entity</button>' +
             '</div>';
         return;
@@ -649,16 +594,14 @@ function renderBilling() {
 
     var planPrices = { starter: 499, professional: 899, enterprise: 1499 };
     var planNames = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
-
     var nextDue = P.billing ? P.billing.nextDueDate : '—';
     var lastPayment = P.billing && P.billing.lastPaymentDate ?
         new Date(P.billing.lastPaymentDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
     var billingStatus = P.billing ? P.billing.status : 'current';
-
     var activeEntities = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; });
     var monthlyTotal = 0;
-
     var breakdownHtml = '';
+
     activeEntities.forEach(function(ent) {
         var price = planPrices[ent.plan] || 899;
         var plan = planNames[ent.plan] || 'Professional';
@@ -666,7 +609,6 @@ function renderBilling() {
         breakdownHtml += '<tr><td><strong>' + ent.name + '</strong></td><td>' + plan + '</td><td>R' + price.toLocaleString() + '</td><td><span class="badge paid">Active</span></td></tr>';
     });
 
-    // Add inactive entities to breakdown
     P.entities.filter(function(e) { return e.status === 'inactive' || e.paymentStatus === 'unpaid'; }).forEach(function(ent) {
         breakdownHtml += '<tr><td style="opacity:.6"><strong>' + ent.name + '</strong></td><td style="opacity:.6">—</td><td style="opacity:.6">R0</td><td><span class="badge pending">Inactive</span></td></tr>';
     });
@@ -687,60 +629,6 @@ function renderBilling() {
         '<tr style="font-weight:700;border-top:2px solid var(--teal-mid)"><td>Total</td><td></td><td>R' + monthlyTotal.toLocaleString() + '</td><td></td></tr>' +
         '</tbody></table>' +
         '<div style="margin-top:16px;font-size:.78rem;color:var(--text-light)"><p><i class="fas fa-info-circle"></i> Last payment: ' + lastPayment + '</p><p style="margin-top:4px">Need help? WhatsApp: <a href="https://wa.me/27790440508" target="_blank" style="color:var(--teal-mid);text-decoration:none;font-weight:600">079 044 0508</a></p></div>';
-}
-
-function renderProfile() {
-    var container = document.getElementById('profile-content');
-    if (!container) return;
-    var o = P.owner || {};
-    container.innerHTML =
-        '<h4 style="font-size:.88rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user"></i> Owner Information</h4>' +
-        '<div class="profile-grid">' +
-            '<div class="profile-field"><label>Full Name</label><span>' + (o.name || '—') + '</span></div>' +
-            '<div class="profile-field"><label>Email</label><span>' + (o.email || '—') + '</span></div>' +
-            '<div class="profile-field"><label>Phone</label><span>' + (o.phone || '—') + '</span></div>' +
-            '<div class="profile-field"><label>ID Number</label><span>' + (o.idNumber || '—') + '</span></div>' +
-        '</div>' +
-        '<h4 style="font-size:.88rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building"></i> Group Information</h4>' +
-        '<div class="profile-grid">' +
-            '<div class="profile-field"><label>Group Name</label><span>' + (o.groupName || '—') + '</span></div>' +
-            '<div class="profile-field"><label>Group VAT</label><span>' + (o.groupVat || '—') + '</span></div>' +
-            '<div class="profile-field"><label>Business Type</label><span>' + (o.bizType || '—') + '</span></div>' +
-            '<div class="profile-field"><label>Entity Count</label><span>' + P.entities.length + '</span></div>' +
-        '</div>' +
-        (o.groupAddress ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>' : '');
-}
-
-function showProfileSection() {
-    var o = P.owner || {};
-    document.getElementById('modal-container').innerHTML =
-        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
-        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
-            '<h2 style="color:#fff"><i class="fas fa-user-circle"></i> Owner & Group Profile</h2>' +
-            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
-        '</div>' +
-        '<div class="modal-body">' +
-            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user" style="color:var(--teal-mid)"></i> Owner Information</h4>' +
-            '<div class="profile-grid">' +
-                '<div class="profile-field"><label>Full Name</label><span>' + (o.name || '—') + '</span></div>' +
-                '<div class="profile-field"><label>Email</label><span>' + (o.email || '—') + '</span></div>' +
-                '<div class="profile-field"><label>Phone</label><span>' + (o.phone || '—') + '</span></div>' +
-                '<div class="profile-field"><label>ID Number</label><span>' + (o.idNumber || '—') + '</span></div>' +
-            '</div>' +
-            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Group Information</h4>' +
-            '<div class="profile-grid">' +
-                '<div class="profile-field"><label>Group / Company Name</label><span>' + (o.groupName || '—') + '</span></div>' +
-                '<div class="profile-field"><label>Group VAT</label><span>' + (o.groupVat || '—') + '</span></div>' +
-                '<div class="profile-field"><label>Business Type</label><span>' + (o.bizType || '—') + '</span></div>' +
-                '<div class="profile-field"><label>Number of Entities</label><span>' + P.entities.length + '</span></div>' +
-            '</div>' +
-            (o.groupAddress ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>' : '') +
-        '</div>' +
-        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
-            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>' +
-            '<button class="btn-portal primary" onclick="closeModal();showEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>' +
-        '</div>' +
-        '</div></div>';
 }
 </script>
 <script>
@@ -774,6 +662,7 @@ function showCreateEntityModal() {
         '</div>' +
         '</div></div>';
 }
+
 function processCreateEntity() {
     var name = document.getElementById('ne-name').value.trim();
     var contact = document.getElementById('ne-contact').value.trim();
@@ -801,65 +690,38 @@ function processCreateEntity() {
         createdBy: P.user ? P.user.name : 'Portal'
     };
 
-    // Add to entities
     var updatedEntities = P.entities.slice();
     updatedEntities.push(newEntity);
 
-    // Initialize empty data collections for this entity
     var accountData = P.accountData || {};
-    var inventory = accountData.inventory || {};
-    inventory[newEntity.id] = [];
-    var purchases = accountData.purchases || {};
-    purchases[newEntity.id] = [];
-    var wastage = accountData.wastage || {};
-    wastage[newEntity.id] = [];
-    var suppliers = accountData.suppliers || {};
-    suppliers[newEntity.id] = [];
-    var users = accountData.users || {};
-    users[newEntity.id] = [{ id: 'usr-' + newEntity.id + '-1', name: contact, role: 'General Manager' }];
-    var activities = accountData.activities || {};
-    activities[newEntity.id] = [];
-    var pendingPOs = accountData.pendingPOs || {};
-    pendingPOs[newEntity.id] = [];
+    var inventory = accountData.inventory || {}; inventory[newEntity.id] = [];
+    var purchases = accountData.purchases || {}; purchases[newEntity.id] = [];
+    var wastage = accountData.wastage || {}; wastage[newEntity.id] = [];
+    var suppliers = accountData.suppliers || {}; suppliers[newEntity.id] = [];
+    var users = accountData.users || {}; users[newEntity.id] = [{ id: 'usr-' + newEntity.id + '-1', name: contact, role: 'General Manager' }];
+    var activities = accountData.activities || {}; activities[newEntity.id] = [];
+    var pendingPOs = accountData.pendingPOs || {}; pendingPOs[newEntity.id] = [];
     var userLogs = accountData.userLogs || {};
     userLogs[newEntity.id] = [{
-        user: P.user ? P.user.name : 'Portal',
-        role: 'Owner',
-        action: 'Entity Created',
-        details: 'New entity "' + name + '" created via Portal (inactive — awaiting payment)',
-        date: new Date().toLocaleDateString('en-ZA'),
-        time: new Date().toLocaleTimeString('en-ZA')
+        user: P.user ? P.user.name : 'Portal', role: 'Owner',
+        action: 'Entity Created', details: 'New entity "' + name + '" created via Portal (inactive)',
+        date: new Date().toLocaleDateString('en-ZA'), time: new Date().toLocaleTimeString('en-ZA')
     }];
-    var cashups = accountData.cashups || {};
-    cashups[newEntity.id] = {};
-    var menuItems = accountData.menuItems || {};
-    menuItems[newEntity.id] = [];
-    var invoices = accountData.invoices || {};
-    invoices[newEntity.id] = [];
-    var dayEnds = accountData.dayEnds || {};
-    dayEnds[newEntity.id] = {};
+    var cashups = accountData.cashups || {}; cashups[newEntity.id] = {};
+    var menuItems = accountData.menuItems || {}; menuItems[newEntity.id] = [];
+    var invoices = accountData.invoices || {}; invoices[newEntity.id] = [];
+    var dayEnds = accountData.dayEnds || {}; dayEnds[newEntity.id] = {};
 
-    // Update owner entity count
     var owner = P.owner || {};
     owner.entityCount = String(updatedEntities.length);
 
     showToast('info', '🔄 Creating entity...');
 
     savePortalData({
-        entities: updatedEntities,
-        inventory: inventory,
-        purchases: purchases,
-        wastage: wastage,
-        suppliers: suppliers,
-        users: users,
-        activities: activities,
-        pendingPOs: pendingPOs,
-        userLogs: userLogs,
-        cashups: cashups,
-        menuItems: menuItems,
-        invoices: invoices,
-        dayEnds: dayEnds,
-        owner: owner
+        entities: updatedEntities, inventory: inventory, purchases: purchases,
+        wastage: wastage, suppliers: suppliers, users: users, activities: activities,
+        pendingPOs: pendingPOs, userLogs: userLogs, cashups: cashups,
+        menuItems: menuItems, invoices: invoices, dayEnds: dayEnds, owner: owner
     });
 
     closeModal();
@@ -907,7 +769,6 @@ function processSaveEntity(idx) {
     var contact = document.getElementById('ee-contact').value.trim();
     if (!name) { showToast('error', 'Entity name is required'); return; }
     if (!contact) { showToast('error', 'Contact person is required'); return; }
-
     var sections = [];
     document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) { sections.push(cb.value); });
     if (sections.length === 0) { showToast('error', 'Select at least one section'); return; }
@@ -947,13 +808,19 @@ function showActivateModal(idx) {
 
     document.getElementById('modal-container').innerHTML =
         '<div class="modal-overlay"><div class="modal-box" style="max-width:700px">' +
-        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff"><h2><i class="fas fa-bolt"></i> Activate ' + ent.name + '</h2><button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-bolt"></i> Activate ' + ent.name + '</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
             '<p style="text-align:center;color:var(--text-mid);margin-bottom:18px">Select a plan to activate your entity</p>' +
             '<div class="plan-cards">' + planCards + '</div>' +
             '<div style="background:rgba(245,158,11,.08);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:#5a4a17"><strong>👑 Founding Member?</strong> First 20 customers get 50% off for life! Contact us to apply your discount.</div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Cancel</button><button class="btn-portal gold" onclick="processActivateEntity(' + idx + ')"><i class="fas fa-credit-card"></i> Proceed to Payment</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
+            '<button class="btn-portal gold" onclick="processActivateEntity(' + idx + ')"><i class="fas fa-credit-card"></i> Proceed to Payment</button>' +
+        '</div>' +
         '</div></div>';
 
     selectedPlan = 'professional';
@@ -981,9 +848,6 @@ function processActivateEntity(idx) {
         '1. Card Payment (Paystack) — Coming soon\n' +
         '2. EFT / Bank Transfer\n' +
         '3. WhatsApp: 079 044 0508\n\n' +
-        'For now, contact Miguel:\n' +
-        'WhatsApp: 079 044 0508\n' +
-        'Email: cidraism@gmail.com\n\n' +
         'Click OK to simulate payment (for testing)'
     );
 
@@ -995,15 +859,8 @@ function processActivateEntity(idx) {
     P.entities[idx].activatedDate = new Date().toISOString();
     P.entities[idx].activatedPaymentRef = paymentRef;
 
-    // Update billing
     if (!P.billing) {
-        P.billing = {
-            billingDay: 1,
-            lastPaymentDate: new Date().toISOString(),
-            nextDueDate: getNextBillingDate(),
-            status: 'current',
-            dismissedToday: null
-        };
+        P.billing = { billingDay: 1, lastPaymentDate: new Date().toISOString(), nextDueDate: getNextBillingDate(), status: 'current', dismissedToday: null };
     } else {
         P.billing.lastPaymentDate = new Date().toISOString();
         P.billing.status = 'current';
@@ -1013,8 +870,7 @@ function processActivateEntity(idx) {
         entities: P.entities,
         billing: P.billing,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'entity_activated',
-            date: new Date().toISOString(),
+            action: 'entity_activated', date: new Date().toISOString(),
             by: P.user ? P.user.name : 'Portal',
             reason: ent.name + ' activated — ' + plan.name + ' plan — Ref: ' + paymentRef
         })
@@ -1051,13 +907,19 @@ function showChangePlanModal(idx) {
 
     document.getElementById('modal-container').innerHTML =
         '<div class="modal-overlay"><div class="modal-box" style="max-width:700px">' +
-        '<div class="modal-header"><h2><i class="fas fa-exchange-alt"></i> Change Plan — ' + ent.name + '</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-exchange-alt"></i> Change Plan — ' + ent.name + '</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
             '<p style="text-align:center;color:var(--text-mid);margin-bottom:18px">Current plan: <strong>' + (PLAN_DATA[currentPlan] ? PLAN_DATA[currentPlan].name : 'Professional') + '</strong></p>' +
             '<div class="plan-cards">' + planCards + '</div>' +
-            '<div style="background:rgba(43,142,179,.08);border:1px solid var(--info);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:var(--text-mid)"><i class="fas fa-info-circle" style="color:var(--info)"></i> Plan changes take effect from the next billing cycle. You will be charged the new rate from your next invoice.</div>' +
+            '<div style="background:rgba(43,142,179,.08);border:1px solid var(--info);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:var(--text-mid)"><i class="fas fa-info-circle" style="color:var(--info)"></i> Plan changes take effect from the next billing cycle.</div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Cancel</button><button class="btn-portal primary" onclick="processChangePlan(' + idx + ')"><i class="fas fa-check"></i> Confirm Plan Change</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
+            '<button class="btn-portal primary" onclick="processChangePlan(' + idx + ')"><i class="fas fa-check"></i> Confirm Plan Change</button>' +
+        '</div>' +
         '</div></div>';
 
     selectedPlan = currentPlan;
@@ -1068,20 +930,13 @@ function processChangePlan(idx) {
     if (!ent) return;
     var oldPlan = ent.plan || 'professional';
     var newPlan = selectedPlan;
-
-    if (oldPlan === newPlan) {
-        showToast('info', 'You are already on the ' + PLAN_DATA[newPlan].name + ' plan');
-        closeModal();
-        return;
-    }
+    if (oldPlan === newPlan) { showToast('info', 'You are already on the ' + PLAN_DATA[newPlan].name + ' plan'); closeModal(); return; }
 
     P.entities[idx].plan = newPlan;
-
     savePortalData({
         entities: P.entities,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'plan_changed',
-            date: new Date().toISOString(),
+            action: 'plan_changed', date: new Date().toISOString(),
             by: P.user ? P.user.name : 'Portal',
             reason: ent.name + ': ' + PLAN_DATA[oldPlan].name + ' → ' + PLAN_DATA[newPlan].name
         })
@@ -1089,7 +944,7 @@ function processChangePlan(idx) {
 
     closeModal();
     renderPortal();
-    showToast('success', '✅ Plan changed to ' + PLAN_DATA[newPlan].name + ' for ' + ent.name + '. Takes effect from next billing cycle.');
+    showToast('success', '✅ Plan changed to ' + PLAN_DATA[newPlan].name + ' for ' + ent.name);
 }
 
 // ============ PAYMENT MODAL ============
@@ -1111,7 +966,10 @@ function showPaymentModal() {
 
     document.getElementById('modal-container').innerHTML =
         '<div class="modal-overlay"><div class="modal-box" style="max-width:500px">' +
-        '<div class="modal-header" style="background:linear-gradient(135deg,var(--success),#1f7a52);color:#fff"><h2><i class="fas fa-credit-card"></i> Make Payment</h2><button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--success),#1f7a52);color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-credit-card"></i> Make Payment</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
             '<div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">' +
                 breakdownHtml +
@@ -1126,7 +984,10 @@ function showPaymentModal() {
                 '📧 <strong>Email</strong> — cidraism@gmail.com' +
             '</div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Pay Later</button><button class="btn-portal success" onclick="processPayment(' + monthlyTotal + ',\'' + paymentRef + '\')"><i class="fas fa-check-circle"></i> Confirm Payment — R' + monthlyTotal.toLocaleString() + '</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Pay Later</button>' +
+            '<button class="btn-portal success" onclick="processPayment(' + monthlyTotal + ',\'' + paymentRef + '\')"><i class="fas fa-check-circle"></i> Confirm Payment — R' + monthlyTotal.toLocaleString() + '</button>' +
+        '</div>' +
         '</div></div>';
 }
 
@@ -1142,8 +1003,7 @@ function processPayment(amount, ref) {
     savePortalData({
         billing: P.billing,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'payment_made',
-            date: new Date().toISOString(),
+            action: 'payment_made', date: new Date().toISOString(),
             by: P.user ? P.user.name : 'Portal',
             reason: 'Payment R' + amount.toLocaleString() + ' — Ref: ' + ref
         })
@@ -1154,29 +1014,67 @@ function processPayment(amount, ref) {
     showToast('success', '✅ Payment of R' + amount.toLocaleString() + ' confirmed! Next due: ' + P.billing.nextDueDate);
 }
 
+// ============ PROFILE POPUP ============
+function showProfileSection() {
+    var o = P.owner || {};
+    document.getElementById('modal-container').innerHTML =
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-user-circle"></i> Owner & Group Profile</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user" style="color:var(--teal-mid)"></i> Owner Information</h4>' +
+            '<div class="profile-grid">' +
+                '<div class="profile-field"><label>Full Name</label><span>' + (o.name || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Email</label><span>' + (o.email || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Phone</label><span>' + (o.phone || '—') + '</span></div>' +
+                '<div class="profile-field"><label>ID Number</label><span>' + (o.idNumber || '—') + '</span></div>' +
+            '</div>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Group Information</h4>' +
+            '<div class="profile-grid">' +
+                '<div class="profile-field"><label>Group / Company Name</label><span>' + (o.groupName || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Group VAT</label><span>' + (o.groupVat || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Business Type</label><span>' + (o.bizType || '—') + '</span></div>' +
+                '<div class="profile-field"><label>Number of Entities</label><span>' + P.entities.length + '</span></div>' +
+            '</div>' +
+            (o.groupAddress ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>' : '') +
+        '</div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>' +
+            '<button class="btn-portal primary" onclick="closeModal();showEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>' +
+        '</div>' +
+        '</div></div>';
+}
+
 // ============ EDIT PROFILE ============
 function showEditProfileModal() {
     var o = P.owner || {};
     document.getElementById('modal-container').innerHTML =
-        '<div class="modal-overlay"><div class="modal-box">' +
-        '<div class="modal-header"><h2><i class="fas fa-user-edit"></i> Edit Profile</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-user-edit"></i> Edit Profile</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
         '<div class="modal-body">' +
-            '<h4 style="font-size:.88rem;color:var(--text-dark);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user"></i> Owner Information</h4>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user" style="color:var(--teal-mid)"></i> Owner Information</h4>' +
             '<div class="form-row"><div class="form-field"><label>Full Name *</label><input type="text" id="ep-name" value="' + (o.name || '') + '"></div><div class="form-field"><label>Email</label><input type="email" id="ep-email" value="' + (o.email || '') + '" disabled style="opacity:.6"></div></div>' +
             '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ep-phone" value="' + (o.phone || '') + '"></div><div class="form-field"><label>ID Number</label><input type="text" id="ep-id" value="' + (o.idNumber || '') + '"></div></div>' +
-            '<h4 style="font-size:.88rem;color:var(--text-dark);margin:20px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building"></i> Group Information</h4>' +
+            '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Group Information</h4>' +
             '<div class="form-row"><div class="form-field"><label>Group / Company Name</label><input type="text" id="ep-group" value="' + (o.groupName || '') + '"></div><div class="form-field"><label>Group VAT</label><input type="text" id="ep-groupvat" value="' + (o.groupVat || '') + '"></div></div>' +
             '<div class="form-row"><div class="form-field full"><label>Head Office Address</label><textarea id="ep-groupaddr" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (o.groupAddress || '') + '</textarea></div></div>' +
             '<div class="form-row"><div class="form-field"><label>Business Type</label><select id="ep-biztype"><option' + (o.bizType === 'Restaurant Group' ? ' selected' : '') + '>Restaurant Group</option><option' + (o.bizType === 'Hotel Group' ? ' selected' : '') + '>Hotel Group</option><option' + (o.bizType === 'Catering Company' ? ' selected' : '') + '>Catering Company</option><option' + (o.bizType === 'Mixed Hospitality' ? ' selected' : '') + '>Mixed Hospitality</option><option' + (o.bizType === 'Other' ? ' selected' : '') + '>Other</option></select></div></div>' +
         '</div>' +
-        '<div class="modal-footer"><button class="btn-portal outline" onclick="closeModal()">Cancel</button><button class="btn-portal primary" onclick="processSaveProfile()"><i class="fas fa-save"></i> Save Changes</button></div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
+            '<button class="btn-portal primary" onclick="processSaveProfile()"><i class="fas fa-save"></i> Save Changes</button>' +
+        '</div>' +
         '</div></div>';
 }
 
 function processSaveProfile() {
     var name = document.getElementById('ep-name').value.trim();
     if (!name) { showToast('error', 'Name is required'); return; }
-
     P.owner.name = name;
     P.owner.phone = document.getElementById('ep-phone').value.trim();
     P.owner.idNumber = document.getElementById('ep-id').value.trim();
@@ -1184,7 +1082,6 @@ function processSaveProfile() {
     P.owner.groupVat = document.getElementById('ep-groupvat').value.trim();
     P.owner.groupAddress = document.getElementById('ep-groupaddr').value.trim();
     P.owner.bizType = document.getElementById('ep-biztype').value;
-
     savePortalData({ owner: P.owner });
     closeModal();
     renderPortal();
@@ -1211,9 +1108,11 @@ function showToast(type, msg) {
 }
 
 function openWebApp() {
-    var appUrl = window.location.href.replace('control%20portal/portal.html', 'app/app.html')
-                                      .replace('control portal/portal.html', 'app/app.html');
-    if (appUrl === window.location.href) {
+    var currentUrl = window.location.href;
+    var appUrl = '';
+    if (currentUrl.includes('/portal.html')) {
+        appUrl = currentUrl.replace('portal.html', 'app/app.html');
+    } else {
         appUrl = window.location.origin + '/app/app.html';
     }
     window.open(appUrl, '_blank');
@@ -1235,9 +1134,9 @@ function openWhatsApp() {
 // ============ AUTO SIGN-OUT ON LOAD ============
 auth.signOut().catch(function() {});
 
-// ============ SESSION TIMEOUT ============
+// ============ SESSION TIMEOUT (30 MINUTES) ============
 var portalLastActivity = Date.now();
-var PORTAL_TIMEOUT = 30 * 60 * 1000; // 30 minutes for portal
+var PORTAL_TIMEOUT = 30 * 60 * 1000;
 
 ['click', 'keypress', 'mousemove', 'scroll', 'touchstart'].forEach(function(evt) {
     document.addEventListener(evt, function() {
@@ -1254,7 +1153,7 @@ setInterval(function() {
     }
 }, 30000);
 
-// ============ BLOCK RIGHT-CLICK ON SENSITIVE DATA ============
+// ============ SECURITY ============
 document.addEventListener('contextmenu', function(e) {
     if (e.target.closest('.portal-stat') || e.target.closest('.billing-table') || e.target.closest('.entity-details-grid')) {
         e.preventDefault();
