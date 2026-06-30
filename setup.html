@@ -217,15 +217,16 @@ STOCKAI-PRO
 <div class="form-group">
 <label>Stock Sections / Storage Areas</label>
 <div class="form-hint" style="margin-bottom:8px">Select all storage areas</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-fridge" checked style="width:auto"> Walk-in Fridge</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-freezer" checked style="width:auto"> Walk-in Freezer</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-dry" checked style="width:auto"> Dry Store</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-bar" checked style="width:auto"> Bar</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-kitchen" style="width:auto"> Kitchen Store</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-cellar" style="width:auto"> Wine Cellar</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-warehouse" style="width:auto"> Warehouse</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-retail" style="width:auto"> Retail Floor</label>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" onclick="event.stopPropagation()">
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-fridge" checked style="width:18px;height:18px"> Walk-in Fridge</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-freezer" checked style="width:18px;height:18px"> Walk-in Freezer</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-dry" checked style="width:18px;height:18px"> Dry Store</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-bar" checked style="width:18px;height:18px"> Bar</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-kitchen" style="width:18px;height:18px"> Kitchen Store</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-cellar" style="width:18px;height:18px"> Wine Cellar</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-warehouse" style="width:18px;height:18px"> Warehouse</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-retail" style="width:18px;height:18px"> Retail Floor</label>
+</div>
 </div>
 </div>
 </div>
@@ -241,13 +242,35 @@ STOCKAI-PRO
 <!-- SUCCESS SCREEN -->
 <div class="success-screen" id="successScreen">
 <div class="success-icon">🎉</div>
-<h2>You Are All Set!</h2>
-<p>Your StockAI-Pro account has been created. Welcome aboard!</p>
+<h2>Welcome to StockAI-Pro!</h2>
+<p>Your account has been created successfully. You are ready to start managing your stock with AI.</p>
+
 <div class="success-details" id="successDetails"></div>
-<a href="app.html" class="btn-go-app" id="goToAppBtn"><i class="fas fa-rocket"></i> Go to My Dashboard</a>
-<div style="margin-top:16px"><a href="mobile.html" style="color:var(--teal-mid);font-size:.85rem;text-decoration:none"><i class="fas fa-mobile-alt"></i> Or open the Mobile App</a></div>
+
+<div style="background:#f0f7f9;border-radius:14px;padding:20px 24px;max-width:400px;margin:0 auto 24px;text-align:left">
+<h4 style="font-size:.92rem;color:#0d4a5c;margin-bottom:12px">What happens next:</h4>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:.85rem;color:#5a8a96">
+<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#2ea871;font-weight:700">✅</span> Your account is live and ready to use</div>
+<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#2ea871;font-weight:700">✅</span> A welcome email has been sent to your inbox</div>
+<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#2ea871;font-weight:700">✅</span> Log in with your email and password</div>
+<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#2ea871;font-weight:700">✅</span> Start adding your stock items</div>
+<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#2ea871;font-weight:700">✅</span> AI begins learning your patterns immediately</div>
+</div>
 </div>
 
+<a href="app.html" class="btn-go-app" style="margin-bottom:12px">
+<i class="fas fa-rocket"></i> Let's Get Started!
+</a>
+
+<div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px">
+<a href="mobile.html" style="color:var(--teal-mid);font-size:.88rem;text-decoration:none;display:flex;align-items:center;gap:6px">
+<i class="fas fa-mobile-alt"></i> Open Mobile App Instead
+</a>
+<a href="https://wa.me/27790440508" target="_blank" style="color:#25D366;font-size:.85rem;text-decoration:none;display:flex;align-items:center;gap:6px">
+<i class="fab fa-whatsapp"></i> Need help? WhatsApp us
+</a>
+</div>
+</div>
 <!-- TOAST -->
 <div class="toast-wrap" id="toastWrap"></div>
 <!-- SCRIPTS -->
@@ -457,22 +480,15 @@ function sendAdminNotification(name, email, phone, business, type, plan, price) 
 function showSuccessScreen(name, email, plan, price, nextDue) {
     document.getElementById('setupForm').style.display    = 'none';
     document.getElementById('successScreen').style.display = 'block';
+    window.scrollTo(0, 0);
+
     document.getElementById('successDetails').innerHTML =
         '<div class="success-detail-row"><span>Name</span><strong>' + name + '</strong></div>' +
-        '<div class="success-detail-row"><span>Login</span><strong>' + email + '</strong></div>' +
+        '<div class="success-detail-row"><span>Login Email</span><strong>' + email + '</strong></div>' +
         '<div class="success-detail-row"><span>Plan</span><strong>' + plan + '</strong></div>' +
-        '<div class="success-detail-row"><span>Monthly</span><strong>R' + price.toLocaleString() + '</strong></div>' +
+        '<div class="success-detail-row"><span>Monthly Rate</span><strong>R' + price.toLocaleString() + '</strong></div>' +
         '<div class="success-detail-row"><span>Next Payment</span><strong>' + nextDue + '</strong></div>';
-
-    var count = 10;
-    var interval = setInterval(function() {
-        count--;
-        var btn = document.getElementById('goToAppBtn');
-        if (btn) btn.innerHTML = '<i class="fas fa-rocket"></i> Go to My Dashboard (' + count + ')';
-        if (count <= 0) { clearInterval(interval); window.location.href = 'app.html'; }
-    }, 1000);
 }
-
 // TOAST
 function showToast(type, msg) {
     var icons = {success:'check-circle',error:'times-circle',info:'info-circle',warning:'exclamation-triangle'};
