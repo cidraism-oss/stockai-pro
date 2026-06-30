@@ -6,6 +6,7 @@
 <title>Set Up Your Account — StockAI-Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="/email-templates.js"></script>
 <style>
 :root{--teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;--text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--border:#c4dde4;--shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -431,10 +432,25 @@ function createAccount() {
         })
         .then(function() {
             showToast('info', 'Sending welcome email...');
-            return sendWelcomeEmail(firstname, email, plan, price, entityName);
+            return emailWelcome({
+    name:       firstname + ' ' + lastname,
+    email:      email,
+    plan:       plan,
+    price:      price,
+    entityName: entityName,
+    nextDue:    nextDue
+});
         })
         .then(function() {
-            return sendAdminNotification(firstname + ' ' + lastname, email, phone, business, type, plan, price);
+            return emailNewSignupNotification({
+    name:     firstname + ' ' + lastname,
+    email:    email,
+    phone:    phone,
+    business: business,
+    type:     type,
+    plan:     plan,
+    price:    price
+});
         })
         .then(function() {
             // CLEAR EVERYTHING
