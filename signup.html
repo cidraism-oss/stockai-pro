@@ -11,23 +11,13 @@
 :root{--teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;--text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--border:#c4dde4;--shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
-
-/* HEADER */
 .header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.15)}
 .logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:1.2rem;font-weight:900;letter-spacing:1px}
 .logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
 .header-back{color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;display:flex;align-items:center;gap:6px;transition:.2s}
 .header-back:hover{color:#fff}
-
-/* HERO BANNER */
-.page-hero{background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));padding:40px 24px;text-align:center;color:#fff}
-.page-hero h1{font-size:2rem;font-weight:900;margin-bottom:8px}
-.page-hero p{font-size:.95rem;opacity:.9;max-width:500px;margin:0 auto 16px}
-.trial-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:.85rem;font-weight:600;color:#fff}
-
-/* PROGRESS BAR */
 .progress-bar{background:var(--bg-alt);padding:16px 24px;border-bottom:1px solid var(--border)}
-.progress-steps{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0}
+.progress-steps{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:center}
 .progress-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
 .progress-step-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;border:2px solid var(--border);background:#fff;color:var(--text-light);transition:.3s}
 .progress-step.active .progress-step-circle{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff}
@@ -36,11 +26,10 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .progress-step.active .progress-step-label{color:var(--teal-mid)}
 .progress-line{flex:1;height:2px;background:var(--border);margin:0 4px;margin-bottom:18px}
 .progress-line.done{background:var(--success)}
-
-/* MAIN */
+.page-hero{background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));padding:40px 24px;text-align:center;color:#fff}
+.page-hero h1{font-size:2rem;font-weight:900;margin-bottom:8px}
+.page-hero p{font-size:.95rem;opacity:.9;max-width:500px;margin:0 auto}
 .main{max-width:1100px;margin:0 auto;padding:40px 24px}
-
-/* PLAN CARDS */
 .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:30px}
 .plan-card{background:#fff;border-radius:18px;padding:32px 24px;box-shadow:var(--shadow);border:2px solid transparent;transition:.3s;cursor:pointer;position:relative;display:flex;flex-direction:column}
 .plan-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--teal-light)}
@@ -69,29 +58,22 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .plan-card.selected .btn-select-plan{background:var(--teal-mid);color:#fff}
 .plan-card.popular .btn-select-plan{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-color:transparent}
 .plan-card.popular.selected .btn-select-plan{box-shadow:0 6px 20px rgba(245,158,11,.4)}
-
-/* PAYMENT BUTTON */
 .payment-section{text-align:center;padding:20px 0}
 .btn-pay{display:inline-flex;align-items:center;gap:12px;padding:18px 48px;background:linear-gradient(135deg,var(--success),#1a7a4a);color:#fff;border:none;border-radius:14px;font-size:1.1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;box-shadow:0 8px 25px rgba(46,168,113,.35)}
 .btn-pay:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(46,168,113,.45)}
-.btn-pay:disabled{opacity:.6;transform:none;cursor:not-allowed}
-.payment-note{font-size:.82rem;color:var(--text-light);margin-top:12px}
+.btn-pay:disabled{opacity:.5;transform:none;cursor:not-allowed;box-shadow:none}
+.payment-note{font-size:.82rem;color:var(--text-light);margin-top:14px;line-height:1.6}
 .payment-icons{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:12px;opacity:.6}
 .payment-icons i{font-size:1.5rem;color:var(--text-light)}
-
-/* GUARANTEE */
 .guarantee{background:#fff;border-radius:14px;padding:24px;box-shadow:var(--shadow);text-align:center;margin-top:30px;border-left:4px solid var(--success)}
 .guarantee h3{font-size:1rem;font-weight:700;color:var(--text-dark);margin-bottom:8px}
 .guarantee p{font-size:.85rem;color:var(--text-light);max-width:500px;margin:0 auto}
-
-/* TOAST */
 .toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
 .toast{padding:14px 18px;border-radius:10px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:500;animation:slideIn .3s ease;min-width:280px}
 @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
 .toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
 .toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
 .toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--teal-mid)}
-
 @media(max-width:768px){
 .page-hero h1{font-size:1.5rem}
 .plans-grid{grid-template-columns:1fr}
@@ -112,7 +94,7 @@ STOCKAI-PRO
 </a>
 </header>
 
-<!-- PROGRESS BAR -->
+<!-- PROGRESS -->
 <div class="progress-bar">
 <div class="progress-steps">
 <div class="progress-step active">
@@ -140,11 +122,7 @@ STOCKAI-PRO
 <!-- HERO -->
 <div class="page-hero">
 <h1>Choose Your Plan</h1>
-<p>Select the plan that suits your business. Cancel anytime. All plans include a 14-day free trial.</p>
-<div class="trial-badge">
-<i class="fas fa-gift"></i>
-14-Day Free Trial Included — No Charge Today
-</div>
+<p>Select the plan that suits your business. Cancel anytime with 30 days notice.</p>
 </div>
 
 <!-- MAIN -->
@@ -154,7 +132,7 @@ STOCKAI-PRO
 <div class="plans-grid">
 
 <!-- PREMIUM -->
-<div class="plan-card" id="plan-premium" onclick="selectPlan('Premium', 999, this)">
+<div class="plan-card" id="plan-premium" onclick="choosePlan('Premium', 999, this)">
 <div class="plan-select-indicator"></div>
 <div class="plan-name">Premium</div>
 <div class="plan-tagline">For single locations & small businesses</div>
@@ -163,7 +141,7 @@ STOCKAI-PRO
 <span class="plan-amount">999</span>
 <span class="plan-period">/mo</span>
 </div>
-<div class="plan-per">Per entity • Billed monthly • 14-day free trial</div>
+<div class="plan-per">Per entity • Billed monthly</div>
 <ul class="plan-features-list">
 <li><i class="fas fa-check"></i> Full Web App access</li>
 <li><i class="fas fa-check"></i> Mobile App (PWA)</li>
@@ -184,7 +162,7 @@ STOCKAI-PRO
 </div>
 
 <!-- PREMIUM PLUS -->
-<div class="plan-card popular" id="plan-premiumplus" onclick="selectPlan('Premium Plus', 1799, this)">
+<div class="plan-card popular" id="plan-premiumplus" onclick="choosePlan('Premium Plus', 1799, this)">
 <div class="plan-select-indicator"></div>
 <div class="plan-name">Premium Plus</div>
 <div class="plan-tagline">For growing businesses & multi-location groups</div>
@@ -193,7 +171,7 @@ STOCKAI-PRO
 <span class="plan-amount">1,799</span>
 <span class="plan-period">/mo</span>
 </div>
-<div class="plan-per">Per entity • Up to 5 entities • 14-day free trial</div>
+<div class="plan-per">Per entity • Up to 5 entities</div>
 <ul class="plan-features-list">
 <li><i class="fas fa-check"></i> Everything in Premium</li>
 <li><i class="fas fa-check"></i> Up to 5 entities</li>
@@ -205,13 +183,12 @@ STOCKAI-PRO
 <li class="coming"><i class="fas fa-clock"></i> QR table payments</li>
 <li class="coming"><i class="fas fa-clock"></i> Procurement App</li>
 <li class="unavailable"><i class="fas fa-times"></i> Accounting Integration</li>
-<li class="unavailable"><i class="fas fa-times"></i> Invoice Scanner</li>
 </ul>
 <button class="btn-select-plan">Select Premium Plus</button>
 </div>
 
 <!-- PREMIUM EXCLUSIVE -->
-<div class="plan-card" id="plan-premiumexclusive" onclick="selectPlan('Premium Exclusive', 2599, this)">
+<div class="plan-card" id="plan-premiumexclusive" onclick="choosePlan('Premium Exclusive', 2599, this)">
 <div class="plan-select-indicator"></div>
 <div class="plan-name">Premium Exclusive</div>
 <div class="plan-tagline">For enterprise groups & large operations</div>
@@ -220,7 +197,7 @@ STOCKAI-PRO
 <span class="plan-amount">2,599</span>
 <span class="plan-period">/mo</span>
 </div>
-<div class="plan-per">Per entity • Unlimited entities • 14-day free trial</div>
+<div class="plan-per">Per entity • Unlimited entities</div>
 <ul class="plan-features-list">
 <li><i class="fas fa-check"></i> Everything in Premium Plus</li>
 <li><i class="fas fa-check"></i> Unlimited entities</li>
@@ -232,13 +209,12 @@ STOCKAI-PRO
 <li class="coming"><i class="fas fa-clock"></i> AI Voice Navigation Bot</li>
 <li class="coming"><i class="fas fa-clock"></i> POS + Kitchen + QR Payments</li>
 <li><i class="fas fa-check"></i> Custom reports & API access</li>
-<li><i class="fas fa-check"></i> Priority feature requests</li>
 </ul>
 <button class="btn-select-plan">Select Premium Exclusive</button>
 </div>
 </div>
 
-<!-- PAYMENT BUTTON -->
+<!-- PAY BUTTON -->
 <div class="payment-section">
 <button class="btn-pay" id="payBtn" onclick="startPayment()" disabled>
 <i class="fas fa-lock"></i>
@@ -247,7 +223,7 @@ STOCKAI-PRO
 <div class="payment-note">
 <i class="fas fa-shield-alt"></i>
 Secured by Paystack • SSL Encrypted • POPIA Compliant<br>
-Your 14-day free trial starts immediately after account setup. First charge after trial ends.
+Your first month will be charged immediately. Cancel anytime with 30 days notice.
 </div>
 <div class="payment-icons">
 <i class="fab fa-cc-visa"></i>
@@ -259,8 +235,8 @@ Your 14-day free trial starts immediately after account setup. First charge afte
 
 <!-- GUARANTEE -->
 <div class="guarantee">
-<h3>✅ 14-Day Free Trial — No Risk</h3>
-<p>Start using StockAI-Pro today completely free for 14 days. Your card is only charged after your trial ends. Cancel anytime before then and you will never be billed.</p>
+<h3>✅ 100% Satisfaction Guarantee</h3>
+<p>If you are not satisfied within the first 30 days, contact us and we will refund your payment in full. No questions asked.</p>
 </div>
 
 </div>
@@ -268,27 +244,7 @@ Your 14-day free trial starts immediately after account setup. First charge afte
 <!-- TOAST -->
 <div class="toast-wrap" id="toastWrap"></div>
 
-<!-- FIREBASE + PAYSTACK SCRIPT -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
 <script>
-// ============================================================
-// FIREBASE INIT
-// ============================================================
-var firebaseConfig = {
-    apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
-    authDomain: "stockai-pro-b232e.firebaseapp.com",
-    projectId: "stockai-pro-b232e",
-    storageBucket: "stockai-pro-b232e.firebasestorage.app",
-    messagingSenderId: "424200946359",
-    appId: "1:424200946359:web:4c638eccd4e422ccc94332"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-var db   = firebase.firestore();
-var auth = firebase.auth();
-
 // ============================================================
 // PAYSTACK CONFIG
 // ============================================================
@@ -301,7 +257,108 @@ var selectedPlanName  = null;
 var selectedPlanPrice = null;
 
 // ============================================================
-// SELECT PLAN
+// CHOOSE PLAN
 // ============================================================
-function selectPlan(name, price, cardEl) {
-    
+function choosePlan(name, price, cardEl) {
+    selectedPlanName  = name;
+    selectedPlanPrice = price;
+
+    // Update UI
+    document.querySelectorAll('.plan-card').forEach(function(c) {
+        c.classList.remove('selected');
+    });
+    cardEl.classList.add('selected');
+
+    // Enable pay button
+    var btn = document.getElementById('payBtn');
+    btn.disabled = false;
+    document.getElementById('payBtnText').textContent =
+        'Pay R' + price.toLocaleString() + '/mo — ' + name;
+
+    showToast('info', name + ' selected — R' + price.toLocaleString() + '/month');
+}
+
+// ============================================================
+// START PAYMENT
+// ============================================================
+function startPayment() {
+    if (!selectedPlanName || !selectedPlanPrice) {
+        showToast('error', 'Please select a plan first');
+        return;
+    }
+
+    // Ask for email
+    var email = prompt('Enter your email address to continue:');
+    if (!email || !email.trim()) return;
+    email = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('error', 'Please enter a valid email address');
+        return;
+    }
+
+    // Save to session for setup page
+    sessionStorage.setItem('signup_email', email);
+    sessionStorage.setItem('signup_plan',  selectedPlanName);
+    sessionStorage.setItem('signup_price', selectedPlanPrice.toString());
+
+    // Open Paystack — charge full first month
+    var handler = PaystackPop.setup({
+        key:       PAYSTACK_PUBLIC_KEY,
+        email:     email,
+        amount:    selectedPlanPrice * 100, // Convert rands to cents
+        currency:  'ZAR',
+        ref:       'STOCKAI-' + Date.now(),
+        metadata: {
+            plan:  selectedPlanName,
+            price: selectedPlanPrice,
+            custom_fields: [
+                { display_name:'Plan',  variable_name:'plan',  value: selectedPlanName },
+                { display_name:'Price', variable_name:'price', value: 'R' + selectedPlanPrice + '/mo' }
+            ]
+        },
+        onClose: function() {
+            showToast('info', 'Payment cancelled — you can try again anytime');
+        },
+        callback: function(response) {
+            sessionStorage.setItem('signup_ref',  response.reference);
+            sessionStorage.setItem('signup_paid', 'true');
+            showToast('success', '✅ Payment successful! Setting up your account...');
+            setTimeout(function() {
+                window.location.href = 'setup.html';
+            }, 1500);
+        }
+    });
+
+    handler.openIframe();
+}
+
+// ============================================================
+// AUTO SELECT FROM URL
+// ============================================================
+window.addEventListener('load', function() {
+    var params = new URLSearchParams(window.location.search);
+    var plan   = params.get('plan');
+    if (plan === 'premium') {
+        choosePlan('Premium', 999, document.getElementById('plan-premium'));
+    } else if (plan === 'plus') {
+        choosePlan('Premium Plus', 1799, document.getElementById('plan-premiumplus'));
+    } else if (plan === 'exclusive') {
+        choosePlan('Premium Exclusive', 2599, document.getElementById('plan-premiumexclusive'));
+    }
+});
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(type, msg) {
+    var icons = { success:'check-circle', error:'times-circle', info:'info-circle' };
+    var t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.innerHTML = '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i><span>' + msg + '</span>';
+    document.getElementById('toastWrap').appendChild(t);
+    setTimeout(function() { if (t.parentElement) t.remove(); }, 4000);
+}
+</script>
+</body>
+</html>
