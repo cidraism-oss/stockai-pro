@@ -217,15 +217,16 @@ STOCKAI-PRO
 <div class="form-group">
 <label>Stock Sections / Storage Areas</label>
 <div class="form-hint" style="margin-bottom:8px">Select all storage areas</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" onclick="event.stopPropagation()">
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-fridge" checked style="width:18px;height:18px"> Walk-in Fridge</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-freezer" checked style="width:18px;height:18px"> Walk-in Freezer</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-dry" checked style="width:18px;height:18px"> Dry Store</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-bar" checked style="width:18px;height:18px"> Bar</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-kitchen" style="width:18px;height:18px"> Kitchen Store</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-cellar" style="width:18px;height:18px"> Wine Cellar</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-warehouse" style="width:18px;height:18px"> Warehouse</label>
-<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer"><input type="checkbox" id="sec-retail" style="width:18px;height:18px"> Retail Floor</label>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-fridge" checked style="width:18px;height:18px;flex-shrink:0"> Walk-in Fridge</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-freezer" checked style="width:18px;height:18px;flex-shrink:0"> Walk-in Freezer</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-dry" checked style="width:18px;height:18px;flex-shrink:0"> Dry Store</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-bar" checked style="width:18px;height:18px;flex-shrink:0"> Bar</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-kitchen" style="width:18px;height:18px;flex-shrink:0"> Kitchen Store</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-cellar" style="width:18px;height:18px;flex-shrink:0"> Wine Cellar</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-warehouse" style="width:18px;height:18px;flex-shrink:0"> Warehouse</label>
+<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:.85rem;cursor:pointer;padding:6px 0"><input type="checkbox" id="sec-retail" style="width:18px;height:18px;flex-shrink:0"> Retail Floor</label>
+</div>
 </div>
 </div>
 </div>
@@ -411,11 +412,24 @@ function createAccount() {
         .then(function() {
             return sendAdminNotification(firstname + ' ' + lastname, email, phone, business, type, plan, price);
         })
-        .then(function() {
-            showToast('success', '✅ Account created successfully!');
-            sessionStorage.clear();
-            showSuccessScreen(firstname, email, plan, price, nextDue);
-        })
+.then(function() {
+    // Hide the loading spinner on button
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Account Created!';
+    btn.style.background = 'var(--success)';
+
+    // Hide all toasts
+    document.getElementById('toastWrap').innerHTML = '';
+
+    showToast('success', '✅ Account created successfully!');
+    sessionStorage.clear();
+
+    // Small delay so user sees the success toast
+    setTimeout(function() {
+        showSuccessScreen(firstname, email, plan, price, nextDue);
+    }, 1000);
+})
         .catch(function(err) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-rocket"></i> Create My Account';
@@ -497,6 +511,15 @@ function showToast(type, msg) {
     t.innerHTML = '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i><span>' + msg + '</span>';
     document.getElementById('toastWrap').appendChild(t);
     setTimeout(function() { if (t.parentElement) t.remove(); }, 5000);
+}
+input[type="checkbox"]{
+    -webkit-appearance:checkbox;
+    appearance:checkbox;
+    cursor:pointer;
+}
+label:has(input[type="checkbox"]){
+    user-select:none;
+    -webkit-user-select:none;
 }
 </script>
 </body>
