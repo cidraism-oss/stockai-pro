@@ -1761,21 +1761,50 @@ function sendPOEmail(po) {
         })
     }).catch(function(e) { console.warn('PO email failed:', e); });
 }
-
-// ============================================================
-// PAGE — ORDERS PLACED / PENDING
-// ============================================================
 function pPageOrders() {
-    var purchases = P.purchases || [];
-    var pending   = P.pendingPOs || [];
+    var purchases = [];
+    var pending   = [];
+
+    // Handle purchases as array or object
+    try {
+        var rawPurchases = P.purchases || [];
+        if (Array.isArray(rawPurchases)) {
+            purchases = rawPurchases;
+        } else if (typeof rawPurchases === 'object') {
+            // Convert object to array
+            Object.keys(rawPurchases).forEach(function(key) {
+                var item = rawPurchases[key];
+                if (item && typeof item === 'object') {
+                    if (!item.id) item.id = key;
+                    purchases.push(item);
+                }
+            });
+        }
+    } catch(e) { console.warn('Purchases parse error:', e); }
+
+    // Handle pendingPOs as array or object
+    try {
+        var rawPending = P.pendingPOs || [];
+        if (Array.isArray(rawPending)) {
+            pending = rawPending;
+        } else if (typeof rawPending === 'object') {
+            Object.keys(rawPending).forEach(function(key) {
+                var item = rawPending[key];
+                if (item && typeof item === 'object') {
+                    if (!item.id) item.id = key;
+                    pending.push(item);
+                }
+            });
+        }
+    } catch(e) { console.warn('PendingPOs parse error:', e); }
 
     var inTransit = purchases.filter(function(p) {
-        return p.status === 'In Transit' ||
+        return p && (p.status === 'In Transit' ||
                p.status === 'Processing' ||
-               p.status === 'Pending';
+               p.status === 'Pending');
     });
     var received  = purchases.filter(function(p) {
-        return p.status === 'Received' || p.status === 'Delivered';
+        return p && (p.status === 'Received' || p.status === 'Delivered');
     });
 
     var html = '';
@@ -1790,11 +1819,11 @@ function pPageOrders() {
         '<strong>' + purchases.length + '</strong></div>';
     html += '</div>';
 
-    // Pending POs (AI generated — awaiting approval)
+    // Pending POs
     if (pending.length > 0) {
         html += '<div class="p-section-title">🤖 AI Generated — Awaiting Approval</div>';
         pending.forEach(function(po) {
-            html += pRenderPOCard(po, 'pending');
+            if (po) html += pRenderPOCard(po, 'pending');
         });
     }
 
@@ -1802,7 +1831,7 @@ function pPageOrders() {
     if (inTransit.length > 0) {
         html += '<div class="p-section-title">🚚 Orders In Transit</div>';
         inTransit.forEach(function(po) {
-            html += pRenderPOCard(po, 'transit');
+            if (po) html += pRenderPOCard(po, 'transit');
         });
     }
 
@@ -1810,7 +1839,7 @@ function pPageOrders() {
     if (received.length > 0) {
         html += '<div class="p-section-title">✅ Recently Received</div>';
         received.slice(0, 10).forEach(function(po) {
-            html += pRenderPOCard(po, 'received');
+            if (po) html += pRenderPOCard(po, 'received');
         });
     }
 
@@ -1829,26 +1858,54 @@ function pPageOrders() {
 
     return html;
 }
+// ============================================================
+// PAGE — ORDERS PLACED / PENDING
+// ============================================================
 
 // ============================================================
 // RENDER PO CARD
 // ============================================================
 function pRenderPOCard(po, type) {
+    if (!po) return '';
+
     var borderColor = type === 'received' ? 'var(--success)'
         : type === 'pending' ? 'var(--gold)'
         : 'var(--primary)';
 
-    var items = po.items || [];
-    var itemRows = items.slice(0, 5).map(function(item) {
-        return '<div class="p-po-item-row">' +
-            '<span>' + item.name + '</span>' +
-            '<span style="font-weight:600">' + item.qty + ' ' + item.unit + '</span>' +
-            '</div>';
-    }).join('');
+    var items = [];
+    try {
+        if (Array.isArray(po.items)) {
+            items = po.items;
+        } else if (typeof po.items === 'number') {
+            // items stored as count not array
+            items = [];
+        } else if (typeof po.items === 'object' && po.items) {
+            items = Object.values(po.items);
+        }
+    } catch(e) { items = []; }
 
-    if (items.length > 5) {
-        itemRows += '<div class="p-po-item-row" style="color:var(--text-muted)">' +
-            '<span>+ ' + (items.length - 5) + ' more items...</span></div>';
+    var itemRows = '';
+    if (items.length > 0) {
+        itemRows = items.slice(0, 5).map(function(item) {
+            if (!item) return '';
+            return '<div class="p-po-item-row">' +
+                '<span>' + (item.name || 'Unknown') + '</span>' +
+                '<span style="font-weight:600">' + (item.qty || '') + ' ' + (item.unit || '') + '</span>' +
+                '</div>';
+        }).join('');
+
+        if (items.length > 5) {
+            itemRows += '<div class="p-po-item-row" style="color:var(--text-muted)">' +
+                '<span>+ ' + (items.length - 5) + ' more items...</span></div>';
+        }
+    } else {
+        // If items is just a number
+        var itemCount = typeof po.items === 'number' ? po.items : 0;
+        if (itemCount > 0) {
+            itemRows = '<div class="p-po-item-row"><span>' + itemCount + ' items</span></div>';
+        } else {
+            itemRows = '<div class="p-po-item-row"><span>Items not detailed</span></div>';
+        }
     }
 
     var footerBtn = '';
@@ -1861,17 +1918,32 @@ function pRenderPOCard(po, type) {
             '<i class="fas fa-check-circle"></i> Received</span>';
     }
 
-    var createdAt = po.createdAt
-        ? new Date(po.createdAt).toLocaleDateString('en-ZA', {
-            day:'numeric', month:'short', year:'numeric'
-          })
-        : '';
+    var createdAt = '';
+    try {
+        if (po.createdAt) {
+            createdAt = new Date(po.createdAt).toLocaleDateString('en-ZA', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            });
+        } else if (po.date) {
+            createdAt = new Date(po.date).toLocaleDateString('en-ZA', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            });
+        }
+    } catch(e) { createdAt = ''; }
+
+    var poTotal = 0;
+    try {
+        poTotal = parseFloat(po.total) || 0;
+    } catch(e) { poTotal = 0; }
+
+    var supplierName = po.supplier || 'Unknown Supplier';
+    var createdBy    = po.createdBy || po.type || 'System';
 
     return '<div class="p-po-card" style="border-left-color:' + borderColor + '">' +
         '<div class="p-po-header">' +
             '<div>' +
-                '<h4>' + po.id + '</h4>' +
-                '<p>' + po.supplier + ' • ' + createdAt + ' • by ' + (po.createdBy || 'System') + '</p>' +
+                '<h4>' + (po.id || 'PO') + '</h4>' +
+                '<p>' + supplierName + ' • ' + createdAt + ' • ' + createdBy + '</p>' +
             '</div>' +
             '<span class="p-badge ' +
             (type === 'received' ? 'green' : type === 'pending' ? 'orange' : 'blue') + '">' +
@@ -1880,12 +1952,11 @@ function pRenderPOCard(po, type) {
         '</div>' +
         '<div class="p-po-items">' + itemRows + '</div>' +
         '<div class="p-po-footer">' +
-            '<div class="p-po-total">R' + (po.total || 0).toFixed(2) + '</div>' +
+            '<div class="p-po-total">R' + poTotal.toFixed(2) + '</div>' +
             footerBtn +
         '</div>' +
         '</div>';
 }
-
 // ============================================================
 // MARK ORDER AS RECEIVED
 // ============================================================
