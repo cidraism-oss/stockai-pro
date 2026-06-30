@@ -1176,6 +1176,33 @@ function showSuccessMessage(name, email, plan) {
         '</div>';
     document.body.appendChild(overlay);
 }
+<script>
+// ANIMATED DEMO
+const demoLabels = ['Dashboard — Real-time Overview','Inventory — Stock Levels','Voice Count — 70% Faster','AI Auto-POs — Smart Ordering'];
+let currentDemo = 0;
+function showDemoScreen(idx) {
+    currentDemo = idx;
+    document.querySelectorAll('.demo-screen').forEach((s,i) => s.classList.toggle('active', i === idx));
+    document.querySelectorAll('.demo-indicator').forEach((d,i) => d.classList.toggle('active', i === idx));
+    document.getElementById('demo-label').textContent = demoLabels[idx];
+}
+setInterval(() => { currentDemo = (currentDemo + 1) % 4; showDemoScreen(currentDemo); }, 4000);
+
+// PLAN SELECTION — Redirects to signup page
+function selectPlan(plan, price) {
+    var planKey = '';
+    if (plan === 'Premium') planKey = 'premium';
+    else if (plan === 'Premium Plus') planKey = 'plus';
+    else if (plan === 'Premium Exclusive') planKey = 'exclusive';
+    window.location.href = 'signup.html?plan=' + planKey;
+}
+
+// Close signup modal if it exists (legacy cleanup)
+function closeSignupModal() {
+    var modal = document.getElementById('signupModal');
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+}
 </script>
 </body>
 </html>
