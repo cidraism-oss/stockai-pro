@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Started — StockAI-Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+:root{--teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;--text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--border:#c4dde4;--shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
+
+/* HEADER */
+.header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.15)}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:1.2rem;font-weight:900;letter-spacing:1px}
+.logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.header-back{color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;display:flex;align-items:center;gap:6px;transition:.2s}
+.header-back:hover{color:#fff}
+
+/* HERO BANNER */
+.page-hero{background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));padding:40px 24px;text-align:center;color:#fff}
+.page-hero h1{font-size:2rem;font-weight:900;margin-bottom:8px}
+.page-hero p{font-size:.95rem;opacity:.9;max-width:500px;margin:0 auto 16px}
+.trial-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:.85rem;font-weight:600;color:#fff}
+
+/* PROGRESS BAR */
+.progress-bar{background:var(--bg-alt);padding:16px 24px;border-bottom:1px solid var(--border)}
+.progress-steps{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0}
+.progress-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.progress-step-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;border:2px solid var(--border);background:#fff;color:var(--text-light);transition:.3s}
+.progress-step.active .progress-step-circle{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff}
+.progress-step.done .progress-step-circle{background:var(--success);border-color:var(--success);color:#fff}
+.progress-step-label{font-size:.65rem;font-weight:600;color:var(--text-light);text-align:center}
+.progress-step.active .progress-step-label{color:var(--teal-mid)}
+.progress-line{flex:1;height:2px;background:var(--border);margin:0 4px;margin-bottom:18px}
+.progress-line.done{background:var(--success)}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:40px 24px}
+
+/* PLAN CARDS */
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:30px}
+.plan-card{background:#fff;border-radius:18px;padding:32px 24px;box-shadow:var(--shadow);border:2px solid transparent;transition:.3s;cursor:pointer;position:relative;display:flex;flex-direction:column}
+.plan-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--teal-light)}
+.plan-card.selected{border-color:var(--teal-mid);box-shadow:0 0 0 4px rgba(26,139,168,.15)}
+.plan-card.popular{border-color:var(--gold)}
+.plan-card.popular::before{content:'⭐ MOST POPULAR';position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;padding:5px 16px;border-radius:18px;font-size:.68rem;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.plan-select-indicator{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);position:absolute;top:20px;right:20px;display:flex;align-items:center;justify-content:center;transition:.3s}
+.plan-card.selected .plan-select-indicator{background:var(--teal-mid);border-color:var(--teal-mid)}
+.plan-card.selected .plan-select-indicator::after{content:'✓';color:#fff;font-size:.7rem;font-weight:700}
+.plan-name{font-size:1.2rem;font-weight:800;color:var(--text-dark);margin-bottom:4px}
+.plan-tagline{font-size:.82rem;color:var(--text-light);margin-bottom:18px}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.plan-currency{font-size:1rem;color:var(--text-mid);font-weight:600}
+.plan-amount{font-size:2.8rem;font-weight:900;color:var(--text-dark);line-height:1}
+.plan-period{font-size:.82rem;color:var(--text-light)}
+.plan-per{font-size:.75rem;color:var(--text-light);padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.plan-features-list{list-style:none;flex:1;margin-bottom:20px}
+.plan-features-list li{padding:6px 0;font-size:.83rem;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid #f5f9fa}
+.plan-features-list li:last-child{border-bottom:none}
+.plan-features-list li i.fa-check{color:var(--success);flex-shrink:0;margin-top:3px}
+.plan-features-list li i.fa-times{color:#ddd;flex-shrink:0;margin-top:3px}
+.plan-features-list li i.fa-clock{color:var(--gold);flex-shrink:0;margin-top:3px}
+.plan-features-list li.unavailable{color:#bcc8cc}
+.plan-features-list li.coming{color:var(--gold)}
+.btn-select-plan{width:100%;padding:13px;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;border:2px solid var(--teal-mid);background:#fff;color:var(--teal-mid);transition:.3s;font-family:inherit}
+.plan-card.selected .btn-select-plan{background:var(--teal-mid);color:#fff}
+.plan-card.popular .btn-select-plan{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-color:transparent}
+.plan-card.popular.selected .btn-select-plan{box-shadow:0 6px 20px rgba(245,158,11,.4)}
+
+/* PAYMENT BUTTON */
+.payment-section{text-align:center;padding:20px 0}
+.btn-pay{display:inline-flex;align-items:center;gap:12px;padding:18px 48px;background:linear-gradient(135deg,var(--success),#1a7a4a);color:#fff;border:none;border-radius:14px;font-size:1.1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;box-shadow:0 8px 25px rgba(46,168,113,.35)}
+.btn-pay:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(46,168,113,.45)}
+.btn-pay:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.payment-note{font-size:.82rem;color:var(--text-light);margin-top:12px}
+.payment-icons{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:12px;opacity:.6}
+.payment-icons i{font-size:1.5rem;color:var(--text-light)}
+
+/* GUARANTEE */
+.guarantee{background:#fff;border-radius:14px;padding:24px;box-shadow:var(--shadow);text-align:center;margin-top:30px;border-left:4px solid var(--success)}
+.guarantee h3{font-size:1rem;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+.guarantee p{font-size:.85rem;color:var(--text-light);max-width:500px;margin:0 auto}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:14px 18px;border-radius:10px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:500;animation:slideIn .3s ease;min-width:280px}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
+.toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
+.toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--teal-mid)}
+
+@media(max-width:768px){
+.page-hero h1{font-size:1.5rem}
+.plans-grid{grid-template-columns:1fr}
+.btn-pay{padding:16px 32px;font-size:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+<a href="index.html" class="logo">
+<div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+STOCKAI-PRO
+</a>
+<a href="index.html" class="header-back">
+<i class="fas fa-arrow-left"></i> Back to Website
+</a>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar">
+<div class="progress-steps">
+<div class="progress-step active">
+<div class="progress-step-circle">1</div>
+<div class="progress-step-label">Choose Plan</div>
+</div>
+<div class="progress-line"></div>
+<div class="progress-step">
+<div class="progress-step-circle">2</div>
+<div class="progress-step-label">Payment</div>
+</div>
+<div class="progress-line"></div>
+<div class="progress-step">
+<div class="progress-step-circle">3</div>
+<div class="progress-step-label">Setup Account</div>
+</div>
+<div class="progress-line"></div>
+<div class="progress-step">
+<div class="progress-step-circle">4</div>
+<div class="progress-step-label">Start Using</div>
+</div>
+</div>
+</div>
+
+<!-- HERO -->
+<div class="page-hero">
+<h1>Choose Your Plan</h1>
+<p>Select the plan that suits your business. Cancel anytime. All plans include a 14-day free trial.</p>
+<div class="trial-badge">
+<i class="fas fa-gift"></i>
+14-Day Free Trial Included — No Charge Today
+</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PLANS -->
+<div class="plans-grid">
+
+<!-- PREMIUM -->
+<div class="plan-card" id="plan-premium" onclick="selectPlan('Premium', 999, this)">
+<div class="plan-select-indicator"></div>
+<div class="plan-name">Premium</div>
+<div class="plan-tagline">For single locations & small businesses</div>
+<div class="plan-price">
+<span class="plan-currency">R</span>
+<span class="plan-amount">999</span>
+<span class="plan-period">/mo</span>
+</div>
+<div class="plan-per">Per entity • Billed monthly • 14-day free trial</div>
+<ul class="plan-features-list">
+<li><i class="fas fa-check"></i> Full Web App access</li>
+<li><i class="fas fa-check"></i> Mobile App (PWA)</li>
+<li><i class="fas fa-check"></i> All user permission levels</li>
+<li><i class="fas fa-check"></i> Inventory management</li>
+<li><i class="fas fa-check"></i> Voice stock counting</li>
+<li><i class="fas fa-check"></i> AI predictions & insights</li>
+<li><i class="fas fa-check"></i> Auto purchase orders</li>
+<li><i class="fas fa-check"></i> Menu & recipe costing</li>
+<li><i class="fas fa-check"></i> Cash-up & Day End reports</li>
+<li><i class="fas fa-check"></i> Wastage tracking</li>
+<li><i class="fas fa-check"></i> Email support</li>
+<li class="unavailable"><i class="fas fa-times"></i> POS System</li>
+<li class="unavailable"><i class="fas fa-times"></i> Accounting Integration</li>
+<li class="unavailable"><i class="fas fa-times"></i> Procurement App</li>
+</ul>
+<button class="btn-select-plan">Select Premium</button>
+</div>
+
+<!-- PREMIUM PLUS -->
+<div class="plan-card popular" id="plan-premiumplus" onclick="selectPlan('Premium Plus', 1799, this)">
+<div class="plan-select-indicator"></div>
+<div class="plan-name">Premium Plus</div>
+<div class="plan-tagline">For growing businesses & multi-location groups</div>
+<div class="plan-price">
+<span class="plan-currency">R</span>
+<span class="plan-amount">1,799</span>
+<span class="plan-period">/mo</span>
+</div>
+<div class="plan-per">Per entity • Up to 5 entities • 14-day free trial</div>
+<ul class="plan-features-list">
+<li><i class="fas fa-check"></i> Everything in Premium</li>
+<li><i class="fas fa-check"></i> Up to 5 entities</li>
+<li><i class="fas fa-check"></i> Global multi-entity dashboard</li>
+<li><i class="fas fa-check"></i> Internal stock transfers</li>
+<li><i class="fas fa-check"></i> WhatsApp support</li>
+<li class="coming"><i class="fas fa-clock"></i> POS System (waiter app)</li>
+<li class="coming"><i class="fas fa-clock"></i> Kitchen display screen</li>
+<li class="coming"><i class="fas fa-clock"></i> QR table payments</li>
+<li class="coming"><i class="fas fa-clock"></i> Procurement App</li>
+<li class="unavailable"><i class="fas fa-times"></i> Accounting Integration</li>
+<li class="unavailable"><i class="fas fa-times"></i> Invoice Scanner</li>
+</ul>
+<button class="btn-select-plan">Select Premium Plus</button>
+</div>
+
+<!-- PREMIUM EXCLUSIVE -->
+<div class="plan-card" id="plan-premiumexclusive" onclick="selectPlan('Premium Exclusive', 2599, this)">
+<div class="plan-select-indicator"></div>
+<div class="plan-name">Premium Exclusive</div>
+<div class="plan-tagline">For enterprise groups & large operations</div>
+<div class="plan-price">
+<span class="plan-currency">R</span>
+<span class="plan-amount">2,599</span>
+<span class="plan-period">/mo</span>
+</div>
+<div class="plan-per">Per entity • Unlimited entities • 14-day free trial</div>
+<ul class="plan-features-list">
+<li><i class="fas fa-check"></i> Everything in Premium Plus</li>
+<li><i class="fas fa-check"></i> Unlimited entities</li>
+<li><i class="fas fa-check"></i> Dedicated account manager</li>
+<li><i class="fas fa-check"></i> Phone support</li>
+<li class="coming"><i class="fas fa-clock"></i> Accounting Integration</li>
+<li class="coming"><i class="fas fa-clock"></i> Invoice Scanner (AI)</li>
+<li class="coming"><i class="fas fa-clock"></i> Full Procurement App</li>
+<li class="coming"><i class="fas fa-clock"></i> AI Voice Navigation Bot</li>
+<li class="coming"><i class="fas fa-clock"></i> POS + Kitchen + QR Payments</li>
+<li><i class="fas fa-check"></i> Custom reports & API access</li>
+<li><i class="fas fa-check"></i> Priority feature requests</li>
+</ul>
+<button class="btn-select-plan">Select Premium Exclusive</button>
+</div>
+</div>
+
+<!-- PAYMENT BUTTON -->
+<div class="payment-section">
+<button class="btn-pay" id="payBtn" onclick="startPayment()" disabled>
+<i class="fas fa-lock"></i>
+<span id="payBtnText">Select a Plan to Continue</span>
+</button>
+<div class="payment-note">
+<i class="fas fa-shield-alt"></i>
+Secured by Paystack • SSL Encrypted • POPIA Compliant<br>
+Your 14-day free trial starts immediately after account setup. First charge after trial ends.
+</div>
+<div class="payment-icons">
+<i class="fab fa-cc-visa"></i>
+<i class="fab fa-cc-mastercard"></i>
+<i class="fas fa-university"></i>
+<i class="fas fa-mobile-alt"></i>
+</div>
+</div>
+
+<!-- GUARANTEE -->
+<div class="guarantee">
+<h3>✅ 14-Day Free Trial — No Risk</h3>
+<p>Start using StockAI-Pro today completely free for 14 days. Your card is only charged after your trial ends. Cancel anytime before then and you will never be billed.</p>
+</div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- FIREBASE + PAYSTACK SCRIPT -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE INIT
+// ============================================================
+var firebaseConfig = {
+    apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain: "stockai-pro-b232e.firebaseapp.com",
+    projectId: "stockai-pro-b232e",
+    storageBucket: "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId: "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var db   = firebase.firestore();
+var auth = firebase.auth();
+
+// ============================================================
+// PAYSTACK CONFIG
+// ============================================================
+var PAYSTACK_PUBLIC_KEY = 'pk_test_96a8fd66211568738d566d5da04cd5b0f1873120';
+
+// ============================================================
+// STATE
+// ============================================================
+var selectedPlanName  = null;
+var selectedPlanPrice = null;
+
+// ============================================================
+// SELECT PLAN
+// ============================================================
+function selectPlan(name, price, cardEl) {
+    
