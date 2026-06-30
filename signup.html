@@ -33,7 +33,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:30px}
 .plan-card{background:#fff;border-radius:18px;padding:32px 24px;box-shadow:var(--shadow);border:2px solid transparent;transition:.3s;cursor:pointer;position:relative;display:flex;flex-direction:column}
 .plan-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--teal-light)}
-.plan-card.selected{border-color:var(--teal-mid);box-shadow:0 0 0 4px rgba(26,139,168,.15)}
+.plan-card.selected{border-color:var(--teal-mid);box-shadow:0 0 0 4px rgba(26,139,168,.15);transform:translateY(-8px);background:linear-gradient(180deg,#fff,#f0f7f9)}
 .plan-card.popular{border-color:var(--gold)}
 .plan-card.popular::before{content:'⭐ MOST POPULAR';position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;padding:5px 16px;border-radius:18px;font-size:.68rem;font-weight:700;letter-spacing:1px;white-space:nowrap}
 .plan-select-indicator{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);position:absolute;top:20px;right:20px;display:flex;align-items:center;justify-content:center;transition:.3s}
