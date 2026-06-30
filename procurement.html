@@ -781,17 +781,40 @@ function pNavigate(page) {
     var content = document.getElementById('p-content');
     content.scrollTop = 0;
 
-    if      (page === 'dashboard') content.innerHTML = pPageDashboard();
-    else if (page === 'new-order') pPageNewOrder();
-    else if (page === 'orders')    content.innerHTML = pPageOrders();
-    else if (page === 'low-stock') content.innerHTML = pPageLowStock();
+    try {
+        if (page === 'dashboard') {
+            content.innerHTML = pPageDashboard();
+        } else if (page === 'new-order') {
+            pPageNewOrder();
+        } else if (page === 'orders') {
+            content.innerHTML = pPageOrders();
+        } else if (page === 'low-stock') {
+            content.innerHTML = pPageLowStock();
+        }
+    } catch(err) {
+        console.error('Navigation error on page ' + page + ':', err);
+        content.innerHTML =
+            '<div class="p-empty">' +
+            '<i class="fas fa-exclamation-circle" style="color:var(--danger);opacity:1"></i>' +
+            '<h3>Page Error</h3>' +
+            '<p style="font-size:.75rem;color:var(--danger)">' + err.message + '</p>' +
+            '<button onclick="pRefreshData()" ' +
+            'style="margin-top:14px;padding:12px 24px;background:var(--primary);' +
+            'color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;' +
+            'font-weight:700;cursor:pointer;font-family:inherit">' +
+            '<i class="fas fa-sync"></i> Refresh & Try Again</button>' +
+            '</div>';
+    }
 }
-
 // ============================================================
 // PAGE — DASHBOARD
 // ============================================================
 function pPageDashboard() {
-    var inv      = P.inventory  || [];
+// DEBUG — log data structure
+    console.log('P.purchases:', JSON.stringify(P.purchases));
+    console.log('P.pendingPOs:', JSON.stringify(P.pendingPOs));
+    console.log('P.inventory length:', (P.inventory || []).length);    
+var inv      = P.inventory  || [];
     var purch    = P.purchases  || [];
     var pending  = P.pendingPOs || [];
 
