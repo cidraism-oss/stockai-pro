@@ -285,11 +285,10 @@ window.addEventListener('load', function() {
     document.getElementById('summaryPlanPrice').textContent = parseInt(price).toLocaleString();
     if (email) document.getElementById('f-email').value = email;
 
-    // If no payment — redirect back
-    if (paid !== 'true') {
-        showToast('warning', 'Please select a plan and complete payment first');
-        setTimeout(function() { window.location.href = 'signup.html'; }, 3000);
-    }
+// If no payment — show warning but allow access
+if (paid !== 'true') {
+    showToast('info', 'Complete payment on signup page first for full activation');
+}
 });
 
 // PASSWORD STRENGTH
