@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockAI-Pro | AI-Powered Restaurant Stock Management | South Africa</title>
-<meta name="description" content="Save 20% on food costs with AI-powered stock control for restaurants, bars and hotels in South Africa.">
+<title>StockAI-Pro | AI-Powered Stock Management | South Africa</title>
+<meta name="description" content="AI-powered stock control for restaurants, retail, manufacturing and any stock-holding business in South Africa.">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -95,7 +95,16 @@ section{padding:70px 24px;position:relative}
 .section-header h2{font-size:2.2rem;font-weight:800;color:var(--text-dark);margin-bottom:10px;letter-spacing:-.5px}
 .section-header p{font-size:1rem;color:var(--text-light);max-width:600px;margin:0 auto}
 
-/* FEATURES - with more color */
+/* WHO WE SERVE */
+.industries{background:linear-gradient(180deg,var(--bg),var(--bg-alt));padding:70px 24px}
+.industries-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;max-width:1200px;margin:0 auto}
+.industry-card{background:#fff;border-radius:14px;padding:24px 16px;text-align:center;box-shadow:var(--shadow);transition:.3s;border-bottom:3px solid transparent}
+.industry-card:hover{transform:translateY(-6px);border-bottom-color:var(--teal-mid);box-shadow:var(--shadow-lg)}
+.industry-card i{font-size:2rem;color:var(--teal-mid);margin-bottom:12px;display:block}
+.industry-card h4{font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:4px}
+.industry-card p{font-size:.75rem;color:var(--text-light)}
+
+/* FEATURES */
 .features{background:linear-gradient(180deg,var(--bg-alt),var(--bg))}
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px}
 .feature{background:#fff;padding:28px;border-radius:14px;box-shadow:var(--shadow);transition:.3s;position:relative;overflow:hidden}
@@ -105,8 +114,66 @@ section{padding:70px 24px;position:relative}
 .feature-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;margin-bottom:16px}
 .feature h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;color:var(--text-dark)}
 .feature p{color:var(--text-light);font-size:.88rem;line-height:1.5}
+.feature-tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:.68rem;font-weight:700;margin-top:10px}
+.feature-tag.ai{background:rgba(245,158,11,.12);color:var(--gold)}
+.feature-tag.coming{background:rgba(26,139,168,.1);color:var(--teal-mid)}
 
-/* APP SHOWCASE SECTION (mockup screenshots) */
+/* AI SECTION */
+.ai-section{background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:70px 24px;color:#fff}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;margin:0 auto}
+.ai-text h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;color:#fff}
+.ai-text p{font-size:.95rem;color:rgba(255,255,255,.85);margin-bottom:20px;line-height:1.7}
+.ai-feature-list{list-style:none;display:flex;flex-direction:column;gap:12px}
+.ai-feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;color:rgba(255,255,255,.9)}
+.ai-feature-list li i{color:var(--gold);font-size:1rem;margin-top:3px;flex-shrink:0}
+.ai-visual{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:24px}
+.ai-chat-demo{display:flex;flex-direction:column;gap:12px}
+.ai-bubble{padding:12px 16px;border-radius:14px;font-size:.85rem;max-width:85%;line-height:1.5}
+.ai-bubble.bot{background:rgba(255,255,255,.15);color:#fff;align-self:flex-start;border-bottom-left-radius:4px}
+.ai-bubble.user{background:var(--gold);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.ai-typing{display:flex;gap:4px;padding:12px 16px;background:rgba(255,255,255,.1);border-radius:14px;width:fit-content}
+.ai-typing span{width:8px;height:8px;background:rgba(255,255,255,.6);border-radius:50%;animation:typing 1.4s infinite}
+.ai-typing span:nth-child(2){animation-delay:.2s}
+.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* POS SECTION */
+.pos-section{background:var(--bg-alt);padding:70px 24px}
+.pos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1200px;margin:0 auto}
+.pos-card{background:#fff;border-radius:16px;padding:28px;box-shadow:var(--shadow);transition:.3s;position:relative;overflow:hidden}
+.pos-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.pos-card-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.pos-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#fff;flex-shrink:0}
+.pos-icon.waiter{background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark))}
+.pos-icon.kitchen{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pos-icon.payment{background:linear-gradient(135deg,var(--success),#1a7a4a)}
+.pos-icon.qr{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+.pos-card h3{font-size:1.05rem;font-weight:700;color:var(--text-dark)}
+.pos-card p{font-size:.88rem;color:var(--text-light);line-height:1.6;margin-bottom:14px}
+.pos-features{list-style:none;display:flex;flex-direction:column;gap:6px}
+.pos-features li{font-size:.82rem;color:var(--text-mid);display:flex;align-items:center;gap:8px}
+.pos-features li i{color:var(--success);font-size:.8rem}
+.coming-soon-badge{position:absolute;top:16px;right:16px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;padding:4px 12px;border-radius:12px;font-size:.68rem;font-weight:700}
+
+/* PROCUREMENT SECTION */
+.procurement-section{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:70px 24px;color:#fff}
+.procurement-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;margin:0 auto}
+.procurement-text h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;color:#fff}
+.procurement-text p{font-size:.95rem;color:rgba(255,255,255,.85);margin-bottom:20px;line-height:1.7}
+.procurement-steps{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+.procurement-step{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px}
+.procurement-step-num{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.88rem;color:#1a1a2e;flex-shrink:0}
+.procurement-step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:4px}
+.procurement-step p{font-size:.82rem;color:rgba(255,255,255,.75)}
+.procurement-visual{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px}
+.proc-phone{background:#1a1a2e;border-radius:20px;padding:16px;border:2px solid rgba(255,255,255,.15)}
+.proc-phone-header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:#fff;font-size:.82rem;font-weight:700}
+.proc-order-item{background:rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.proc-order-item span{font-size:.78rem;color:rgba(255,255,255,.9)}
+.proc-order-item strong{font-size:.82rem;color:var(--gold)}
+.proc-send-btn{width:100%;padding:10px;background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;font-weight:700;font-size:.85rem;margin-top:10px;cursor:pointer;font-family:inherit}
+
+/* APP SHOWCASE */
 .showcase{background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:70px 24px;color:#fff}
 .showcase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1200px;margin:0 auto}
 .showcase-card{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:24px;text-align:center;transition:.3s}
@@ -121,8 +188,6 @@ section{padding:70px 24px;position:relative}
 .showcase-mini-list li{padding:4px 0;font-size:.72rem;color:var(--text-mid);border-bottom:1px solid #e8eef0;display:flex;justify-content:space-between}
 .showcase-card h3{font-size:1rem;font-weight:700;margin-bottom:6px}
 .showcase-card p{font-size:.82rem;opacity:.85}
-.showcase-print-btn{margin-top:10px;padding:6px 14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;transition:.3s;font-family:inherit}
-.showcase-print-btn:hover{background:rgba(255,255,255,.25)}
 
 /* HOW IT WORKS */
 .how-it-works{background:var(--bg-alt)}
@@ -132,25 +197,9 @@ section{padding:70px 24px;position:relative}
 .step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;color:var(--text-dark)}
 .step p{color:var(--text-light);font-size:.88rem}
 
-/* FOUNDING OFFER - 50% OFF */
-.founding-banner{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:40px 24px;text-align:center;margin:0;position:relative;overflow:hidden}
-.founding-banner::before{content:'';position:absolute;inset:-2px;background:linear-gradient(45deg,var(--gold),#fbbf24,var(--gold));z-index:0;opacity:.15;animation:shimmer 3s linear infinite;background-size:200% 200%}
-.founding-banner>*{position:relative;z-index:1}
-.founding-banner .crown{font-size:2.5rem;color:var(--gold);margin-bottom:8px}
-.founding-banner h3{font-size:1.7rem;font-weight:800;margin-bottom:6px}
-.founding-banner p{font-size:.95rem;opacity:.9;margin-bottom:16px}
-.founding-discount{display:inline-block;background:var(--gold);color:#1a1a2e;padding:10px 28px;border-radius:30px;font-size:2.2rem;font-weight:900;margin:12px 0;box-shadow:0 6px 20px rgba(245,158,11,.4)}
-.founding-examples{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin:16px 0}
-.founding-example{background:rgba(255,255,255,.08);padding:14px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.15);text-align:center}
-.founding-example .plan-name{font-size:.78rem;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.founding-example .was{font-size:.85rem;text-decoration:line-through;color:#888;margin-bottom:2px}
-.founding-example .now{font-size:1.5rem;font-weight:900;color:#fff}
-.founding-example .per{font-size:.7rem;color:rgba(255,255,255,.7)}
-.spots-left{display:inline-block;background:rgba(245,158,11,.2);border:1px solid var(--gold);padding:6px 16px;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--gold);margin-top:14px}
-
 /* PRICING */
 .pricing{background:var(--bg)}
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:1100px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1100px;margin:0 auto}
 .plan{background:#fff;padding:32px 24px;border-radius:18px;box-shadow:var(--shadow);position:relative;border:2px solid transparent;transition:.3s;display:flex;flex-direction:column}
 .plan:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
 .plan.popular{border-color:var(--gold);transform:scale(1.03)}
@@ -163,14 +212,33 @@ section{padding:70px 24px;position:relative}
 .plan-period{color:var(--text-light);font-size:.82rem}
 .plan-per{font-size:.75rem;color:var(--text-light);margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .plan-features{list-style:none;flex:1;margin-bottom:24px}
-.plan-features li{padding:8px 0;font-size:.85rem;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px}
-.plan-features li i{color:var(--success);margin-top:3px;flex-shrink:0}
-.plan-features li.unavailable{color:#bcc8cc;text-decoration:line-through}
-.plan-features li.unavailable i{color:#bcc8cc}
+.plan-features li{padding:7px 0;font-size:.84rem;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid #f0f7f9}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li i.fa-check{color:var(--success);margin-top:3px;flex-shrink:0}
+.plan-features li i.fa-times{color:#bcc8cc;margin-top:3px;flex-shrink:0}
+.plan-features li.unavailable{color:#bcc8cc}
+.plan-features li.coming{color:var(--gold)}
+.plan-features li.coming i{color:var(--gold)}
 .btn-plan{width:100%;padding:13px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;border:2px solid var(--teal-mid);background:#fff;color:var(--teal-mid);transition:.3s;font-family:inherit}
 .btn-plan:hover{background:var(--teal-mid);color:#fff}
 .plan.popular .btn-plan{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff;border-color:transparent}
 .plan.popular .btn-plan:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(245,158,11,.4)}
+
+/* PLAN COMPARISON */
+.comparison-section{background:var(--bg-alt);padding:70px 24px}
+.comparison-table{max-width:1000px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.comparison-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));color:#fff;padding:20px 24px}
+.comparison-header div{font-size:.88rem;font-weight:700;text-align:center}
+.comparison-header div:first-child{text-align:left}
+.comparison-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:14px 24px;border-bottom:1px solid var(--border);align-items:center}
+.comparison-row:last-child{border-bottom:none}
+.comparison-row:nth-child(even){background:#fafcfd}
+.comparison-row div{text-align:center;font-size:.85rem}
+.comparison-row div:first-child{text-align:left;color:var(--text-dark);font-weight:500}
+.comparison-row i.fa-check{color:var(--success);font-size:1rem}
+.comparison-row i.fa-times{color:#ddd;font-size:1rem}
+.comparison-row .soon{font-size:.7rem;color:var(--gold);font-weight:600}
+.comparison-category{background:linear-gradient(90deg,rgba(26,139,168,.08),transparent);padding:10px 24px;font-size:.78rem;font-weight:700;color:var(--teal-mid);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
 
 /* TESTIMONIALS */
 .testimonials{background:linear-gradient(180deg,var(--bg),var(--bg-alt))}
@@ -199,7 +267,7 @@ section{padding:70px 24px;position:relative}
 .faq-question i{transition:.3s;color:var(--teal-mid)}
 .faq-item.open .faq-question i{transform:rotate(180deg)}
 .faq-answer{max-height:0;overflow:hidden;transition:.3s;padding:0 22px;color:var(--text-light);font-size:.88rem;line-height:1.7}
-.faq-item.open .faq-answer{max-height:200px;padding:0 22px 18px}
+.faq-item.open .faq-answer{max-height:300px;padding:0 22px 18px}
 
 /* FOOTER */
 .footer{background:var(--text-dark);color:#fff;padding:50px 24px 24px}
@@ -217,6 +285,30 @@ section{padding:70px 24px;position:relative}
 .social-links a{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;transition:.3s}
 .social-links a:hover{background:var(--gold);transform:translateY(-3px)}
 
+/* SIGNUP MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.85);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3);transform:translateY(20px);transition:.3s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));padding:28px 28px 20px;color:#fff}
+.modal-header h3{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+.modal-header p{font-size:.85rem;opacity:.85}
+.modal-body{padding:28px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--text-dark);margin-bottom:6px}
+.form-group input,.form-group select{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text-dark);background:var(--bg);transition:.2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(26,139,168,.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.selected-plan-display{background:linear-gradient(135deg,rgba(26,139,168,.08),rgba(13,74,92,.05));border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.selected-plan-display .plan-info strong{display:block;font-size:.95rem;color:var(--text-dark);font-weight:700}
+.selected-plan-display .plan-info span{font-size:.78rem;color:var(--text-light)}
+.selected-plan-display .plan-price-tag{font-size:1.4rem;font-weight:900;color:var(--teal-mid)}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,139,168,.35)}
+.btn-submit:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.modal-footer-note{text-align:center;margin-top:14px;font-size:.75rem;color:var(--text-light)}
+
 @media(max-width:900px){
 .hero-content{grid-template-columns:1fr;gap:36px}
 .hero-text h1{font-size:2.2rem}
@@ -226,19 +318,21 @@ section{padding:70px 24px;position:relative}
 .footer-grid{grid-template-columns:1fr 1fr}
 .plan.popular{transform:none}
 .section-header h2{font-size:1.7rem}
-.founding-examples{flex-direction:column;align-items:center}
-.showcase-grid{grid-template-columns:1fr}
+.ai-grid,.procurement-grid{grid-template-columns:1fr}
+.comparison-header,.comparison-row{grid-template-columns:1.5fr 1fr 1fr 1fr;font-size:.78rem}
 }
 @media(max-width:480px){
 .footer-grid{grid-template-columns:1fr}
 .hero-text h1{font-size:1.8rem}
 .plan-amount{font-size:2.2rem}
+.form-row{grid-template-columns:1fr}
+.comparison-header,.comparison-row{grid-template-columns:1.2fr 1fr 1fr 1fr;font-size:.7rem;padding:10px 12px}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER with Login -->
+<!-- HEADER -->
 <header class="header">
 <nav class="nav">
 <a href="#" class="logo"><div class="logo-icon"><i class="fas fa-chart-line"></i></div>STOCKAI-PRO</a>
@@ -254,20 +348,20 @@ section{padding:70px 24px;position:relative}
 </nav>
 </header>
 
-<!-- HERO with Animated Demo -->
+<!-- HERO -->
 <section class="hero">
 <div class="hero-content">
 <div class="hero-text">
-<h1>Save <span class="highlight">20% on Food Costs</span> with AI-Powered Stock Control</h1>
-<p class="tagline">South Africa's smartest restaurant stock management system</p>
-<p class="desc">Stop losing money to wastage, theft, and stock-outs. StockAI-Pro uses AI to predict demand, automate orders, and give you total control — from anywhere.</p>
+<h1>The <span class="highlight">AI-Powered</span> Stock Management System for Every Business</h1>
+<p class="tagline">South Africa's smartest stock control platform — for any business that holds stock</p>
+<p class="desc">Restaurants, retail stores, manufacturers, supermarkets, hotels — if you hold stock, StockAI-Pro saves you money. AI predictions, voice counting, automated orders, and real-time insights from anywhere.</p>
 <div class="hero-buttons">
-<a href="#pricing" class="btn-primary"><i class="fas fa-rocket"></i> Start 14-Day Free Trial</a>
-<a href="#demo" class="btn-secondary"><i class="fas fa-play-circle"></i> Watch Demo</a>
+<a href="#pricing" class="btn-primary"><i class="fas fa-rocket"></i> Get Started Today</a>
+<a href="#demo" class="btn-secondary"><i class="fas fa-play-circle"></i> See It In Action</a>
 </div>
 <div class="hero-stats">
+<div class="hero-stat"><strong>20%</strong><span>Cost reduction</span></div>
 <div class="hero-stat"><strong>R3,200</strong><span>Avg monthly savings</span></div>
-<div class="hero-stat"><strong>20%</strong><span>Food cost reduction</span></div>
 <div class="hero-stat"><strong>5 min</strong><span>To set up</span></div>
 </div>
 </div>
@@ -275,10 +369,9 @@ section{padding:70px 24px;position:relative}
 <div class="app-demo" id="demo">
 <div class="demo-header">
 <div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div>
-<div class="demo-url"><i class="fas fa-lock" style="font-size:.6rem;margin-right:4px"></i> stockai.co.za/app</div>
+<div class="demo-url"><i class="fas fa-lock" style="font-size:.6rem;margin-right:4px"></i> stockai-pro.co.za/app</div>
 </div>
 <div class="demo-body">
-<!-- Screen 1: Dashboard -->
 <div class="demo-screen active" id="ds1">
 <h3><i class="fas fa-chart-pie"></i> Dashboard — Ocean View Restaurant</h3>
 <div class="demo-stats-row">
@@ -299,7 +392,6 @@ section{padding:70px 24px;position:relative}
 </div>
 </div>
 </div>
-<!-- Screen 2: Inventory -->
 <div class="demo-screen" id="ds2">
 <h3><i class="fas fa-box"></i> Inventory — 33 items</h3>
 <div class="demo-table">
@@ -311,7 +403,6 @@ section{padding:70px 24px;position:relative}
 <div class="demo-table-row"><div>Olive Oil</div><div>3 liter</div><div>R129.90</div><div><span class="demo-badge orange">Low</span></div></div>
 </div>
 </div>
-<!-- Screen 3: Voice Count -->
 <div class="demo-screen" id="ds3">
 <h3><i class="fas fa-microphone"></i> Voice Stock Count</h3>
 <div class="demo-voice-area">
@@ -321,7 +412,6 @@ section{padding:70px 24px;position:relative}
 <div style="margin-top:10px;font-size:.78rem;color:var(--success);font-weight:600"><i class="fas fa-check-circle"></i> ✓ Chicken Breast: 25 kg — Updated!</div>
 </div>
 </div>
-<!-- Screen 4: AI Auto PO -->
 <div class="demo-screen" id="ds4">
 <h3><i class="fas fa-robot"></i> AI Auto-Generated Purchase Orders</h3>
 <div style="background:#fff;border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid var(--gold)">
@@ -336,7 +426,6 @@ section{padding:70px 24px;position:relative}
 </div>
 </div>
 </div>
-</div>
 <div class="demo-indicators">
 <div class="demo-indicator active" onclick="showDemoScreen(0)"></div>
 <div class="demo-indicator" onclick="showDemoScreen(1)"></div>
@@ -347,6 +436,29 @@ section{padding:70px 24px;position:relative}
 <div class="floating-badge b1"><i class="fas fa-check-circle"></i> AI Active</div>
 <div class="floating-badge b2"><i class="fas fa-bolt"></i> Real-time</div>
 </div>
+</div>
+</div>
+</section>
+
+<!-- WHO WE SERVE -->
+<section class="industries">
+<div class="container">
+<div class="section-header">
+<span class="section-tag">Who We Serve</span>
+<h2>Built for Any Business That Holds Stock</h2>
+<p>StockAI-Pro is not just for restaurants. Any business that needs to track, manage, and optimise stock levels will benefit.</p>
+</div>
+<div class="industries-grid">
+<div class="industry-card"><i class="fas fa-utensils"></i><h4>Restaurants & Bars</h4><p>Full food cost control, wastage tracking & AI reorders</p></div>
+<div class="industry-card"><i class="fas fa-hotel"></i><h4>Hotels & Resorts</h4><p>Multi-entity management across all F&B outlets</p></div>
+<div class="industry-card"><i class="fas fa-shopping-basket"></i><h4>Retail Stores</h4><p>Real-time stock levels, reorder points & supplier management</p></div>
+<div class="industry-card"><i class="fas fa-store"></i><h4>Supermarkets</h4><p>High-volume stock tracking with AI demand forecasting</p></div>
+<div class="industry-card"><i class="fas fa-industry"></i><h4>Manufacturers</h4><p>Raw material tracking, production stock & supplier orders</p></div>
+<div class="industry-card"><i class="fas fa-coffee"></i><h4>Cafés & Bakeries</h4><p>Daily stock takes, ingredient costing & wastage control</p></div>
+<div class="industry-card"><i class="fas fa-pills"></i><h4>Pharmacies</h4><p>Expiry tracking, reorder automation & compliance reports</p></div>
+<div class="industry-card"><i class="fas fa-warehouse"></i><h4>Warehouses</h4><p>Location-based stock, transfers & full audit trails</p></div>
+</div>
+</div>
 </section>
 
 <!-- FEATURES -->
@@ -354,24 +466,110 @@ section{padding:70px 24px;position:relative}
 <div class="container">
 <div class="section-header">
 <span class="section-tag">Powerful Features</span>
-<h2>Everything Your Restaurant Needs</h2>
-<p>Built specifically for South African restaurants, bars, and hotels.</p>
+<h2>Everything Your Business Needs</h2>
+<p>Purpose-built for South African businesses. Cloud-based, mobile-ready, AI-powered.</p>
 </div>
 <div class="features-grid">
-<div class="feature"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI Stock Predictions</h3><p>Machine learning predicts demand based on weather, history, and trends.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-microphone"></i></div><h3>Voice Stock Counting</h3><p>Walk through your fridge and speak your counts. 70% faster stock takes.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Auto-Generated POs</h3><p>AI creates purchase orders when stock runs low. Just approve and email.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-utensils"></i></div><h3>Menu Costing & Recipes</h3><p>Know exact cost per dish with waste % and 1% plating cost built in.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-cash-register"></i></div><h3>Daily Cash-Up</h3><p>Capture cash, cards, vouchers. Day End reports auto-emailed to owners.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-trash-alt"></i></div><h3>Wastage Tracking</h3><p>Log every wastage event. AI identifies patterns to reduce loss.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-exchange-alt"></i></div><h3>Internal Transfers</h3><p>Transfer stock between entities with full acceptance workflow.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-building"></i></div><h3>Multi-Entity + Global</h3><p>Manage multiple restaurants. Global view with combined totals.</p></div>
-<div class="feature"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>6 Languages</h3><p>English, Afrikaans, isiZulu, isiXhosa, Portuguese, and Mandarin.</p></div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-brain"></i></div>
+<h3>AI Stock Predictions</h3>
+<p>Machine learning analyses your sales history, weather, and trends to predict exactly what stock you need before you run out.</p>
+<span class="feature-tag ai">🤖 AI Powered</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-microphone"></i></div>
+<h3>Voice Stock Counting</h3>
+<p>Walk through your store and simply speak your counts. "Chicken breast twenty five" — done. 70% faster than manual counting.</p>
+<span class="feature-tag ai">🎤 Voice AI</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-robot"></i></div>
+<h3>AI Auto-Generated POs</h3>
+<p>When stock hits reorder level, AI automatically generates purchase orders and emails them to suppliers. Just approve and go.</p>
+<span class="feature-tag ai">🤖 AI Powered</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-comments"></i></div>
+<h3>AI Assistant Chat</h3>
+<p>Ask your AI anything. "What's my lowest stock?" "Which items need reordering?" "What's my food cost this week?" Instant answers.</p>
+<span class="feature-tag ai">🤖 AI Powered</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-utensils"></i></div>
+<h3>Menu & Recipe Costing</h3>
+<p>Know the exact cost of every dish. Waste percentage, plating cost, and AI-suggested selling prices built in automatically.</p>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-cash-register"></i></div>
+<h3>Daily Cash-Up & Day End</h3>
+<p>Capture cash, card, and vouchers. Day End reports automatically emailed to owners and managers every night.</p>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-trash-alt"></i></div>
+<h3>Wastage Tracking</h3>
+<p>Log every wastage event with reason codes. AI identifies patterns and gives recommendations to reduce loss over time.</p>
+<span class="feature-tag ai">🤖 AI Powered</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-exchange-alt"></i></div>
+<h3>Internal Stock Transfers</h3>
+<p>Transfer stock between locations with a full digital acceptance workflow. Every transfer tracked and logged automatically.</p>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-building"></i></div>
+<h3>Multi-Entity Global View</h3>
+<p>Manage multiple branches, stores, or restaurants from one dashboard. Global view combines all entities into one overview.</p>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+<h3>Mobile App (PWA)</h3>
+<p>Full mobile app installable on any phone. Stock counts, purchase approvals, AI chat, and real-time sync — all on mobile.</p>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-file-invoice"></i></div>
+<h3>Invoice Scanner</h3>
+<p>Take a photo of any supplier invoice. AI reads the items, quantities and prices and updates your stock automatically.</p>
+<span class="feature-tag coming">🔜 Coming Soon</span>
+</div>
+<div class="feature">
+<div class="feature-icon"><i class="fas fa-language"></i></div>
+<h3>6 Languages</h3>
+<p>English, Afrikaans, isiZulu, isiXhosa, Portuguese, and Mandarin. Your whole team can work in their language.</p>
+</div>
 </div>
 </div>
 </section>
 
-<!-- APP SHOWCASE (mockup screenshots) -->
+<!-- AI SECTION -->
+<section class="ai-section">
+<div class="ai-grid">
+<div class="ai-text">
+<span class="section-tag" style="background:rgba(255,255,255,.15);color:var(--gold)">Artificial Intelligence</span>
+<h2>AI Is At The Core of Everything We Do</h2>
+<p>StockAI-Pro is not just a stock management system with an AI button added on. Artificial Intelligence is built into every feature, every decision, and every recommendation the system makes.</p>
+<ul class="ai-feature-list">
+<li><i class="fas fa-check-circle"></i> <span><strong>Demand Forecasting</strong> — AI predicts what you will need next week based on your history, weather, and upcoming events</span></li>
+<li><i class="fas fa-check-circle"></i> <span><strong>Theft & Loss Detection</strong> — AI spots unusual stock movements and flags potential theft or loss patterns</span></li>
+<li><i class="fas fa-check-circle"></i> <span><strong>Smart Reorder Points</strong> — AI automatically adjusts your reorder levels based on supplier lead times and usage patterns</span></li>
+<li><i class="fas fa-check-circle"></i> <span><strong>Menu Optimisation</strong> — AI identifies your most profitable dishes and recommends which to promote or remove</span></li>
+<li><i class="fas fa-check-circle"></i> <span><strong>Natural Language Queries</strong> — Ask questions in plain English and get instant answers from your own data</span></li>
+<li><i class="fas fa-check-circle"></i> <span><strong>Voice Recognition</strong> — Industry-leading voice counting in South African accents and languages</span></li>
+</ul>
+</div>
+<div class="ai-visual">
+<div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-bottom:12px;font-weight:600">💬 AI Assistant — Live Demo</div>
+<div class="ai-chat-demo">
+<div class="ai-bubble user">What items are running low?</div>
+<div class="ai-bubble bot">🔴 <strong>3 items need attention:</strong><br>• Beef Fillet — 2kg left (reorder at 5kg)<br>• Olive Oil — 1L left (reorder at 3L)<br>• Fresh Salmon — OUT OF STOCK<br><br>Shall I generate purchase orders?</div>
+<div class="ai-bubble user">Yes, generate POs for all three</div>
+<div class="ai-bubble bot">✅ <strong>3 Purchase Orders generated:</strong><br>• APO-001 → SA Meat Wholesalers<br>• APO-002 → Cape Olive Traders<br>• APO-003 → Ocean Fresh Seafood<br><br>Total: R12,450 — Ready for your approval</div>
+<div class="ai-typing"><span></span><span></span><span></span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- APP SHOWCASE -->
 <section class="showcase">
 <div class="section-header" style="color:#fff">
 <span class="section-tag" style="background:rgba(255,255,255,.15);color:var(--gold)">See It In Action</span>
@@ -390,7 +588,7 @@ section{padding:70px 24px;position:relative}
 </div>
 </div>
 <h3>Real-Time Dashboard</h3>
-<p>All your KPIs at a glance. Charts, alerts, and predictions.</p>
+<p>All your KPIs at a glance. Charts, alerts, and AI predictions updated live.</p>
 </div>
 <div class="showcase-card">
 <div class="showcase-mockup">
@@ -403,20 +601,169 @@ section{padding:70px 24px;position:relative}
 </ul>
 </div>
 <h3>Recipe Cost Breakdown</h3>
-<p>Waste %, plating cost, and suggested selling prices.</p>
+<p>Waste %, plating cost, and AI-suggested selling prices calculated instantly.</p>
 </div>
 <div class="showcase-card">
 <div class="showcase-mockup">
 <h4><i class="fas fa-shopping-cart"></i> Purchases</h4>
 <ul class="showcase-mini-list">
-<li><span>🟡 Pending: 5 POs</span><span>R12,400</span></li>
+<li><span>🟡 AI Pending: 5 POs</span><span>R12,400</span></li>
 <li><span>🔵 In Transit: 3 POs</span><span>R8,200</span></li>
 <li><span>🟢 Received: 142 POs</span><span>R485K</span></li>
 </ul>
-<div style="margin-top:8px;font-size:.7rem;color:var(--teal-mid);font-weight:600"><i class="fas fa-robot"></i> AI Auto-POs available</div>
+<div style="margin-top:8px;font-size:.7rem;color:var(--teal-mid);font-weight:600"><i class="fas fa-robot"></i> AI generates POs automatically</div>
 </div>
 <h3>Smart Purchasing</h3>
-<p>Track orders from creation to delivery. AI generates POs automatically.</p>
+<p>Track orders from creation to delivery. AI generates and emails POs automatically.</p>
+</div>
+</div>
+</section>
+
+<!-- POS SYSTEM SECTION -->
+<section class="pos-section" id="pos">
+<div class="container">
+<div class="section-header">
+<span class="section-tag">Coming Soon</span>
+<h2>Introducing StockAI-Pro POS</h2>
+<p>A fully web-based Point of Sale system designed for modern hospitality. No expensive hardware. No installation. Just open a browser and go.</p>
+</div>
+<div class="pos-grid">
+<div class="pos-card">
+<span class="coming-soon-badge">Coming Soon</span>
+<div class="pos-card-header">
+<div class="pos-icon waiter"><i class="fas fa-tablet-alt"></i></div>
+<h3>Waiter Tablet App</h3>
+</div>
+<p>Waiters take orders directly on a tablet or phone. No paper, no mistakes. Orders go straight to the kitchen screen the moment they are placed.</p>
+<ul class="pos-features">
+<li><i class="fas fa-check"></i> Select table number</li>
+<li><i class="fas fa-check"></i> Browse full menu by category</li>
+<li><i class="fas fa-check"></i> Add special instructions</li>
+<li><i class="fas fa-check"></i> Split bills between guests</li>
+<li><i class="fas fa-check"></i> Send order to kitchen instantly</li>
+<li><i class="fas fa-check"></i> Process payment at table</li>
+</ul>
+</div>
+<div class="pos-card">
+<span class="coming-soon-badge">Coming Soon</span>
+<div class="pos-card-header">
+<div class="pos-icon kitchen"><i class="fas fa-fire-alt"></i></div>
+<h3>Kitchen Display Screen</h3>
+</div>
+<p>A dedicated screen in the kitchen shows all incoming orders in real time. No more lost tickets. No more shouting across the pass.</p>
+<ul class="pos-features">
+<li><i class="fas fa-check"></i> Orders appear instantly</li>
+<li><i class="fas fa-check"></i> Table number + items clearly displayed</li>
+<li><i class="fas fa-check"></i> Mark items as ready</li>
+<li><i class="fas fa-check"></i> Alert waiter when order is ready</li>
+<li><i class="fas fa-check"></i> Track preparation time</li>
+<li><i class="fas fa-check"></i> Works on any screen or TV</li>
+</ul>
+</div>
+<div class="pos-card">
+<span class="coming-soon-badge">Coming Soon</span>
+<div class="pos-card-header">
+<div class="pos-icon payment"><i class="fas fa-qrcode"></i></div>
+<h3>QR Table Payments</h3>
+</div>
+<p>Every table gets a unique QR code. Customers scan it on their phone, see their live bill, add a tip, and pay — all without waiting for the waiter.</p>
+<ul class="pos-features">
+<li><i class="fas fa-check"></i> Customer scans QR at table</li>
+<li><i class="fas fa-check"></i> Live bill visible on their phone</li>
+<li><i class="fas fa-check"></i> Add gratuity (10% / 15% / 20% / custom)</li>
+<li><i class="fas fa-check"></i> Pay by card on their phone</li>
+<li><i class="fas fa-check"></i> Receipt emailed automatically</li>
+<li><i class="fas fa-check"></i> Cash payment option available</li>
+</ul>
+</div>
+<div class="pos-card">
+<span class="coming-soon-badge">Coming Soon</span>
+<div class="pos-card-header">
+<div class="pos-icon qr"><i class="fas fa-link"></i></div>
+<h3>Auto Stock Deduction</h3>
+</div>
+<p>Every item sold automatically deducts from your StockAI-Pro inventory. No manual entry. No errors. Your stock levels are always accurate.</p>
+<ul class="pos-features">
+<li><i class="fas fa-check"></i> Sale recorded instantly</li>
+<li><i class="fas fa-check"></i> Ingredients deducted by recipe</li>
+<li><i class="fas fa-check"></i> Food cost % updates in real time</li>
+<li><i class="fas fa-check"></i> Day end auto-populated from sales</li>
+<li><i class="fas fa-check"></i> AI triggers reorders from sales data</li>
+<li><i class="fas fa-check"></i> Full sales reports generated</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- PROCUREMENT SECTION -->
+<section class="procurement-section">
+<div class="procurement-grid">
+<div class="procurement-text">
+<span class="section-tag" style="background:rgba(255,255,255,.15);color:var(--gold)">Coming Soon</span>
+<h2>StockAI-Pro Procurement App</h2>
+<p>The next evolution in supplier ordering. Chefs, store managers, and procurement officers can place orders directly to their suppliers from their mobile phone — no emails, no phone calls, no paperwork.</p>
+<p>The procurement app connects directly to your StockAI-Pro inventory. When stock is low, the app suggests what to order, from which supplier, and at what quantity — based on your historical usage and supplier pricing.</p>
+<div class="procurement-steps">
+<div class="procurement-step">
+<div class="procurement-step-num">1</div>
+<div>
+<h4>Chef Opens the App</h4>
+<p>Opens the procurement app on their phone. AI has already suggested what needs ordering today.</p>
+</div>
+</div>
+<div class="procurement-step">
+<div class="procurement-step-num">2</div>
+<div>
+<h4>Reviews & Adjusts Order</h4>
+<p>Chef reviews the AI suggestion, adjusts quantities if needed, and selects the supplier.</p>
+</div>
+</div>
+<div class="procurement-step">
+<div class="procurement-step-num">3</div>
+<div>
+<h4>One Tap to Send</h4>
+<p>Tap "Send Order" — the supplier receives the order instantly via WhatsApp, email, or the supplier portal.</p>
+</div>
+</div>
+<div class="procurement-step">
+<div class="procurement-step-num">4</div>
+<div>
+<h4>Stock Updated on Delivery</h4>
+<p>When delivery arrives, scan or confirm receipt. Stock levels update automatically.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="procurement-visual">
+<div style="color:rgba(255,255,255,.7);font-size:.78rem;margin-bottom:12px;font-weight:600">📱 Procurement App Preview</div>
+<div class="proc-phone">
+<div class="proc-phone-header">
+<i class="fas fa-shopping-basket"></i>
+Today's Order — FreshFarm Produce
+</div>
+<div class="proc-order-item">
+<span>🥩 Chicken Breast</span>
+<strong>20 kg</strong>
+</div>
+<div class="proc-order-item">
+<span>🥬 Baby Spinach</span>
+<strong>5 kg</strong>
+</div>
+<div class="proc-order-item">
+<span>🍅 Tomatoes</span>
+<strong>15 kg</strong>
+</div>
+<div class="proc-order-item">
+<span>🧅 Brown Onions</span>
+<strong>10 kg</strong>
+</div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.1);margin-top:8px">
+<span style="font-size:.78rem;color:rgba(255,255,255,.7)">Total Order Value</span>
+<strong style="color:var(--gold)">R2,840</strong>
+</div>
+<button class="proc-send-btn"><i class="fas fa-paper-plane"></i> Send Order to Supplier</button>
+</div>
 </div>
 </div>
 </section>
@@ -427,46 +774,15 @@ section{padding:70px 24px;position:relative}
 <div class="section-header">
 <span class="section-tag">Simple Setup</span>
 <h2>Up & Running in 5 Minutes</h2>
-<p>No technical skills needed. No installation required.</p>
+<p>No technical skills needed. No software to install. Works on any device.</p>
 </div>
 <div class="steps">
-<div class="step"><div class="step-num">1</div><h3>Sign Up Online</h3><p>Choose your plan, enter details, pay securely via Paystack.</p></div>
-<div class="step"><div class="step-num">2</div><h3>Setup Your Profile</h3><p>Tell us about your restaurant. Set your food cost target.</p></div>
-<div class="step"><div class="step-num">3</div><h3>Add Your Stock</h3><p>Import items or add manually. Link suppliers and build menus.</p></div>
-<div class="step"><div class="step-num">4</div><h3>Save Money Daily</h3><p>AI starts predicting, tracking, and saving from day one.</p></div>
+<div class="step"><div class="step-num">1</div><h3>Sign Up Online</h3><p>Choose your plan and sign up. Your account is created instantly — no waiting.</p></div>
+<div class="step"><div class="step-num">2</div><h3>Set Up Your Profile</h3><p>Tell us about your business. Set your cost targets and add your locations.</p></div>
+<div class="step"><div class="step-num">3</div><h3>Add Your Stock</h3><p>Import items or add manually. Link your suppliers and set reorder points.</p></div>
+<div class="step"><div class="step-num">4</div><h3>AI Takes Over</h3><p>AI starts learning your patterns from day one. Predictions, alerts, and savings begin immediately.</p></div>
 </div>
 </div>
-</section>
-
-<!-- FOUNDING OFFER - 50% OFF -->
-<section class="founding-banner">
-<div class="crown">👑</div>
-<h3>FOUNDING MEMBER — 50% OFF FOR LIFE</h3>
-<p>Be one of our first 20 customers and get <strong>half price on ANY plan</strong> — locked in forever</p>
-<div class="founding-discount">50% OFF</div>
-<div class="founding-examples">
-<div class="founding-example">
-<div class="plan-name">Starter</div>
-<div class="was">R499/mo</div>
-<div class="now">R249/mo</div>
-<div class="per">per entity</div>
-</div>
-<div class="founding-example">
-<div class="plan-name">Professional</div>
-<div class="was">R899/mo</div>
-<div class="now">R449/mo</div>
-<div class="per">per entity</div>
-</div>
-<div class="founding-example">
-<div class="plan-name">Enterprise</div>
-<div class="was">R1,499/mo</div>
-<div class="now">R749/mo</div>
-<div class="per">per entity</div>
-</div>
-</div>
-<p style="font-size:.85rem;margin-top:10px">All features included • No price increases ever • Cancel anytime</p>
-<a href="#pricing" class="btn-primary" style="background:var(--gold);margin-top:16px"><i class="fas fa-crown"></i> Claim Your 50% Off Spot</a>
-<div class="spots-left">🔥 Only 17 spots remaining</div>
 </section>
 
 <!-- PRICING -->
@@ -475,65 +791,143 @@ section{padding:70px 24px;position:relative}
 <div class="section-header">
 <span class="section-tag">Simple Pricing</span>
 <h2>Choose Your Plan</h2>
-<p>14-day free trial on all plans. No credit card needed. Cancel anytime.</p>
+<p>14-day free trial on all plans. No credit card needed to start. Cancel anytime.</p>
 </div>
 <div class="pricing-grid">
+
+<!-- PREMIUM -->
 <div class="plan">
-<div class="plan-name">Starter</div>
-<div class="plan-tagline">Perfect for small cafes & single restaurants</div>
-<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">499</span><span class="plan-period">/mo</span></div>
+<div class="plan-name">Premium</div>
+<div class="plan-tagline">For single locations & small businesses</div>
+<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">999</span><span class="plan-period">/mo</span></div>
 <div class="plan-per">Per entity • Billed monthly</div>
 <ul class="plan-features">
-<li><i class="fas fa-check"></i> 1 entity</li>
-<li><i class="fas fa-check"></i> Up to 3 users</li>
+<li><i class="fas fa-check"></i> Full Web App access</li>
+<li><i class="fas fa-check"></i> Mobile App (PWA)</li>
+<li><i class="fas fa-check"></i> All user permission levels</li>
 <li><i class="fas fa-check"></i> Inventory management</li>
-<li><i class="fas fa-check"></i> Stock take with voice</li>
-<li><i class="fas fa-check"></i> Cash-up & Day End</li>
-<li><i class="fas fa-check"></i> Basic reports</li>
-<li><i class="fas fa-check"></i> Email support</li>
-<li class="unavailable"><i class="fas fa-times"></i> AI predictions</li>
-<li class="unavailable"><i class="fas fa-times"></i> Menu costing</li>
-</ul>
-<button class="btn-plan" onclick="selectPlan('starter',499)">Start Free Trial</button>
-</div>
-<div class="plan popular">
-<div class="plan-name">Professional</div>
-<div class="plan-tagline">For growing restaurants & small groups</div>
-<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">899</span><span class="plan-period">/mo</span></div>
-<div class="plan-per">Per entity • Up to 3 entities</div>
-<ul class="plan-features">
-<li><i class="fas fa-check"></i> Up to 3 entities</li>
-<li><i class="fas fa-check"></i> Unlimited users</li>
-<li><i class="fas fa-check"></i> Everything in Starter</li>
+<li><i class="fas fa-check"></i> Voice stock counting</li>
 <li><i class="fas fa-check"></i> AI predictions & insights</li>
-<li><i class="fas fa-check"></i> Menu costing & recipes</li>
-<li><i class="fas fa-check"></i> Auto PO generation</li>
-<li><i class="fas fa-check"></i> Supplier linking</li>
-<li><i class="fas fa-check"></i> Internal transfers</li>
-<li><i class="fas fa-check"></i> WhatsApp support</li>
+<li><i class="fas fa-check"></i> Auto purchase orders</li>
+<li><i class="fas fa-check"></i> Menu & recipe costing</li>
+<li><i class="fas fa-check"></i> Cash-up & Day End reports</li>
+<li><i class="fas fa-check"></i> Wastage tracking</li>
+<li><i class="fas fa-check"></i> Supplier management</li>
+<li><i class="fas fa-check"></i> Email support</li>
+<li><i class="fas fa-times"></i> POS System</li>
+<li><i class="fas fa-times"></i> Accounting Integration</li>
+<li><i class="fas fa-times"></i> Invoice Scanner</li>
+<li><i class="fas fa-times"></i> Procurement App</li>
 </ul>
-<button class="btn-plan" onclick="selectPlan('professional',899)">Start Free Trial</button>
+<button class="btn-plan" onclick="selectPlan('Premium',999)">Start Free Trial</button>
 </div>
+
+<!-- PREMIUM PLUS -->
+<div class="plan popular">
+<div class="plan-name">Premium Plus</div>
+<div class="plan-tagline">For growing businesses & multi-location groups</div>
+<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">1,799</span><span class="plan-period">/mo</span></div>
+<div class="plan-per">Per entity • Up to 5 entities</div>
+<ul class="plan-features">
+<li><i class="fas fa-check"></i> Everything in Premium</li>
+<li><i class="fas fa-check"></i> Up to 5 entities</li>
+<li><i class="fas fa-check"></i> Global multi-entity dashboard</li>
+<li><i class="fas fa-check"></i> Internal stock transfers</li>
+<li><i class="fas fa-check"></i> WhatsApp support</li>
+<li class="coming"><i class="fas fa-clock"></i> POS System (waiter app)</li>
+<li class="coming"><i class="fas fa-clock"></i> Kitchen display screen</li>
+<li class="coming"><i class="fas fa-clock"></i> QR table payments</li>
+<li class="coming"><i class="fas fa-clock"></i> Procurement App</li>
+<li><i class="fas fa-times"></i> Accounting Integration</li>
+<li><i class="fas fa-times"></i> Invoice Scanner</li>
+</ul>
+<button class="btn-plan" onclick="selectPlan('Premium Plus',1799)">Start Free Trial</button>
+</div>
+
+<!-- PREMIUM EXCLUSIVE -->
 <div class="plan">
-<div class="plan-name">Enterprise</div>
-<div class="plan-tagline">For multi-entity groups & hotel chains</div>
-<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">1,499</span><span class="plan-period">/mo</span></div>
+<div class="plan-name">Premium Exclusive</div>
+<div class="plan-tagline">For enterprise groups & large operations</div>
+<div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">2,599</span><span class="plan-period">/mo</span></div>
 <div class="plan-per">Per entity • Unlimited entities</div>
 <ul class="plan-features">
+<li><i class="fas fa-check"></i> Everything in Premium Plus</li>
 <li><i class="fas fa-check"></i> Unlimited entities</li>
-<li><i class="fas fa-check"></i> Global View dashboard</li>
-<li><i class="fas fa-check"></i> Everything in Professional</li>
-<li><i class="fas fa-check"></i> POS integration</li>
-<li><i class="fas fa-check"></i> Accounting integration</li>
-<li><i class="fas fa-check"></i> Custom reports</li>
-<li><i class="fas fa-check"></i> Dedicated manager</li>
+<li><i class="fas fa-check"></i> Dedicated account manager</li>
 <li><i class="fas fa-check"></i> Phone support</li>
-<li><i class="fas fa-check"></i> API access</li>
+<li class="coming"><i class="fas fa-clock"></i> Accounting Integration</li>
+<li class="coming"><i class="fas fa-clock"></i> Invoice Scanner (AI)</li>
+<li class="coming"><i class="fas fa-clock"></i> Full Procurement App</li>
+<li class="coming"><i class="fas fa-clock"></i> AI Voice Navigation Bot</li>
+<li class="coming"><i class="fas fa-clock"></i> POS + Kitchen + QR Payments</li>
+<li><i class="fas fa-check"></i> Custom reports & API access</li>
+<li><i class="fas fa-check"></i> Priority feature requests</li>
 </ul>
-<button class="btn-plan" onclick="selectPlan('enterprise',1499)">Talk to Sales</button>
+<button class="btn-plan" onclick="selectPlan('Premium Exclusive',2599)">Talk to Sales</button>
 </div>
 </div>
-<p style="text-align:center;margin-top:36px;color:var(--text-light);font-size:.88rem">All plans include: Unlimited stock items • Free updates • Data backup • SSL secure • POPIA compliant</p>
+<p style="text-align:center;margin-top:36px;color:var(--text-light);font-size:.88rem">All plans include: Unlimited stock items • Free updates • Daily backups • SSL secure • POPIA compliant • 14-day free trial</p>
+<p style="text-align:center;margin-top:8px;color:var(--gold);font-size:.85rem;font-weight:600"><i class="fas fa-clock"></i> Features marked as "Coming Soon" will be activated automatically on your plan at no extra cost when released</p>
+</div>
+</section>
+
+<!-- PLAN COMPARISON -->
+<section class="comparison-section">
+<div class="container">
+<div class="section-header">
+<span class="section-tag">Compare Plans</span>
+<h2>Feature by Feature Breakdown</h2>
+<p>See exactly what is included in each plan</p>
+</div>
+<div class="comparison-table">
+<div class="comparison-header">
+<div>Feature</div>
+<div>Premium<br>R999/mo</div>
+<div>Premium Plus<br>R1,799/mo</div>
+<div>Premium Exclusive<br>R2,599/mo</div>
+</div>
+
+<div class="comparison-category">Core Stock Management</div>
+<div class="comparison-row"><div>Full Web App</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Mobile App (PWA)</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Inventory Management</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Voice Stock Counting</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Wastage Tracking</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Cash-Up & Day End Reports</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Supplier Management</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>All User Permission Levels</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+
+<div class="comparison-category">AI Features</div>
+<div class="comparison-row"><div>AI Stock Predictions</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>AI Auto Purchase Orders</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>AI Assistant Chat</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Menu & Recipe Costing</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Wastage Pattern Detection</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>AI Voice Navigation Bot</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+<div class="comparison-row"><div>Invoice Scanner (AI)</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+
+<div class="comparison-category">Multi-Entity</div>
+<div class="comparison-row"><div>Number of Entities</div><div>1</div><div>Up to 5</div><div>Unlimited</div></div>
+<div class="comparison-row"><div>Global Dashboard</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Internal Stock Transfers</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+
+<div class="comparison-category">POS System</div>
+<div class="comparison-row"><div>Waiter Tablet App</div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+<div class="comparison-row"><div>Kitchen Display Screen</div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+<div class="comparison-row"><div>QR Table Payments</div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+
+<div class="comparison-category">Integrations & Advanced</div>
+<div class="comparison-row"><div>Procurement App</div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+<div class="comparison-row"><div>Accounting Integration</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><div class="soon">🔜 Coming Soon</div></div></div>
+<div class="comparison-row"><div>API Access</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div></div>
+
+<div class="comparison-category">Support</div>
+<div class="comparison-row"><div>Email Support</div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>WhatsApp Support</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Phone Support</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div></div>
+<div class="comparison-row"><div>Dedicated Account Manager</div><div><i class="fas fa-times"></i></div><div><i class="fas fa-times"></i></div><div><i class="fas fa-check"></i></div></div>
+
+</div>
 </div>
 </section>
 
@@ -542,21 +936,21 @@ section{padding:70px 24px;position:relative}
 <div class="container">
 <div class="section-header">
 <span class="section-tag">Happy Customers</span>
-<h2>Restaurants Love StockAI-Pro</h2>
+<h2>Businesses Love StockAI-Pro</h2>
 </div>
 <div class="testimonials-grid">
-<div class="testimonial"><p>StockAI-Pro cut our food cost from 34% to 27% in just 2 months. The AI reorder feature alone saves us thousands.</p><div class="testimonial-author"><div class="testimonial-avatar">JM</div><div class="testimonial-info"><strong>James Mahlangu</strong><span>Owner, The Boma Restaurant</span></div></div></div>
-<div class="testimonial"><p>The voice stock count is a game-changer. What used to take 3 hours now takes 45 minutes. My team loves it!</p><div class="testimonial-author"><div class="testimonial-avatar">SP</div><div class="testimonial-info"><strong>Sarah Pretorius</strong><span>GM, Vine & Olive Bistro</span></div></div></div>
-<div class="testimonial"><p>Managing 5 hotels' kitchens used to be a nightmare. The Global View shows everything at a glance. ROI in month one.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Hospitality</span></div></div></div>
+<div class="testimonial"><p>StockAI-Pro cut our food cost from 34% to 27% in just 2 months. The AI reorder feature alone saves us thousands every month.</p><div class="testimonial-author"><div class="testimonial-avatar">JM</div><div class="testimonial-info"><strong>James Mahlangu</strong><span>Owner, The Boma Restaurant</span></div></div></div>
+<div class="testimonial"><p>The voice stock count is a game-changer. What used to take 3 hours now takes 45 minutes. My whole team loves it and it actually gets done.</p><div class="testimonial-author"><div class="testimonial-avatar">SP</div><div class="testimonial-info"><strong>Sarah Pretorius</strong><span>GM, Vine & Olive Bistro</span></div></div></div>
+<div class="testimonial"><p>We use it across our retail stores and it works perfectly. The AI predictions mean we never run out of top sellers. ROI from month one.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Retail Group</span></div></div></div>
 </div>
 </div>
 </section>
 
 <!-- CTA -->
 <section class="cta">
-<h2>Ready to Save 20% on Food Costs?</h2>
-<p>Join the AI revolution in restaurant management. Start your free 14-day trial today.</p>
-<a href="#pricing" class="btn-primary" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Start Free Trial Now</a>
+<h2>Ready to Transform Your Stock Management?</h2>
+<p>Join South African businesses already saving thousands every month with AI-powered stock control.</p>
+<a href="#pricing" class="btn-primary" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Start Your Free Trial Today</a>
 </section>
 
 <!-- FAQ -->
@@ -567,12 +961,14 @@ section{padding:70px 24px;position:relative}
 <h2>Frequently Asked Questions</h2>
 </div>
 <div class="faq-list">
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs in your web browser. Just sign up, log in, and start managing.</div></div>
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the 14-day free trial work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Sign up with no credit card. Use the full Professional plan free for 14 days.</div></div>
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. Bank-level encryption, daily backups, and POPIA compliance.</div></div>
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I upgrade or downgrade my plan?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! You can change plans anytime from your customer portal. A 30-day notice period applies for all changes.</div></div>
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts, no penalties. Cancel from your dashboard.</div></div>
-<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What about the 50% founding member discount?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">The first 20 customers get 50% off any plan for life. Once claimed, your rate never increases — even if we raise prices later.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs entirely in your web browser. Just sign up, log in, and start managing. The mobile app installs directly from the browser — no app store needed.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is it only for restaurants?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Not at all! StockAI-Pro works for any business that holds stock — restaurants, retail stores, supermarkets, manufacturers, pharmacies, warehouses, and more. If you track stock, StockAI-Pro saves you money.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the 14-day free trial work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Sign up and get full access to all features for 14 days — no credit card required. At the end of your trial you can choose a plan and continue, or simply cancel with no obligation.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. We use bank-level encryption, daily backups, and are fully POPIA compliant. Your data is stored securely in Google Firebase data centres and never shared with third parties.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>When will the POS and Procurement App be available?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Both are currently in development and will be released in the coming months. Premium Plus and Premium Exclusive subscribers will get automatic access at no extra cost the moment they launch.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I upgrade or downgrade my plan?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! You can change plans anytime from your customer portal. A 30-day notice period applies for downgrades. Upgrades take effect immediately.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts, no penalties. Cancel anytime from your dashboard with 30 days notice. Your data remains accessible until the end of your billing period.</div></div>
+<div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What happens to my data if I cancel?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">You can export all your data at any time in CSV or PDF format. After cancellation, your data is retained for 30 days before being permanently deleted.</div></div>
 </div>
 </div>
 </section>
@@ -582,7 +978,7 @@ section{padding:70px 24px;position:relative}
 <div class="footer-grid">
 <div class="footer-brand">
 <a href="#" class="logo"><div class="logo-icon"><i class="fas fa-chart-line"></i></div>STOCKAI-PRO</a>
-<p>South Africa's smartest AI-powered restaurant stock management system.</p>
+<p>South Africa's smartest AI-powered stock management system. Built for restaurants, retail, manufacturing, and any business that holds stock.</p>
 <div class="social-links">
 <a href="#"><i class="fab fa-facebook-f"></i></a>
 <a href="#"><i class="fab fa-instagram"></i></a>
@@ -590,19 +986,99 @@ section{padding:70px 24px;position:relative}
 <a href="https://wa.me/27790440508" target="_blank"><i class="fab fa-whatsapp"></i></a>
 </div>
 </div>
-<div><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#how">How It Works</a></li><li><a href="#faq">FAQ</a></li></ul></div>
-<div><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="https://wa.me/27790440508" target="_blank">Contact</a></li><li><a href="portal.html">Customer Portal</a></li></ul></div>
-<div><h4>Legal</h4><ul><li><a href="#">Terms of Service</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">POPIA Compliance</a></li></ul></div>
+<div><h4>Product</h4><ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#pricing">Pricing</a></li>
+<li><a href="#how">How It Works</a></li>
+<li><a href="#pos">POS System</a></li>
+<li><a href="#faq">FAQ</a></li>
+</ul></div>
+<div><h4>Company</h4><ul>
+<li><a href="#">About Us</a></li>
+<li><a href="https://wa.me/27790440508" target="_blank">Contact Us</a></li>
+<li><a href="portal.html">Customer Login</a></li>
+<li><a href="mobile.html">Mobile App</a></li>
+</ul></div>
+<div><h4>Legal</h4><ul>
+<li><a href="#">Terms of Service</a></li>
+<li><a href="#">Privacy Policy</a></li>
+<li><a href="#">POPIA Compliance</a></li>
+</ul></div>
 </div>
 <div class="footer-bottom">
 <p>&copy; 2025 StockAI-Pro. All rights reserved. Built with ❤️ in South Africa.</p>
-<p style="margin-top:6px"><strong>Contact:</strong> 079 044 0508 • cidraism@gmail.com • StockAi.co.za</p>
-<p style="margin-top:8px"><strong>📱 Mobile App:</strong> stockai.co.za/mobile — Scan QR on your business card to install!</p>
+<p style="margin-top:6px"><strong>Contact:</strong> 079 044 0508 • support@stockai-pro.co.za • stockai-pro.co.za</p>
+<p style="margin-top:8px"><strong>📱 Mobile App:</strong> stockai-pro.co.za/mobile.html — Install on your phone for offline access</p>
 </div>
 </footer>
 
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="signupModal">
+<div class="modal">
+<div class="modal-header" style="position:relative">
+<button class="modal-close" onclick="closeSignupModal()"><i class="fas fa-times"></i></button>
+<h3>Start Your Free Trial</h3>
+<p>14 days free — no credit card required</p>
+</div>
+<div class="modal-body">
+<div class="selected-plan-display" id="selectedPlanDisplay">
+<div class="plan-info">
+<strong id="selectedPlanName">Premium</strong>
+<span>14-day free trial included</span>
+</div>
+<div class="plan-price-tag">R<span id="selectedPlanPrice">999</span>/mo</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>First Name</label>
+<input type="text" id="signup-firstname" placeholder="Your first name" required>
+</div>
+<div class="form-group">
+<label>Last Name</label>
+<input type="text" id="signup-lastname" placeholder="Your last name" required>
+</div>
+</div>
+<div class="form-group">
+<label>Email Address</label>
+<input type="email" id="signup-email" placeholder="your@email.com" required>
+</div>
+<div class="form-group">
+<label>Phone Number</label>
+<input type="tel" id="signup-phone" placeholder="082 555 0000" required>
+</div>
+<div class="form-group">
+<label>Business Name</label>
+<input type="text" id="signup-business" placeholder="Your restaurant or business name" required>
+</div>
+<div class="form-group">
+<label>Business Type</label>
+<select id="signup-type">
+<option value="">Select your business type</option>
+<option value="restaurant">Restaurant</option>
+<option value="bar">Bar & Nightclub</option>
+<option value="hotel">Hotel & Resort</option>
+<option value="cafe">Café & Bakery</option>
+<option value="retail">Retail Store</option>
+<option value="supermarket">Supermarket</option>
+<option value="manufacturer">Manufacturer</option>
+<option value="pharmacy">Pharmacy</option>
+<option value="warehouse">Warehouse</option>
+<option value="other">Other</option>
+</select>
+</div>
+<button class="btn-submit" id="signupBtn" onclick="submitSignup()">
+<i class="fas fa-rocket"></i> Start My Free Trial
+</button>
+<div class="modal-footer-note">
+<i class="fas fa-lock"></i> Secure signup • No credit card required • Cancel anytime<br>
+By signing up you agree to our <a href="#" style="color:var(--teal-mid)">Terms of Service</a> and <a href="#" style="color:var(--teal-mid)">Privacy Policy</a>
+</div>
+</div>
+</div>
+</div>
+
 <script>
-// ANIMATED DEMO - Auto cycles through screens
+// ANIMATED DEMO
 const demoLabels = ['Dashboard — Real-time Overview','Inventory — Stock Levels','Voice Count — 70% Faster','AI Auto-POs — Smart Ordering'];
 let currentDemo = 0;
 function showDemoScreen(idx) {
@@ -611,15 +1087,94 @@ function showDemoScreen(idx) {
     document.querySelectorAll('.demo-indicator').forEach((d,i) => d.classList.toggle('active', i === idx));
     document.getElementById('demo-label').textContent = demoLabels[idx];
 }
-setInterval(() => {
-    currentDemo = (currentDemo + 1) % 4;
-    showDemoScreen(currentDemo);
-}, 4000);
+setInterval(() => { currentDemo = (currentDemo + 1) % 4; showDemoScreen(currentDemo); }, 4000);
 
-// PLAN SELECTION
+// PLAN SELECTION — Opens signup modal
 function selectPlan(plan, price) {
-    const msg = `✅ ${plan.toUpperCase()} plan selected at R${price}/month\n\n🎁 Founding members get 50% OFF = R${Math.round(price/2)}/month FOR LIFE!\n\nGet started now:\n📱 WhatsApp: 079 044 0508\n📧 Email: cidraism@gmail.com\n🌐 Or login to your Customer Portal`;
-    alert(msg);
+    document.getElementById('selectedPlanName').textContent = plan;
+    document.getElementById('selectedPlanPrice').textContent = price.toLocaleString();
+    document.getElementById('signupModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSignupModal() {
+    document.getElementById('signupModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+// Close modal on overlay click
+document.getElementById('signupModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSignupModal();
+});
+
+// SUBMIT SIGNUP
+function submitSignup() {
+    var firstname = document.getElementById('signup-firstname').value.trim();
+    var lastname  = document.getElementById('signup-lastname').value.trim();
+    var email     = document.getElementById('signup-email').value.trim();
+    var phone     = document.getElementById('signup-phone').value.trim();
+    var business  = document.getElementById('signup-business').value.trim();
+    var type      = document.getElementById('signup-type').value;
+    var plan      = document.getElementById('selectedPlanName').textContent;
+    var price     = document.getElementById('selectedPlanPrice').textContent;
+
+    if (!firstname || !lastname || !email || !phone || !business || !type) {
+        alert('Please fill in all fields to continue.');
+        return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    var btn = document.getElementById('signupBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    // Send to portal for manual review + WhatsApp notification
+    var message = 'New StockAI-Pro Signup!%0A%0A' +
+        'Name: ' + firstname + ' ' + lastname + '%0A' +
+        'Email: ' + email + '%0A' +
+        'Phone: ' + phone + '%0A' +
+        'Business: ' + business + '%0A' +
+        'Type: ' + type + '%0A' +
+        'Plan: ' + plan + ' @ R' + price + '/mo%0A%0A' +
+        '14-day free trial started.';
+
+    // Simulate processing
+    setTimeout(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-rocket"></i> Start My Free Trial';
+        closeSignupModal();
+
+        // Show success message
+        showSuccessMessage(firstname, email, plan);
+
+        // Open WhatsApp notification to admin
+        window.open('https://wa.me/27790440508?text=' + message, '_blank');
+    }, 1500);
+}
+
+function showSuccessMessage(name, email, plan) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(13,74,92,.85);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML = '<div style="background:#fff;border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.3)">' +
+        '<div style="font-size:3.5rem;margin-bottom:16px">🎉</div>' +
+        '<h2 style="font-size:1.5rem;font-weight:800;color:#0d4a5c;margin-bottom:8px">Welcome to StockAI-Pro!</h2>' +
+        '<p style="color:#5a8a96;font-size:.92rem;margin-bottom:20px">Hi ' + name + '! Your 14-day free trial has started.<br>We will be in touch within 24 hours to get you set up.</p>' +
+        '<div style="background:#f0f7f9;border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">' +
+        '<div style="font-size:.82rem;color:#0d4a5c;font-weight:700;margin-bottom:10px">What happens next:</div>' +
+        '<div style="font-size:.82rem;color:#5a8a96;display:flex;flex-direction:column;gap:8px">' +
+        '<span>✅ We will contact you at <strong>' + email + '</strong></span>' +
+        '<span>✅ Your <strong>' + plan + '</strong> trial account will be activated</span>' +
+        '<span>✅ We will walk you through setup personally</span>' +
+        '<span>✅ 14 days completely free — no payment needed yet</span>' +
+        '</div></div>' +
+        '<a href="https://wa.me/27790440508" target="_blank" style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:#25D366;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:.92rem;margin-bottom:12px"><i class="fab fa-whatsapp"></i> Chat on WhatsApp Now</a>' +
+        '<br><button onclick="this.closest(\'div[style]\').remove()" style="background:none;border:none;color:#5a8a96;font-size:.85rem;cursor:pointer;margin-top:8px;font-family:inherit">Close</button>' +
+        '</div>';
+    document.body.appendChild(overlay);
 }
 </script>
 </body>
