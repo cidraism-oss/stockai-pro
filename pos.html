@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d4a5c">
+<title>StockAI-Pro POS</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--primary:#1a8ba8;--primary-dark:#0d4a5c;--bg:#f0f7f9;--bg-card:#fff;--text:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;--gold:#f59e0b;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;--border:#c4dde4;--shadow:0 2px 12px rgba(13,74,92,.08);--shadow-lg:0 8px 30px rgba(13,74,92,.15);--r:12px;--rs:8px}
+@media(prefers-color-scheme:dark){:root{--bg:#0a1a1f;--bg-card:#0f2a33;--text:#e0f0f4;--text-mid:#a0c8d4;--text-light:#6a9aaa;--text-muted:#4a7a8a;--border:#1a3a44;--shadow:0 2px 12px rgba(0,0,0,.3)}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);font-size:14px;user-select:none;-webkit-user-select:none}
+.hidden{display:none!important}
+
+/* LOGIN */
+.pos-login{position:fixed;inset:0;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
+.pos-login-card{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.pos-login-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;margin:0 auto 14px}
+.pos-login-card h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.pos-login-card .sub{font-size:.82rem;color:var(--text-light);margin-bottom:24px}
+.pos-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:.95rem;font-family:inherit;color:var(--text);margin-bottom:12px;background:var(--bg)}
+.pos-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,139,168,.15)}
+.pos-btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
+.pos-btn:disabled{opacity:.6}
+
+/* APP SHELL */
+.pos-app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+.pos-header{height:50px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;color:#fff;font-size:.88rem;font-weight:700}
+.pos-header-info{flex:1;display:flex;flex-direction:column}
+.pos-header-info small{font-size:.65rem;color:rgba(255,255,255,.7);font-weight:400}
+.pos-header-btn{padding:6px 12px;background:rgba(255,255,255,.15);border:none;border-radius:var(--rs);color:#fff;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* WAITER DASHBOARD */
+.waiter-dash{flex:1;overflow-y:auto;padding:16px}
+.dash-welcome{background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)}
+.dash-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;font-weight:700}
+.dash-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.dash-stat{background:var(--bg-card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);text-align:center;border-left:3px solid var(--primary)}
+.dash-stat small{font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600;display:block;margin-bottom:4px}
+.dash-stat strong{font-size:1.4rem;font-weight:800;color:var(--text)}
+.dash-stat.gold{border-left-color:var(--gold)}
+.dash-stat.green{border-left-color:var(--success)}
+.dash-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.dash-action{background:var(--bg-card);border-radius:var(--r);padding:24px 16px;box-shadow:var(--shadow);text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent}
+.dash-action:active{transform:scale(.97);border-color:var(--primary)}
+.dash-action i{font-size:2rem;display:block;margin-bottom:10px}
+.dash-action h3{font-size:.95rem;font-weight:700;color:var(--text)}
+.dash-action p{font-size:.75rem;color:var(--text-light);margin-top:4px}
+
+/* ORDER SCREEN */
+.order-screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:80}
+.order-header{height:50px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));display:flex;align-items:center;padding:0 12px;gap:10px;color:#fff;flex-shrink:0}
+.order-header h3{font-size:.92rem;font-weight:700;flex:1}
+.order-body{flex:1;display:flex;overflow:hidden}
+.order-menu{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.order-tabs{display:flex;overflow-x:auto;flex-shrink:0;padding:8px;gap:6px;background:var(--bg-card);border-bottom:1px solid var(--border)}
+.order-tabs::-webkit-scrollbar{display:none}
+.order-tab{padding:8px 16px;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;color:#fff;border:none;font-family:inherit;flex-shrink:0;opacity:.7;transition:.2s}
+.order-tab.active{opacity:1;transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.order-items-grid{flex:1;overflow-y:auto;padding:8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;align-content:start}
+.order-item-card{background:var(--bg-card);border-radius:var(--rs);padding:12px;box-shadow:var(--shadow);cursor:pointer;transition:.2s;border:2px solid transparent;position:relative;text-align:center}
+.order-item-card:active{transform:scale(.95);border-color:var(--primary)}
+.order-item-card.out-of-stock{opacity:.4;pointer-events:none}
+.order-item-card .item-name{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.2}
+.order-item-card .item-price{font-size:.95rem;font-weight:800;color:var(--primary)}
+.order-item-card .item-portions{font-size:.65rem;color:var(--text-muted);margin-top:4px}
+.order-item-card .item-special{position:absolute;top:4px;right:4px;background:var(--gold);color:#fff;padding:2px 6px;border-radius:4px;font-size:.55rem;font-weight:700}
+.order-item-card .item-oos{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);border-radius:var(--rs);font-size:.75rem;font-weight:700;color:var(--danger)}
+
+/* ORDER BILL */
+.order-bill{width:280px;display:flex;flex-direction:column;background:var(--bg-card);flex-shrink:0}
+.bill-header{padding:12px;background:var(--bg);border-bottom:1px solid var(--border);font-size:.82rem;font-weight:700;color:var(--text);display:flex;justify-content:space-between;align-items:center}
+.bill-items{flex:1;overflow-y:auto;padding:8px}
+.bill-item{display:flex;align-items:flex-start;gap:8px;padding:8px;background:var(--bg);border-radius:var(--rs);margin-bottom:6px;font-size:.82rem;position:relative}
+.bill-item-info{flex:1}
+.bill-item-name{font-weight:600;color:var(--text)}
+.bill-item-note{font-size:.7rem;color:var(--gold);font-style:italic;margin-top:2px}
+.bill-item-price{font-weight:700;color:var(--primary);white-space:nowrap}
+.bill-item-actions{display:flex;gap:4px;margin-top:4px}
+.bill-item-actions button{padding:3px 8px;border:none;border-radius:4px;font-size:.65rem;font-weight:600;cursor:pointer;font-family:inherit}
+.bill-total-area{padding:12px;border-top:2px solid var(--border);background:var(--bg-card)}
+.bill-total-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem;color:var(--text)}
+.bill-total-row.total{font-size:1.1rem;font-weight:800;color:var(--primary);padding:8px 0;border-top:1px solid var(--border);margin-top:4px}
+.bill-send-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--success),#1a7a4a);color:#fff;border:none;border-radius:var(--rs);font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.bill-send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* NOTES MODAL */
+.notes-modal{position:fixed;inset:0;background:rgba(13,74,92,.7);z-index:150;display:flex;align-items:center;justify-content:center;padding:20px}
+.notes-modal-card{background:var(--bg-card);border-radius:16px;width:100%;max-width:400px;padding:24px;box-shadow:var(--shadow-lg)}
+.notes-modal-card h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px}
+.notes-textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:.88rem;font-family:inherit;color:var(--text);min-height:80px;resize:vertical;background:var(--bg)}
+.notes-textarea:focus{outline:none;border-color:var(--primary)}
+.notes-subcats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.notes-subcat{padding:6px 14px;border-radius:16px;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-light);transition:.2s}
+.notes-subcat.selected{background:var(--primary);border-color:var(--primary);color:#fff}
+.notes-actions{display:flex;gap:8px;margin-top:14px}
+.notes-actions button{flex:1;padding:12px;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* MANAGER PIN MODAL */
+.pin-modal{position:fixed;inset:0;background:rgba(13,74,92,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.pin-card{background:var(--bg-card);border-radius:16px;width:100%;max-width:360px;padding:28px;box-shadow:var(--shadow-lg);text-align:center}
+.pin-card h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.pin-card p{font-size:.82rem;color:var(--text-light);margin-bottom:20px}
+.pin-input{width:100%;padding:16px;text-align:center;font-size:2rem;letter-spacing:12px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;color:var(--text);background:var(--bg)}
+.pin-input:focus{outline:none;border-color:var(--primary)}
+
+/* VOID/TRANSFER MODAL */
+.void-reasons{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.void-reason{padding:12px 16px;background:var(--bg);border-radius:var(--rs);cursor:pointer;font-size:.88rem;color:var(--text);font-weight:500;border:1.5px solid var(--border);transition:.2s;text-align:left}
+.void-reason:hover,.void-reason.selected{border-color:var(--primary);background:rgba(26,139,168,.05)}
+.transfer-tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.transfer-table{padding:14px;background:var(--bg);border-radius:var(--rs);text-align:center;cursor:pointer;border:1.5px solid var(--border);font-weight:700;font-size:1rem;color:var(--text);transition:.2s}
+.transfer-table:hover{border-color:var(--primary);background:rgba(26,139,168,.05)}
+.transfer-table.occupied{border-color:var(--gold);background:rgba(245,158,11,.05)}
+
+/* CASHUP */
+.cashup-screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:80}
+.cashup-content{flex:1;overflow-y:auto;padding:16px;max-width:500px;margin:0 auto;width:100%}
+.cashup-card{background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:12px}
+.cashup-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.cashup-row:last-child{border-bottom:none}
+.cashup-row span{color:var(--text-light)}
+.cashup-row strong{color:var(--text)}
+.cashup-total{font-size:1.3rem;font-weight:900;padding:12px 0;display:flex;justify-content:space-between}
+
+/* OPEN TABLES LIST */
+.open-tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+.open-table-card{background:var(--bg-card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);text-align:center;cursor:pointer;transition:.2s;border:2px solid var(--border)}
+.open-table-card:active{transform:scale(.97)}
+.open-table-card.occupied{border-color:var(--gold);background:rgba(245,158,11,.03)}
+.open-table-card .table-num{font-size:1.5rem;font-weight:900;color:var(--text)}
+.open-table-card .table-info{font-size:.72rem;color:var(--text-light);margin-top:4px}
+.open-table-card .table-total{font-size:.88rem;font-weight:700;color:var(--primary);margin-top:6px}
+
+/* QR SCANNER PLACEHOLDER */
+.qr-scanner-area{background:#1a1a2e;border-radius:var(--r);padding:40px;text-align:center;color:#fff;margin:16px 0}
+.qr-scanner-area i{font-size:3rem;margin-bottom:12px;opacity:.5}
+.qr-scanner-area p{font-size:.85rem;opacity:.7}
+
+/* TOAST */
+.pos-toast-wrap{position:fixed;top:60px;right:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.pos-toast{padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:500;animation:slideIn .3s ease;min-width:260px}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.pos-toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
+.pos-toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
+.pos-toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--info)}
+.pos-toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--warning)}
+
+/* INSTALL GUIDE */
+.pos-install-btn{margin-top:16px;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+
+@media(max-width:768px){
+.order-body{flex-direction:column}
+.order-bill{width:100%;height:45%;border-top:1px solid var(--border);border-right:none}
+.order-menu{height:55%}
+.order-items-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+.dash-actions{grid-template-columns:1fr}
+}
+@media(min-width:1024px){
+.order-items-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.order-bill{width:320px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="pos-login" id="pos-login">
+<div class="pos-login-card">
+<div class="pos-login-logo"><i class="fas fa-cash-register"></i></div>
+<h2>StockAI-Pro POS</h2>
+<p class="sub">Point of Sale System</p>
+<form onsubmit="posLogin(event)">
+<input type="email" class="pos-input" id="pos-email" placeholder="Email address" autocomplete="email" required>
+<input type="password" class="pos-input" id="pos-password" placeholder="Password" autocomplete="current-password" required>
+<button type="submit" class="pos-btn" id="pos-login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+</form>
+<a href="#" onclick="posForgotPw();return false" style="color:var(--primary);font-size:.82rem;display:block;margin-top:12px;text-decoration:none"><i class="fas fa-key"></i> Forgot password?</a>
+<button class="pos-install-btn" onclick="showPosInstallGuide()"><i class="fas fa-mobile-alt"></i> Install POS on Tablet</button>
+<p style="font-size:.72rem;color:var(--text-muted);margin-top:6px">Tap for installation instructions</p>
+</div>
+</div>
+
+<!-- MAIN APP -->
+<div class="pos-app hidden" id="pos-app">
+<header class="pos-header">
+<i class="fas fa-cash-register"></i>
+<div class="pos-header-info">
+<span id="pos-waiter-name">Waiter</span>
+<small id="pos-entity-name">Entity</small>
+</div>
+<div id="pos-shift-time" style="font-size:.72rem;color:rgba(255,255,255,.7)">00:00:00</div>
+<button class="pos-header-btn" onclick="showWaiterCashup()"><i class="fas fa-calculator"></i> Cash Up</button>
+<button class="pos-header-btn" onclick="posLogout()"><i class="fas fa-sign-out-alt"></i></button>
+</header>
+
+<!-- WAITER DASHBOARD -->
+<div class="waiter-dash" id="waiter-dash"></div>
+</div>
+
+<!-- TOAST -->
+<div class="pos-toast-wrap" id="pos-toast-wrap"></div>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/email-templates.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE + STATE
+// ============================================================
+var firebaseConfig={apiKey:"AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",authDomain:"stockai-pro-b232e.firebaseapp.com",projectId:"stockai-pro-b232e",storageBucket:"stockai-pro-b232e.firebasestorage.app",messagingSenderId:"424200946359",appId:"1:424200946359:web:4c638eccd4e422ccc94332"};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+var auth=firebase.auth(),db=firebase.firestore();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+var POS={
+    user:null,accountId:null,entityId:null,entityName:null,entity:null,accountData:null,
+    inventory:[],menuTabs:[],menuItems:[],kitchenSections:[],tables:[],
+    happyHour:{active:false},orders:{},shifts:{},
+    currentTable:null,currentOrder:[],
+    clockInTime:null,totalSales:0,tablesServed:0,
+    syncListener:null
+};
+
+// ============================================================
+// AUTH + LOGIN
+// ============================================================
+auth.onAuthStateChanged(function(u){
+    if(u){
+        findPosAccount(u.email,function(f){
+            if(f){document.getElementById('pos-login').classList.add('hidden');enterPOS();}
+            else document.getElementById('pos-login').classList.remove('hidden');
+        });
+    }else document.getElementById('pos-login').classList.remove('hidden');
+});
+
+function posLogin(e){
+    e.preventDefault();
+    var email=(document.getElementById('pos-email').value||'').trim().toLowerCase();
+    var pw=(document.getElementById('pos-password').value||'').trim();
+    if(!email||!pw){posToast('error','Enter email and password');return;}
+    var btn=document.getElementById('pos-login-btn');
+    btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    auth.signInWithEmailAndPassword(email,pw).then(function(){
+        return findPosAccount(email,function(f){
+            btn.disabled=false;btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In';
+            if(f){document.getElementById('pos-login').classList.add('hidden');enterPOS();}
+            else{posToast('error','Account not found');auth.signOut();}
+        });
+    }).catch(function(err){
+        btn.disabled=false;btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In';
+        posToast('error',err.code==='auth/invalid-credential'?'Incorrect email or password':err.message);
+    });
+}
+
+function findPosAccount(email,cb){
+    db.collection('accounts').get().then(function(snap){
+        var found=false;
+        snap.forEach(function(doc){
+            if(found)return;var data=doc.data();
+            if(data.owner&&data.owner.email&&data.owner.email.toLowerCase()===email){
+                POS.accountId=doc.id;POS.accountData=data;
+                POS.user={name:data.owner.name,email:email,role:'Owner',uid:auth.currentUser?auth.currentUser.uid:''};
+                var ents=data.entities||[];
+                if(ents.length>0){POS.entity=ents[0];POS.entityId=ents[0].id;POS.entityName=ents[0].name;}
+                found=true;return;
+            }
+            var users=data.users||{};
+            Object.keys(users).forEach(function(eid){
+                if(found)return;
+                (users[eid]||[]).forEach(function(u){
+                    if(found)return;
+                    if(u.email&&u.email.toLowerCase()===email){
+                        POS.accountId=doc.id;POS.accountData=data;POS.entityId=eid;
+                        POS.user={name:u.name||email,email:email,role:u.role||'Waiter',uid:auth.currentUser?auth.currentUser.uid:''};
+                        var ents=data.entities||[];
+                        POS.entity=ents.find(function(e){return e.id===eid;})||ents[0]||null;
+                        POS.entityName=POS.entity?POS.entity.name:'';
+                        found=true;
+                    }
+                });
+            });
+        });
+        if(cb)cb(found);
+    }).catch(function(){if(cb)cb(false);});
+}
+
+function posLogout(){
+    if(POS.syncListener){POS.syncListener();POS.syncListener=null;}
+    auth.signOut().then(function(){
+        POS.user=null;POS.accountId=null;POS.currentTable=null;POS.currentOrder=[];
+        document.getElementById('pos-app').classList.add('hidden');
+        document.getElementById('pos-login').classList.remove('hidden');
+    });
+}
+
+function posForgotPw(){
+    var e=prompt('Enter your email:');if(!e)return;
+    auth.sendPasswordResetEmail(e.trim()).then(function(){posToast('success','Reset link sent');}).catch(function(err){posToast('error',err.message);});
+}
+
+// ============================================================
+// ENTER POS
+// ============================================================
+function enterPOS(){
+    document.getElementById('pos-app').classList.remove('hidden');
+    document.getElementById('pos-waiter-name').textContent=POS.user?POS.user.name:'Waiter';
+    document.getElementById('pos-entity-name').textContent=POS.entityName||'Entity';
+
+    POS.clockInTime=new Date();
+    POS.totalSales=0;POS.tablesServed=0;
+    startShiftTimer();
+    loadPOSData();
+    startPOSSync();
+}
+
+function loadPOSData(){
+    if(!POS.accountId)return;
+    db.collection('accounts').doc(POS.accountId).get().then(function(doc){
+        if(!doc.exists)return;var d=doc.data();
+        POS.inventory=(d.inventory||{})[POS.entityId]||[];
+        POS.menuTabs=(d.posMenuTabs||{})[POS.entityId]||[];
+        POS.menuItems=(d.posMenuItems||{})[POS.entityId]||[];
+        POS.kitchenSections=(d.posKitchenSections||{})[POS.entityId]||[];
+        POS.tables=(d.posTables||{})[POS.entityId]||[];
+        POS.happyHour=(d.posHappyHour||{})[POS.entityId]||{active:false};
+        POS.orders=(d.posOrders||{})[POS.entityId]||{};
+        POS.shifts=(d.posShifts||{})[POS.entityId]||{};
+        calculatePortions();
+        renderDashboard();
+    });
+}
+
+function startPOSSync(){
+    if(!POS.accountId)return;
+    if(POS.syncListener)POS.syncListener();
+    POS.syncListener=db.collection('accounts').doc(POS.accountId).onSnapshot(function(doc){
+        if(!doc.exists)return;var d=doc.data();
+        POS.orders=(d.posOrders||{})[POS.entityId]||{};
+        POS.menuItems=(d.posMenuItems||{})[POS.entityId]||[];
+        POS.inventory=(d.inventory||{})[POS.entityId]||[];
+        calculatePortions();
+    });
+}
+
+function posSave(fields){
+    if(!POS.accountId)return Promise.resolve();
+    var data={lastUpdated:firebase.firestore.FieldValue.serverTimestamp(),lastUpdatedBy:POS.user?POS.user.name:'POS',lastUpdatedDevice:'POS'};
+    Object.keys(fields).forEach(function(k){data[k]=fields[k];});
+    return db.collection('accounts').doc(POS.accountId).set(data,{merge:true}).catch(function(e){console.warn('Save error:',e);});
+}
+
+// ============================================================
+// CALCULATE PORTIONS AVAILABLE
+// ============================================================
+function calculatePortions(){
+    POS.menuItems.forEach(function(mi){
+        if(!mi.linkedInventoryItems||mi.linkedInventoryItems.length===0){
+            mi.portionsAvailable=999;return;
+        }
+        var minPortions=999;
+        mi.linkedInventoryItems.forEach(function(invId){
+            var inv=POS.inventory.find(function(i){return i.id===invId;});
+            if(inv){
+                var portions=Math.floor((inv.quantity||0)*(mi.portionsPerUnit||1));
+                if(portions<minPortions)minPortions=portions;
+            }
+        });
+        mi.portionsAvailable=minPortions;
+        mi.status=minPortions<=0?'outofstock':'active';
+    });
+}
+
+// ============================================================
+// SHIFT TIMER
+// ============================================================
+function startShiftTimer(){
+    setInterval(function(){
+        if(!POS.clockInTime)return;
+        var diff=Date.now()-POS.clockInTime.getTime();
+        var h=Math.floor(diff/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
+        document.getElementById('pos-shift-time').textContent=
+            ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+    },1000);
+}
+
+// ============================================================
+// GET CURRENT PRICE (checks happy hour + specials)
+// ============================================================
+function getItemPrice(item){
+    if(item.specialActive&&item.specialPrice)return item.specialPrice;
+    if(POS.happyHour.active&&item.happyHourPrice)return item.happyHourPrice;
+    return item.price||0;
+}
+
+function isHappyHourActive(){
+    var hh=POS.happyHour;
+    if(hh.manualOverride)return hh.active;
+    if(!hh.startTime||!hh.endTime)return false;
+    var now=new Date();
+    var hhmm=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+    return hhmm>=hh.startTime&&hhmm<=hh.endTime;
+}
+
+console.log('✅ POS — Auth & Core loaded');
+</script>
+<script>
+// ============================================================
+// WAITER DASHBOARD
+// ============================================================
+function renderDashboard(){
+    POS.happyHour.active=isHappyHourActive();
+    var openTables=Object.keys(POS.orders).filter(function(k){
+        return POS.orders[k]&&POS.orders[k].status==='open';
+    });
+
+    var html='<div class="dash-welcome"><div class="dash-avatar">'+
+        (POS.user?POS.user.name.charAt(0).toUpperCase():'W')+'</div><div>'+
+        '<div style="font-size:1rem;font-weight:700">Welcome, '+(POS.user?POS.user.name:'Waiter')+'</div>'+
+        '<div style="font-size:.78rem;color:var(--text-light)">'+(POS.user?POS.user.role:'')+
+        ' • '+(POS.entityName||'')+'</div></div></div>';
+
+    html+='<div class="dash-stats">'+
+        '<div class="dash-stat"><small>Shift Time</small><strong id="dash-shift">'+
+        (POS.clockInTime?formatShiftTime():'00:00')+'</strong></div>'+
+        '<div class="dash-stat gold"><small>Total Sales</small><strong>R'+POS.totalSales.toFixed(0)+'</strong></div>'+
+        '<div class="dash-stat green"><small>Open Tables</small><strong>'+openTables.length+'</strong></div></div>';
+
+    html+='<div class="dash-actions">'+
+        '<div class="dash-action" onclick="openNewTable()" style="border-left:4px solid var(--primary)">'+
+        '<i class="fas fa-plus-circle" style="color:var(--primary)"></i><h3>Open Table</h3>'+
+        '<p>Start a new table order</p></div>'+
+        '<div class="dash-action" onclick="openTakeaway()" style="border-left:4px solid var(--gold)">'+
+        '<i class="fas fa-shopping-bag" style="color:var(--gold)"></i><h3>Takeaway</h3>'+
+        '<p>Process a takeaway order</p></div></div>';
+
+    if(openTables.length>0){
+        html+='<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">Your Open Tables</div>';
+        html+='<div class="open-tables-grid">';
+        openTables.forEach(function(tableKey){
+            var order=POS.orders[tableKey];
+            if(!order)return;
+            var total=(order.items||[]).reduce(function(s,i){return s+(i.price||0);},0);
+            var elapsed=order.openedAt?Math.floor((Date.now()-new Date(order.openedAt).getTime())/60000):0;
+            html+='<div class="open-table-card occupied" onclick="resumeTable(\''+tableKey+'\')">'+
+                '<div class="table-num">'+(order.tableNumber||tableKey)+'</div>'+
+                '<div class="table-info">'+(order.customerName||'Guest')+' • '+
+                (order.pax||1)+' pax</div>'+
+                '<div class="table-info">'+elapsed+' min</div>'+
+                '<div class="table-total">R'+total.toFixed(2)+'</div></div>';
+        });
+        html+='</div>';
+    }
+
+    document.getElementById('waiter-dash').innerHTML=html;
+}
+
+function formatShiftTime(){
+    if(!POS.clockInTime)return '00:00';
+    var diff=Date.now()-POS.clockInTime.getTime();
+    var h=Math.floor(diff/3600000);var m=Math.floor((diff%3600000)/60000);
+    return('0'+h).slice(-2)+':'+('0'+m).slice(-2);
+}
+
+// ============================================================
+// OPEN NEW TABLE
+// ============================================================
+function openNewTable(){
+    var modal=document.createElement('div');
+    modal.className='notes-modal';modal.id='new-table-modal';
+    modal.innerHTML='<div class="notes-modal-card" style="max-width:420px">'+
+        '<h3><i class="fas fa-plus-circle" style="color:var(--primary)"></i> Open New Table</h3>'+
+        '<div style="margin-bottom:12px"><label style="font-size:.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Table Number *</label>'+
+        '<select class="pos-input" id="nt-table" style="margin-bottom:0">'+
+        POS.tables.filter(function(t){return!POS.orders['table-'+t.number]||POS.orders['table-'+t.number].status!=='open';})
+        .map(function(t){return'<option value="'+t.number+'">Table '+t.number+'</option>';}).join('')+
+        '</select></div>'+
+        '<div style="margin-bottom:12px"><label style="font-size:.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Number of Guests *</label>'+
+        '<input type="number" class="pos-input" id="nt-pax" value="2" min="1" max="50" style="margin-bottom:0"></div>'+
+        '<div style="margin-bottom:12px"><label style="font-size:.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Customer Name</label>'+
+        '<input type="text" class="pos-input" id="nt-name" placeholder="Optional" style="margin-bottom:0"></div>'+
+        '<div class="notes-actions">'+
+        '<button style="background:var(--bg);color:var(--text-light)" onclick="document.getElementById(\'new-table-modal\').remove()">Cancel</button>'+
+        '<button style="background:var(--primary);color:#fff" onclick="confirmNewTable()">Open Table</button></div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmNewTable(){
+    var tableNum=document.getElementById('nt-table').value;
+    var pax=parseInt(document.getElementById('nt-pax').value)||2;
+    var name=(document.getElementById('nt-name').value||'').trim()||'Guest';
+    if(!tableNum){posToast('error','Select a table');return;}
+    document.getElementById('new-table-modal').remove();
+
+    var tableKey='table-'+tableNum;
+    POS.orders[tableKey]={
+        id:'ORD-'+Date.now(),tableNumber:parseInt(tableNum),
+        waiterName:POS.user?POS.user.name:'Waiter',waiterId:POS.user?POS.user.uid:'',
+        pax:pax,customerName:name,
+        items:[],subtotal:0,gratuity:0,discount:0,total:0,
+        paymentMethod:null,status:'open',
+        openedAt:new Date().toISOString(),closedAt:null,
+        isPromotion:false,promotionReason:null
+    };
+
+    var update={};update['posOrders.'+POS.entityId]=POS.orders;
+    posSave(update);
+    openOrderScreen(tableKey);
+}
+
+function openTakeaway(){
+    var tableKey='takeaway-'+Date.now();
+    POS.orders[tableKey]={
+        id:'ORD-TK-'+Date.now(),tableNumber:'Takeaway',
+        waiterName:POS.user?POS.user.name:'Waiter',waiterId:POS.user?POS.user.uid:'',
+        pax:1,customerName:'Takeaway',
+        items:[],subtotal:0,gratuity:0,discount:0,total:0,
+        paymentMethod:null,status:'open',
+        openedAt:new Date().toISOString(),closedAt:null,
+        isTakeaway:true,isPromotion:false,promotionReason:null
+    };
+
+    var update={};update['posOrders.'+POS.entityId]=POS.orders;
+    posSave(update);
+    openOrderScreen(tableKey);
+}
+
+function resumeTable(tableKey){openOrderScreen(tableKey);}
+
+// ============================================================
+// ORDER SCREEN
+// ============================================================
+function openOrderScreen(tableKey){
+    POS.currentTable=tableKey;
+    POS.currentOrder=POS.orders[tableKey]?POS.orders[tableKey].items||[]:[];
+    var order=POS.orders[tableKey]||{};
+    var activeTab=POS.menuTabs.length>0?POS.menuTabs[0].id:null;
+    POS._activeOrderTab=activeTab;
+
+    var screen=document.createElement('div');
+    screen.className='order-screen';screen.id='order-screen';
+    screen.innerHTML=
+        '<div class="order-header">'+
+        '<button class="pos-header-btn" onclick="closeOrderScreen()"><i class="fas fa-arrow-left"></i></button>'+
+        '<h3>Table '+(order.tableNumber||'')+(order.customerName?' — '+order.customerName:'')+'</h3>'+
+        '<span style="font-size:.72rem;opacity:.7">'+(order.pax||1)+' pax</span></div>'+
+        '<div class="order-body">'+
+        '<div class="order-menu"><div class="order-tabs" id="order-tabs"></div>'+
+        '<div class="order-items-grid" id="order-items"></div></div>'+
+        '<div class="order-bill"><div class="bill-header"><span>Current Order</span>'+
+        '<span id="bill-count">0 items</span></div>'+
+        '<div class="bill-items" id="bill-items"></div>'+
+        '<div class="bill-total-area" id="bill-totals"></div></div></div>';
+
+    document.body.appendChild(screen);
+    renderOrderTabs();
+    renderOrderItems(activeTab);
+    renderBill();
+}
+
+function closeOrderScreen(){
+    var screen=document.getElementById('order-screen');
+    if(screen)screen.remove();
+    POS.currentTable=null;
+    renderDashboard();
+}
+
+function renderOrderTabs(){
+    var html='';
+    POS.menuTabs.forEach(function(tab){
+        html+='<button class="order-tab'+(POS._activeOrderTab===tab.id?' active':'')+'" '+
+            'style="background:'+(tab.color||'#1a8ba8')+'" '+
+            'onclick="selectOrderTab(\''+tab.id+'\')">'+
+            '<i class="fas fa-'+(tab.icon||'tag')+'"></i> '+tab.name+'</button>';
+    });
+    var el=document.getElementById('order-tabs');
+    if(el)el.innerHTML=html;
+}
+
+function selectOrderTab(tabId){
+    POS._activeOrderTab=tabId;
+    document.querySelectorAll('.order-tab').forEach(function(t){t.classList.remove('active');});
+    event.target.closest('.order-tab').classList.add('active');
+    renderOrderItems(tabId);
+}
+
+function renderOrderItems(tabId){
+    var items=POS.menuItems.filter(function(i){return i.tabId===tabId;});
+    var html='';
+    if(items.length===0){
+        html='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">'+
+            '<i class="fas fa-utensils" style="font-size:2rem;opacity:.3;display:block;margin-bottom:8px"></i>'+
+            'No items in this tab</div>';
+    }else{
+        items.forEach(function(item){
+            var price=getItemPrice(item);
+            var oos=item.status==='outofstock'||item.portionsAvailable<=0;
+            html+='<div class="order-item-card'+(oos?' out-of-stock':'')+'" '+
+                (oos?'':'onclick="addItemToOrder(\''+item.id+'\')"')+'>'+
+                (item.specialActive?'<div class="item-special">SPECIAL</div>':'')+
+                '<div class="item-name">'+item.name+'</div>'+
+                '<div class="item-price">R'+price.toFixed(2)+'</div>'+
+                '<div class="item-portions">'+(oos?'OUT OF STOCK':item.portionsAvailable+' left')+'</div>'+
+                (oos?'<div class="item-oos">SOLD OUT</div>':'')+
+                '</div>';
+        });
+    }
+    var el=document.getElementById('order-items');
+    if(el)el.innerHTML=html;
+}
+
+// ============================================================
+// ADD ITEM TO ORDER
+// ============================================================
+function addItemToOrder(itemId){
+    var item=POS.menuItems.find(function(i){return i.id===itemId;});
+    if(!item||item.status==='outofstock')return;
+
+    var tab=POS.menuTabs.find(function(t){return t.id===item.tabId;});
+    var subCats=(tab&&tab.subCategories&&tab.subCategories.length>0)?tab.subCategories:null;
+
+    if(subCats){
+        showNotesModal(item,subCats);
+    }else{
+        confirmAddItem(item,'',null);
+    }
+}
+
+function showNotesModal(item,subCats){
+    var modal=document.createElement('div');
+    modal.className='notes-modal';modal.id='notes-modal';
+    var subHtml=subCats?'<div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px">Options:</div>'+
+        '<div class="notes-subcats">'+subCats.map(function(sc){
+            return'<div class="notes-subcat" onclick="this.classList.toggle(\'selected\')" data-val="'+sc+'">'+sc+'</div>';
+        }).join('')+'</div>':'';
+
+    modal.innerHTML='<div class="notes-modal-card"><h3>'+item.name+' — R'+getItemPrice(item).toFixed(2)+'</h3>'+
+        subHtml+
+        '<div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px">Special Instructions:</div>'+
+        '<textarea class="notes-textarea" id="item-notes" placeholder="e.g. No onions, extra sauce..."></textarea>'+
+        '<div class="notes-actions">'+
+        '<button style="background:var(--bg);color:var(--text-light)" onclick="document.getElementById(\'notes-modal\').remove()">Cancel</button>'+
+        '<button style="background:var(--primary);color:#fff" onclick="confirmAddFromModal(\''+item.id+'\')">Add to Order</button></div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmAddFromModal(itemId){
+    var item=POS.menuItems.find(function(i){return i.id===itemId;});
+    if(!item)return;
+    var notes=(document.getElementById('item-notes').value||'').trim();
+    var selectedSubs=[];
+    document.querySelectorAll('.notes-subcat.selected').forEach(function(el){
+        selectedSubs.push(el.dataset.val);
+    });
+    var subNote=selectedSubs.length>0?selectedSubs.join(', '):'';
+    var fullNote=[subNote,notes].filter(function(n){return n;}).join(' — ');
+    document.getElementById('notes-modal').remove();
+    confirmAddItem(item,fullNote,selectedSubs);
+}
+
+function confirmAddItem(item,notes,subSelections){
+    var price=getItemPrice(item);
+    var tab=POS.menuTabs.find(function(t){return t.id===item.tabId;});
+    var section=item.sectionId||( tab?tab.sectionId:null);
+
+    var orderItem={
+        id:'OI-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+        menuItemId:item.id,name:item.name,price:price,
+        notes:notes||'',subSelections:subSelections||[],
+        section:section,
+        status:'ordered',orderedAt:new Date().toISOString(),
+        voidReason:null,voidBy:null,transferTo:null
+    };
+
+    POS.currentOrder.push(orderItem);
+    if(POS.orders[POS.currentTable]){
+        POS.orders[POS.currentTable].items=POS.currentOrder;
+        recalcOrderTotal();
+    }
+
+    // Deduct stock
+    deductStock(item);
+
+    renderBill();
+    renderOrderItems(POS._activeOrderTab);
+    posToast('success','✓ '+item.name+' added');
+}
+
+// ============================================================
+// DEDUCT STOCK
+// ============================================================
+function deductStock(menuItem){
+    if(!menuItem.linkedInventoryItems||menuItem.linkedInventoryItems.length===0)return;
+    menuItem.linkedInventoryItems.forEach(function(invId){
+        var inv=POS.inventory.find(function(i){return i.id===invId;});
+        if(!inv)return;
+        var deductQty=1/(menuItem.portionsPerUnit||1);
+        inv.quantity=Math.max(0,parseFloat(((inv.quantity||0)-deductQty).toFixed(4)));
+        inv.value=(inv.quantity||0)*(inv.cost||0);
+        inv.status=inv.quantity===0?'out-of-stock':inv.quantity<=(inv.reorder||0)?'low-stock':'in-stock';
+    });
+    calculatePortions();
+    var update={};update['inventory.'+POS.entityId]=POS.inventory;
+    posSave(update);
+}
+
+function reverseStockDeduction(menuItem){
+    if(!menuItem.linkedInventoryItems||menuItem.linkedInventoryItems.length===0)return;
+    var mi=POS.menuItems.find(function(m){return m.id===menuItem.menuItemId;});
+    if(!mi||!mi.linkedInventoryItems)return;
+    mi.linkedInventoryItems.forEach(function(invId){
+        var inv=POS.inventory.find(function(i){return i.id===invId;});
+        if(!inv)return;
+        var addQty=1/(mi.portionsPerUnit||1);
+        inv.quantity=parseFloat(((inv.quantity||0)+addQty).toFixed(4));
+        inv.value=(inv.quantity||0)*(inv.cost||0);
+        inv.status=inv.quantity===0?'out-of-stock':inv.quantity<=(inv.reorder||0)?'low-stock':'in-stock';
+    });
+    calculatePortions();
+    var update={};update['inventory.'+POS.entityId]=POS.inventory;
+    posSave(update);
+}
+
+// ============================================================
+// RENDER BILL
+// ============================================================
+function renderBill(){
+    var items=POS.currentOrder.filter(function(i){return!i.voided;});
+    var el=document.getElementById('bill-items');
+    var countEl=document.getElementById('bill-count');
+    if(countEl)countEl.textContent=items.length+' items';
+
+    if(!el)return;
+    if(items.length===0){
+        el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:.82rem">'+
+            '<i class="fas fa-receipt" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3"></i>'+
+            'No items added yet</div>';
+    }else{
+        el.innerHTML=items.map(function(item,i){
+            return'<div class="bill-item">'+
+                '<div class="bill-item-info"><div class="bill-item-name">'+item.name+'</div>'+
+                (item.notes?'<div class="bill-item-note">'+item.notes+'</div>':'')+
+                '<div class="bill-item-actions">'+
+                '<button style="background:rgba(201,69,69,.1);color:var(--danger)" onclick="showVoidTransfer('+i+')">'+
+                '<i class="fas fa-ellipsis-h"></i></button></div></div>'+
+                '<div class="bill-item-price">R'+item.price.toFixed(2)+'</div></div>';
+        }).join('');
+    }
+
+    recalcOrderTotal();
+
+    var order=POS.orders[POS.currentTable]||{};
+    var totalsEl=document.getElementById('bill-totals');
+    if(totalsEl){
+        var subtotal=items.reduce(function(s,i){return s+i.price;},0);
+        totalsEl.innerHTML=
+            '<div class="bill-total-row"><span>Subtotal</span><strong>R'+subtotal.toFixed(2)+'</strong></div>'+
+            (order.discount?'<div class="bill-total-row"><span>Discount</span><strong style="color:var(--danger)">-R'+order.discount.toFixed(2)+'</strong></div>':'')+
+            '<div class="bill-total-row total"><span>TOTAL</span><strong>R'+(order.total||subtotal).toFixed(2)+'</strong></div>'+
+            '<button class="bill-send-btn" onclick="sendToKitchen()"'+
+            (items.length===0?' disabled':'')+'>'+
+            '<i class="fas fa-paper-plane"></i> Send to Kitchen</button>';
+    }
+}
+
+function recalcOrderTotal(){
+    if(!POS.orders[POS.currentTable])return;
+    var items=POS.currentOrder.filter(function(i){return!i.voided;});
+    var subtotal=items.reduce(function(s,i){return s+i.price;},0);
+    var order=POS.orders[POS.currentTable];
+    order.subtotal=subtotal;
+    order.total=subtotal-(order.discount||0)+(order.gratuity||0);
+    order.items=POS.currentOrder;
+}
+
+// ============================================================
+// SEND TO KITCHEN
+// ============================================================
+function sendToKitchen(){
+    var newItems=POS.currentOrder.filter(function(i){return i.status==='ordered'&&!i.voided;});
+    if(newItems.length===0){posToast('info','No new items to send');return;}
+
+    newItems.forEach(function(i){i.status='sent';i.sentAt=new Date().toISOString();});
+
+    var update={};update['posOrders.'+POS.entityId]=POS.orders;
+    posSave(update).then(function(){
+        posToast('success','✅ '+newItems.length+' item(s) sent to kitchen!');
+        renderBill();
+    });
+}
+
+// ============================================================
+// VOID / TRANSFER
+// ============================================================
+function showVoidTransfer(itemIdx){
+    var item=POS.currentOrder[itemIdx];
+    if(!item)return;
+
+    var modal=document.createElement('div');
+    modal.className='notes-modal';modal.id='vt-modal';
+    modal.innerHTML='<div class="notes-modal-card" style="max-width:380px">'+
+        '<h3>'+item.name+'</h3>'+
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">What would you like to do?</p>'+
+        '<div class="notes-actions" style="flex-direction:column;gap:8px">'+
+        '<button style="background:var(--danger);color:#fff;padding:14px" onclick="startVoid('+itemIdx+')">'+
+        '<i class="fas fa-times-circle"></i> Void Item</button>'+
+        '<button style="background:var(--info);color:#fff;padding:14px" onclick="startTransfer('+itemIdx+')">'+
+        '<i class="fas fa-exchange-alt"></i> Transfer to Another Table</button>'+
+        '<button style="background:var(--bg);color:var(--text-light);padding:14px" onclick="document.getElementById(\'vt-modal\').remove()">Cancel</button>'+
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+function startVoid(itemIdx){
+    document.getElementById('vt-modal').remove();
+    showManagerPin(function(){showVoidReasons(itemIdx);});
+}
+
+function startTransfer(itemIdx){
+    document.getElementById('vt-modal').remove();
+    showManagerPin(function(){showTransferTables(itemIdx);});
+}
+
+// ============================================================
+// MANAGER PIN
+// ============================================================
+function showManagerPin(callback){
+    var modal=document.createElement('div');
+    modal.className='pin-modal';modal.id='pin-modal';
+    modal.innerHTML='<div class="pin-card"><h3><i class="fas fa-lock" style="color:var(--primary)"></i> Manager Authorisation</h3>'+
+        '<p>Enter manager PIN to proceed</p>'+
+        '<input type="password" class="pin-input" id="mgr-pin" maxlength="6" placeholder="••••" autofocus>'+
+        '<div class="notes-actions" style="margin-top:16px">'+
+        '<button style="background:var(--bg);color:var(--text-light);flex:1;padding:12px;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit" onclick="document.getElementById(\'pin-modal\').remove()">Cancel</button>'+
+        '<button style="background:var(--primary);color:#fff;flex:1;padding:12px;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700" onclick="verifyPin()">Verify</button>'+
+        '</div></div>';
+    document.body.appendChild(modal);
+    POS._pinCallback=callback;
+    setTimeout(function(){document.getElementById('mgr-pin').focus();},300);
+}
+
+function verifyPin(){
+    var pin=document.getElementById('mgr-pin').value;
+    // Check against user PINs in accountData
+    var users=POS.accountData?(POS.accountData.users||{}):{}
+    var entityUsers=users[POS.entityId]||[];
+    var managers=entityUsers.filter(function(u){
+        return u.role==='Manager'||u.role==='General Manager'||u.role==='Owner';
+    });
+
+    // Also check owner
+    var validPin=false;
+    var managerName='Manager';
+    managers.forEach(function(m){
+        if(m.pin&&m.pin===pin){validPin=true;managerName=m.name;}
+    });
+
+    // Fallback: check if owner has a PIN or use a default
+    if(!validPin&&POS.accountData&&POS.accountData.owner){
+        if(pin==='1234'){validPin=true;managerName='Owner (Default PIN)';}
+    }
+
+    if(validPin){
+        document.getElementById('pin-modal').remove();
+        posToast('success','✅ Authorised by '+managerName);
+        if(POS._pinCallback)POS._pinCallback();
+    }else{
+        posToast('error','Invalid PIN');
+        document.getElementById('mgr-pin').value='';
+        document.getElementById('mgr-pin').focus();
+    }
+}
+
+// ============================================================
+// VOID REASONS
+// ============================================================
+function showVoidReasons(itemIdx){
+    var reasons=['Customer changed mind','Wrong item ordered','Kitchen error','Quality issue','Manager discretion','Other'];
+    var modal=document.createElement('div');
+    modal.className='notes-modal';modal.id='void-modal';
+    modal.innerHTML='<div class="notes-modal-card"><h3><i class="fas fa-times-circle" style="color:var(--danger)"></i> Void Reason</h3>'+
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">Select a reason for voiding this item:</p>'+
+        '<div class="void-reasons">'+reasons.map(function(r){
+            return'<div class="void-reason" onclick="confirmVoid('+itemIdx+',\''+r+'\')">'+r+'</div>';
+        }).join('')+'</div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmVoid(itemIdx,reason){
+    document.getElementById('void-modal').remove();
+    var item=POS.currentOrder[itemIdx];
+    if(!item)return;
+
+    item.voided=true;item.voidReason=reason;item.voidBy=POS.user?POS.user.name:'Manager';
+    item.voidedAt=new Date().toISOString();
+
+    // Reverse stock deduction
+    reverseStockDeduction(item);
+
+    // Log void
+    logManagerAction('void',item,reason);
+
+    var update={};update['posOrders.'+POS.entityId]=POS.orders;
+    posSave(update);
+    renderBill();
+    renderOrderItems(POS._activeOrderTab);
+    posToast('info','Item voided: '+item.name);
+}
+
+// ============================================================
+// TRANSFER TABLES
+// ============================================================
+function showTransferTables(itemIdx){
+    var openTables=Object.keys(POS.orders).filter(function(k){
+        return POS.orders[k]&&POS.orders[k].status==='open'&&k!==POS.currentTable;
+    });
+
+    var modal=document.createElement('div');
+    modal.className='notes-modal';modal.id='transfer-modal';
+    modal.innerHTML='<div class="notes-modal-card"><h3><i class="fas fa-exchange-alt" style="color:var(--info)"></i> Transfer Item</h3>'+
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">Select a table to transfer to:</p>'+
+        '<div class="transfer-tables">'+
+        openTables.map(function(k){
+            var o=POS.orders[k];
+            return'<div class="transfer-table occupied" onclick="confirmTransfer('+itemIdx+',\''+k+'\')">'+
+                (o.tableNumber||k)+'<br><span style="font-size:.65rem;font-weight:400;color:var(--text-light)">'+
+                (o.customerName||'Guest')+'</span></div>';
+        }).join('')+
+        '<div class="transfer-table" onclick="transferToNewTable('+itemIdx+')" style="border-style:dashed">'+
+        '<i class="fas fa-plus" style="color:var(--primary)"></i><br>'+
+        '<span style="font-size:.65rem;font-weight:400;color:var(--text-light)">New Table</span></div>'+
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmTransfer(itemIdx,targetKey){
+    document.getElementById('transfer-modal').remove();
+    var item=POS.currentOrder[itemIdx];
+    if(!item)return;
+
+    // Remove from current table
+    POS.currentOrder.splice(itemIdx,1);
+    POS.orders[POS.currentTable].items=POS.currentOrder;
+
+    // Add to target table
+    item.transferredFrom=POS.currentTable;
+    item.transferredAt=new Date().toISOString();
+    POS.orders[targetKey].items.push(item);
+
+    logManagerAction('transfer',item,'Transferred to '+(POS.orders[targetKey].tableNumber||targetKey));
+
+    var update={};update['posOrders.'+POS.entityId]=POS.orders;
+    posSave(update);
+    renderBill();
+    posToast('success','Item transferred to table '+(POS.orders[targetKey].tableNumber||targetKey));
+}
+
+function transferToNewTable(itemIdx){
+    document.getElementById('transfer-modal').remove();
+    posToast('info','Open a new table first, then transfer');
+}
+
+// ============================================================
+// LOG MANAGER ACTION
+// ============================================================
+function logManagerAction(action,item,reason){
+    var logEntry={
+        action:action,itemName:item.name,itemPrice:item.price,
+        reason:reason,by:POS.user?POS.user.name:'Manager',
+        table:POS.currentTable?POS.orders[POS.currentTable].tableNumber:'',
+        date:new Date().toISOString()
+    };
+
+    var field='pos'+action.charAt(0).toUpperCase()+action.slice(1)+'s';
+    var existing=(POS.accountData[field]||{})[POS.entityId]||[];
+    existing.push(logEntry);
+    var update={};update[field+'.'+POS.entityId]=existing;
+    posSave(update);
+}
+
+// ============================================================
+// WAITER CASHUP
+// ============================================================
+function showWaiterCashup(){
+    var closedOrders=Object.values(POS.orders).filter(function(o){
+        return o.status==='closed'&&o.waiterName===(POS.user?POS.user.name:'');
+    });
+    var cashTotal=closedOrders.filter(function(o){return o.paymentMethod==='cash';}).reduce(function(s,o){return s+o.total;},0);
+    var cardTotal=closedOrders.filter(function(o){return o.paymentMethod==='card';}).reduce(function(s,o){return s+o.total;},0);
+    var promoTotal=closedOrders.filter(function(o){return o.isPromotion;}).reduce(function(s,o){return s+o.total;},0);
+    var totalSales=closedOrders.reduce(function(s,o){return s+o.total;},0);
+    var cashOwed=cashTotal;
+
+    var screen=document.createElement('div');
+    screen.className='cashup-screen';screen.id='cashup-screen';
+    screen.innerHTML=
+        '<div class="order-header"><button class="pos-header-btn" onclick="document.getElementById(\'cashup-screen\').remove()">'+
+        '<i class="fas fa-arrow-left"></i></button><h3>My Cash Up</h3></div>'+
+        '<div class="cashup-content">'+
+        '<div class="cashup-card"><h3 style="font-size:1rem;font-weight:700;margin-bottom:12px">'+
+        '<i class="fas fa-calculator" style="color:var(--primary)"></i> Shift Summary</h3>'+
+        '<div class="cashup-row"><span>Tables Served</span><strong>'+closedOrders.length+'</strong></div>'+
+        '<div class="cashup-row"><span>Total Sales</span><strong>R'+totalSales.toFixed(2)+'</strong></div>'+
+        '<div class="cashup-row"><span>Card Payments</span><strong>R'+cardTotal.toFixed(2)+'</strong></div>'+
+        '<div class="cashup-row"><span>Cash Payments</span><strong>R'+cashTotal.toFixed(2)+'</strong></div>'+
+        '<div class="cashup-row"><span>Promotions</span><strong>R'+promoTotal.toFixed(2)+'</strong></div>'+
+        '<div class="cashup-total"><span>Cash to Hand In</span>'+
+        '<strong style="color:'+(cashOwed>0?'var(--danger)':'var(--success)')+'">'+
+        (cashOwed>0?'R'+cashOwed.toFixed(2):'-R'+Math.abs(cashOwed).toFixed(2))+'</strong></div></div>'+
+        '<button class="bill-send-btn" onclick="submitWaiterCashup()" style="max-width:100%">'+
+        '<i class="fas fa-check"></i> Submit Cash Up</button></div>';
+    document.body.appendChild(screen);
+}
+
+function submitWaiterCashup(){
+    var cashupData={
+        waiterName:POS.user?POS.user.name:'Waiter',
+        submittedAt:new Date().toISOString(),
+        entityId:POS.entityId,
+        status:'pending'
+    };
+
+    var existing=(POS.accountData.posCashups||{})[POS.entityId]||{};
+    existing[POS.user?POS.user.uid:'unknown']=cashupData;
+    var update={};update['posCashups.'+POS.entityId]=existing;
+    posSave(update).then(function(){
+        document.getElementById('cashup-screen').remove();
+        posToast('success','✅ Cash up submitted for manager review');
+    });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function posToast(type,msg){
+    var icons={success:'check-circle',error:'times-circle',info:'info-circle',warning:'exclamation-triangle'};
+    var t=document.createElement('div');t.className='pos-toast '+type;
+    t.innerHTML='<i class="fas fa-'+(icons[type]||'info-circle')+'"></i><span>'+msg+'</span>';
+    document.getElementById('pos-toast-wrap').appendChild(t);
+    setTimeout(function(){if(t.parentElement)t.remove();},3000);
+}
+
+// ============================================================
+// INSTALL GUIDE
+// ============================================================
+function showPosInstallGuide(){
+    var ua=navigator.userAgent||'';
+    var isIOS=/iPad|iPhone|iPod/.test(ua);
+    var steps=isIOS?
+        '<p>1. Open this page in <strong>Safari</strong></p>'+
+        '<p>2. Tap the <strong>Share ⬆️</strong> button</p>'+
+        '<p>3. Tap <strong>"Add to Home Screen"</strong></p>'+
+        '<p>4. Tap <strong>"Add"</strong></p>':
+        '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>'+
+        '<p>2. Tap <strong>"Add to Home screen"</strong></p>'+
+        '<p>3. Tap <strong>"Add"</strong></p>';
+
+    var modal=document.createElement('div');modal.className='notes-modal';modal.id='install-modal';
+    modal.innerHTML='<div class="notes-modal-card"><h3><i class="fas fa-mobile-alt" style="color:var(--primary)"></i> Install POS App</h3>'+
+        '<div style="font-size:.85rem;color:var(--text-mid);line-height:1.8;margin-bottom:16px">'+steps+'</div>'+
+        '<button style="width:100%;padding:12px;background:var(--bg);color:var(--text-light);border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit" '+
+        'onclick="document.getElementById(\'install-modal\').remove()">Close</button></div>';
+    document.body.appendChild(modal);
+}
+
+if('serviceWorker'in navigator){window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+});}
+
+console.log('✅ POS — Waiter Interface loaded');
+</script>
+</body>
+</html>
