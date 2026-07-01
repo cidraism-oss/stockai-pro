@@ -200,7 +200,7 @@ POS Setup
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <!-- LOGIN SCREEN (hidden if already logged in) -->
-<div class="p-login hidden" id="setup-login" style="position:fixed;inset:0;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999">
+<div class="hidden" id="setup-login" style="position:fixed;inset:0;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999">
 <div style="background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
 <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;margin:0 auto 14px"><i class="fas fa-cash-register"></i></div>
 <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:3px">POS Setup</h2>
@@ -269,21 +269,25 @@ var TAB_COLORS = [
 // ============================================================
 // AUTH CHECK
 // ============================================================
-auth.onAuthStateChanged(function(firebaseUser) {
-    if (firebaseUser) {
-        findSetupAccount(firebaseUser.email, function(found) {
-            if (found) {
-                document.getElementById('setup-login').classList.add('hidden');
-                loadPOSData();
-            } else {
-                document.getElementById('setup-login').classList.remove('hidden');
-            }
-        });
-    } else {
-        document.getElementById('setup-login').classList.remove('hidden');
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    auth.onAuthStateChanged(function(firebaseUser) {
+        if (firebaseUser) {
+            findSetupAccount(firebaseUser.email, function(found) {
+                if (found) {
+                    document.getElementById('setup-login').classList.add('hidden');
+                    document.getElementById('setup-login').style.display = 'none';
+                    loadPOSData();
+                } else {
+                    document.getElementById('setup-login').classList.remove('hidden');
+                    document.getElementById('setup-login').style.display = 'flex';
+                }
+            });
+        } else {
+            document.getElementById('setup-login').classList.remove('hidden');
+            document.getElementById('setup-login').style.display = 'flex';
+        }
+    });
 });
-
 function setupLogin(e) {
     e.preventDefault();
     var email = (document.getElementById('setup-email').value || '').trim().toLowerCase();
@@ -299,7 +303,8 @@ function setupLogin(e) {
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
                 if (found) {
                     document.getElementById('setup-login').classList.add('hidden');
-                    loadPOSData();
+document.getElementById('setup-login').style.display = 'none';
+loadPOSData();
                 } else {
                     showToast('error', 'Account not found');
                     auth.signOut();
