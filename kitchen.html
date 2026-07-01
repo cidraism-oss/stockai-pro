@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen Display — StockAI-Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--primary:#1a8ba8;--primary-dark:#0d4a5c;--bg:#0a1a1f;--bg-card:#0f2a33;--text:#e0f0f4;--text-light:#6a9aaa;--gold:#f59e0b;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--border:#1a3a44}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.kd-header{background:linear-gradient(90deg,var(--primary-dark),var(--primary));padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.kd-header h1{font-size:1.1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
+.kd-header-info{display:flex;gap:16px;align-items:center;font-size:.82rem;color:rgba(255,255,255,.7)}
+.kd-section-tabs{display:flex;gap:8px;padding:12px 24px;background:var(--bg-card);border-bottom:1px solid var(--border);overflow-x:auto}
+.kd-section-tab{padding:8px 18px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;color:#fff;border:none;font-family:inherit;opacity:.6;transition:.2s;background:var(--primary-dark)}
+.kd-section-tab.active{opacity:1;background:var(--primary);box-shadow:0 2px 8px rgba(26,139,168,.4)}
+.kd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:20px 24px;align-content:start;min-height:calc(100vh - 120px)}
+.kd-card{background:var(--bg-card);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3);border:2px solid transparent;transition:border-color .3s}
+.kd-card.green{border-color:var(--success)}
+.kd-card.orange{border-color:var(--warning)}
+.kd-card.red{border-color:var(--danger);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,69,69,.3)}50%{box-shadow:0 0 20px 4px rgba(201,69,69,.2)}}
+.kd-card-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.kd-card-header.green{background:rgba(46,168,113,.15)}
+.kd-card-header.orange{background:rgba(212,160,23,.15)}
+.kd-card-header.red{background:rgba(201,69,69,.15)}
+.kd-table-num{font-size:1.2rem;font-weight:900;color:var(--text)}
+.kd-waiter{font-size:.72rem;color:var(--text-light)}
+.kd-timer{padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:700;min-width:60px;text-align:center}
+.kd-timer.green{background:rgba(46,168,113,.2);color:var(--success)}
+.kd-timer.orange{background:rgba(212,160,23,.2);color:var(--warning)}
+.kd-timer.red{background:rgba(201,69,69,.2);color:var(--danger)}
+.kd-items{padding:12px 16px}
+.kd-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.kd-item:last-child{border-bottom:none}
+.kd-item-name{font-size:.88rem;font-weight:600;color:var(--text)}
+.kd-item-note{font-size:.72rem;color:var(--gold);font-style:italic;margin-top:2px}
+.kd-item-qty{font-size:.82rem;font-weight:700;color:var(--primary)}
+.kd-done-btn{width:100%;padding:14px;background:var(--success);color:#fff;border:none;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.kd-done-btn:hover{background:#1a7a4a}
+.kd-empty{text-align:center;padding:60px;color:var(--text-light)}
+.kd-empty i{font-size:4rem;opacity:.2;display:block;margin-bottom:16px}
+.kd-empty h2{font-size:1.2rem;margin-bottom:6px;color:var(--text)}
+.kd-setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;z-index:200}
+.kd-setup-card{background:var(--bg-card);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.kd-setup-card h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.kd-setup-card p{font-size:.85rem;color:var(--text-light);margin-bottom:20px}
+.kd-setup-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text);background:var(--bg);margin-bottom:12px}
+.kd-setup-input:focus{outline:none;border-color:var(--primary)}
+.kd-setup-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div class="kd-setup" id="kd-setup">
+<div class="kd-setup-card">
+<i class="fas fa-utensils" style="font-size:2.5rem;color:var(--primary);margin-bottom:16px"></i>
+<h2>Kitchen Display Setup</h2>
+<p>Enter your account details to connect this screen to your POS.</p>
+<input type="text" class="kd-setup-input" id="kd-account" placeholder="Account ID (email format)">
+<input type="text" class="kd-setup-input" id="kd-entity" placeholder="Entity ID">
+<select class="kd-setup-input" id="kd-section">
+<option value="">All Sections</option>
+</select>
+<button class="kd-setup-btn" onclick="connectKitchen()"><i class="fas fa-plug"></i> Connect Kitchen Display</button>
+<p style="font-size:.72rem;color:var(--text-light);margin-top:12px">Contact your admin for these details</p>
+</div>
+</div>
+
+<!-- MAIN DISPLAY -->
+<div id="kd-main" style="display:none">
+<header class="kd-header">
+<h1><i class="fas fa-fire-alt"></i> <span id="kd-title">Kitchen</span></h1>
+<div class="kd-header-info">
+<span id="kd-order-count">0 orders</span>
+<span id="kd-time"></span>
+</div>
+</header>
+<div class="kd-section-tabs" id="kd-tabs"></div>
+<div class="kd-grid" id="kd-grid"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+var firebaseConfig={apiKey:"AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",authDomain:"stockai-pro-b232e.firebaseapp.com",projectId:"stockai-pro-b232e",storageBucket:"stockai-pro-b232e.firebasestorage.app",messagingSenderId:"424200946359",appId:"1:424200946359:web:4c638eccd4e422ccc94332"};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+var db=firebase.firestore();
+
+var KD={accountId:null,entityId:null,sectionId:null,orders:{},sections:[],listener:null};
+
+// Check saved config
+var savedConfig=localStorage.getItem('kd_config');
+if(savedConfig){
+    try{var c=JSON.parse(savedConfig);KD.accountId=c.accountId;KD.entityId=c.entityId;KD.sectionId=c.sectionId;
+    document.getElementById('kd-setup').style.display='none';
+    document.getElementById('kd-main').style.display='block';
+    startKitchenSync();}catch(e){}
+}
+
+function connectKitchen(){
+    var accountId=(document.getElementById('kd-account').value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'_');
+    var entityId=(document.getElementById('kd-entity').value||'').trim();
+    var sectionId=document.getElementById('kd-section').value;
+    if(!accountId||!entityId){alert('Please enter Account ID and Entity ID');return;}
+    KD.accountId=accountId;KD.entityId=entityId;KD.sectionId=sectionId;
+    localStorage.setItem('kd_config',JSON.stringify({accountId:accountId,entityId:entityId,sectionId:sectionId}));
+    document.getElementById('kd-setup').style.display='none';
+    document.getElementById('kd-main').style.display='block';
+    startKitchenSync();
+}
+
+function startKitchenSync(){
+    if(!KD.accountId)return;
+    if(KD.listener)KD.listener();
+    KD.listener=db.collection('accounts').doc(KD.accountId).onSnapshot(function(doc){
+        if(!doc.exists)return;var d=doc.data();
+        KD.orders=(d.posOrders||{})[KD.entityId]||{};
+        KD.sections=(d.posKitchenSections||{})[KD.entityId]||[];
+        var entityName='';(d.entities||[]).forEach(function(e){if(e.id===KD.entityId)entityName=e.name;});
+        document.getElementById('kd-title').textContent=(KD.sectionId?
+            (KD.sections.find(function(s){return s.id===KD.sectionId;})||{}).name||'Kitchen':'Kitchen')+
+            (entityName?' — '+entityName:'');
+        renderKitchenOrders();
+    });
+    setInterval(renderKitchenOrders,10000);
+    setInterval(function(){document.getElementById('kd-time').textContent=new Date().toLocaleTimeString('en-ZA');},1000);
+}
+
+function renderKitchenOrders(){
+    var grid=document.getElementById('kd-grid');
+    var orderCards=[];
+
+    Object.keys(KD.orders).forEach(function(tableKey){
+        var order=KD.orders[tableKey];
+        if(!order||order.status!=='open')return;
+        var items=(order.items||[]).filter(function(i){
+            if(i.voided||i.status==='ready'||i.status==='served')return false;
+            if(i.status!=='sent')return false;
+            if(KD.sectionId&&i.section!==KD.sectionId)return false;
+            return true;
+        });
+        if(items.length===0)return;
+
+        var oldestSent=items.reduce(function(oldest,i){
+            var t=new Date(i.sentAt||i.orderedAt).getTime();
+            return t<oldest?t:oldest;
+        },Date.now());
+
+        var elapsed=Math.floor((Date.now()-oldestSent)/60000);
+        var section=KD.sections.find(function(s){return s.id===(items[0].section||'');});
+        var prepTime=section?section.prepTime:15;
+        var pct=elapsed/prepTime*100;
+        var timerClass=pct>=100?'red':pct>=75?'orange':'green';
+
+        orderCards.push({
+            tableKey:tableKey,order:order,items:items,
+            elapsed:elapsed,timerClass:timerClass,prepTime:prepTime
+        });
+    });
+
+    orderCards.sort(function(a,b){return b.elapsed-a.elapsed;});
+
+    document.getElementById('kd-order-count').textContent=orderCards.length+' order'+(orderCards.length!==1?'s':'');
+
+    if(orderCards.length===0){
+        grid.innerHTML='<div class="kd-empty" style="grid-column:1/-1"><i class="fas fa-check-circle"></i>'+
+            '<h2>All Clear!</h2><p>No orders waiting — great work! 👏</p></div>';
+        return;
+    }
+
+    grid.innerHTML=orderCards.map(function(card){
+        return'<div class="kd-card '+card.timerClass+'">'+
+            '<div class="kd-card-header '+card.timerClass+'">'+
+            '<div><div class="kd-table-num">Table '+(card.order.tableNumber||'?')+'</div>'+
+            '<div class="kd-waiter"><i class="fas fa-user"></i> '+(card.order.waiterName||'Waiter')+'</div></div>'+
+            '<div class="kd-timer '+card.timerClass+'">'+card.elapsed+' min</div></div>'+
+            '<div class="kd-items">'+card.items.map(function(item){
+                return'<div class="kd-item"><div><div class="kd-item-name">'+item.name+'</div>'+
+                    (item.notes?'<div class="kd-item-note">'+item.notes+'</div>':'')+
+                    '</div><div class="kd-item-qty">×1</div></div>';
+            }).join('')+'</div>'+
+            '<button class="kd-done-btn" onclick="markReady(\''+card.tableKey+'\')">'+
+            '<i class="fas fa-check"></i> Order Ready</button></div>';
+    }).join('');
+}
+
+function markReady(tableKey){
+    var order=KD.orders[tableKey];
+    if(!order)return;
+    (order.items||[]).forEach(function(item){
+        if(item.status==='sent'&&!item.voided){
+            if(!KD.sectionId||item.section===KD.sectionId){
+                item.status='ready';item.readyAt=new Date().toISOString();
+            }
+        }
+    });
+    var update={};update['posOrders.'+KD.entityId]=KD.orders;
+    update.lastUpdated=firebase.firestore.FieldValue.serverTimestamp();
+    update.lastUpdatedDevice='Kitchen Display';
+    db.collection('accounts').doc(KD.accountId).set(update,{merge:true});
+}
+</script>
+</body>
+</html>
