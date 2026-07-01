@@ -456,12 +456,19 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function enterFromWelcome(){
     var welcomeScreen=document.getElementById('hub-welcome-screen');
-    welcomeScreen.classList.add('exit');
+    
+    // Fade out animation
+    welcomeScreen.style.transition='opacity 0.8s ease, transform 0.8s ease';
+    welcomeScreen.style.opacity='0';
+    welcomeScreen.style.transform='scale(1.05)';
+    welcomeScreen.style.pointerEvents='none';
 
     setTimeout(function(){
-        welcomeScreen.classList.add('hidden');
+        welcomeScreen.style.display='none';
 
         // Now check auth
+        var hubRememberPref=localStorage.getItem('stockai_remember_hub');
+
         if(hubRememberPref==='yes'){
             auth.onAuthStateChanged(function(firebaseUser){
                 if(firebaseUser){
@@ -481,6 +488,8 @@ function enterFromWelcome(){
             });
         }else{
             auth.signOut().then(function(){
+                document.getElementById('hub-login').classList.remove('hidden');
+            }).catch(function(){
                 document.getElementById('hub-login').classList.remove('hidden');
             });
         }
