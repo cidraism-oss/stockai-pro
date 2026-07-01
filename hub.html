@@ -103,16 +103,240 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
 .hub-app-card{padding:18px 8px}
 .hub-app-icon{width:48px;height:48px;font-size:1.2rem}
 }
+/* ══════════════════════════════════════ */
+/* ANIMATED WELCOME SCREEN               */
+/* ══════════════════════════════════════ */
+.hub-welcome-screen{position:fixed;inset:0;z-index:99999;overflow:hidden}
+.welcome-bg{position:absolute;inset:0;background:linear-gradient(135deg,#071a22 0%,#0d4a5c 30%,#1a8ba8 60%,#0d4a5c 100%);display:flex;align-items:center;justify-content:center}
+.welcome-content{text-align:center;position:relative;z-index:10;padding:24px}
+
+/* PARTICLES */
+.welcome-particles{position:absolute;inset:0;overflow:hidden;z-index:1}
+.particle{position:absolute;border-radius:50%;opacity:0;animation:particleFloat 8s infinite}
+.p1{width:6px;height:6px;background:#f59e0b;top:10%;left:15%;animation-delay:0s}
+.p2{width:4px;height:4px;background:#4dbdd5;top:20%;right:20%;animation-delay:1s}
+.p3{width:8px;height:8px;background:#f59e0b;bottom:30%;left:10%;animation-delay:2s}
+.p4{width:5px;height:5px;background:#4dbdd5;top:40%;right:15%;animation-delay:3s}
+.p5{width:3px;height:3px;background:#fff;bottom:20%;right:25%;animation-delay:1.5s}
+.p6{width:7px;height:7px;background:#f59e0b;top:60%;left:25%;animation-delay:4s}
+.p7{width:4px;height:4px;background:#4dbdd5;bottom:40%;right:10%;animation-delay:2.5s}
+.p8{width:6px;height:6px;background:#fff;top:15%;right:35%;animation-delay:3.5s}
+@keyframes particleFloat{
+    0%{opacity:0;transform:translateY(100px) scale(0)}
+    20%{opacity:.8;transform:translateY(0) scale(1)}
+    80%{opacity:.6;transform:translateY(-80px) scale(.8)}
+    100%{opacity:0;transform:translateY(-150px) scale(0)}
+}
+
+/* LOGO */
+.welcome-logo-container{position:relative;width:120px;height:120px;margin:0 auto 30px}
+.welcome-logo{width:100px;height:100px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;color:#0d4a5c;font-size:2.8rem;margin:10px auto;box-shadow:0 15px 50px rgba(0,0,0,.3);animation:logoEntry 1s cubic-bezier(.175,.885,.32,1.275) forwards;opacity:0;transform:scale(0) rotate(-180deg);position:relative;z-index:5}
+@keyframes logoEntry{
+    0%{opacity:0;transform:scale(0) rotate(-180deg)}
+    60%{transform:scale(1.15) rotate(10deg)}
+    80%{transform:scale(.95) rotate(-5deg)}
+    100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+.welcome-ring{position:absolute;border-radius:50%;border:2px solid rgba(77,189,213,.3);animation:ringExpand 2s ease-out infinite}
+.ring1{inset:-10px;animation-delay:0s}
+.ring2{inset:-25px;animation-delay:.5s;border-color:rgba(245,158,11,.2)}
+.ring3{inset:-40px;animation-delay:1s;border-color:rgba(255,255,255,.1)}
+@keyframes ringExpand{
+    0%{transform:scale(.8);opacity:1}
+    100%{transform:scale(1.3);opacity:0}
+}
+
+/* WELCOME TEXT */
+.welcome-text-container{margin-bottom:16px}
+.welcome-word{display:flex;justify-content:center;gap:2px;margin-bottom:4px}
+.welcome-letter{color:rgba(255,255,255,.9);font-size:1.6rem;font-weight:600;display:inline-block;opacity:0;animation:letterBounceIn .5s cubic-bezier(.175,.885,.32,1.275) forwards}
+.wl-1{animation-delay:.8s}
+.wl-2{animation-delay:.85s}
+.wl-3{animation-delay:.9s}
+.wl-4{animation-delay:.95s}
+.wl-5{animation-delay:1s}
+.wl-6{animation-delay:1.05s}
+.wl-7{animation-delay:1.1s}
+.wl-space{width:10px}
+.wl-8{animation-delay:1.2s}
+.wl-9{animation-delay:1.25s}
+
+/* BRAND LETTERS */
+.welcome-brand{display:flex;justify-content:center;gap:2px;margin-bottom:12px}
+.brand-letter{color:#f59e0b;font-size:2.8rem;font-weight:900;letter-spacing:3px;display:inline-block;opacity:0;text-shadow:0 4px 20px rgba(245,158,11,.4)}
+.bl-1{animation:letterRiseUp .6s cubic-bezier(.175,.885,.32,1.275) 1.4s forwards}
+.bl-2{animation:letterDropDown .6s cubic-bezier(.175,.885,.32,1.275) 1.5s forwards}
+.bl-3{animation:letterRiseUp .6s cubic-bezier(.175,.885,.32,1.275) 1.6s forwards}
+.bl-4{animation:letterSlideLeft .6s cubic-bezier(.175,.885,.32,1.275) 1.7s forwards}
+.bl-5{animation:letterSlideRight .6s cubic-bezier(.175,.885,.32,1.275) 1.8s forwards}
+.bl-6{animation:letterDropDown .6s cubic-bezier(.175,.885,.32,1.275) 1.95s forwards}
+.bl-7{animation:letterRiseUp .6s cubic-bezier(.175,.885,.32,1.275) 2.05s forwards}
+.bl-8{animation:letterFadeIn .4s ease 2.15s forwards}
+.bl-9{animation:letterSlideLeft .6s cubic-bezier(.175,.885,.32,1.275) 2.25s forwards}
+.bl-10{animation:letterDropDown .6s cubic-bezier(.175,.885,.32,1.275) 2.35s forwards}
+.bl-11{animation:letterRiseUp .6s cubic-bezier(.175,.885,.32,1.275) 2.45s forwards}
+
+@keyframes letterBounceIn{
+    0%{opacity:0;transform:translateY(-40px) scale(0)}
+    60%{transform:translateY(5px) scale(1.1)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes letterRiseUp{
+    0%{opacity:0;transform:translateY(60px) scale(0) rotate(15deg)}
+    60%{transform:translateY(-8px) scale(1.1) rotate(-3deg)}
+    100%{opacity:1;transform:translateY(0) scale(1) rotate(0deg)}
+}
+@keyframes letterDropDown{
+    0%{opacity:0;transform:translateY(-60px) scale(0) rotate(-15deg)}
+    60%{transform:translateY(8px) scale(1.1) rotate(3deg)}
+    100%{opacity:1;transform:translateY(0) scale(1) rotate(0deg)}
+}
+@keyframes letterSlideLeft{
+    0%{opacity:0;transform:translateX(-50px) scale(0)}
+    60%{transform:translateX(5px) scale(1.1)}
+    100%{opacity:1;transform:translateX(0) scale(1)}
+}
+@keyframes letterSlideRight{
+    0%{opacity:0;transform:translateX(50px) scale(0)}
+    60%{transform:translateX(-5px) scale(1.1)}
+    100%{opacity:1;transform:translateX(0) scale(1)}
+}
+@keyframes letterFadeIn{
+    0%{opacity:0;transform:scale(0)}
+    100%{opacity:1;transform:scale(1)}
+}
+
+/* TAGLINE */
+.welcome-tagline{display:flex;justify-content:center;gap:8px;margin-bottom:24px}
+.tagline-word{color:rgba(255,255,255,.7);font-size:.95rem;font-weight:500;font-style:italic;opacity:0;animation:taglineFade .6s ease forwards}
+.tw-1{animation-delay:2.8s}
+.tw-2{animation-delay:3s}
+.tw-3{animation-delay:3.2s}
+.tw-4{animation-delay:3.4s}
+@keyframes taglineFade{
+    0%{opacity:0;transform:translateY(10px)}
+    100%{opacity:1;transform:translateY(0)}
+}
+
+/* FEATURES */
+.welcome-features{display:flex;justify-content:center;gap:14px;margin-bottom:36px;flex-wrap:wrap}
+.welcome-feature{padding:8px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:24px;color:rgba(255,255,255,.8);font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:6px;opacity:0;animation:featureSlideUp .5s ease forwards;backdrop-filter:blur(4px)}
+.wf-1{animation-delay:3.5s}
+.wf-2{animation-delay:3.7s}
+.wf-3{animation-delay:3.9s}
+.welcome-feature i{color:#f59e0b;font-size:.8rem}
+@keyframes featureSlideUp{
+    0%{opacity:0;transform:translateY(20px)}
+    100%{opacity:1;transform:translateY(0)}
+}
+
+/* ENTER BUTTON */
+.welcome-enter-btn{display:inline-flex;align-items:center;gap:14px;padding:16px 40px;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.05));border:2px solid rgba(255,255,255,.3);border-radius:50px;color:#fff;cursor:pointer;font-family:inherit;transition:.3s;opacity:0;animation:enterBtnAppear .6s ease 4.2s forwards;position:relative;overflow:hidden}
+.welcome-enter-btn::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,#f59e0b,#4dbdd5,#f59e0b);border-radius:50px;z-index:-1;opacity:0;transition:opacity .3s}
+.welcome-enter-btn:hover{transform:scale(1.05);border-color:transparent;background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.1))}
+.welcome-enter-btn:hover::before{opacity:1}
+.welcome-enter-btn:active{transform:scale(.97)}
+.enter-text{font-size:1rem;font-weight:800;letter-spacing:6px}
+.enter-arrow{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:arrowPulse 2s ease-in-out infinite 4.5s}
+@keyframes enterBtnAppear{
+    0%{opacity:0;transform:translateY(30px)}
+    100%{opacity:1;transform:translateY(0)}
+}
+@keyframes arrowPulse{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(6px)}
+}
+
+/* VERSION */
+.welcome-version{color:rgba(255,255,255,.3);font-size:.68rem;margin-top:20px;letter-spacing:2px;opacity:0;animation:taglineFade .5s ease 4.5s forwards}
+
+/* WELCOME EXIT */
+.hub-welcome-screen.exit{animation:welcomeExit .8s ease forwards}
+@keyframes welcomeExit{
+    0%{opacity:1;transform:scale(1)}
+    50%{opacity:.5;transform:scale(1.05)}
+    100%{opacity:0;transform:scale(1.1);pointer-events:none}
+}
+
+@media(max-width:480px){
+    .brand-letter{font-size:2rem;letter-spacing:1px}
+    .welcome-letter{font-size:1.2rem}
+    .welcome-enter-btn{padding:14px 32px}
+    .enter-text{font-size:.88rem;letter-spacing:4px}
+    .welcome-features{gap:8px}
+    .welcome-feature{padding:6px 12px;font-size:.7rem}
+}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div class="hub-splash" id="hub-splash">
-    <div class="hub-splash-logo"><i class="fas fa-chart-line"></i></div>
-    <h1>STOCKAI-PRO</h1>
-    <p>Hub • All Apps, One Login</p>
-    <div class="hub-splash-loader"></div>
+<!-- ANIMATED WELCOME -->
+<div class="hub-welcome-screen" id="hub-welcome-screen">
+    <div class="welcome-bg">
+        <div class="welcome-particles">
+            <div class="particle p1"></div>
+            <div class="particle p2"></div>
+            <div class="particle p3"></div>
+            <div class="particle p4"></div>
+            <div class="particle p5"></div>
+            <div class="particle p6"></div>
+            <div class="particle p7"></div>
+            <div class="particle p8"></div>
+        </div>
+        <div class="welcome-content">
+            <div class="welcome-logo-container">
+                <div class="welcome-logo" id="welcome-logo">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="welcome-ring ring1"></div>
+                <div class="welcome-ring ring2"></div>
+                <div class="welcome-ring ring3"></div>
+            </div>
+            <div class="welcome-text-container">
+                <div class="welcome-word">
+                    <span class="welcome-letter wl-1">W</span>
+                    <span class="welcome-letter wl-2">e</span>
+                    <span class="welcome-letter wl-3">l</span>
+                    <span class="welcome-letter wl-4">c</span>
+                    <span class="welcome-letter wl-5">o</span>
+                    <span class="welcome-letter wl-6">m</span>
+                    <span class="welcome-letter wl-7">e</span>
+                    <span class="welcome-letter wl-space"> </span>
+                    <span class="welcome-letter wl-8">t</span>
+                    <span class="welcome-letter wl-9">o</span>
+                </div>
+                <div class="welcome-brand">
+                    <span class="brand-letter bl-1">S</span>
+                    <span class="brand-letter bl-2">t</span>
+                    <span class="brand-letter bl-3">o</span>
+                    <span class="brand-letter bl-4">c</span>
+                    <span class="brand-letter bl-5">k</span>
+                    <span class="brand-letter bl-6">A</span>
+                    <span class="brand-letter bl-7">I</span>
+                    <span class="brand-letter bl-8">-</span>
+                    <span class="brand-letter bl-9">P</span>
+                    <span class="brand-letter bl-10">r</span>
+                    <span class="brand-letter bl-11">o</span>
+                </div>
+            </div>
+            <div class="welcome-tagline" id="welcome-tagline">
+                <span class="tagline-word tw-1">Intelligence</span>
+                <span class="tagline-word tw-2">a</span>
+                <span class="tagline-word tw-3">click</span>
+                <span class="tagline-word tw-4">away</span>
+            </div>
+            <div class="welcome-features" id="welcome-features">
+                <div class="welcome-feature wf-1"><i class="fas fa-brain"></i> AI Powered</div>
+                <div class="welcome-feature wf-2"><i class="fas fa-microphone"></i> Voice Control</div>
+                <div class="welcome-feature wf-3"><i class="fas fa-bolt"></i> Real-Time</div>
+            </div>
+            <button class="welcome-enter-btn" id="welcome-enter-btn" onclick="enterFromWelcome()">
+                <span class="enter-text">E N T E R</span>
+                <div class="enter-arrow"><i class="fas fa-arrow-right"></i></div>
+            </button>
+            <div class="welcome-version">Version 2.0 • 2025</div>
+        </div>
+    </div>
 </div>
 
 <!-- LOGIN -->
@@ -226,10 +450,42 @@ var ROLE_DEFAULTS={
 // SPLASH → AUTH CHECK
 // ============================================================
 document.addEventListener('DOMContentLoaded',function(){
+    // Welcome screen handles its own timing
+    // Auth check happens when ENTER is clicked
+});
+
+function enterFromWelcome(){
+    var welcomeScreen=document.getElementById('hub-welcome-screen');
+    welcomeScreen.classList.add('exit');
+
     setTimeout(function(){
-        document.getElementById('hub-splash').style.opacity='0';
-        setTimeout(function(){
-            document.getElementById('hub-splash').classList.add('hidden');
+        welcomeScreen.classList.add('hidden');
+
+        // Now check auth
+        if(hubRememberPref==='yes'){
+            auth.onAuthStateChanged(function(firebaseUser){
+                if(firebaseUser){
+                    hubToast('info','🔄 Loading...');
+                    findHubAccount(firebaseUser.email,function(found){
+                        if(found){
+                            document.getElementById('hub-login').classList.add('hidden');
+                            enterHub();
+                        }else{
+                            auth.signOut();
+                            document.getElementById('hub-login').classList.remove('hidden');
+                        }
+                    });
+                }else{
+                    document.getElementById('hub-login').classList.remove('hidden');
+                }
+            });
+        }else{
+            auth.signOut().then(function(){
+                document.getElementById('hub-login').classList.remove('hidden');
+            });
+        }
+    },800);
+}
 
             if(hubRememberPref==='yes'){
                 auth.onAuthStateChanged(function(firebaseUser){
