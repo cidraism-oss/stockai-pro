@@ -479,8 +479,15 @@ function openNewTable(){
         '<h3><i class="fas fa-plus-circle" style="color:var(--primary)"></i> Open New Table</h3>'+
         '<div style="margin-bottom:12px"><label style="font-size:.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Table Number *</label>'+
         '<select class="pos-input" id="nt-table" style="margin-bottom:0">'+
-        POS.tables.filter(function(t){return!POS.orders['table-'+t.number]||POS.orders['table-'+t.number].status!=='open';})
-        .map(function(t){return'<option value="'+t.number+'">Table '+t.number+'</option>';}).join('')+
+(POS.tables.length > 0
+    ? POS.tables.filter(function(t){return!POS.orders['table-'+t.number]||POS.orders['table-'+t.number].status!=='open';})
+        .map(function(t){return'<option value="'+t.number+'">Table '+t.number+'</option>';}).join('')
+    : Array.from({length:20}, function(_,i){
+        var n = i+1;
+        return (!POS.orders['table-'+n] || POS.orders['table-'+n].status!=='open')
+            ? '<option value="'+n+'">Table '+n+'</option>' : '';
+      }).join('')
+) +
         '</select></div>'+
         '<div style="margin-bottom:12px"><label style="font-size:.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Number of Guests *</label>'+
         '<input type="number" class="pos-input" id="nt-pax" value="2" min="1" max="50" style="margin-bottom:0"></div>'+
