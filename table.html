@@ -74,9 +74,25 @@ TB.entityId=params.get('e');
 TB.accountId=params.get('a');
 
 if(!TB.tableNum||!TB.entityId||!TB.accountId){
-    document.getElementById('tb-loading').innerHTML='<i class="fas fa-exclamation-circle" style="font-size:2rem;color:var(--danger);display:block;margin-bottom:12px"></i>Invalid QR code. Please scan the correct table QR.';
+    document.getElementById('tb-loading').innerHTML=
+        '<div style="text-align:center;padding:40px">' +
+        '<i class="fas fa-qrcode" style="font-size:3rem;color:var(--primary);display:block;margin-bottom:16px;opacity:.5"></i>' +
+        '<h2 style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:8px">Scan Your Table QR Code</h2>' +
+        '<p style="font-size:.88rem;color:var(--text-light);margin-bottom:16px">Please scan the QR code on your table to view your bill.</p>' +
+        '<p style="font-size:.78rem;color:var(--text-muted)">If you are seeing this page directly, ask your waiter for assistance.</p>' +
+        '</div>';
 }else{
     startTableSync();
+setTimeout(function() {
+    if (!TB.order) {
+        document.getElementById('tb-loading').innerHTML =
+            '<div style="text-align:center;padding:40px">' +
+            '<i class="fas fa-hourglass-half" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:16px"></i>' +
+            '<h2 style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Waiting for Your Order</h2>' +
+            '<p style="font-size:.85rem;color:var(--text-light)">Your waiter will open your table shortly. This page will update automatically.</p>' +
+            '</div>';
+    }
+}, 10000);
 }
 
 function startTableSync(){
