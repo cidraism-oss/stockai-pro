@@ -108,10 +108,10 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
 /* ══════════════════════════════════════ */
 .hub-welcome-screen{position:fixed;inset:0;z-index:99999;overflow:hidden}
 .welcome-bg{position:absolute;inset:0;background:linear-gradient(135deg,#071a22 0%,#0d4a5c 30%,#1a8ba8 60%,#0d4a5c 100%);display:flex;align-items:center;justify-content:center}
-.welcome-content{text-align:center;position:relative;z-index:10;padding:24px}
+.welcome-content{text-align:center;position:relative;z-index:10;padding:24px;pointer-events:auto}
 
 /* PARTICLES */
-.welcome-particles{position:absolute;inset:0;overflow:hidden;z-index:1}
+.welcome-particles{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
 .particle{position:absolute;border-radius:50%;opacity:0;animation:particleFloat 8s infinite}
 .p1{width:6px;height:6px;background:#f59e0b;top:10%;left:15%;animation-delay:0s}
 .p2{width:4px;height:4px;background:#4dbdd5;top:20%;right:20%;animation-delay:1s}
@@ -266,7 +266,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
     .welcome-features{gap:8px}
     .welcome-feature{padding:6px 12px;font-size:.7rem}
 }
-.welcome-enter-btn{z-index:20;position:relative}
 </style>
 </head>
 <body>
@@ -331,10 +330,10 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
                 <div class="welcome-feature wf-2"><i class="fas fa-microphone"></i> Voice Control</div>
                 <div class="welcome-feature wf-3"><i class="fas fa-bolt"></i> Real-Time</div>
             </div>
-            <button class="welcome-enter-btn" id="welcome-enter-btn" onclick="enterFromWelcome()">
-                <span class="enter-text">E N T E R</span>
-                <div class="enter-arrow"><i class="fas fa-arrow-right"></i></div>
-            </button>
+            <div id="welcome-enter-btn" style="display:inline-flex;align-items:center;gap:14px;padding:16px 40px;background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.08));border:2px solid rgba(255,255,255,.4);border-radius:50px;color:#fff;cursor:pointer;opacity:0;animation:enterBtnAppear .6s ease 4.2s forwards;position:relative;z-index:9999;margin-top:10px">
+    <span style="font-size:1rem;font-weight:800;letter-spacing:6px">E N T E R</span>
+    <div style="width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center"><i class="fas fa-arrow-right"></i></div>
+</div>
             <div class="welcome-version">Version 2.0 • 2025</div>
         </div>
     </div>
@@ -455,6 +454,21 @@ document.addEventListener('DOMContentLoaded',function(){
     // Auth check happens when ENTER is clicked
 });
 
+// Attach click handler after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var enterBtn = document.getElementById('welcome-enter-btn');
+        if (enterBtn) {
+            enterBtn.addEventListener('click', function() {
+                enterFromWelcome();
+            });
+            enterBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                enterFromWelcome();
+            });
+        }
+    }, 5000);
+});
 function enterFromWelcome(){
     var welcomeScreen=document.getElementById('hub-welcome-screen');
     
