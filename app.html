@@ -889,8 +889,28 @@ body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text)
 <div id="toast-wrap" class="toast-wrap"></div>
 
 <!-- CHART.JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+function renderAllData() {
+    try { renderDashContent(); } catch(e) { console.warn('renderDashContent:', e); }
+    try { renderInventory(); } catch(e) { console.warn('renderInventory:', e); }
+    try { renderMenu(); } catch(e) { console.warn('renderMenu:', e); }
+    try { renderStockTake(); } catch(e) { console.warn('renderStockTake:', e); }
+    try { renderPurchasesTable(); } catch(e) { console.warn('renderPurchasesTable:', e); }
+    try { renderSuppliers(); } catch(e) { console.warn('renderSuppliers:', e); }
+    try { renderUsers(); } catch(e) { console.warn('renderUsers:', e); }
+    try { renderWastageTable(); } catch(e) { console.warn('renderWastageTable:', e); }
+    try { renderNotifs(); } catch(e) { console.warn('renderNotifs:', e); }
+    try { renderGRVSection(); } catch(e) { console.warn('renderGRVSection:', e); }
+    try { renderPOSItems(); } catch(e) { console.warn('renderPOSItems:', e); }
+    try { renderClientInvoices(); } catch(e) { console.warn('renderClientInvoices:', e); }
+    try { loadCashup(); } catch(e) { console.warn('loadCashup:', e); }
+    try { loadDayEnd(); } catch(e) { console.warn('loadDayEnd:', e); }
+    setTimeout(function() {
+        try { initDashCharts(); } catch(e) { console.warn('initDashCharts:', e); }
+    }, 100);
+}
 
+</script>
 <script>
 // ============================================================
 // APP STATE
