@@ -930,7 +930,7 @@ function showOwnerEntityDashboard() {
     entities.forEach(function(ent,idx) {
         var inact = ent.status==='inactive';
         html += '<div onclick="'+(inact?'':'selectOwnerEntity('+idx+')')+'" style="background:var(--bg-card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;cursor:'+(inact?'default':'pointer')+';transition:.2s;border:2px solid '+(inact?'var(--danger)':'var(--border)')+';opacity:'+(inact?'.6':'1')+'" '+(inact?'':'onmouseover="this.style.borderColor=\'var(--primary)\';this.style.transform=\'translateX(4px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'translateX(0)\'"')+'>' +
-            '<div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,'+(inact?'#c94545,#a83232':'var(--primary),var(--primary-dark)+');display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:800">'+ent.name.charAt(0).toUpperCase()+'</div>' +
+            '<div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,'+(inact?'#c94545,#a83232':'var(--primary),var(--primary-dark)')+');display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:800">'+ent.name.charAt(0).toUpperCase()+'</div>' +
             '<div style="flex:1"><div style="font-size:.95rem;font-weight:700;color:var(--text)">'+ent.name+'</div><div style="font-size:.72rem;color:var(--text-light);margin-top:2px">'+(ent.contact||'')+(ent.foodCostTarget?' • FC: '+ent.foodCostTarget+'%':'')+'</div></div>' +
             (inact?'':'<i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>') + '</div>';
     });
