@@ -321,6 +321,19 @@ var P = {
     accountData: null
 };
 
+// Master account check
+function isMasterPortal() {
+    return P.user && P.user.email &&
+        P.user.email.toLowerCase() === 'cidraism@gmail.com';
+}
+
+function getPortalMaxEntities() {
+    if (isMasterPortal()) return 9999;
+    var plan = (P.billing || {}).planName || 'Premium';
+    if (plan.includes('Exclusive')) return 9999;
+    if (plan.includes('Plus'))      return 5;
+    return 1;
+}
 var PLAN_DATA = {
     starter: { name: 'Starter', price: 499, features: ['1 entity', '3 users', 'Basic features', 'Email support'] },
     professional: { name: 'Professional', price: 899, features: ['Up to 3 entities', 'Unlimited users', 'AI features', 'WhatsApp support'] },
@@ -670,6 +683,17 @@ function processCreateEntity() {
     var contact = document.getElementById('ne-contact').value.trim();
     if (!name) { showToast('error', 'Please enter an entity name'); return; }
     if (!contact) { showToast('error', 'Please enter a contact person'); return; }
+
+    // Check entity limit (bypass for master)
+    if (!isMasterPortal()) {
+        var maxEnts = getPortalMaxEntities();
+        if (P.entities.length >= maxEnts) {
+            showToast('error', 'Your ' + (P.billing ? P.billing.planName : 'current') +
+                ' plan allows a maximum of ' + maxEnts + ' entit' + (maxEnts === 1 ? 'y' : 'ies') +
+                '. Upgrade to add more.');
+            return;
+        }
+    }
 
     var sections = [];
     document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) { sections.push(cb.value); });
