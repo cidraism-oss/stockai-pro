@@ -897,6 +897,24 @@ body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text)
 // ============================================================
 var VAT_RATE = 0.15;
 var MASTER_EMAIL = 'cidraism@gmail.com';
+var MASTER_EMAIL_APP = 'cidraism@gmail.com';
+
+// ============================================================
+// MASTER ACCOUNT HELPERS
+// ============================================================
+function isMasterAccount() {
+    return S.user && S.user.email &&
+        S.user.email.toLowerCase() === MASTER_EMAIL_APP.toLowerCase();
+}
+
+function getMaxEntities() {
+    if (isMasterAccount()) return 9999;
+    var billing = S.billing || {};
+    var plan    = billing.planName || 'Premium';
+    if (plan.includes('Exclusive')) return 9999;
+    if (plan.includes('Plus'))      return 5;
+    return 1;
+}
 
 var S = {
     user: null,
@@ -1201,16 +1219,17 @@ function showEntitySelector() {
     });
 
     // Global view for owners with 2+ entities
-    if (perms.all && S.entities.length >= 2) {
-        html += '<div onclick="selectEntity(-1)" ' +
-            'style="padding:22px 16px;background:linear-gradient(135deg,#1a1a2e,#0f3460);' +
-            'border:2px solid var(--gold);border-radius:var(--r);cursor:pointer;text-align:center">' +
-            '<span style="font-size:.65rem;background:var(--gold);color:#1a1a2e;padding:2px 10px;' +
-            'border-radius:10px;font-weight:700;display:inline-block;margin-bottom:8px">👑 OWNER</span>' +
-            '<i class="fas fa-globe" style="font-size:2rem;color:var(--gold);margin-bottom:10px;display:block"></i>' +
-            '<h3 style="font-size:.92rem;color:#fff">GLOBAL VIEW</h3>' +
-            '<p style="font-size:.7rem;color:var(--gold)">All ' + S.entities.length + ' entities</p></div>';
-    }
+    var showGlobal = (perms.all || isMasterAccount()) && S.entities.length >= 2;
+if (showGlobal) {
+    html += '<div onclick="selectEntity(-1)" ' +
+        'style="padding:22px 16px;background:linear-gradient(135deg,#1a1a2e,#0f3460);' +
+        'border:2px solid var(--gold);border-radius:var(--r);cursor:pointer;text-align:center">' +
+        '<span style="font-size:.65rem;background:var(--gold);color:#1a1a2e;padding:2px 10px;' +
+        'border-radius:10px;font-weight:700;display:inline-block;margin-bottom:8px">👑 OWNER</span>' +
+        '<i class="fas fa-globe" style="font-size:2rem;color:var(--gold);margin-bottom:10px;display:block"></i>' +
+        '<h3 style="font-size:.92rem;color:#fff">GLOBAL VIEW</h3>' +
+        '<p style="font-size:.7rem;color:var(--gold)">All ' + S.entities.length + ' entities</p></div>';
+}
 
     grid.innerHTML = html;
 }
@@ -1279,9 +1298,14 @@ function renderSidebar() {
     });
 
     // Remove transfers if only 1 entity
-    if (S.entities.length < 2) {
-        items = items.filter(function(item) { return item.page !== 'transfers'; });
-    }
+if (S.entities.length < 2) {
+    items = items.filter(function(item) { return item.page !== 'transfers'; });
+}
+
+// Master account always sees all nav items
+if (isMasterAccount()) {
+    items = NAV_ITEMS.slice();
+}
 
     nav.innerHTML = items.map(function(item, i) {
         return '<a class="nav-link ' + (i === 0 ? 'active' : '') + '" ' +
