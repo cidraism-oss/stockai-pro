@@ -1346,18 +1346,35 @@ function showLoginError(msg) {
 // ============================================================
 function findHubAccount(email, callback) {
     // Check if master admin
-    if (email === MASTER_EMAIL) {
-        HUB.isMaster    = true;
-        HUB.accountId   = 'master';
-        HUB.user = {
-            name:  'StockAI Admin',
-            email: email,
-            role:  'Master Admin'
-        };
-        HUB.allowedApps = ALL_APPS.map(function(a) { return a.id; });
-        if (callback) callback(true);
-        return;
-    }
+if (email === MASTER_EMAIL) {
+    HUB.isMaster  = true;
+    HUB.accountId = email.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+    HUB.user = {
+        name:  'StockAI Admin',
+        email: email,
+        role:  'Owner'
+    };
+    HUB.allowedApps = ALL_APPS.map(function(a) { return a.id; });
+
+    // Load actual account data for master user
+    db.collection('accounts').doc(HUB.accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                var data    = doc.data();
+                HUB.accountData = data;
+                HUB.entities    = data.entities || [];
+                if (HUB.entities.length > 0) {
+                    HUB.entity     = HUB.entities[0];
+                    HUB.entityId   = HUB.entities[0].id;
+                    HUB.entityName = HUB.entities[0].name;
+                }
+            }
+        })
+        .catch(function() {});
+
+    if (callback) callback(true);
+    return;
+}
 
     db.collection('accounts').get()
         .then(function(snap) {
