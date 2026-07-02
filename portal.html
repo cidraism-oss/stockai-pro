@@ -603,6 +603,88 @@ function renderEntityCards() {
     }).join('');
 }
 
+// ============================================================
+// BILLING — NEW PRICING MODEL
+// ============================================================
+var PORTAL_PRICING = {
+    baseFee:   799,    // incl. VAT
+    entityFee: 599,    // incl. VAT per entity
+    vatRate:   0.15
+};
+
+function calcPortalBilling() {
+    var activeEntities = P.entities.filter(function(e) {
+        return e.status !== 'inactive';
+    });
+    var base       = PORTAL_PRICING.baseFee;
+    var entities   = activeEntities.length * PORTAL_PRICING.entityFee;
+    var totalIncl  = base + entities;
+    var totalExcl  = parseFloat((totalIncl / (1 + PORTAL_PRICING.vatRate)).toFixed(2));
+    var vat        = parseFloat((totalIncl - totalExcl).toFixed(2));
+
+    return {
+        activeCount: activeEntities.length,
+        baseFee:     base,
+        entityTotal: entities,
+        totalIncl:   totalIncl,
+        totalExcl:   totalExcl,
+        vat:         vat,
+        entities:    activeEntities
+    };
+}
+
+function viewPortalInvoice() {
+    var billing = calcPortalBilling();
+    var now     = new Date();
+    var invNum  = 'INV-' + now.getFullYear() + (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1);
+
+    var html = generateInvoiceHTML({
+        invoiceNumber:  invNum,
+        invoiceDate:    now.toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' }),
+        dueDate:        new Date(now.getFullYear(), now.getMonth() + 1, 0).toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' }),
+        ownerName:      P.owner ? P.owner.name : 'Customer',
+        ownerEmail:     P.owner ? P.owner.email : '',
+        ownerPhone:     P.owner ? P.owner.phone : '',
+        companyName:    P.owner ? (P.owner.groupName || P.owner.name) : '',
+        companyAddress: P.owner ? (P.owner.groupAddress || '') : '',
+        companyVat:     P.owner ? (P.owner.groupVat || '') : '',
+        entities:       billing.entities,
+        isPaid:         false
+    });
+
+    // Open in new window for print
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Invoice ' + invNum + '</title>' +
+        '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
+        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style></head><body>' +
+        '<div style="max-width:700px;margin:0 auto">' + html + '</div>' +
+        '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Invoice</button></div>' +
+        '</body></html>');
+    w.document.close();
+}
+
+function viewPortalStatement() {
+    showToast('info', '📄 Opening statement...');
+    // Generate statement with all invoices
+    var w = window.open('', '_blank');
+    var stmtHtml = generateStatementHTML({
+        ownerName:      P.owner ? P.owner.name : 'Customer',
+        companyName:    P.owner ? (P.owner.groupName || P.owner.name) : '',
+        companyAddress: P.owner ? (P.owner.groupAddress || '') : '',
+        companyVat:     P.owner ? (P.owner.groupVat || '') : '',
+        ownerEmail:     P.owner ? P.owner.email : '',
+        dateFrom:       new Date(new Date().getFullYear(), 0, 1).toLocaleDateString('en-ZA'),
+        dateTo:         new Date().toLocaleDateString('en-ZA'),
+        invoices:       (P.billing ? P.billing.invoiceHistory : null) || []
+    });
+    w.document.write('<html><head><title>Statement</title>' +
+        '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
+        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style></head><body>' +
+        '<div style="max-width:700px;margin:0 auto">' + stmtHtml + '</div>' +
+        '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Statement</button></div>' +
+        '</body></html>');
+    w.document.close();
+}
 function renderBilling() {
     var container = document.getElementById('billing-content');
     if (!container) return;
