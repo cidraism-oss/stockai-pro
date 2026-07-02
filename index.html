@@ -1014,62 +1014,130 @@ section { padding:80px 24px; position:relative; }
             <h2>Choose Your Plan</h2>
             <p>No contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee.</p>
         </div>
-        <div class="pricing-grid">
-            <div class="plan reveal">
-                <div class="plan-name">Premium</div>
-                <div class="plan-tagline">For single locations & small businesses</div>
-                <div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">999</span><span class="plan-period">/mo</span></div>
-                <div class="plan-per">Per entity • Billed monthly</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Full Web App + Mobile App</li>
-                    <li><i class="fas fa-check"></i> AI predictions & voice counting</li>
-                    <li><i class="fas fa-check"></i> Auto purchase orders</li>
-                    <li><i class="fas fa-check"></i> Menu & recipe costing</li>
-                    <li><i class="fas fa-check"></i> GRV system & month end</li>
-                    <li><i class="fas fa-check"></i> Live food cost tracking</li>
-                    <li><i class="fas fa-check"></i> Email support</li>
-                    <li><i class="fas fa-times"></i> POS System</li>
-                    <li><i class="fas fa-times"></i> Multi-entity</li>
-                </ul>
-                <button class="btn-plan" onclick="window.location.href='signup.html?plan=premium'">Get Started</button>
+     <div style="max-width:700px;margin:0 auto">
+            <!-- Pricing Breakdown -->
+            <div class="plan popular reveal" style="margin-bottom:24px">
+                <div style="text-align:center;margin-bottom:20px">
+                    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(245,158,11,.1);border-radius:20px;font-size:.72rem;font-weight:700;color:#d97706;margin-bottom:14px">
+                        <i class="fas fa-tag"></i> SIMPLE & TRANSPARENT
+                    </div>
+                    <h3 style="font-size:1.8rem;font-weight:900;color:#0d4a5c;margin-bottom:4px">One Platform. One Price.</h3>
+                    <p style="font-size:.88rem;color:#5a8a96">No hidden fees. No feature locks. Everything included.</p>
+                </div>
+
+                <!-- Base Platform Fee -->
+                <div style="background:#f0f7f9;border-radius:12px;padding:24px;margin-bottom:14px;border:2px solid #1a8ba8;position:relative;overflow:hidden">
+                    <div style="position:absolute;top:0;right:0;background:#1a8ba8;color:#fff;padding:4px 14px;border-radius:0 0 0 12px;font-size:.65rem;font-weight:700">INCL. VAT</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Base Platform Fee</div>
+                            <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Full access to ALL features</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="display:flex;align-items:baseline;gap:2px">
+                                <span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span>
+                                <span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">799</span>
+                                <span style="font-size:.82rem;color:#5a8a96">/mo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plus sign -->
+                <div style="text-align:center;font-size:1.5rem;font-weight:900;color:#1a8ba8;margin:10px 0">+</div>
+
+                <!-- Per Entity Fee -->
+                <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;border:2px solid #f59e0b;position:relative;overflow:hidden">
+                    <div style="position:absolute;top:0;right:0;background:#f59e0b;color:#fff;padding:4px 14px;border-radius:0 0 0 12px;font-size:.65rem;font-weight:700">INCL. VAT</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Per Entity / Location</div>
+                            <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Per branch, store, or outlet</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="display:flex;align-items:baseline;gap:2px">
+                                <span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span>
+                                <span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">599</span>
+                                <span style="font-size:.82rem;color:#5a8a96">/mo per entity</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Calculator -->
+                <div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:20px;color:#fff;margin-bottom:20px">
+                    <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:12px">
+                        <i class="fas fa-calculator"></i> QUICK CALCULATOR
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+                        <label style="font-size:.85rem;font-weight:500">How many entities?</label>
+                        <select id="entity-calc" onchange="calcPricing()" style="padding:8px 14px;border-radius:8px;border:none;font-size:.92rem;font-weight:700;color:#0d4a5c;font-family:inherit;cursor:pointer;background:#fff">
+                            <option value="1">1 Entity</option>
+                            <option value="2">2 Entities</option>
+                            <option value="3">3 Entities</option>
+                            <option value="4">4 Entities</option>
+                            <option value="5" selected>5 Entities</option>
+                            <option value="10">10 Entities</option>
+                            <option value="20">20 Entities</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem">
+                        <span>Base Platform Fee</span><strong>R799.00</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem">
+                        <span>Entity Fee (<span id="calc-entity-count">5</span> × R599)</span>
+                        <strong id="calc-entity-fee">R2,995.00</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:6px;font-size:1.2rem;font-weight:900">
+                        <span>Monthly Total (incl. VAT)</span>
+                        <strong id="calc-total" style="color:#f59e0b">R3,794.00</strong>
+                    </div>
+                    <div style="font-size:.72rem;opacity:.7;margin-top:4px;text-align:right">
+                        That's only <strong id="calc-per-entity">R758.80</strong> per entity!
+                    </div>
+                </div>
+
+                <!-- All features included -->
+                <div style="margin-bottom:20px">
+                    <h4 style="font-size:.92rem;font-weight:700;color:#0d4a5c;margin-bottom:12px;text-align:center">
+                        ✅ ALL of this is included — no feature locks:
+                    </h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Full Web App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Mobile App (PWA)</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> AI Predictions</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Voice Counting</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Auto Purchase Orders</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Live Food Cost</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> GRV System</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Menu & Recipe Costing</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> POS System</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Kitchen Display</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Procurement App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Menu Master App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> POS Menu Builder</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Month End Automation</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Internal Transfers</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> QR Table Payments</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Unlimited Stock Items</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Unlimited Users</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Custom Roles</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> WhatsApp Support</div>
+                    </div>
+                </div>
+
+                <button class="btn-plan" onclick="window.location.href='signup.html'" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-color:transparent;color:#fff;font-size:1rem;padding:16px">
+                    <i class="fas fa-rocket"></i> Get Started — From R1,398/mo
+                </button>
             </div>
-            <div class="plan popular reveal">
-                <div class="plan-name">Premium Plus</div>
-                <div class="plan-tagline">For growing businesses & groups</div>
-                <div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">1,799</span><span class="plan-period">/mo</span></div>
-                <div class="plan-per">Per entity • Up to 5 entities</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Everything in Premium</li>
-                    <li><i class="fas fa-check"></i> Up to 5 entities</li>
-                    <li><i class="fas fa-check"></i> POS system + Kitchen display</li>
-                    <li><i class="fas fa-check"></i> POS Menu Builder</li>
-                    <li><i class="fas fa-check"></i> Procurement App</li>
-                    <li><i class="fas fa-check"></i> Menu Master App</li>
-                    <li><i class="fas fa-check"></i> Internal transfers</li>
-                    <li><i class="fas fa-check"></i> QR table payments</li>
-                    <li><i class="fas fa-check"></i> WhatsApp support</li>
-                </ul>
-                <button class="btn-plan" onclick="window.location.href='signup.html?plan=plus'">Get Started</button>
-            </div>
-            <div class="plan reveal">
-                <div class="plan-name">Premium Exclusive</div>
-                <div class="plan-tagline">For enterprise groups & large operations</div>
-                <div class="plan-price"><span class="plan-currency">R</span><span class="plan-amount">2,599</span><span class="plan-period">/mo</span></div>
-                <div class="plan-per">Per entity • Unlimited entities</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Everything in Premium Plus</li>
-                    <li><i class="fas fa-check"></i> Unlimited entities</li>
-                    <li><i class="fas fa-check"></i> Dedicated account manager</li>
-                    <li><i class="fas fa-check"></i> Phone support</li>
-                    <li><i class="fas fa-check"></i> Custom reports & API</li>
-                    <li><i class="fas fa-check"></i> Accounting integration</li>
-                    <li><i class="fas fa-check"></i> Invoice scanner (AI)</li>
-                    <li><i class="fas fa-check"></i> Priority support</li>
-                </ul>
-                <button class="btn-plan" onclick="window.location.href='signup.html?plan=exclusive'">Get Started</button>
+
+            <!-- Guarantee -->
+            <div class="reveal" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 20px rgba(13,74,92,.08);text-align:center;border-left:4px solid #2ea871">
+                <h3 style="font-size:1rem;font-weight:700;color:#0d4a5c;margin-bottom:8px">✅ 30-Day Money-Back Guarantee</h3>
+                <p style="font-size:.85rem;color:#5a8a96;max-width:500px;margin:0 auto">Not satisfied within 30 days? We'll refund you in full — no questions asked. Zero risk.</p>
             </div>
         </div>
-        <p style="text-align:center;margin-top:36px;color:var(--text-light);font-size:.85rem">All plans include: Unlimited stock items • Free updates • Daily backups • SSL secure • POPIA compliant</p>
+        <p style="text-align:center;margin-top:30px;color:var(--text-light);font-size:.82rem">All prices include 15% VAT • No contracts • Cancel anytime with 30 days notice • POPIA compliant</p>   
     </div>
 </section>
 
@@ -1437,6 +1505,25 @@ setInterval(function() {
 var style = document.createElement('style');
 style.textContent = '@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}';
 document.head.appendChild(style);
+// ============================================================
+// PRICING CALCULATOR
+// ============================================================
+function calcPricing() {
+    var baseFee    = 799;
+    var entityFee  = 599;
+    var sel        = document.getElementById('entity-calc');
+    var count      = parseInt(sel.value) || 1;
+    var entTotal   = count * entityFee;
+    var grandTotal = baseFee + entTotal;
+    var perEntity  = (grandTotal / count);
+
+    document.getElementById('calc-entity-count').textContent = count;
+    document.getElementById('calc-entity-fee').textContent   = 'R' + entTotal.toLocaleString() + '.00';
+    document.getElementById('calc-total').textContent         = 'R' + grandTotal.toLocaleString() + '.00';
+    document.getElementById('calc-per-entity').textContent    = 'R' + perEntity.toFixed(2) + ' per entity!';
+}
+// Init calculator
+window.addEventListener('load', function() { setTimeout(calcPricing, 100); });
 
 console.log('✅ StockAI-Pro 2.0 Website — Fully Loaded');
 console.log('🤖 Stocky the Bot — Active');
