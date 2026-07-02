@@ -1077,7 +1077,7 @@ var db   = firebase.firestore();
 // ============================================================
 // CONSTANTS
 // ============================================================
-var VAT_RATE    = 0.15;
+var VAT_RATE     = 0.15;
 var MASTER_EMAIL = 'cidraism@gmail.com';
 var MASTER_PASS  = '123456';
 
@@ -1345,22 +1345,22 @@ function showLoginError(msg) {
 // FIND ACCOUNT IN FIRESTORE
 // ============================================================
 function findHubAccount(email, callback) {
-    // Check if master admin
+    // Check if master admin — email based only
 if (email === MASTER_EMAIL) {
     HUB.isMaster  = true;
-    HUB.accountId = email.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+    HUB.accountId = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     HUB.user = {
-        name:  'StockAI Admin',
+        name:  'Miguel Cidrais',
         email: email,
-        role:  'Owner'
+        role:  'Master Admin'
     };
     HUB.allowedApps = ALL_APPS.map(function(a) { return a.id; });
 
-    // Load actual account data for master user
+    // Load master account data from Firestore
     db.collection('accounts').doc(HUB.accountId).get()
         .then(function(doc) {
             if (doc.exists) {
-                var data    = doc.data();
+                var data        = doc.data();
                 HUB.accountData = data;
                 HUB.entities    = data.entities || [];
                 if (HUB.entities.length > 0) {
@@ -1368,9 +1368,38 @@ if (email === MASTER_EMAIL) {
                     HUB.entityId   = HUB.entities[0].id;
                     HUB.entityName = HUB.entities[0].name;
                 }
+            } else {
+                // First time — create master account document
+                var masterDoc = {
+                    owner: {
+                        name:    'Miguel Cidrais',
+                        email:   MASTER_EMAIL,
+                        phone:   '0790440508',
+                        country: 'South Africa'
+                    },
+                    entities:    [],
+                    inventory:   {},
+                    purchases:   {},
+                    wastage:     {},
+                    suppliers:   {},
+                    users:       {},
+                    menuItems:   {},
+                    cashups:     {},
+                    notifs:      [],
+                    activities:  {},
+                    pendingPOs:  {},
+                    accountStatus: 'active',
+                    isMasterAccount: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                db.collection('accounts').doc(HUB.accountId).set(masterDoc);
+                HUB.accountData = masterDoc;
+                HUB.entities    = [];
             }
         })
-        .catch(function() {});
+        .catch(function(err) {
+            console.warn('Master account load error:', err);
+        });
 
     if (callback) callback(true);
     return;
@@ -1464,7 +1493,7 @@ function hubForgotPw() {
 function enterHub() {
     // Master admin goes to admin panel
     if (HUB.isMaster) {
-        showAdminPanel();
+        showMasterDashboard();
         return;
     }
 
@@ -1864,29 +1893,233 @@ console.log('✅ StockAI-Pro 2.0 Hub — Core loaded');
 // ============================================================
 // MASTER ADMIN PANEL
 // ============================================================
-function showAdminPanel() {
+function showMasterDashboard() {
     document.getElementById('hub-app').classList.add('hidden');
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-frame').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');
 
+    // Update admin header
+    document.getElementById('hub-user-name') &&
+        (document.getElementById('hub-user-name').textContent = 'Miguel Cidrais');
+
     var content = document.getElementById('admin-content');
-    content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+    content.innerHTML =
+        '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
         '<i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--primary)"></i>' +
-        '<p style="margin-top:12px">Loading all customers...</p></div>';
+        '<p style="margin-top:12px">Loading master dashboard...</p></div>';
 
     db.collection('accounts').get()
         .then(function(snap) {
             var customers = [];
             snap.forEach(function(doc) {
-                customers.push({ id: doc.id, data: doc.data() });
+                // Don't show master account in customer list
+                if (doc.id !== HUB.accountId) {
+                    customers.push({ id: doc.id, data: doc.data() });
+                }
             });
-            renderAdminPanel(customers);
+            renderMasterDashboard(customers);
         })
         .catch(function(err) {
-            content.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i>' +
-                '<h3>Error Loading</h3><p>' + err.message + '</p></div>';
+            content.innerHTML =
+                '<div class="empty-state"><i class="fas fa-exclamation-circle"></i>' +
+                '<h3>Error</h3><p>' + err.message + '</p></div>';
         });
+}
+
+// Keep old name as alias
+function showAdminPanel() { showMasterDashboard(); }
+
+function renderMasterDashboard(customers) {
+    var content = document.getElementById('admin-content');
+
+    // Stats
+    var totalActive   = customers.filter(function(c) { return (c.data.accountStatus || 'active') === 'active'; }).length;
+    var totalInactive = customers.length - totalActive;
+    var totalEntities = customers.reduce(function(s, c) { return s + (c.data.entities || []).length; }, 0);
+    var totalMRR      = customers.reduce(function(s, c) {
+        var ents = (c.data.entities || []).filter(function(e) { return e.status !== 'inactive'; }).length;
+        return s + (ents > 0 ? 799 + (ents * 599) : 0);
+    }, 0);
+
+    var myEntities = HUB.entities || [];
+
+    var html = '<div style="max-width:1100px;margin:0 auto">';
+
+    // Welcome header
+    html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap">' +
+        '<div style="width:56px;height:56px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
+        'border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem">' +
+        '<i class="fas fa-crown"></i></div>' +
+        '<div style="flex:1"><h1 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:2px">' +
+        'Master Admin Dashboard</h1>' +
+        '<p style="font-size:.82rem;color:var(--text-light)">StockAI-Pro — Full System Control</p></div>' +
+        '<button class="btn btn-primary" onclick="showCreateMasterEntity()" style="display:flex;align-items:center;gap:8px">' +
+        '<i class="fas fa-plus-circle"></i> Create My Entity</button></div>';
+
+    // Stats
+    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px">' +
+        masterStatCard('Total Customers', customers.length, 'var(--primary)') +
+        masterStatCard('Active', totalActive, 'var(--success)') +
+        masterStatCard('Inactive', totalInactive, 'var(--danger)') +
+        masterStatCard('Total Entities', totalEntities, 'var(--gold)') +
+        masterStatCard('MRR', 'R' + fmtMRR(totalMRR), 'var(--success)') +
+        '</div>';
+
+    // MY OWN ENTITIES SECTION
+    html += '<div class="info-card" style="margin-bottom:24px;border-left:4px solid var(--gold)">' +
+        '<div class="info-card-header">' +
+        '<h4><i class="fas fa-star" style="color:var(--gold)"></i> My Test Entities (' + myEntities.length + ')</h4>' +
+        '<button class="btn btn-sm btn-gold" onclick="showCreateMasterEntity()" ' +
+        'style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border:none;padding:7px 14px;border-radius:var(--rs);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">' +
+        '<i class="fas fa-plus"></i> Create New Entity</button></div>';
+
+    if (myEntities.length === 0) {
+        html += '<div class="empty-state" style="padding:24px"><i class="fas fa-building"></i>' +
+            '<h3>No Entities Yet</h3>' +
+            '<p>Create your first test or demo entity</p>' +
+            '<button class="btn btn-primary" onclick="showCreateMasterEntity()" style="margin-top:10px">' +
+            '<i class="fas fa-plus"></i> Create First Entity</button></div>';
+    } else {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">';
+        myEntities.forEach(function(ent, idx) {
+            html += '<div style="padding:16px;background:var(--bg);border-radius:var(--r);' +
+                'border:1px solid var(--border);cursor:pointer;transition:.2s;text-align:center" ' +
+                'onclick="masterEnterEntity(\'own\',' + idx + ')" ' +
+                'onmouseover="this.style.borderColor=\'var(--gold)\'" ' +
+                'onmouseout="this.style.borderColor=\'var(--border)\'">' +
+                '<div style="width:44px;height:44px;border-radius:12px;' +
+                'background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
+                'display:flex;align-items:center;justify-content:center;color:#fff;' +
+                'font-size:1.2rem;font-weight:700;margin:0 auto 10px">' +
+                ent.name.charAt(0).toUpperCase() + '</div>' +
+                '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' + ent.name + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-light);margin-top:4px">' +
+                (ent.businessType || 'Test Entity') + '</div>' +
+                '<div style="margin-top:8px;display:inline-flex;align-items:center;gap:4px;' +
+                'padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;' +
+                'background:rgba(46,168,113,.12);color:var(--success)">Active</div></div>';
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+
+    // SEARCH
+    html += '<div class="search-bar" style="margin-bottom:16px">' +
+        '<i class="fas fa-search"></i>' +
+        '<input type="text" id="master-search" placeholder="Search customers by name or email..." ' +
+        'oninput="filterMasterCards()"></div>';
+
+    // CUSTOMER CARDS
+    html += '<h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px">' +
+        '<i class="fas fa-users" style="color:var(--primary)"></i> All Customers (' + customers.length + ')</h3>';
+
+    html += '<div id="master-cards" ' +
+        'style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">';
+
+    if (customers.length === 0) {
+        html += '<div class="empty-state" style="grid-column:1/-1">' +
+            '<i class="fas fa-users"></i><h3>No Customers Yet</h3>' +
+            '<p>Customers will appear here once they sign up</p></div>';
+    } else {
+        customers.forEach(function(c) {
+            html += renderMasterCustomerCard(c);
+        });
+    }
+
+    html += '</div></div>';
+    content.innerHTML = html;
+}
+
+function masterStatCard(label, value, color) {
+    return '<div style="background:var(--bg-card);border-radius:var(--r);padding:18px;' +
+        'box-shadow:var(--shadow);border-left:4px solid ' + color + ';text-align:center">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;' +
+        'font-weight:600;margin-bottom:4px">' + label + '</div>' +
+        '<div style="font-size:1.5rem;font-weight:800;color:var(--text)">' + value + '</div></div>';
+}
+
+function fmtMRR(n) {
+    if (n >= 1000) return 'R' + (n / 1000).toFixed(1) + 'K';
+    return 'R' + n.toLocaleString();
+}
+
+function renderMasterCustomerCard(customer) {
+    var data     = customer.data;
+    var owner    = data.owner || {};
+    var entities = data.entities || [];
+    var isActive = (data.accountStatus || 'active') === 'active';
+    var activeEnts = entities.filter(function(e) { return e.status !== 'inactive'; }).length;
+    var mrr = activeEnts > 0 ? 799 + (activeEnts * 599) : 0;
+
+    return '<div class="info-card" data-search="' +
+        ((owner.name || '') + ' ' + (owner.email || '')).toLowerCase() + '" ' +
+        'style="border-left:4px solid ' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
+
+        // Header
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">' +
+        '<div style="width:44px;height:44px;border-radius:12px;' +
+        'background:linear-gradient(135deg,' + (isActive ? 'var(--primary),var(--primary-dark)' : 'var(--danger),#a83232') + ');' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:700;flex-shrink:0">' +
+        (owner.name ? owner.name.charAt(0).toUpperCase() : '?') + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:.92rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+        (owner.name || 'Unknown') + '</div>' +
+        '<div style="font-size:.7rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+        (owner.email || '') + '</div>' +
+        (owner.phone ? '<div style="font-size:.68rem;color:var(--text-light)">' + owner.phone + '</div>' : '') +
+        '</div>' +
+        '<span style="padding:3px 10px;border-radius:12px;font-size:.68rem;font-weight:600;flex-shrink:0;' +
+        'background:' + (isActive ? 'rgba(46,168,113,.12)' : 'rgba(201,69,69,.12)') + ';' +
+        'color:' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
+        (isActive ? 'Active' : 'Inactive') + '</span></div>' +
+
+        // Details
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;' +
+        'padding:10px;background:var(--bg);border-radius:var(--rs);font-size:.72rem">' +
+        '<div><span style="color:var(--text-muted)">Entities: </span>' +
+        '<strong style="color:var(--text)">' + entities.length + '</strong></div>' +
+        '<div><span style="color:var(--text-muted)">Active: </span>' +
+        '<strong style="color:var(--text)">' + activeEnts + '</strong></div>' +
+        '<div><span style="color:var(--text-muted)">MRR: </span>' +
+        '<strong style="color:var(--success)">R' + mrr.toLocaleString() + '</strong></div>' +
+        '<div><span style="color:var(--text-muted)">Business: </span>' +
+        '<strong style="color:var(--text)">' + (owner.bizType || '—') + '</strong></div></div>' +
+
+        // Entity pills
+        (entities.length > 0 ?
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">' +
+            entities.slice(0, 4).map(function(ent) {
+                var active = ent.status !== 'inactive';
+                return '<span style="padding:2px 8px;border-radius:10px;font-size:.62rem;font-weight:600;' +
+                    'background:' + (active ? 'rgba(26,139,168,.1)' : 'rgba(201,69,69,.1)') + ';' +
+                    'color:' + (active ? 'var(--primary)' : 'var(--danger)') + '">' +
+                    ent.name + '</span>';
+            }).join('') +
+            (entities.length > 4 ? '<span style="padding:2px 8px;border-radius:10px;font-size:.62rem;color:var(--text-muted)">+' + (entities.length - 4) + ' more</span>' : '') +
+            '</div>' : '') +
+
+        // Action buttons
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-sm btn-primary" onclick="adminViewCustomer(\'' + customer.id + '\')" style="flex:1">' +
+        '<i class="fas fa-eye"></i> View</button>' +
+        '<button class="btn btn-sm ' + (isActive ? 'btn-danger' : 'btn-success') + '" ' +
+        'onclick="adminToggleStatus(\'' + customer.id + '\',' + isActive + ')" style="flex:1">' +
+        '<i class="fas fa-' + (isActive ? 'ban' : 'check') + '"></i> ' +
+        (isActive ? 'Deactivate' : 'Activate') + '</button>' +
+        (owner.phone ?
+            '<a href="https://wa.me/27' + (owner.phone || '').replace(/[^0-9]/g, '').slice(-9) + '" ' +
+            'target="_blank" class="btn btn-sm btn-outline" style="color:#25D366;border-color:#25D366;flex-shrink:0">' +
+            '<i class="fab fa-whatsapp"></i></a>' : '') +
+        '</div></div>';
+}
+
+function filterMasterCards() {
+    var q = (document.getElementById('master-search').value || '').toLowerCase();
+    document.querySelectorAll('#master-cards .info-card').forEach(function(card) {
+        var searchVal = card.dataset.search || '';
+        card.style.display = searchVal.includes(q) ? '' : 'none';
+    });
 }
 
 function renderAdminPanel(customers) {
@@ -2026,6 +2259,142 @@ function filterAdminCards() {
 // ============================================================
 // ADMIN — VIEW CUSTOMER DETAILS
 // ============================================================
+// ============================================================
+// CREATE ENTITY FOR MASTER ACCOUNT
+// ============================================================
+function showCreateMasterEntity() {
+    var allSections = [
+        'Walk-in Fridge','Walk-in Freezer','Dry Store','Bar',
+        'Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen',
+        'Receiving Area','Wine Cellar'
+    ];
+
+    var sectionChecks = allSections.map(function(s) {
+        var checked = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'].indexOf(s) !== -1;
+        return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;' +
+            'background:var(--bg);border-radius:var(--rs);cursor:pointer">' +
+            '<input type="checkbox" value="' + s + '" ' + (checked ? 'checked' : '') + ' ' +
+            'style="width:16px;height:16px;accent-color:var(--primary)">' +
+            '<span style="font-size:.82rem;color:var(--text)">' + s + '</span></label>';
+    }).join('');
+
+    showHubModal(
+        '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> Create New Entity',
+
+        '<div style="background:rgba(245,158,11,.08);border-left:3px solid var(--gold);' +
+        'padding:12px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.82rem;color:var(--text)">' +
+        '<i class="fas fa-info-circle" style="color:var(--gold)"></i> ' +
+        'This entity will be created under your master account — unlimited entities, no payment required.</div>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Entity Name *</label>' +
+        '<input type="text" id="me-name" class="login-input" placeholder="e.g. Test Restaurant"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Business Type</label>' +
+        '<select id="me-type" class="login-input">' +
+        '<option>Restaurant</option><option>Bar & Nightclub</option><option>Hotel & Resort</option>' +
+        '<option>Café & Bakery</option><option>Retail Store</option><option>Demo Account</option>' +
+        '</select></div></div>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Contact Person</label>' +
+        '<input type="text" id="me-contact" class="login-input" placeholder="Contact name" value="Miguel Cidrais"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Food Cost Target %</label>' +
+        '<input type="number" id="me-fc" class="login-input" value="28" min="10" max="60"></div></div>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Phone</label>' +
+        '<input type="tel" id="me-phone" class="login-input" placeholder="082 555 0000"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Email</label>' +
+        '<input type="email" id="me-email" class="login-input" placeholder="entity@email.com"></div></div>' +
+
+        '<div style="margin-bottom:14px">' +
+        '<label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Stock Sections</label>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">' + sectionChecks + '</div></div>',
+
+        '<button class="btn btn-outline" onclick="closeHubModal()" style="flex:1">Cancel</button>' +
+        '<button class="btn btn-primary" onclick="saveMasterEntity()" style="flex:1">' +
+        '<i class="fas fa-save"></i> Create Entity</button>'
+    );
+}
+
+function saveMasterEntity() {
+    var name    = (document.getElementById('me-name').value || '').trim();
+    var type    = document.getElementById('me-type').value;
+    var contact = (document.getElementById('me-contact').value || '').trim();
+    var fc      = parseInt(document.getElementById('me-fc').value) || 28;
+    var phone   = (document.getElementById('me-phone').value || '').trim();
+    var email   = (document.getElementById('me-email').value || '').trim();
+
+    if (!name) { hubToast('error', 'Enter entity name'); return; }
+
+    var sections = [];
+    document.querySelectorAll('#hub-modal-container input[type="checkbox"]:checked').forEach(function(cb) {
+        sections.push(cb.value);
+    });
+    if (sections.length === 0) sections = ['Walk-in Fridge','Dry Store'];
+
+    var entityId = 'ENT-MASTER-' + Date.now();
+    var newEntity = {
+        id:              entityId,
+        name:            name,
+        businessType:    type,
+        contact:         contact,
+        phone:           phone,
+        email:           email,
+        foodCostTarget:  fc,
+        sections:        sections,
+        status:          'active',
+        plan:            'master',
+        createdAt:       new Date().toISOString(),
+        createdBy:       'Master Admin'
+    };
+
+    // Add to master account entities
+    var updatedEntities = (HUB.entities || []).slice();
+    updatedEntities.push(newEntity);
+
+    // Initialize empty data collections for this entity
+    var update = {
+        entities:    updatedEntities,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        lastUpdatedBy: 'Master Admin'
+    };
+    update['inventory.'  + entityId] = [];
+    update['purchases.'  + entityId] = [];
+    update['wastage.'    + entityId] = [];
+    update['suppliers.'  + entityId] = [];
+    update['users.'      + entityId] = [];
+    update['menuItems.'  + entityId] = [];
+    update['cashups.'    + entityId] = {};
+    update['activities.' + entityId] = [];
+    update['pendingPOs.' + entityId] = [];
+
+    hubToast('info', '🔄 Creating entity...');
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge: true })
+        .then(function() {
+            HUB.entities = updatedEntities;
+            closeHubModal();
+            hubToast('success', '✅ Entity "' + name + '" created!');
+            showMasterDashboard();
+        })
+        .catch(function(err) {
+            hubToast('error', 'Error: ' + err.message);
+        });
+}
+
+// Enter master's own entity
+function masterEnterEntity(type, idx) {
+    if (type === 'own') {
+        HUB.entity     = HUB.entities[idx];
+        HUB.entityId   = HUB.entities[idx].id;
+        HUB.entityName = HUB.entities[idx].name;
+        HUB.isMaster   = true;
+        document.getElementById('admin-panel').classList.add('hidden');
+        enterHub();
+    }
+}
 function adminViewCustomer(accountId) {
     hubToast('info', '🔄 Loading customer...');
 
