@@ -1113,6 +1113,7 @@ function loadAllData(data) {
     S.grvQueue          = data.grvQueue          || {};
     S.departments       = data.departments       || {};
     S.categories        = data.categories        || {};
+    S.clientInvoices    = data.clientInvoices    || {};
 }
 
 // ============================================================
@@ -1139,6 +1140,7 @@ function saveToCloud(extraFields) {
         grvQueue:           S.grvQueue,
         departments:        S.departments,
         categories:         S.categories,
+        clientInvoices:     S.clientInvoices || {},
         entities:           S.entities,
         owner:              S.owner,
         billing:            S.billing,
@@ -4370,6 +4372,7 @@ function processVoiceCommand(cmd) {
     else if (cmd.includes('menu'))       navigate('menu-creation');
     else if (cmd.includes('user'))       navigate('users');
     else if (cmd.includes('pos') || cmd.includes('builder')) navigate('pos-builder');
+    else if (cmd.includes('invoice') || cmd.includes('billing')) navigate('invoicing');
     else if (cmd.includes('setting'))    navigate('settings');
     else { toggleAI(); sendAI(cmd); }
 }
@@ -4378,12 +4381,16 @@ function processVoiceCommand(cmd) {
 // UPDATE NAV_ITEMS TO INCLUDE POS BUILDER
 // ============================================================
 NAV_ITEMS.splice(NAV_ITEMS.length - 1, 0, {
-    page: 'pos-builder', icon: 'fa-tv', label: 'POS Menu Builder'
-});
+    { page:'pos-builder', icon:'fa-tv', label:'POS Menu Builder' },
+{ page:'invoicing', icon:'fa-file-invoice-dollar', label:'Invoicing' }
+];
 
 // Update PERMS to include pos-builder for relevant roles
 PERMS['Owner'].pages.push('pos-builder');
 PERMS['General Manager'].pages.push('pos-builder');
+PERMS['Owner'].pages.push('invoicing');
+PERMS['General Manager'].pages.push('invoicing');
+PERMS['Manager'] && PERMS['Manager'].pages ? PERMS['Manager'].pages.push('invoicing') : null;
 
 // ============================================================
 // UPDATE renderPages TO INCLUDE POS BUILDER & MONTH END
@@ -4415,6 +4422,7 @@ renderPages = function() {
     if (pages.indexOf('reports') !== -1) html += '<section id="page-reports" class="page">' + pageReports() + '</section>';
     if (pages.indexOf('users') !== -1) html += '<section id="page-users" class="page">' + pageUsers() + '</section>';
     if (pages.indexOf('pos-builder') !== -1) html += '<section id="page-pos-builder" class="page">' + pagePOSMenuBuilder() + '</section>';
+    if (pages.indexOf('invoicing') !== -1) html += '<section id="page-invoicing" class="page">' + pageInvoicing() + '</section>';
     if (pages.indexOf('settings') !== -1) html += '<section id="page-settings" class="page">' + pageSettings() + '</section>';
     if (pages.indexOf('month-end') !== -1) html += '<section id="page-month-end" class="page">' + pageMonthEnd() + '</section>';
 
@@ -4436,10 +4444,675 @@ renderAllData = function() {
     renderNotifs();
     renderGRVSection();
     renderPOSItems();
+    renderClientInvoices();
     loadCashup();
     loadDayEnd();
     setTimeout(initDashCharts, 100);
 };
+// ============================================================
+// PAGE: INVOICING — Client Invoice System
+// ============================================================
+function pageInvoicing() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return '';
+
+    var savedInvoices = getClientInvoices();
+    var unpaid = savedInvoices.filter(function(i) { return i.status !== 'paid'; });
+    var paid   = savedInvoices.filter(function(i) { return i.status === 'paid'; });
+    var totalOutstanding = unpaid.reduce(function(s, i) { return s + (i.totalIncl || 0); }, 0);
+    var totalPaid = paid.reduce(function(s, i) { return s + (i.totalIncl || 0); }, 0);
+
+    // This month
+    var now = new Date();
+    var thisMonthPaid = paid.filter(function(i) {
+        var d = new Date(i.paidDate || i.createdAt);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).reduce(function(s, i) { return s + (i.totalIncl || 0); }, 0);
+
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading"><i class="fas fa-file-invoice-dollar" style="color:var(--accent)"></i> Invoicing</h1>' +
+
+        // Stats
+        '<div class="stats-row">' +
+        statCard('Total Invoices', savedInvoices.length, '') +
+        statCard('Outstanding', 'R' + fmtNum(totalOutstanding), totalOutstanding > 0 ? 'red' : 'green') +
+        statCard('Paid This Month', 'R' + fmtNum(thisMonthPaid), 'green') +
+        statCard('Total Revenue', 'R' + fmtNum(totalPaid), 'gold') +
+        '</div>' +
+
+        // Actions
+        '<div class="action-bar">' +
+        '<button class="btn-primary" onclick="showCreateInvoiceForm()">' +
+        '<i class="fas fa-plus"></i> Create Invoice</button>' +
+        '<button class="btn-outline" onclick="viewInvoiceReport()">' +
+        '<i class="fas fa-file-alt"></i> Invoice Report</button>' +
+        '<div class="search-mini" style="margin-left:auto"><i class="fas fa-search"></i>' +
+        '<input type="text" id="client-inv-search" placeholder="Search invoices..." oninput="filterClientInvoices()"></div></div>' +
+
+        // PENDING / UNPAID SECTION
+        '<div class="form-card" style="border-left-color:var(--warning);margin-bottom:18px">' +
+        '<h3 class="block-title"><i class="fas fa-clock" style="color:var(--warning)"></i> ' +
+        'Pending / Unpaid Invoices (' + unpaid.length + ')' +
+        (totalOutstanding > 0 ? ' — <span style="color:var(--danger)">R' + fmtNum(totalOutstanding) + ' outstanding</span>' : '') +
+        '</h3>' +
+        '<div class="table-wrap"><table class="data-table">' +
+        '<thead><tr><th>Invoice #</th><th>Client</th><th>Date</th>' +
+        '<th>Total (incl.)</th><th>Actions</th></tr></thead>' +
+        '<tbody id="client-inv-unpaid"></tbody></table></div></div>' +
+
+        // PAID SECTION
+        '<div class="form-card" style="border-left-color:var(--success)">' +
+        '<h3 class="block-title"><i class="fas fa-check-circle" style="color:var(--success)"></i> ' +
+        'Paid Invoices (' + paid.length + ')' +
+        (totalPaid > 0 ? ' — <span style="color:var(--success)">R' + fmtNum(totalPaid) + ' received</span>' : '') +
+        '</h3>' +
+        '<div class="table-wrap"><table class="data-table">' +
+        '<thead><tr><th>Invoice #</th><th>Client</th><th>Paid Date</th>' +
+        '<th>Total (incl.)</th><th>Paid By</th><th>Actions</th></tr></thead>' +
+        '<tbody id="client-inv-paid"></tbody></table></div></div>';
+}
+
+function getClientInvoices() {
+    if (!eid()) return [];
+    if (!S.clientInvoices) S.clientInvoices = {};
+    return S.clientInvoices[eid()] || [];
+}
+
+function renderClientInvoices() {
+    var invoices = getClientInvoices();
+    var searchVal = document.getElementById('client-inv-search');
+    var q = searchVal ? searchVal.value.toLowerCase() : '';
+
+    var filtered = invoices;
+    if (q) {
+        filtered = invoices.filter(function(i) {
+            return (i.invoiceNumber || '').toLowerCase().includes(q) ||
+                   (i.clientName || '').toLowerCase().includes(q) ||
+                   (i.clientCompany || '').toLowerCase().includes(q);
+        });
+    }
+
+    var unpaid = filtered.filter(function(i) { return i.status !== 'paid'; });
+    var paid   = filtered.filter(function(i) { return i.status === 'paid'; });
+
+    // Render unpaid table
+    var tbUnpaid = document.getElementById('client-inv-unpaid');
+    if (tbUnpaid) {
+        if (unpaid.length === 0) {
+            tbUnpaid.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--success)">' +
+                '<i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:8px"></i>' +
+                'No outstanding invoices — all paid up! 🎉</td></tr>';
+        } else {
+            tbUnpaid.innerHTML = unpaid.map(function(inv) {
+                // Check if overdue (older than 30 days)
+                var daysSince = Math.floor((new Date() - new Date(inv.createdAt)) / 86400000);
+                var isOverdue = daysSince > 30;
+                var rowStyle = isOverdue ? 'background:rgba(201,69,69,.04)' : '';
+
+                return '<tr style="' + rowStyle + '">' +
+                    '<td><strong>' + inv.invoiceNumber + '</strong>' +
+                    (isOverdue ? '<br><span style="font-size:.6rem;color:var(--danger);font-weight:700">OVERDUE — ' + daysSince + ' days</span>' : '') +
+                    '</td>' +
+                    '<td>' + (inv.clientCompany || inv.clientName || '—') +
+                    (inv.contactPerson ? '<br><span style="font-size:.68rem;color:var(--text-light)">' + inv.contactPerson + '</span>' : '') + '</td>' +
+                    '<td>' + fmtDate(inv.createdAt) + '</td>' +
+                    '<td style="font-weight:700;color:var(--danger)">R' + (inv.totalIncl || 0).toFixed(2) + '</td>' +
+                    '<td><div class="row-actions">' +
+                    '<button class="row-btn" onclick="viewClientInvoice(\'' + inv.id + '\')" title="View"><i class="fas fa-eye"></i></button>' +
+                    '<button class="row-btn" onclick="printClientInvoice(\'' + inv.id + '\')" title="Print"><i class="fas fa-print"></i></button>' +
+                    '<button class="row-btn" onclick="emailClientInvoice(\'' + inv.id + '\')" title="Email"><i class="fas fa-envelope"></i></button>' +
+                    '<button class="row-btn" onclick="markClientInvPaid(\'' + inv.id + '\')" title="Mark Paid" ' +
+                    'style="background:var(--success);color:#fff;border-color:var(--success)"><i class="fas fa-check"></i></button>' +
+                    '<button class="row-btn del" onclick="deleteClientInvoice(\'' + inv.id + '\')" title="Delete"><i class="fas fa-trash"></i></button>' +
+                    '</div></td></tr>';
+            }).join('');
+        }
+    }
+
+    // Render paid table
+    var tbPaid = document.getElementById('client-inv-paid');
+    if (tbPaid) {
+        if (paid.length === 0) {
+            tbPaid.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-light)">' +
+                'No paid invoices yet</td></tr>';
+        } else {
+            tbPaid.innerHTML = paid.map(function(inv) {
+                return '<tr>' +
+                    '<td><strong>' + inv.invoiceNumber + '</strong></td>' +
+                    '<td>' + (inv.clientCompany || inv.clientName || '—') + '</td>' +
+                    '<td>' + (inv.paidDate ? fmtDate(inv.paidDate) : '—') + '</td>' +
+                    '<td style="font-weight:700;color:var(--success)">R' + (inv.totalIncl || 0).toFixed(2) + '</td>' +
+                    '<td>' + (inv.paidBy || '—') + '</td>' +
+                    '<td><div class="row-actions">' +
+                    '<button class="row-btn" onclick="viewClientInvoice(\'' + inv.id + '\')" title="View"><i class="fas fa-eye"></i></button>' +
+                    '<button class="row-btn" onclick="printClientInvoice(\'' + inv.id + '\')" title="Print"><i class="fas fa-print"></i></button>' +
+                    '<button class="row-btn" onclick="emailClientInvoice(\'' + inv.id + '\')" title="Email"><i class="fas fa-envelope"></i></button>' +
+                    '</div></td></tr>';
+            }).join('');
+        }
+    }
+}
+
+function filterClientInvoices() { renderClientInvoices(); }
+
+// ============================================================
+// CREATE INVOICE FORM
+// ============================================================
+function showCreateInvoiceForm() {
+    var ent  = S.entities[S.activeEntity] || {};
+    var menu = getMenu();
+
+    // Generate invoice number
+    var now    = new Date();
+    var invNum = 'CI-' + now.getFullYear() +
+        (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1) +
+        now.getDate() + '-' + Math.floor(Math.random() * 1000);
+
+    var menuOptions = '<option value="">— Select menu item —</option>' +
+        '<option value="custom">✏️ Custom line item</option>' +
+        menu.map(function(m) {
+            return '<option value="' + m.id + '" data-name="' + m.name + '" ' +
+                'data-price="' + (m.setPrice || 0) + '">' +
+                m.name + ' (R' + (m.setPrice || 0).toFixed(2) + ')</option>';
+        }).join('');
+
+    showModal(
+        '<i class="fas fa-file-invoice-dollar" style="color:var(--accent)"></i> Create Client Invoice',
+
+        // Invoice details
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">' +
+        '<div class="form-field"><label>Invoice Number</label>' +
+        '<input type="text" class="form-input" id="ci-invnum" value="' + invNum + '"></div>' +
+        '<div class="form-field"><label>Invoice Date</label>' +
+        '<input type="date" class="form-input" id="ci-date" value="' + now.toISOString().split('T')[0] + '"></div></div>' +
+
+        // Client details
+        '<h4 style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--accent)">' +
+        '<i class="fas fa-user" style="color:var(--accent)"></i> Client Details</h4>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">' +
+        '<div class="form-field"><label>Client / Company Name *</label>' +
+        '<input type="text" class="form-input" id="ci-client-name" placeholder="e.g. ABC Conference Group"></div>' +
+        '<div class="form-field"><label>Contact Person</label>' +
+        '<input type="text" class="form-input" id="ci-contact" placeholder="e.g. John Smith"></div></div>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">' +
+        '<div class="form-field"><label>Email</label>' +
+        '<input type="email" class="form-input" id="ci-email" placeholder="client@email.com"></div>' +
+        '<div class="form-field"><label>Phone</label>' +
+        '<input type="tel" class="form-input" id="ci-phone" placeholder="082 555 0000"></div></div>' +
+
+        '<div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px">' +
+        '<div class="form-field"><label>Address</label>' +
+        '<input type="text" class="form-input" id="ci-address" placeholder="Client address"></div>' +
+        '<div class="form-field"><label>VAT Number</label>' +
+        '<input type="text" class="form-input" id="ci-vat" placeholder="Optional"></div></div>' +
+
+        // Line items
+        '<h4 style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--accent)">' +
+        '<i class="fas fa-list" style="color:var(--accent)"></i> Line Items</h4>' +
+
+        '<div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:6px;' +
+        'font-size:.68rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;padding:0 4px">' +
+        '<span>Description</span><span>Qty</span><span>Unit Price (excl.)</span><span>Total</span><span></span></div>' +
+
+        '<div id="ci-lines"></div>' +
+
+        '<button class="btn-outline" onclick="addCILine()" style="width:100%;margin-top:8px">' +
+        '<i class="fas fa-plus"></i> Add Line Item</button>' +
+
+        // Totals
+        '<div style="display:flex;justify-content:flex-end;margin-top:18px">' +
+        '<div style="width:280px;background:var(--bg);padding:14px;border-radius:var(--rs)">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;color:var(--text-mid)">' +
+        '<span>Subtotal (excl. VAT)</span><strong id="ci-subtotal" style="color:var(--text)">R0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;color:var(--text-mid);border-bottom:1px solid var(--border)">' +
+        '<span>VAT (15%)</span><strong id="ci-vat-amount" style="color:var(--text)">R0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:1.1rem;font-weight:900;color:var(--accent)">' +
+        '<span>TOTAL</span><strong id="ci-total">R0.00</strong></div>' +
+        '</div></div>' +
+
+        // Notes
+        '<div class="form-field" style="margin-top:14px"><label>Notes / Terms</label>' +
+        '<textarea class="form-input" id="ci-notes" rows="2" placeholder="e.g. Payment due within 7 days" style="resize:vertical"></textarea></div>',
+
+        // Footer buttons
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveClientInvoice()"><i class="fas fa-save"></i> Save Invoice</button>' +
+        '<button class="btn-success" onclick="saveAndEmailClientInvoice()"><i class="fas fa-paper-plane"></i> Save & Email</button>'
+    );
+
+    // Add first line
+    addCILine();
+}
+
+function addCILine() {
+    var menu = getMenu();
+    var menuOpts = '<option value="">— Select —</option>' +
+        '<option value="custom">✏️ Custom</option>' +
+        menu.map(function(m) {
+            return '<option value="' + m.id + '" data-name="' + m.name + '" ' +
+                'data-price="' + (m.setPrice || 0) + '">' +
+                m.name + '</option>';
+        }).join('');
+
+    var container = document.getElementById('ci-lines');
+    var row = document.createElement('div');
+    row.className = 'ci-line-row';
+    row.style.cssText = 'display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:6px;align-items:center';
+
+    row.innerHTML =
+        '<div>' +
+        '<select class="form-input ci-item-select" onchange="ciItemSelected(this)" style="padding:8px;font-size:.82rem;margin-bottom:4px">' +
+        menuOpts + '</select>' +
+        '<input type="text" class="form-input ci-desc" placeholder="Description" style="padding:8px;font-size:.82rem"></div>' +
+        '<input type="number" class="form-input ci-qty" value="1" min="0.01" step="0.01" oninput="calcCITotals()" style="padding:8px;font-size:.82rem;text-align:center">' +
+        '<input type="number" class="form-input ci-price" placeholder="0.00" step="0.01" oninput="calcCITotals()" style="padding:8px;font-size:.82rem;text-align:right">' +
+        '<div class="ci-line-total" style="font-weight:700;color:var(--accent);text-align:right;font-size:.85rem;padding-right:4px">R0.00</div>' +
+        '<button onclick="this.parentElement.remove();calcCITotals()" class="row-btn del" style="width:28px;height:28px"><i class="fas fa-times"></i></button>';
+
+    container.appendChild(row);
+}
+
+function ciItemSelected(selectEl) {
+    var row     = selectEl.closest('.ci-line-row');
+    var descEl  = row.querySelector('.ci-desc');
+    var priceEl = row.querySelector('.ci-price');
+
+    if (selectEl.value === 'custom') {
+        descEl.value = '';
+        descEl.placeholder = 'Enter description';
+        priceEl.value = '';
+        descEl.focus();
+    } else if (selectEl.selectedIndex > 0) {
+        var opt = selectEl.options[selectEl.selectedIndex];
+        descEl.value  = opt.dataset.name || '';
+        priceEl.value = opt.dataset.price || '';
+        calcCITotals();
+    }
+}
+
+function calcCITotals() {
+    var subtotal = 0;
+    document.querySelectorAll('.ci-line-row').forEach(function(row) {
+        var qty   = parseFloat(row.querySelector('.ci-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.ci-price').value) || 0;
+        var lineTotal = qty * price;
+        row.querySelector('.ci-line-total').textContent = 'R' + lineTotal.toFixed(2);
+        subtotal += lineTotal;
+    });
+
+    var vat   = parseFloat((subtotal * 0.15).toFixed(2));
+    var total = parseFloat((subtotal + vat).toFixed(2));
+
+    var el;
+    el = document.getElementById('ci-subtotal');    if (el) el.textContent = 'R' + subtotal.toFixed(2);
+    el = document.getElementById('ci-vat-amount');  if (el) el.textContent = 'R' + vat.toFixed(2);
+    el = document.getElementById('ci-total');        if (el) el.textContent = 'R' + total.toFixed(2);
+}
+
+// ============================================================
+// SAVE INVOICE
+// ============================================================
+function buildInvoiceData() {
+    var invNum     = (document.getElementById('ci-invnum').value || '').trim();
+    var invDate    = document.getElementById('ci-date').value;
+    var clientName = (document.getElementById('ci-client-name').value || '').trim();
+    var contact    = (document.getElementById('ci-contact').value || '').trim();
+    var email      = (document.getElementById('ci-email').value || '').trim();
+    var phone      = (document.getElementById('ci-phone').value || '').trim();
+    var address    = (document.getElementById('ci-address').value || '').trim();
+    var clientVat  = (document.getElementById('ci-vat').value || '').trim();
+    var notes      = (document.getElementById('ci-notes').value || '').trim();
+
+    if (!clientName) { toast('error', 'Enter client/company name'); return null; }
+
+    var items    = [];
+    var subtotal = 0;
+
+    document.querySelectorAll('.ci-line-row').forEach(function(row) {
+        var desc  = (row.querySelector('.ci-desc').value || '').trim();
+        var qty   = parseFloat(row.querySelector('.ci-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.ci-price').value) || 0;
+        if (desc && qty > 0 && price > 0) {
+            var lineTotal = qty * price;
+            subtotal += lineTotal;
+            items.push({
+                description: desc,
+                quantity:    qty,
+                unitPrice:   price,
+                total:       parseFloat(lineTotal.toFixed(2))
+            });
+        }
+    });
+
+    if (items.length === 0) { toast('error', 'Add at least one line item'); return null; }
+
+    var vat      = parseFloat((subtotal * 0.15).toFixed(2));
+    var totalIncl = parseFloat((subtotal + vat).toFixed(2));
+
+    return {
+        id:             'CINV-' + Date.now(),
+        invoiceNumber:  invNum || 'CI-' + Date.now(),
+        invoiceDate:    invDate,
+        clientName:     clientName,
+        clientCompany:  clientName,
+        contactPerson:  contact,
+        clientEmail:    email,
+        clientPhone:    phone,
+        clientAddress:  address,
+        clientVat:      clientVat,
+        items:          items,
+        subtotal:       subtotal,
+        vat:            vat,
+        totalIncl:      totalIncl,
+        notes:          notes,
+        status:         'unpaid',
+        createdAt:      new Date().toISOString(),
+        createdBy:      S.user ? S.user.name : 'Unknown'
+    };
+}
+
+function saveClientInvoice() {
+    var data = buildInvoiceData();
+    if (!data) return;
+
+    if (!S.clientInvoices) S.clientInvoices = {};
+    if (!S.clientInvoices[eid()]) S.clientInvoices[eid()] = [];
+    S.clientInvoices[eid()].unshift(data);
+
+    logAction('Invoice Created', data.invoiceNumber + ' — ' + data.clientName + ' — R' + data.totalIncl.toFixed(2));
+    debouncedSave();
+    closeModal();
+    renderPages();
+    navigate('invoicing');
+    renderClientInvoices();
+    toast('success', '✅ Invoice ' + data.invoiceNumber + ' created');
+    return data;
+}
+
+function saveAndEmailClientInvoice() {
+    var data = buildInvoiceData();
+    if (!data) return;
+    if (!data.clientEmail) {
+        toast('error', 'Enter client email address to send invoice');
+        return;
+    }
+
+    if (!S.clientInvoices) S.clientInvoices = {};
+    if (!S.clientInvoices[eid()]) S.clientInvoices[eid()] = [];
+    S.clientInvoices[eid()].unshift(data);
+
+    // Send email
+    var html = generateClientInvoiceHTML(data);
+    sendEmail(data.clientEmail,
+        'Invoice ' + data.invoiceNumber + ' — ' + (S.entities[S.activeEntity] ? S.entities[S.activeEntity].name : 'StockAI-Pro'),
+        html
+    );
+
+    logAction('Invoice Emailed', data.invoiceNumber + ' → ' + data.clientEmail);
+    debouncedSave();
+    closeModal();
+    renderPages();
+    navigate('invoicing');
+    renderClientInvoices();
+    toast('success', '✅ Invoice ' + data.invoiceNumber + ' created & emailed to ' + data.clientEmail);
+}
+
+// ============================================================
+// GENERATE CLIENT INVOICE HTML
+// ============================================================
+function generateClientInvoiceHTML(inv) {
+    var ent = S.entities[S.activeEntity] || {};
+
+    var lineItems = inv.items.map(function(item) {
+        return '<tr>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c">' + item.description + '</td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:center">' + item.quantity + '</td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right">R' + item.unitPrice.toFixed(2) + '</td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:600">R' + item.total.toFixed(2) + '</td></tr>';
+    }).join('');
+
+    return '<div style="font-family:Poppins,Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff">' +
+
+        // Header
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;border-radius:12px 12px 0 0">' +
+        '<div><h1 style="color:#fff;font-size:1.6rem;font-weight:900;margin:0">' + (ent.name || 'StockAI-Pro') + '</h1>' +
+        (ent.address ? '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:4px 0 0">' + ent.address + '</p>' : '') +
+        (ent.phone ? '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:2px 0 0">' + ent.phone + '</p>' : '') +
+        (ent.email ? '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:2px 0 0">' + ent.email + '</p>' : '') +
+        (ent.vat ? '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:2px 0 0">VAT: ' + ent.vat + '</p>' : '') +
+        '</div>' +
+        '<div style="text-align:right"><div style="background:rgba(255,255,255,.15);padding:12px 20px;border-radius:8px">' +
+        '<div style="color:#fff;font-size:1.4rem;font-weight:900;letter-spacing:2px">TAX INVOICE</div>' +
+        '<div style="color:rgba(255,255,255,.8);font-size:.78rem;margin-top:4px">#' + inv.invoiceNumber + '</div>' +
+        '</div></div></div>' +
+
+        // Body
+        '<div style="padding:32px;border:1px solid #e4f1f5;border-top:none;border-radius:0 0 12px 12px">' +
+
+        // Bill To
+        '<div style="margin-bottom:24px">' +
+        '<div style="font-size:.65rem;color:#8aabb5;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:8px">Bill To</div>' +
+        '<div style="font-size:.92rem;font-weight:700;color:#0d4a5c">' + inv.clientCompany + '</div>' +
+        (inv.contactPerson ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:2px">' + inv.contactPerson + '</div>' : '') +
+        (inv.clientAddress ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:2px">' + inv.clientAddress + '</div>' : '') +
+        (inv.clientEmail ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:2px">' + inv.clientEmail + '</div>' : '') +
+        (inv.clientPhone ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:2px">' + inv.clientPhone + '</div>' : '') +
+        (inv.clientVat ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">VAT: ' + inv.clientVat + '</div>' : '') +
+        '</div>' +
+
+        // Invoice details
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;padding:12px;background:#f0f7f9;border-radius:8px">' +
+        '<div><div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Invoice Date</div>' +
+        '<div style="font-size:.88rem;font-weight:700;color:#0d4a5c">' + fmtDate(inv.invoiceDate) + '</div></div>' +
+        '<div><div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Status</div>' +
+        '<div style="font-size:.88rem;font-weight:700;color:' + (inv.status === 'paid' ? '#2ea871' : '#c94545') + '">' +
+        (inv.status === 'paid' ? '✅ PAID' : '⏳ UNPAID') + '</div></div></div>' +
+
+        // Line items
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
+        '<thead><tr style="background:#0d4a5c">' +
+        '<th style="padding:12px 16px;text-align:left;font-size:.72rem;color:#fff;text-transform:uppercase">Description</th>' +
+        '<th style="padding:12px 16px;text-align:center;font-size:.72rem;color:#fff;text-transform:uppercase">Qty</th>' +
+        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff;text-transform:uppercase">Unit Price (excl.)</th>' +
+        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff;text-transform:uppercase">Total</th>' +
+        '</tr></thead><tbody>' + lineItems + '</tbody></table>' +
+
+        // Totals
+        '<div style="display:flex;justify-content:flex-end">' +
+        '<div style="width:260px">' +
+        '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96">' +
+        '<span>Subtotal (excl. VAT)</span><strong style="color:#0d4a5c">R' + inv.subtotal.toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96;border-bottom:1px solid #e4f1f5">' +
+        '<span>VAT (15%)</span><strong style="color:#0d4a5c">R' + inv.vat.toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:12px 0;font-size:1.2rem;font-weight:900;color:#1a8ba8">' +
+        '<span>TOTAL</span><strong>R' + inv.totalIncl.toFixed(2) + '</strong></div></div></div>' +
+
+        // Notes
+        (inv.notes ? '<div style="margin-top:20px;padding:14px;background:#fff8e1;border-left:3px solid #f59e0b;border-radius:8px;font-size:.82rem;color:#5a4a17">' +
+        '<strong>Notes:</strong> ' + inv.notes + '</div>' : '') +
+
+        // Footer
+        '<div style="margin-top:24px;padding-top:16px;border-top:1px solid #e4f1f5;text-align:center">' +
+        '<p style="font-size:.72rem;color:#8aabb5">' + (ent.name || '') + '</p>' +
+        '<p style="font-size:.72rem;color:#8aabb5">Generated by StockAI-Pro</p></div>' +
+
+        '</div></div>';
+}
+
+// ============================================================
+// VIEW / PRINT / EMAIL / MARK PAID / DELETE
+// ============================================================
+function viewClientInvoice(invId) {
+    var inv = getClientInvoices().find(function(i) { return i.id === invId; });
+    if (!inv) return;
+    var html = generateClientInvoiceHTML(inv);
+    showModal('Invoice ' + inv.invoiceNumber,
+        '<div style="max-height:70vh;overflow-y:auto">' + html + '</div>',
+        '<button class="btn-outline" onclick="closeModal()">Close</button>' +
+        '<button class="btn-outline" onclick="printClientInvoice(\'' + invId + '\')"><i class="fas fa-print"></i> Print</button>' +
+        (inv.clientEmail ? '<button class="btn-primary" onclick="emailClientInvoice(\'' + invId + '\')"><i class="fas fa-envelope"></i> Email</button>' : '')
+    );
+}
+
+function printClientInvoice(invId) {
+    var inv = getClientInvoices().find(function(i) { return i.id === invId; });
+    if (!inv) return;
+    var html = generateClientInvoiceHTML(inv);
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Invoice ' + inv.invoiceNumber + '</title>' +
+        '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
+        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style></head><body>' +
+        '<div style="max-width:700px;margin:0 auto">' + html + '</div></body></html>');
+    w.document.close();
+    setTimeout(function() { w.print(); }, 500);
+}
+
+function emailClientInvoice(invId) {
+    var inv = getClientInvoices().find(function(i) { return i.id === invId; });
+    if (!inv || !inv.clientEmail) {
+        toast('error', 'No client email address');
+        return;
+    }
+    var html = generateClientInvoiceHTML(inv);
+    var ent  = S.entities[S.activeEntity] || {};
+    sendEmail(inv.clientEmail,
+        'Invoice ' + inv.invoiceNumber + ' — ' + (ent.name || 'StockAI-Pro'),
+        html
+    );
+    logAction('Invoice Emailed', inv.invoiceNumber + ' → ' + inv.clientEmail);
+    toast('success', '📧 Invoice emailed to ' + inv.clientEmail);
+}
+
+function markClientInvPaid(invId) {
+    var invoices = getClientInvoices();
+    var inv = invoices.find(function(i) { return i.id === invId; });
+    if (!inv) return;
+
+    if (!confirm('Mark invoice ' + inv.invoiceNumber + ' as paid?\n\nR' +
+        (inv.totalIncl || 0).toFixed(2) + ' will be added to today\'s sales.')) return;
+
+    inv.status   = 'paid';
+    inv.paidDate = new Date().toISOString();
+    inv.paidBy   = S.user ? S.user.name : 'Unknown';
+    S.clientInvoices[eid()] = invoices;
+
+    // Add to today's cashup/sales (excl. VAT)
+    var today = new Date().toISOString().split('T')[0];
+    if (!S.cashups[eid()]) S.cashups[eid()] = {};
+    if (!S.cashups[eid()][today]) {
+        S.cashups[eid()][today] = { cash:0, cards:0, vouchers:0, float:0, total:0, invoiceSales:0 };
+    }
+    var salesExVat = (inv.totalIncl || 0) / (1 + 0.15); // Remove VAT
+    if (!S.cashups[eid()][today].invoiceSales) S.cashups[eid()][today].invoiceSales = 0;
+    S.cashups[eid()][today].invoiceSales += salesExVat;
+    S.cashups[eid()][today].total += salesExVat;
+
+    logAction('Invoice Paid', inv.invoiceNumber + ' — R' + (inv.totalIncl || 0).toFixed(2) +
+        ' → R' + salesExVat.toFixed(2) + ' (excl. VAT) added to sales');
+    addNotif('success', 'Invoice Paid',
+        inv.invoiceNumber + ' — R' + salesExVat.toFixed(2) + ' added to today\'s sales');
+    debouncedSave();
+    renderPages();
+    navigate('invoicing');
+    renderClientInvoices();
+    toast('success', '✅ Invoice ' + inv.invoiceNumber + ' paid — R' +
+        salesExVat.toFixed(2) + ' added to sales');
+}
+// ============================================================
+// INVOICE REPORT
+// ============================================================
+function viewInvoiceReport() {
+    var invoices = getClientInvoices();
+    var unpaid   = invoices.filter(function(i) { return i.status !== 'paid'; });
+    var paid     = invoices.filter(function(i) { return i.status === 'paid'; });
+    var totalOutstanding = unpaid.reduce(function(s, i) { return s + (i.totalIncl || 0); }, 0);
+    var totalPaid        = paid.reduce(function(s, i) { return s + (i.totalIncl || 0); }, 0);
+    var ent = S.entities[S.activeEntity] || {};
+
+    var unpaidRows = unpaid.map(function(inv) {
+        var daysSince = Math.floor((new Date() - new Date(inv.createdAt)) / 86400000);
+        return '<tr style="' + (daysSince > 30 ? 'background:rgba(201,69,69,.04)' : '') + '">' +
+            '<td><strong>' + inv.invoiceNumber + '</strong></td>' +
+            '<td>' + (inv.clientCompany || inv.clientName) + '</td>' +
+            '<td>' + fmtDate(inv.createdAt) + '</td>' +
+            '<td style="font-weight:700;color:var(--danger)">R' + (inv.totalIncl || 0).toFixed(2) + '</td>' +
+            '<td>' + daysSince + ' days</td>' +
+            '<td>' + (daysSince > 30 ? '<span style="color:var(--danger);font-weight:700">OVERDUE</span>' : 'Due') + '</td></tr>';
+    }).join('');
+
+    var paidRows = paid.map(function(inv) {
+        return '<tr>' +
+            '<td><strong>' + inv.invoiceNumber + '</strong></td>' +
+            '<td>' + (inv.clientCompany || inv.clientName) + '</td>' +
+            '<td>' + fmtDate(inv.createdAt) + '</td>' +
+            '<td>' + (inv.paidDate ? fmtDate(inv.paidDate) : '—') + '</td>' +
+            '<td style="font-weight:700;color:var(--success)">R' + (inv.totalIncl || 0).toFixed(2) + '</td>' +
+            '<td>' + (inv.paidBy || '—') + '</td></tr>';
+    }).join('');
+
+    showModal(
+        '<i class="fas fa-file-alt" style="color:var(--accent)"></i> Invoice Report — ' + ent.name,
+
+        // Summary
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">' +
+        '<div style="padding:16px;background:var(--bg);border-radius:var(--rs);text-align:center;border-left:3px solid var(--accent)">' +
+        '<div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Total Invoiced</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:var(--text)">R' + fmtNum(totalOutstanding + totalPaid) + '</div></div>' +
+        '<div style="padding:16px;background:var(--bg);border-radius:var(--rs);text-align:center;border-left:3px solid var(--danger)">' +
+        '<div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Outstanding</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:var(--danger)">R' + fmtNum(totalOutstanding) + '</div></div>' +
+        '<div style="padding:16px;background:var(--bg);border-radius:var(--rs);text-align:center;border-left:3px solid var(--success)">' +
+        '<div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Received</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:var(--success)">R' + fmtNum(totalPaid) + '</div></div></div>' +
+
+        // Outstanding section
+        '<h4 style="font-size:.88rem;font-weight:700;color:var(--danger);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--danger)">' +
+        '<i class="fas fa-exclamation-circle"></i> Outstanding Invoices (' + unpaid.length + ')</h4>' +
+        (unpaid.length === 0
+            ? '<p style="color:var(--success);padding:14px;font-size:.85rem"><i class="fas fa-check-circle"></i> No outstanding invoices</p>'
+            : '<div class="table-wrap" style="margin-bottom:20px"><table class="data-table"><thead><tr>' +
+              '<th>Invoice #</th><th>Client</th><th>Date</th><th>Amount</th><th>Age</th><th>Status</th></tr></thead><tbody>' +
+              unpaidRows + '</tbody></table></div>') +
+
+        // Paid section
+        '<h4 style="font-size:.88rem;font-weight:700;color:var(--success);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--success)">' +
+        '<i class="fas fa-check-circle"></i> Paid Invoices (' + paid.length + ')</h4>' +
+        (paid.length === 0
+            ? '<p style="color:var(--text-light);padding:14px;font-size:.85rem">No paid invoices yet</p>'
+            : '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+              '<th>Invoice #</th><th>Client</th><th>Invoice Date</th><th>Paid Date</th><th>Amount</th><th>Paid By</th></tr></thead><tbody>' +
+              paidRows + '</tbody></table></div>'),
+
+        // Footer buttons
+        '<button class="btn-outline" onclick="closeModal()">Close</button>' +
+        '<button class="btn-outline" onclick="printInvoiceReport()"><i class="fas fa-print"></i> Print</button>' +
+        '<button class="btn-primary" onclick="emailInvoiceReport()"><i class="fas fa-envelope"></i> Email</button>'
+    );
+}
+
+function printInvoiceReport() {
+    window.print();
+    logAction('Print', 'Invoice Report printed');
+}
+
+function emailInvoiceReport() {
+    var ent = S.entities[S.activeEntity] || {};
+    var email = S.owner ? S.owner.email : '';
+    window.location.href = 'mailto:' + email + '?subject=' +
+        encodeURIComponent('Invoice Report — ' + ent.name + ' — ' + new Date().toLocaleDateString('en-ZA')) +
+        '&body=' + encodeURIComponent('Please find the invoice report for ' + ent.name + '.\n\nGenerated by StockAI-Pro');
+    toast('info', '📧 Opening email...');
+    logAction('Email', 'Invoice Report emailed');
+}
+function deleteClientInvoice(invId) {
+    if (!confirm('Delete this invoice? This cannot be undone.')) return;
+    S.clientInvoices[eid()] = getClientInvoices().filter(function(i) { return i.id !== invId; });
+    debouncedSave();
+    renderClientInvoices();
+    toast('info', 'Invoice deleted');
+}
 
 console.log('✅ StockAI-Pro 2.0 Web App — Users, Reports, Settings, Month End, AI, Voice, POS Builder loaded');
 console.log('🚀 StockAI-Pro 2.0 Web App — FULLY LOADED');
