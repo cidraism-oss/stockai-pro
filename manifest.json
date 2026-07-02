@@ -1,12 +1,12 @@
 {
-    "name": "StockAI-Pro",
+    "name": "StockAI-Pro 2.0",
     "short_name": "StockAI",
-    "description": "Mobile Stock Control for Restaurants",
-    "start_url": "/mobile.html",
+    "description": "AI-Powered Stock Management for Every Business",
+    "start_url": "/hub.html",
     "display": "standalone",
     "background_color": "#0d4a5c",
     "theme_color": "#0d4a5c",
-    "orientation": "portrait",
+    "orientation": "any",
     "icons": [
         {
             "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230d4a5c' width='192' height='192' rx='38'/><text x='96' y='130' text-anchor='middle' fill='white' font-size='90' font-weight='bold' font-family='Arial'>AI</text></svg>",
@@ -21,16 +21,25 @@
             "purpose": "any maskable"
         }
     ],
-    "categories": [
-        "business",
-        "productivity"
-    ],
+    "categories": ["business", "productivity"],
     "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Go to main dashboard",
+            "url": "/hub.html#dashboard",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231a8ba8' width='96' height='96' rx='18'/><text x='48' y='64' text-anchor='middle' fill='white' font-size='48'>📊</text></svg>",
+                    "sizes": "96x96"
+                }
+            ]
+        },
         {
             "name": "Stock Count",
             "short_name": "Count",
-            "description": "Go directly to stock count",
-            "url": "/mobile.html#stock-count",
+            "description": "Go to stock count",
+            "url": "/hub.html#stock-count",
             "icons": [
                 {
                     "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231a8ba8' width='96' height='96' rx='18'/><text x='48' y='64' text-anchor='middle' fill='white' font-size='48'>📋</text></svg>",
@@ -39,16 +48,18 @@
             ]
         },
         {
-            "name": "Dashboard",
-            "short_name": "Home",
-            "description": "Go to dashboard",
-            "url": "/mobile.html#dashboard",
+            "name": "POS",
+            "short_name": "POS",
+            "description": "Open Point of Sale",
+            "url": "/hub.html#pos",
             "icons": [
                 {
-                    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231a8ba8' width='96' height='96' rx='18'/><text x='48' y='64' text-anchor='middle' fill='white' font-size='48'>📊</text></svg>",
+                    "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%232ea871' width='96' height='96' rx='18'/><text x='48' y='64' text-anchor='middle' fill='white' font-size='48'>💰</text></svg>",
                     "sizes": "96x96"
                 }
             ]
         }
-    ]
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
 }
