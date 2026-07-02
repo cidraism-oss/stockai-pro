@@ -995,7 +995,69 @@ var NAV_ITEMS = [
 document.addEventListener('DOMContentLoaded', function() {
     startClock();
 
-    // Check if coming from hub (already authenticated)
+    // Check if coming from hub via sessionStorage
+    var hubReturn   = sessionStorage.getItem('hub_return');
+    var hubAccount  = sessionStorage.getItem('hub_account_id');
+    var hubEntity   = sessionStorage.getItem('hub_entity_id');
+    var hubEntName  = sessionStorage.getItem('hub_entity_name');
+    var hubUserName = sessionStorage.getItem('hub_user_name');
+    var hubUserEmail= sessionStorage.getItem('hub_user_email');
+    var hubUserRole = sessionStorage.getItem('hub_user_role');
+
+    if (hubReturn === 'true' && hubAccount) {
+        // Coming from hub — load directly without auth redirect
+        S._accountId = hubAccount;
+        S.user = {
+            name:  hubUserName  || 'User',
+            email: hubUserEmail || '',
+            role:  hubUserRole  || 'Owner'
+        };
+
+        // Load account data from Firestore
+        db.collection('accounts').doc(hubAccount).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    var data = doc.data();
+                    S.owner = data.owner || null;
+                    loadAllData(data);
+
+                    // Set active entity from hub
+                    if (hubEntity) {
+                        var entIdx = S.entities.findIndex(function(e) {
+                            return e.id === hubEntity;
+                        });
+                        if (entIdx !== -1) {
+                            S.activeEntity  = entIdx;
+                            S.currentEntity = S.entities[entIdx];
+                            enterApp();
+                        } else if (S.entities.length > 0) {
+                            S.activeEntity  = 0;
+                            S.currentEntity = S.entities[0];
+                            enterApp();
+                        } else {
+                            showEntitySelector();
+                        }
+                    } else if (S.entities.length > 1) {
+                        showEntitySelector();
+                    } else if (S.entities.length === 1) {
+                        S.activeEntity  = 0;
+                        S.currentEntity = S.entities[0];
+                        enterApp();
+                    } else {
+                        toast('warning', 'No entities found.');
+                    }
+                } else {
+                    toast('error', 'Account not found.');
+                }
+            })
+            .catch(function(err) {
+                toast('error', 'Load error: ' + err.message);
+            });
+
+        return; // Don't run auth check below
+    }
+
+    // Normal auth check (direct access without hub)
     auth.onAuthStateChanged(function(firebaseUser) {
         if (firebaseUser) {
             loadUserAccount(firebaseUser.email, function(found) {
@@ -1003,19 +1065,42 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (S.entities.length > 1) {
                         showEntitySelector();
                     } else if (S.entities.length === 1) {
-                        S.activeEntity = 0;
+                        S.activeEntity  = 0;
                         S.currentEntity = S.entities[0];
                         enterApp();
                     } else {
-                        toast('warning', 'No entities found. Contact support.');
+                        toast('warning', 'No entities found.');
                     }
                 } else {
-                    // Redirect to hub for login
                     window.location.href = 'hub.html';
                 }
             });
         } else {
-            window.location.href = 'hub.html';
+            // Not authenticated — check if we have hub session
+            if (hubAccount) {
+                // Try loading anyway (user might have persistence)
+                S._accountId = hubAccount;
+                S.user = { name:hubUserName||'User', email:hubUserEmail||'', role:hubUserRole||'Owner' };
+                db.collection('accounts').doc(hubAccount).get()
+                    .then(function(doc) {
+                        if (doc.exists) {
+                            loadAllData(doc.data());
+                            S.owner = doc.data().owner || null;
+                            if (S.entities.length > 0) {
+                                S.activeEntity  = 0;
+                                S.currentEntity = S.entities[0];
+                                enterApp();
+                            }
+                        } else {
+                            window.location.href = 'hub.html';
+                        }
+                    })
+                    .catch(function() {
+                        window.location.href = 'hub.html';
+                    });
+            } else {
+                window.location.href = 'hub.html';
+            }
         }
     });
 
@@ -1037,7 +1122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
 // ============================================================
 // LOAD USER ACCOUNT
 // ============================================================
