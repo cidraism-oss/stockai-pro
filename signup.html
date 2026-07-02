@@ -128,97 +128,85 @@ STOCKAI-PRO
 <!-- MAIN -->
 <div class="main">
 
-<!-- PLANS -->
-<div class="plans-grid">
+<!-- PRICING -->
+<div style="max-width:600px;margin:0 auto">
 
-<!-- PREMIUM -->
-<div class="plan-card" id="plan-premium" onclick="choosePlan('Premium', 999, this)">
-<div class="plan-select-indicator"></div>
-<div class="plan-name">Premium</div>
-<div class="plan-tagline">For single locations & small businesses</div>
-<div class="plan-price">
-<span class="plan-currency">R</span>
-<span class="plan-amount">999</span>
-<span class="plan-period">/mo</span>
-</div>
-<div class="plan-per">Per entity • Billed monthly</div>
-<ul class="plan-features-list">
-<li><i class="fas fa-check"></i> Full Web App access</li>
-<li><i class="fas fa-check"></i> Mobile App (PWA)</li>
-<li><i class="fas fa-check"></i> All user permission levels</li>
-<li><i class="fas fa-check"></i> Inventory management</li>
-<li><i class="fas fa-check"></i> Voice stock counting</li>
-<li><i class="fas fa-check"></i> AI predictions & insights</li>
-<li><i class="fas fa-check"></i> Auto purchase orders</li>
-<li><i class="fas fa-check"></i> Menu & recipe costing</li>
-<li><i class="fas fa-check"></i> Cash-up & Day End reports</li>
-<li><i class="fas fa-check"></i> Wastage tracking</li>
-<li><i class="fas fa-check"></i> Email support</li>
-<li class="unavailable"><i class="fas fa-times"></i> POS System</li>
-<li class="unavailable"><i class="fas fa-times"></i> Accounting Integration</li>
-<li class="unavailable"><i class="fas fa-times"></i> Procurement App</li>
-</ul>
-<button class="btn-select-plan">Select Premium</button>
-</div>
+    <!-- How many entities -->
+    <div class="plan-card popular" id="plan-main" style="padding:32px">
+        <div style="text-align:center;margin-bottom:24px">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(245,158,11,.1);border-radius:20px;font-size:.72rem;font-weight:700;color:#d97706;margin-bottom:12px">
+                <i class="fas fa-tag"></i> ALL FEATURES INCLUDED
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:900;color:#0d4a5c;margin-bottom:6px">One Platform. One Price.</h3>
+            <p style="font-size:.85rem;color:#5a8a96">No hidden fees. No feature locks. Everything included.</p>
+        </div>
 
-<!-- PREMIUM PLUS -->
-<div class="plan-card popular" id="plan-premiumplus" onclick="choosePlan('Premium Plus', 1799, this)">
-<div class="plan-select-indicator"></div>
-<div class="plan-name">Premium Plus</div>
-<div class="plan-tagline">For growing businesses & multi-location groups</div>
-<div class="plan-price">
-<span class="plan-currency">R</span>
-<span class="plan-amount">1,799</span>
-<span class="plan-period">/mo</span>
-</div>
-<div class="plan-per">Per entity • Up to 5 entities</div>
-<ul class="plan-features-list">
-<li><i class="fas fa-check"></i> Everything in Premium</li>
-<li><i class="fas fa-check"></i> Up to 5 entities</li>
-<li><i class="fas fa-check"></i> Global multi-entity dashboard</li>
-<li><i class="fas fa-check"></i> Internal stock transfers</li>
-<li><i class="fas fa-check"></i> WhatsApp support</li>
-<li class="coming"><i class="fas fa-clock"></i> POS System (waiter app)</li>
-<li class="coming"><i class="fas fa-clock"></i> Kitchen display screen</li>
-<li class="coming"><i class="fas fa-clock"></i> QR table payments</li>
-<li class="coming"><i class="fas fa-clock"></i> Procurement App</li>
-<li class="unavailable"><i class="fas fa-times"></i> Accounting Integration</li>
-</ul>
-<button class="btn-select-plan">Select Premium Plus</button>
-</div>
+        <!-- Entity selector -->
+        <div style="background:#f0f7f9;border-radius:12px;padding:20px;margin-bottom:20px">
+            <label style="font-size:.85rem;font-weight:700;color:#0d4a5c;display:block;margin-bottom:10px">
+                How many entities / locations do you have?
+            </label>
+            <select id="signup-entities" onchange="updateSignupPricing()" style="width:100%;padding:14px;border:2px solid #c4dde4;border-radius:10px;font-size:1rem;font-weight:600;color:#0d4a5c;font-family:inherit;cursor:pointer;background:#fff">
+                <option value="1">1 Entity / Location</option>
+                <option value="2">2 Entities / Locations</option>
+                <option value="3">3 Entities / Locations</option>
+                <option value="4">4 Entities / Locations</option>
+                <option value="5">5 Entities / Locations</option>
+                <option value="6">6 Entities / Locations</option>
+                <option value="7">7 Entities / Locations</option>
+                <option value="8">8 Entities / Locations</option>
+                <option value="9">9 Entities / Locations</option>
+                <option value="10">10 Entities / Locations</option>
+            </select>
+        </div>
 
-<!-- PREMIUM EXCLUSIVE -->
-<div class="plan-card" id="plan-premiumexclusive" onclick="choosePlan('Premium Exclusive', 2599, this)">
-<div class="plan-select-indicator"></div>
-<div class="plan-name">Premium Exclusive</div>
-<div class="plan-tagline">For enterprise groups & large operations</div>
-<div class="plan-price">
-<span class="plan-currency">R</span>
-<span class="plan-amount">2,599</span>
-<span class="plan-period">/mo</span>
-</div>
-<div class="plan-per">Per entity • Unlimited entities</div>
-<ul class="plan-features-list">
-<li><i class="fas fa-check"></i> Everything in Premium Plus</li>
-<li><i class="fas fa-check"></i> Unlimited entities</li>
-<li><i class="fas fa-check"></i> Dedicated account manager</li>
-<li><i class="fas fa-check"></i> Phone support</li>
-<li class="coming"><i class="fas fa-clock"></i> Accounting Integration</li>
-<li class="coming"><i class="fas fa-clock"></i> Invoice Scanner (AI)</li>
-<li class="coming"><i class="fas fa-clock"></i> Full Procurement App</li>
-<li class="coming"><i class="fas fa-clock"></i> AI Voice Navigation Bot</li>
-<li class="coming"><i class="fas fa-clock"></i> POS + Kitchen + QR Payments</li>
-<li><i class="fas fa-check"></i> Custom reports & API access</li>
-</ul>
-<button class="btn-select-plan">Select Premium Exclusive</button>
-</div>
+        <!-- Price breakdown -->
+        <div style="background:#fff;border:2px solid #c4dde4;border-radius:12px;padding:20px;margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e4f1f5;font-size:.88rem;color:#2a5f70">
+                <span>Base Platform Fee</span>
+                <strong style="color:#0d4a5c">R799.00</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e4f1f5;font-size:.88rem;color:#2a5f70">
+                <span>Entity Fee (<span id="signup-ent-count">1</span> × R599)</span>
+                <strong style="color:#0d4a5c" id="signup-ent-total">R599.00</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:14px 0;margin-top:6px;font-size:1.3rem;font-weight:900;color:#1a8ba8">
+                <span>Monthly Total</span>
+                <strong id="signup-total">R1,398.00</strong>
+            </div>
+            <div style="text-align:right;font-size:.72rem;color:#8aabb5;margin-top:2px">
+                All prices include 15% VAT
+            </div>
+        </div>
+
+        <!-- Features included -->
+        <div style="margin-bottom:20px">
+            <h4 style="font-size:.85rem;font-weight:700;color:#0d4a5c;margin-bottom:10px;text-align:center">
+                ✅ Everything included:
+            </h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Full Web App</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Mobile App</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> AI Predictions</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Voice Counting</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Auto POs</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> POS System</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> GRV System</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Menu Costing</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Month End</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Unlimited Users</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Custom Roles</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> WhatsApp Support</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- PAY BUTTON -->
 <div class="payment-section">
-<button class="btn-pay" id="payBtn" onclick="startPayment()" disabled>
+<button class="btn-pay" id="payBtn" onclick="startPayment()">
 <i class="fas fa-lock"></i>
-<span id="payBtnText">Select a Plan to Continue</span>
+<span id="payBtnText">Pay R1,398.00 — Get Started</span>
 </button>
 <div class="payment-note">
 <i class="fas fa-shield-alt"></i>
@@ -235,10 +223,9 @@ Your first month will be charged immediately. Cancel anytime with 30 days notice
 
 <!-- GUARANTEE -->
 <div class="guarantee">
-<h3>✅ 100% Satisfaction Guarantee</h3>
-<p>If you are not satisfied within the first 30 days, contact us and we will refund your payment in full. No questions asked.</p>
+<h3>✅ 30-Day Money-Back Guarantee</h3>
+<p>Not satisfied within 30 days? Full refund — no questions asked.</p>
 </div>
-
 </div>
 
 <!-- TOAST -->
@@ -251,41 +238,35 @@ Your first month will be charged immediately. Cancel anytime with 30 days notice
 var PAYSTACK_PUBLIC_KEY = 'pk_test_96a8fd66211568738d566d5da04cd5b0f1873120';
 
 // ============================================================
-// STATE
+// PRICING
 // ============================================================
-var selectedPlanName  = null;
-var selectedPlanPrice = null;
+var SIGNUP_BASE_FEE   = 799;
+var SIGNUP_ENTITY_FEE = 599;
 
-// ============================================================
-// CHOOSE PLAN
-// ============================================================
-function choosePlan(name, price, cardEl) {
-    selectedPlanName  = name;
-    selectedPlanPrice = price;
+function updateSignupPricing() {
+    var sel   = document.getElementById('signup-entities');
+    var count = parseInt(sel.value) || 1;
+    var entTotal   = count * SIGNUP_ENTITY_FEE;
+    var grandTotal = SIGNUP_BASE_FEE + entTotal;
 
-    // Update UI
-    document.querySelectorAll('.plan-card').forEach(function(c) {
-        c.classList.remove('selected');
-    });
-    cardEl.classList.add('selected');
-
-    // Enable pay button
-    var btn = document.getElementById('payBtn');
-    btn.disabled = false;
-    document.getElementById('payBtnText').textContent =
-        'Pay R' + price.toLocaleString() + '/mo — ' + name;
-
-    showToast('info', name + ' selected — R' + price.toLocaleString() + '/month');
+    document.getElementById('signup-ent-count').textContent = count;
+    document.getElementById('signup-ent-total').textContent = 'R' + entTotal.toLocaleString() + '.00';
+    document.getElementById('signup-total').textContent     = 'R' + grandTotal.toLocaleString() + '.00';
+    document.getElementById('payBtnText').textContent       = 'Pay R' + grandTotal.toLocaleString() + '.00 — Get Started';
 }
+
+// Init on load
+window.addEventListener('load', function() {
+    setTimeout(updateSignupPricing, 100);
+});
 
 // ============================================================
 // START PAYMENT
 // ============================================================
 function startPayment() {
-    if (!selectedPlanName || !selectedPlanPrice) {
-        showToast('error', 'Please select a plan first');
-        return;
-    }
+    var sel        = document.getElementById('signup-entities');
+    var entCount   = parseInt(sel.value) || 1;
+    var totalPrice = SIGNUP_BASE_FEE + (entCount * SIGNUP_ENTITY_FEE);
 
     // Ask for email
     var email = prompt('Enter your email address to continue:');
@@ -298,23 +279,30 @@ function startPayment() {
     }
 
     // Save to session for setup page
-    sessionStorage.setItem('signup_email', email);
-    sessionStorage.setItem('signup_plan',  selectedPlanName);
-    sessionStorage.setItem('signup_price', selectedPlanPrice.toString());
+    sessionStorage.setItem('signup_email',      email);
+    sessionStorage.setItem('signup_plan',       'StockAI-Pro');
+    sessionStorage.setItem('signup_price',      totalPrice.toString());
+    sessionStorage.setItem('signup_base_fee',   SIGNUP_BASE_FEE.toString());
+    sessionStorage.setItem('signup_entity_fee', SIGNUP_ENTITY_FEE.toString());
+    sessionStorage.setItem('signup_entities',   entCount.toString());
 
     // Open Paystack — charge full first month
     var handler = PaystackPop.setup({
         key:       PAYSTACK_PUBLIC_KEY,
         email:     email,
-        amount:    selectedPlanPrice * 100, // Convert rands to cents
+        amount:    totalPrice * 100, // Convert rands to cents
         currency:  'ZAR',
         ref:       'STOCKAI-' + Date.now(),
         metadata: {
-            plan:  selectedPlanName,
-            price: selectedPlanPrice,
+            plan:       'StockAI-Pro',
+            baseFee:    SIGNUP_BASE_FEE,
+            entityFee:  SIGNUP_ENTITY_FEE,
+            entities:   entCount,
+            totalPrice: totalPrice,
             custom_fields: [
-                { display_name:'Plan',  variable_name:'plan',  value: selectedPlanName },
-                { display_name:'Price', variable_name:'price', value: 'R' + selectedPlanPrice + '/mo' }
+                { display_name:'Plan',     variable_name:'plan',     value: 'StockAI-Pro' },
+                { display_name:'Entities', variable_name:'entities', value: entCount + ' entities' },
+                { display_name:'Total',    variable_name:'total',    value: 'R' + totalPrice + '/mo (incl. VAT)' }
             ]
         },
         onClose: function() {
@@ -338,13 +326,13 @@ function startPayment() {
 // ============================================================
 window.addEventListener('load', function() {
     var params = new URLSearchParams(window.location.search);
-    var plan   = params.get('plan');
-    if (plan === 'premium') {
-        choosePlan('Premium', 999, document.getElementById('plan-premium'));
-    } else if (plan === 'plus') {
-        choosePlan('Premium Plus', 1799, document.getElementById('plan-premiumplus'));
-    } else if (plan === 'exclusive') {
-        choosePlan('Premium Exclusive', 2599, document.getElementById('plan-premiumexclusive'));
+    var entities = params.get('entities');
+    if (entities) {
+        var sel = document.getElementById('signup-entities');
+        if (sel) {
+            sel.value = entities;
+            updateSignupPricing();
+        }
     }
 });
 
