@@ -21,32 +21,31 @@
     --primary:#1a8ba8;
     --primary-dark:#0d4a5c;
     --primary-light:#4dbdd5;
-    --primary-pale:#d4f0f7;
-    --bg:#f0f7f9;
-    --bg-card:#fff;
-    --bg-dark:#0a1a1f;
-    --text:#0d4a5c;
-    --text-mid:#2a5f70;
-    --text-light:#5a8a96;
-    --text-muted:#8aabb5;
+    --bg:#0d3d4f;
+    --bg-card:#0f4d62;
+    --bg-hover:#1a6070;
+    --bg-dark:#0b3344;
+    --text:#e0f4f8;
+    --text-mid:#a8d8e8;
+    --text-light:#7bb8c8;
+    --text-muted:#4a8a9a;
     --gold:#f59e0b;
     --gold-dark:#d97706;
     --success:#2ea871;
     --danger:#c94545;
     --warning:#d4a017;
     --info:#2b8eb3;
-    --border:#c4dde4;
-    --border-light:#e0eff3;
-    --shadow:0 2px 12px rgba(13,74,92,.08);
-    --shadow-lg:0 8px 30px rgba(13,74,92,.15);
-    --shadow-xl:0 20px 60px rgba(13,74,92,.25);
+    --border:#1a5a6e;
+    --border-light:#164f62;
+    --shadow:0 2px 12px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.4);
+    --shadow-xl:0 20px 60px rgba(0,0,0,.5);
     --r:14px;
     --rs:8px;
     --header-h:56px;
     --nav-h:65px;
     --vat:0.15;
 }
-
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; }
 body {
@@ -1079,103 +1078,67 @@ var db   = firebase.firestore();
 // ============================================================
 var VAT_RATE     = 0.15;
 var MASTER_EMAIL = 'cidraism@gmail.com';
-var MASTER_PASS  = '123456';
 
 // ============================================================
 // HUB STATE
 // ============================================================
 var HUB = {
-    user:        null,
-    accountId:   null,
-    accountData: null,
-    entityId:    null,
-    entityName:  null,
-    entity:      null,
-    entities:    [],
-    allowedApps: [],
-    clockInTime: null,
-    syncListener:null,
-    rememberMe:  false,
-    isMaster:    false
+    user:         null,
+    accountId:    null,
+    accountData:  null,
+    entityId:     null,
+    entityName:   null,
+    entity:       null,
+    entities:     [],
+    allowedApps:  [],
+    clockInTime:  null,
+    syncListener: null,
+    rememberMe:   false,
+    isMaster:     false,
+    currentView:  null   // 'master-dashboard' | 'owner-dashboard' | 'entity-hub'
 };
 
 // ============================================================
-// ALL AVAILABLE APPS
+// ALL APPS
 // ============================================================
 var ALL_APPS = [
-    {
-        id:'boh', name:'Web App', icon:'fa-desktop',
-        color:'#0d4a5c', desc:'Back of house system',
-        url:'app.html', embed:false
-    },
-    {
-        id:'mobile', name:'MobileAI', icon:'fa-mobile-alt',
-        color:'#1a8ba8', desc:'Stock control mobile',
-        url:null, embed:true, embedId:'mobile-app'
-    },
-    {
-        id:'procure', name:'ProcureAI', icon:'fa-shopping-basket',
-        color:'#f59e0b', desc:'Smart ordering',
-        url:null, embed:true, embedId:'procure-app'
-    },
-    {
-        id:'menumaster', name:'Menu Master', icon:'fa-utensils',
-        color:'#8b5cf6', desc:'Recipe & menu costing',
-        url:null, embed:true, embedId:'menu-app'
-    },
-    {
-        id:'pos', name:'POS', icon:'fa-cash-register',
-        color:'#2ea871', desc:'Point of sale',
-        url:'pos.html', embed:false
-    },
-    {
-        id:'kitchen', name:'Kitchen', icon:'fa-fire-alt',
-        color:'#d97706', desc:'Kitchen display',
-        url:'kitchen.html', embed:false
-    },
-    {
-        id:'config', name:'POS Setup', icon:'fa-cogs',
-        color:'#6366f1', desc:'POS configuration',
-        url:'pos-setup.html', embed:false
-    },
-    {
-        id:'portal', name:'My Portal', icon:'fa-user-circle',
-        color:'#ec4899', desc:'Account & billing',
-        url:'portal.html', embed:false
-    }
+    { id:'boh',        name:'Web App',      icon:'fa-desktop',           color:'#0d4a5c', desc:'Back of house system',   url:'app.html',      embed:false },
+    { id:'mobile',     name:'MobileAI',     icon:'fa-mobile-alt',        color:'#1a8ba8', desc:'Stock control mobile',   url:null,            embed:true,  embedId:'mobile-app' },
+    { id:'procure',    name:'ProcureAI',    icon:'fa-shopping-basket',   color:'#f59e0b', desc:'Smart ordering',         url:null,            embed:true,  embedId:'procure-app' },
+    { id:'menumaster', name:'Menu Master',  icon:'fa-utensils',          color:'#8b5cf6', desc:'Recipe & menu costing',  url:null,            embed:true,  embedId:'menu-app' },
+    { id:'pos',        name:'POS',          icon:'fa-cash-register',     color:'#2ea871', desc:'Point of sale',          url:'pos.html',      embed:false },
+    { id:'kitchen',    name:'Kitchen',      icon:'fa-fire-alt',          color:'#d97706', desc:'Kitchen display',        url:'kitchen.html',  embed:false }
 ];
 
-// ============================================================
-// ROLE DEFAULT APPS
-// ============================================================
 var ROLE_DEFAULTS = {
-    'Owner':            ['boh','mobile','procure','menumaster','pos','kitchen','config','portal'],
-    'General Manager':  ['boh','mobile','procure','menumaster','pos','kitchen','config'],
-    'Area Manager':     ['boh','mobile','procure','menumaster'],
+    'Owner':             ['boh','mobile','procure','menumaster','pos','kitchen'],
+    'General Manager':   ['boh','mobile','procure','menumaster','pos','kitchen'],
+    'Area Manager':      ['boh','mobile','procure','menumaster'],
     'Operations Manager':['boh','mobile','procure','menumaster'],
-    'Manager':          ['boh','mobile','procure','menumaster','pos'],
-    'Stock Controller': ['mobile','procure'],
-    'Kitchen Manager':  ['mobile','procure','menumaster','kitchen'],
-    'Bar Manager':      ['mobile','pos','kitchen'],
-    'Chef':             ['procure','menumaster','kitchen'],
-    'Waiter':           ['pos'],
-    'Cashier':          ['pos'],
-    'Floor Supervisor': ['mobile','pos'],
-    'Bar Supervisor':   ['pos','kitchen']
+    'Manager':           ['boh','mobile','procure','menumaster','pos'],
+    'Stock Controller':  ['mobile','procure'],
+    'Kitchen Manager':   ['mobile','procure','menumaster','kitchen'],
+    'Bar Manager':       ['mobile','pos','kitchen'],
+    'Chef':              ['procure','menumaster','kitchen'],
+    'Waiter':            ['pos'],
+    'Cashier':           ['pos'],
+    'Floor Supervisor':  ['mobile','pos'],
+    'Bar Supervisor':    ['pos','kitchen']
 };
 
 // ============================================================
-// WELCOME SCREEN
+// DOM READY
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Welcome screen enter button
     var enterBtn = document.getElementById('welcome-enter');
     if (enterBtn) {
         enterBtn.addEventListener('click', function() {
             var screen = document.getElementById('welcome-screen');
             screen.style.transition = 'opacity 1s ease, transform 1s ease';
-            screen.style.opacity = '0';
-            screen.style.transform = 'scale(1.05)';
+            screen.style.opacity    = '0';
+            screen.style.transform  = 'scale(1.05)';
             screen.style.pointerEvents = 'none';
             setTimeout(function() {
                 screen.style.display = 'none';
@@ -1195,29 +1158,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Forgot password
     var forgotBtn = document.getElementById('hub-forgot-btn');
-    if (forgotBtn) {
-        forgotBtn.addEventListener('click', hubForgotPw);
-    }
+    if (forgotBtn) forgotBtn.addEventListener('click', hubForgotPw);
 
-    // Logout
-    var logoutBtn = document.getElementById('hub-logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', hubLogout);
-    }
-
-    // Admin logout
-    var adminLogout = document.getElementById('admin-logout-btn');
-    if (adminLogout) {
-        adminLogout.addEventListener('click', hubLogout);
-    }
+    // Logout buttons
+    document.getElementById('hub-logout-btn') &&
+        document.getElementById('hub-logout-btn').addEventListener('click', hubLogout);
+    document.getElementById('admin-logout-btn') &&
+        document.getElementById('admin-logout-btn').addEventListener('click', hubLogout);
 
     // Notifications
-    var notifBtn = document.getElementById('hub-notif-btn');
-    if (notifBtn) {
-        notifBtn.addEventListener('click', showHubNotifications);
-    }
+    document.getElementById('hub-notif-btn') &&
+        document.getElementById('hub-notif-btn').addEventListener('click', showHubNotifications);
 
-    // PWA Service Worker
+    // PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js').catch(function() {});
@@ -1228,30 +1181,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// CHECK AUTH ON LOAD
+// AUTH CHECK
 // ============================================================
 function checkHubAuth() {
     var remembered = localStorage.getItem('stockai_remember');
     var remEmail   = localStorage.getItem('stockai_email');
 
     if (remembered === 'yes' && remEmail) {
-        // Try auto-login with persisted session
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(function() {
                 return new Promise(function(resolve) {
-                    var unsubscribe = auth.onAuthStateChanged(function(user) {
-                        unsubscribe();
+                    var unsub = auth.onAuthStateChanged(function(user) {
+                        unsub();
                         resolve(user);
                     });
                 });
             })
             .then(function(firebaseUser) {
                 if (firebaseUser) {
-                    hubToast('info', '🔄 Loading your apps...');
+                    hubToast('info', '🔄 Loading your account...');
                     findHubAccount(firebaseUser.email, function(found) {
                         if (found) {
                             document.getElementById('login-screen').classList.add('hidden');
-                            enterHub();
+                            routeAfterLogin();
                         } else {
                             showLoginScreen();
                         }
@@ -1261,17 +1213,15 @@ function checkHubAuth() {
                 }
             });
     } else {
-        auth.signOut().then(function() {
-            showLoginScreen();
-        }).catch(function() {
-            showLoginScreen();
-        });
+        auth.signOut().then(showLoginScreen).catch(showLoginScreen);
     }
 }
 
 function showLoginScreen() {
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('hub-app').classList.add('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+    document.getElementById('app-frame').classList.add('hidden');
 }
 
 // ============================================================
@@ -1292,7 +1242,6 @@ function hubLogin() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
-    // Set persistence based on remember me
     var persistence = remember
         ? firebase.auth.Auth.Persistence.LOCAL
         : firebase.auth.Auth.Persistence.SESSION;
@@ -1310,13 +1259,14 @@ function hubLogin() {
                 localStorage.removeItem('stockai_email');
             }
             HUB.rememberMe = remember;
-            hubToast('info', '🔄 Loading your apps...');
+            hubToast('info', '🔄 Loading your account...');
+
             findHubAccount(email, function(found) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
                 if (found) {
                     document.getElementById('login-screen').classList.add('hidden');
-                    enterHub();
+                    routeAfterLogin();
                 } else {
                     showLoginError('Account not found. Contact your administrator.');
                     auth.signOut();
@@ -1330,7 +1280,7 @@ function hubLogin() {
             if (err.code === 'auth/user-not-found'     ||
                 err.code === 'auth/wrong-password'      ||
                 err.code === 'auth/invalid-credential') msg = 'Incorrect email or password.';
-            else if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+            else if (err.code === 'auth/too-many-requests')     msg = 'Too many attempts. Try again later.';
             else if (err.code === 'auth/network-request-failed') msg = 'No internet connection.';
             showLoginError(msg);
         });
@@ -1342,69 +1292,65 @@ function showLoginError(msg) {
 }
 
 // ============================================================
-// FIND ACCOUNT IN FIRESTORE
+// FIND ACCOUNT
 // ============================================================
 function findHubAccount(email, callback) {
-    // Check if master admin — email based only
-if (email === MASTER_EMAIL) {
-    HUB.isMaster  = true;
-    HUB.accountId = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    HUB.user = {
-        name:  'Miguel Cidrais',
-        email: email,
-        role:  'Master Admin'
-    };
-    HUB.allowedApps = ALL_APPS.map(function(a) { return a.id; });
 
-    // Load master account data from Firestore
-    db.collection('accounts').doc(HUB.accountId).get()
-        .then(function(doc) {
-            if (doc.exists) {
-                var data        = doc.data();
-                HUB.accountData = data;
-                HUB.entities    = data.entities || [];
-                if (HUB.entities.length > 0) {
-                    HUB.entity     = HUB.entities[0];
-                    HUB.entityId   = HUB.entities[0].id;
-                    HUB.entityName = HUB.entities[0].name;
+    // Master admin check — email only
+    if (email.toLowerCase() === MASTER_EMAIL.toLowerCase()) {
+        HUB.isMaster  = true;
+        HUB.accountId = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+        HUB.user = {
+            name:  'Miguel Cidrais',
+            email: email,
+            role:  'Master Admin'
+        };
+        HUB.allowedApps = ALL_APPS.map(function(a) { return a.id; });
+
+        // Load or create master account document
+        db.collection('accounts').doc(HUB.accountId).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    HUB.accountData = doc.data();
+                    HUB.entities    = doc.data().entities || [];
+                } else {
+                    var masterDoc = {
+                        owner: {
+                            name:    'Miguel Cidrais',
+                            email:   MASTER_EMAIL,
+                            phone:   '0790440508',
+                            country: 'South Africa'
+                        },
+                        entities:        [],
+                        inventory:       {},
+                        purchases:       {},
+                        wastage:         {},
+                        suppliers:       {},
+                        users:           {},
+                        menuItems:       {},
+                        cashups:         {},
+                        notifs:          [],
+                        activities:      {},
+                        pendingPOs:      {},
+                        clientInvoices:  {},
+                        departments:     {},
+                        categories:      {},
+                        accountStatus:   'active',
+                        isMasterAccount: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    db.collection('accounts').doc(HUB.accountId).set(masterDoc);
+                    HUB.accountData = masterDoc;
+                    HUB.entities    = [];
                 }
-            } else {
-                // First time — create master account document
-                var masterDoc = {
-                    owner: {
-                        name:    'Miguel Cidrais',
-                        email:   MASTER_EMAIL,
-                        phone:   '0790440508',
-                        country: 'South Africa'
-                    },
-                    entities:    [],
-                    inventory:   {},
-                    purchases:   {},
-                    wastage:     {},
-                    suppliers:   {},
-                    users:       {},
-                    menuItems:   {},
-                    cashups:     {},
-                    notifs:      [],
-                    activities:  {},
-                    pendingPOs:  {},
-                    accountStatus: 'active',
-                    isMasterAccount: true,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                db.collection('accounts').doc(HUB.accountId).set(masterDoc);
-                HUB.accountData = masterDoc;
-                HUB.entities    = [];
-            }
-        })
-        .catch(function(err) {
-            console.warn('Master account load error:', err);
-        });
+            })
+            .catch(function() {});
 
-    if (callback) callback(true);
-    return;
-}
+        if (callback) callback(true);
+        return;
+    }
 
+    // Normal account search
     db.collection('accounts').get()
         .then(function(snap) {
             var found = false;
@@ -1414,47 +1360,42 @@ if (email === MASTER_EMAIL) {
 
                 // Check owner
                 if (data.owner && data.owner.email &&
-                    data.owner.email.toLowerCase() === email) {
+                    data.owner.email.toLowerCase() === email.toLowerCase()) {
                     HUB.accountId   = doc.id;
                     HUB.accountData = data;
+                    HUB.entities    = data.entities || [];
                     HUB.user = {
                         name:  data.owner.name || email,
                         email: email,
                         role:  'Owner'
                     };
-                    HUB.entities = data.entities || [];
-                    if (HUB.entities.length > 0) {
-                        HUB.entity     = HUB.entities[0];
-                        HUB.entityId   = HUB.entities[0].id;
-                        HUB.entityName = HUB.entities[0].name;
-                    }
                     HUB.allowedApps = data.owner.appAccess ||
                         ROLE_DEFAULTS['Owner'].slice();
                     found = true;
                     return;
                 }
 
-                // Check all entity users
+                // Check entity users
                 var users = data.users || {};
                 Object.keys(users).forEach(function(eid) {
                     if (found) return;
                     (users[eid] || []).forEach(function(u) {
                         if (found) return;
-                        if (u.email && u.email.toLowerCase() === email) {
+                        if (u.email && u.email.toLowerCase() === email.toLowerCase()) {
                             HUB.accountId   = doc.id;
                             HUB.accountData = data;
                             HUB.entityId    = eid;
+                            HUB.entities    = data.entities || [];
                             HUB.user = {
                                 name:  u.name  || email,
                                 email: email,
-                                role:  u.role  || 'Staff'
+                                role:  u.role  || 'Staff',
+                                assignedEntityId: eid
                             };
                             var ents = data.entities || [];
-                            HUB.entity = ents.find(function(e) {
-                                return e.id === eid;
-                            }) || ents[0] || null;
+                            HUB.entity = ents.find(function(e) { return e.id === eid; })
+                                || ents[0] || null;
                             HUB.entityName  = HUB.entity ? HUB.entity.name : '';
-                            HUB.entities    = ents;
                             HUB.allowedApps = u.appAccess ||
                                 ROLE_DEFAULTS[u.role || 'Staff'] || ['mobile'];
                             found = true;
@@ -1464,444 +1405,56 @@ if (email === MASTER_EMAIL) {
             });
             if (callback) callback(found);
         })
-        .catch(function() {
-            if (callback) callback(false);
-        });
+        .catch(function() { if (callback) callback(false); });
 }
 
 // ============================================================
-// FORGOT PASSWORD
+// ROUTE AFTER LOGIN — decides where to go
 // ============================================================
-function hubForgotPw() {
-    var email = document.getElementById('hub-email').value.trim();
-    if (!email) {
-        showLoginError('Enter your email address first');
-        return;
-    }
-    auth.sendPasswordResetEmail(email.toLowerCase())
-        .then(function() {
-            hubToast('success', '📧 Password reset link sent to ' + email);
-        })
-        .catch(function(err) {
-            hubToast('error', err.message);
-        });
-}
-
-// ============================================================
-// ENTER HUB
-// ============================================================
-function enterHub() {
-    // Master admin goes to admin panel
+function routeAfterLogin() {
     if (HUB.isMaster) {
+        // Master → goes to master dashboard
         showMasterDashboard();
         return;
     }
 
-    document.getElementById('hub-app').classList.remove('hidden');
-    document.getElementById('admin-panel').classList.add('hidden');
-    document.getElementById('app-frame').classList.add('hidden');
-
-    document.getElementById('hub-user-name').textContent =
-        HUB.user ? HUB.user.name : 'User';
-    document.getElementById('hub-user-role').textContent =
-        (HUB.user ? HUB.user.role : '') +
-        (HUB.entityName ? ' • ' + HUB.entityName : '');
-
-    HUB.clockInTime = new Date();
-    startHubSync();
-    renderHubDashboard();
-    hubToast('success', 'Welcome ' + (HUB.user ? HUB.user.name : '') + '! 👋');
-}
-
-// ============================================================
-// RENDER HUB DASHBOARD
-// ============================================================
-function renderHubDashboard() {
-    document.getElementById('hub-app').classList.remove('hidden');
-    document.getElementById('admin-panel').classList.add('hidden');
-    document.getElementById('app-frame').classList.add('hidden');
-
-    var dash = document.getElementById('hub-dashboard');
-    var initial = HUB.user ? HUB.user.name.charAt(0).toUpperCase() : 'U';
-
-    var html = '<div class="hub-welcome">' +
-        '<div class="hub-avatar">' + initial + '</div>' +
-        '<div class="hub-welcome-text">' +
-        '<h3>Welcome, ' + (HUB.user ? HUB.user.name : 'User') + '</h3>' +
-        '<p>' + (HUB.user ? HUB.user.role : '') +
-        (HUB.entityName ? ' • ' + HUB.entityName : '') + '</p>' +
-        '<div class="hub-shift"><i class="fas fa-clock"></i> On shift: ' +
-        '<span id="hub-shift-display">00:00</span></div>' +
-        '</div></div>';
-
-    html += '<div class="hub-section-title">Your Applications</div>';
-    html += '<div class="hub-apps-grid">';
-
-    ALL_APPS.forEach(function(app) {
-        var allowed = HUB.allowedApps.indexOf(app.id) !== -1;
-        html += '<div class="hub-app-card' + (allowed ? '' : ' disabled') + '" ' +
-            (allowed ? 'onclick="openHubApp(\'' + app.id + '\')"' : '') + '>' +
-            '<div class="hub-app-icon" style="background:linear-gradient(135deg,' +
-            app.color + ',' + adjustHexColor(app.color, -30) + ')">' +
-            '<i class="fas ' + app.icon + '"></i></div>' +
-            '<div class="hub-app-name">' + app.name + '</div>' +
-            '<div class="hub-app-desc">' + app.desc + '</div>' +
-            '</div>';
-    });
-
-    html += '</div>';
-
-    // Quick info bar
-    html += '<div class="hub-section-title">Quick Info</div>';
-    html += '<div class="hub-info-bar">' +
-        '<div class="hub-info-card">' +
-        '<div class="label">Apps Access</div>' +
-        '<div class="value">' + HUB.allowedApps.length + '</div></div>' +
-        '<div class="hub-info-card">' +
-        '<div class="label">Entity</div>' +
-        '<div class="value" style="font-size:.75rem">' +
-        (HUB.entityName || 'N/A') + '</div></div>' +
-        '<div class="hub-info-card">' +
-        '<div class="label">Role</div>' +
-        '<div class="value" style="font-size:.7rem">' +
-        (HUB.user ? HUB.user.role : '') + '</div></div>' +
-        '</div>';
-
-    dash.innerHTML = html;
-}
-
-function showHubDashboard() {
-    renderHubDashboard();
-}
-
-// ============================================================
-// OPEN APP
-// ============================================================
-function openHubApp(appId) {
-    var app = ALL_APPS.find(function(a) { return a.id === appId; });
-    if (!app) return;
-
-    if (app.embed) {
-        // Render embedded app
-        openEmbeddedApp(appId);
-    } else {
-        // Navigate to separate page
-        window.location.href = app.url;
-    }
-}
-
-function openEmbeddedApp(appId) {
-    var frame = document.getElementById('app-frame');
-    frame.classList.remove('hidden');
-    document.getElementById('hub-app').classList.add('hidden');
-    document.getElementById('admin-panel').classList.add('hidden');
-
-    frame.innerHTML = '';
-
-    if (appId === 'mobile') {
-        frame.innerHTML = getMobileAppHTML();
-        initMobileApp();
-    } else if (appId === 'procure') {
-        frame.innerHTML = getProcureAppHTML();
-        initProcureApp();
-    } else if (appId === 'menumaster') {
-        frame.innerHTML = getMenuMasterHTML();
-        initMenuMasterApp();
-    }
-}
-
-function closeEmbeddedApp() {
-    document.getElementById('app-frame').classList.add('hidden');
-    renderHubDashboard();
-}
-
-// ============================================================
-// LOGOUT
-// ============================================================
-function hubLogout() {
-    if (HUB.syncListener) {
-        HUB.syncListener();
-        HUB.syncListener = null;
-    }
-    localStorage.removeItem('stockai_remember');
-    localStorage.removeItem('stockai_email');
-
-    auth.signOut().then(function() {
-        HUB.user        = null;
-        HUB.accountId   = null;
-        HUB.allowedApps = [];
-        HUB.clockInTime = null;
-        HUB.isMaster    = false;
-
-        document.getElementById('hub-app').classList.add('hidden');
-        document.getElementById('admin-panel').classList.add('hidden');
-        document.getElementById('app-frame').classList.add('hidden');
-        document.getElementById('login-screen').classList.remove('hidden');
-
-        document.getElementById('hub-email').value    = '';
-        document.getElementById('hub-password').value = '';
-        document.getElementById('hub-remember').checked = false;
-
-        hubToast('info', 'Logged out successfully');
-    });
-}
-
-// ============================================================
-// REAL-TIME SYNC
-// ============================================================
-function startHubSync() {
-    if (!HUB.accountId || HUB.isMaster) return;
-    if (HUB.syncListener) HUB.syncListener();
-
-    HUB.syncListener = db.collection('accounts').doc(HUB.accountId)
-        .onSnapshot(function(doc) {
-            if (!doc.exists) return;
-            var data = doc.data();
-            HUB.accountData = data;
-            HUB.entities    = data.entities || [];
-        }, function(err) {
-            console.warn('Hub sync error:', err);
-        });
-}
-
-// ============================================================
-// CLOCK + SHIFT TIMER
-// ============================================================
-function startHubClock() {
-    setInterval(function() {
-        var now = new Date();
-        var timeStr = now.toLocaleTimeString('en-ZA', {
-            hour:'2-digit', minute:'2-digit', second:'2-digit'
-        });
-        var dateStr = now.toLocaleDateString('en-ZA', {
-            day:'numeric', month:'short', year:'numeric'
-        });
-
-        var headerTime = document.getElementById('hub-header-time');
-        if (headerTime) {
-            headerTime.innerHTML = '<strong>' + timeStr + '</strong><span>' + dateStr + '</span>';
-        }
-
-        // Shift timer
-        if (HUB.clockInTime) {
-            var diff = Date.now() - HUB.clockInTime.getTime();
-            var h    = Math.floor(diff / 3600000);
-            var m    = Math.floor((diff % 3600000) / 60000);
-            var shiftEl = document.getElementById('hub-shift-display');
-            if (shiftEl) {
-                shiftEl.textContent =
-                    ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
-            }
-        }
-    }, 1000);
-}
-
-// ============================================================
-// NOTIFICATIONS
-// ============================================================
-function showHubNotifications() {
-    if (!HUB.accountData) {
-        hubToast('info', 'No notifications');
+    if (HUB.user.role === 'Owner' ||
+        HUB.user.role === 'Area Manager' ||
+        HUB.user.role === 'Operations Manager') {
+        // Owner → goes to owner entity dashboard (shows all entities)
+        showOwnerEntityDashboard();
         return;
     }
-    var notifs = HUB.accountData.notifs || [];
-    var unread = notifs.filter(function(n) { return n.unread; });
 
-    showHubModal('Notifications (' + unread.length + ' unread)',
-        notifs.length === 0 ?
-            '<div class="empty-state"><i class="fas fa-bell"></i>' +
-            '<h3>No notifications</h3><p>You\'re all caught up!</p></div>' :
-            notifs.slice(0, 20).map(function(n) {
-                var icons = {
-                    success:'check-circle', danger:'times-circle',
-                    warning:'exclamation-triangle', info:'info-circle'
-                };
-                return '<div style="display:flex;gap:10px;padding:12px;' +
-                    'background:' + (n.unread ? 'rgba(26,139,168,.05)' : 'transparent') + ';' +
-                    'border-radius:var(--rs);margin-bottom:6px;' +
-                    'border-left:3px solid ' + (n.unread ? 'var(--primary)' : 'var(--border)') + '">' +
-                    '<i class="fas fa-' + (icons[n.type] || 'bell') +
-                    '" style="color:var(--' + (n.type || 'info') + ');margin-top:3px;flex-shrink:0"></i>' +
-                    '<div><div style="font-size:.85rem;font-weight:600;color:var(--text)">' +
-                    n.title + '</div>' +
-                    '<div style="font-size:.78rem;color:var(--text-light);margin-top:2px">' +
-                    n.text + '</div>' +
-                    '<div style="font-size:.68rem;color:var(--text-muted);margin-top:3px">' +
-                    n.time + '</div></div></div>';
-            }).join('')
-    );
-}
-
-// ============================================================
-// TOAST
-// ============================================================
-function hubToast(type, msg) {
-    var icons = {
-        success:'check-circle', error:'times-circle',
-        info:'info-circle', warning:'exclamation-triangle'
-    };
-    var t = document.createElement('div');
-    t.className = 'hub-toast ' + type;
-    t.innerHTML =
-        '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i>' +
-        '<span>' + msg + '</span>' +
-        '<button onclick="this.parentElement.remove()">' +
-        '<i class="fas fa-times"></i></button>';
-    var wrap = document.getElementById('hub-toast-wrap');
-    if (wrap) wrap.appendChild(t);
-    setTimeout(function() {
-        t.style.opacity    = '0';
-        t.style.transition = 'opacity .3s';
-        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
-    }, 4000);
-}
-
-// ============================================================
-// MODAL
-// ============================================================
-function showHubModal(title, bodyHtml, footerHtml) {
-    var container = document.getElementById('hub-modal-container');
-    container.innerHTML =
-        '<div class="hub-modal-overlay" id="hub-modal-overlay">' +
-        '<div class="hub-modal">' +
-        '<div class="hub-modal-header">' +
-        '<h3>' + title + '</h3>' +
-        '<button class="hub-modal-close" onclick="closeHubModal()">' +
-        '<i class="fas fa-times"></i></button></div>' +
-        '<div class="hub-modal-body">' + bodyHtml + '</div>' +
-        (footerHtml ? '<div class="hub-modal-footer">' + footerHtml + '</div>' : '') +
-        '</div></div>';
-
-    document.getElementById('hub-modal-overlay').addEventListener('click', function(e) {
-        if (e.target === this) closeHubModal();
-    });
-}
-
-function closeHubModal() {
-    var container = document.getElementById('hub-modal-container');
-    if (container) container.innerHTML = '';
-}
-
-// ============================================================
-// COLOR HELPER
-// ============================================================
-function adjustHexColor(hex, amount) {
-    hex = hex.replace('#', '');
-    var r = Math.max(0, Math.min(255, parseInt(hex.substring(0, 2), 16) + amount));
-    var g = Math.max(0, Math.min(255, parseInt(hex.substring(2, 4), 16) + amount));
-    var b = Math.max(0, Math.min(255, parseInt(hex.substring(4, 6), 16) + amount));
-    return '#' +
-        ('0' + r.toString(16)).slice(-2) +
-        ('0' + g.toString(16)).slice(-2) +
-        ('0' + b.toString(16)).slice(-2);
-}
-
-// ============================================================
-// INSTALL GUIDE
-// ============================================================
-function showInstallGuide() {
-    var ua       = navigator.userAgent || '';
-    var isIOS    = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-    var isAndroid = /android/i.test(ua);
-
-    var steps = isIOS ?
-        '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:10px 14px;' +
-        'border-radius:8px;margin-bottom:14px;font-size:.82rem;color:#5a4a17">' +
-        '<strong>⚠️ Must use Safari on iPhone/iPad</strong></div>' +
-        installStep(1,'Open in Safari','Copy the link and paste it into Safari','🧭') +
-        installStep(2,'Tap Share ⬆️','Tap the square with an arrow at the bottom','⬆️') +
-        installStep(3,'Add to Home Screen','Find this option in the share menu','➕🏠') +
-        installStep(4,'Tap Add','Keep the name and tap Add','✅') :
-        isAndroid ?
-        installStep(1,'Tap ⋮ menu','Three dots in top-right of Chrome','⋮') +
-        installStep(2,'Add to Home screen','Or "Install app"','📲') +
-        installStep(3,'Tap Add','App appears on home screen','✅') :
-        '<p style="text-align:center;color:var(--text-light);padding:20px">Open on your phone to install.</p>';
-
-    showHubModal('Install StockAI-Pro',
-        '<div style="text-align:center;margin-bottom:16px">' +
-        '<div style="width:64px;height:64px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));' +
-        'border-radius:16px;display:flex;align-items:center;justify-content:center;' +
-        'color:#fff;font-size:1.8rem;margin:0 auto 10px"><i class="fas fa-chart-line"></i></div>' +
-        '<h3 style="color:var(--text)">Install StockAI-Pro Hub</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light)">Add to your home screen</p></div>' +
-        steps,
-        '<button class="btn btn-primary" onclick="copyHubLink()">' +
-        '<i class="fas fa-copy"></i> Copy Link</button>' +
-        '<button class="btn btn-outline" onclick="closeHubModal()">Close</button>'
-    );
-}
-
-function installStep(num, title, desc, emoji) {
-    return '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">' +
-        '<div style="width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;' +
-        'display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;flex-shrink:0">' +
-        num + '</div>' +
-        '<div><h4 style="font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:2px">' +
-        title + '</h4>' +
-        '<p style="font-size:.78rem;color:var(--text-light)">' + desc + '</p>' +
-        (emoji ? '<div style="font-size:1.3rem;margin-top:4px">' + emoji + '</div>' : '') +
-        '</div></div>';
-}
-
-function copyHubLink() {
-    var link = window.location.href;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link)
-            .then(function() { hubToast('success', '✅ Link copied!'); })
-            .catch(function() { fallbackCopy(link); });
-    } else {
-        fallbackCopy(link);
+    // Staff → goes directly to their entity hub
+    if (HUB.user.assignedEntityId) {
+        var assignedEnt = HUB.entities.find(function(e) {
+            return e.id === HUB.user.assignedEntityId;
+        });
+        if (assignedEnt) {
+            HUB.entity     = assignedEnt;
+            HUB.entityId   = assignedEnt.id;
+            HUB.entityName = assignedEnt.name;
+        }
+    } else if (HUB.entities.length > 0) {
+        HUB.entity     = HUB.entities[0];
+        HUB.entityId   = HUB.entities[0].id;
+        HUB.entityName = HUB.entities[0].name;
     }
-}
 
-function fallbackCopy(text) {
-    var input = document.createElement('input');
-    input.value = text;
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand('copy');
-    document.body.removeChild(input);
-    hubToast('success', '✅ Link copied!');
+    showEntityHub();
 }
 
 // ============================================================
-// NETWORK STATUS
-// ============================================================
-window.addEventListener('online', function() {
-    hubToast('success', '✅ Back online');
-});
-window.addEventListener('offline', function() {
-    hubToast('warning', '📵 No internet connection');
-});
-
-// ============================================================
-// SECURITY
-// ============================================================
-document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-var lastTouch = 0;
-document.addEventListener('touchend', function(e) {
-    var now = Date.now();
-    if (now - lastTouch <= 300) e.preventDefault();
-    lastTouch = now;
-}, { passive: false });
-
-console.log('✅ StockAI-Pro 2.0 Hub — Core loaded');
-</script>
-<script>
-// ============================================================
-// MASTER ADMIN PANEL
+// MASTER DASHBOARD
 // ============================================================
 function showMasterDashboard() {
+    HUB.currentView = 'master-dashboard';
+
     document.getElementById('hub-app').classList.add('hidden');
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-frame').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');
-
-    // Update admin header
-    document.getElementById('hub-user-name') &&
-        (document.getElementById('hub-user-name').textContent = 'Miguel Cidrais');
 
     var content = document.getElementById('admin-content');
     content.innerHTML =
@@ -1913,7 +1466,6 @@ function showMasterDashboard() {
         .then(function(snap) {
             var customers = [];
             snap.forEach(function(doc) {
-                // Don't show master account in customer list
                 if (doc.id !== HUB.accountId) {
                     customers.push({ id: doc.id, data: doc.data() });
                 }
@@ -1927,18 +1479,19 @@ function showMasterDashboard() {
         });
 }
 
-// Keep old name as alias
-function showAdminPanel() { showMasterDashboard(); }
-
 function renderMasterDashboard(customers) {
     var content = document.getElementById('admin-content');
 
-    // Stats
-    var totalActive   = customers.filter(function(c) { return (c.data.accountStatus || 'active') === 'active'; }).length;
-    var totalInactive = customers.length - totalActive;
-    var totalEntities = customers.reduce(function(s, c) { return s + (c.data.entities || []).length; }, 0);
-    var totalMRR      = customers.reduce(function(s, c) {
-        var ents = (c.data.entities || []).filter(function(e) { return e.status !== 'inactive'; }).length;
+    var totalActive   = customers.filter(function(c) {
+        return (c.data.accountStatus || 'active') === 'active';
+    }).length;
+    var totalEntities = customers.reduce(function(s, c) {
+        return s + (c.data.entities || []).length;
+    }, 0);
+    var totalMRR = customers.reduce(function(s, c) {
+        var ents = (c.data.entities || []).filter(function(e) {
+            return e.status !== 'inactive';
+        }).length;
         return s + (ents > 0 ? 799 + (ents * 599) : 0);
     }, 0);
 
@@ -1946,71 +1499,80 @@ function renderMasterDashboard(customers) {
 
     var html = '<div style="max-width:1100px;margin:0 auto">';
 
-    // Welcome header
+    // Header
     html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap">' +
         '<div style="width:56px;height:56px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
         'border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem">' +
         '<i class="fas fa-crown"></i></div>' +
-        '<div style="flex:1"><h1 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:2px">' +
-        'Master Admin Dashboard</h1>' +
-        '<p style="font-size:.82rem;color:var(--text-light)">StockAI-Pro — Full System Control</p></div>' +
-        '<button class="btn btn-primary" onclick="showCreateMasterEntity()" style="display:flex;align-items:center;gap:8px">' +
-        '<i class="fas fa-plus-circle"></i> Create My Entity</button></div>';
+        '<div style="flex:1"><h1 style="font-size:1.5rem;font-weight:800;color:var(--text)">Master Dashboard</h1>' +
+        '<p style="font-size:.82rem;color:var(--text-light)">StockAI-Pro — Full System Control • ' +
+        new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long' }) + '</p></div>' +
+        '<button onclick="showCreateMasterEntity()" ' +
+        'style="padding:12px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
+        'color:#fff;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;cursor:pointer;' +
+        'font-family:inherit;display:flex;align-items:center;gap:8px">' +
+        '<i class="fas fa-plus-circle"></i> Create Test Entity</button></div>';
 
     // Stats
     html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px">' +
-        masterStatCard('Total Customers', customers.length, 'var(--primary)') +
-        masterStatCard('Active', totalActive, 'var(--success)') +
-        masterStatCard('Inactive', totalInactive, 'var(--danger)') +
-        masterStatCard('Total Entities', totalEntities, 'var(--gold)') +
-        masterStatCard('MRR', 'R' + fmtMRR(totalMRR), 'var(--success)') +
+        masterStatCard('Customers',  customers.length, 'var(--primary)') +
+        masterStatCard('Active',     totalActive, 'var(--success)') +
+        masterStatCard('Inactive',   customers.length - totalActive, 'var(--danger)') +
+        masterStatCard('Entities',   totalEntities, 'var(--gold)') +
+        masterStatCard('MRR', 'R' + (totalMRR >= 1000 ? (totalMRR/1000).toFixed(1)+'K' : totalMRR), 'var(--success)') +
         '</div>';
 
-    // MY OWN ENTITIES SECTION
+    // My test entities
     html += '<div class="info-card" style="margin-bottom:24px;border-left:4px solid var(--gold)">' +
         '<div class="info-card-header">' +
-        '<h4><i class="fas fa-star" style="color:var(--gold)"></i> My Test Entities (' + myEntities.length + ')</h4>' +
-        '<button class="btn btn-sm btn-gold" onclick="showCreateMasterEntity()" ' +
-        'style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border:none;padding:7px 14px;border-radius:var(--rs);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">' +
-        '<i class="fas fa-plus"></i> Create New Entity</button></div>';
+        '<h4><i class="fas fa-star" style="color:var(--gold)"></i> My Test / Demo Entities (' + myEntities.length + ')</h4>' +
+        '<button onclick="showCreateMasterEntity()" ' +
+        'style="padding:7px 14px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
+        'color:#fff;border:none;border-radius:var(--rs);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;gap:6px"><i class="fas fa-plus"></i> New Entity</button></div>';
 
     if (myEntities.length === 0) {
-        html += '<div class="empty-state" style="padding:24px"><i class="fas fa-building"></i>' +
-            '<h3>No Entities Yet</h3>' +
-            '<p>Create your first test or demo entity</p>' +
-            '<button class="btn btn-primary" onclick="showCreateMasterEntity()" style="margin-top:10px">' +
+        html += '<div style="text-align:center;padding:30px;color:var(--text-light)">' +
+            '<i class="fas fa-building" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No test entities yet</p>' +
+            '<button onclick="showCreateMasterEntity()" ' +
+            'style="margin-top:10px;padding:10px 20px;background:var(--primary);color:#fff;border:none;' +
+            'border-radius:var(--rs);font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">' +
             '<i class="fas fa-plus"></i> Create First Entity</button></div>';
     } else {
-        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">';
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">';
         myEntities.forEach(function(ent, idx) {
-            html += '<div style="padding:16px;background:var(--bg);border-radius:var(--r);' +
-                'border:1px solid var(--border);cursor:pointer;transition:.2s;text-align:center" ' +
-                'onclick="masterEnterEntity(\'own\',' + idx + ')" ' +
-                'onmouseover="this.style.borderColor=\'var(--gold)\'" ' +
-                'onmouseout="this.style.borderColor=\'var(--border)\'">' +
-                '<div style="width:44px;height:44px;border-radius:12px;' +
+            html += '<div onclick="masterEnterOwnEntity(' + idx + ')" ' +
+                'style="padding:18px;background:var(--bg);border-radius:var(--r);border:2px solid var(--border);' +
+                'cursor:pointer;text-align:center;transition:.2s" ' +
+                'onmouseover="this.style.borderColor=\'var(--gold)\';this.style.transform=\'translateY(-4px)\'" ' +
+                'onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'translateY(0)\'">' +
+                '<div style="width:48px;height:48px;border-radius:12px;' +
                 'background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
                 'display:flex;align-items:center;justify-content:center;color:#fff;' +
-                'font-size:1.2rem;font-weight:700;margin:0 auto 10px">' +
+                'font-size:1.3rem;font-weight:700;margin:0 auto 10px">' +
                 ent.name.charAt(0).toUpperCase() + '</div>' +
                 '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' + ent.name + '</div>' +
                 '<div style="font-size:.68rem;color:var(--text-light);margin-top:4px">' +
                 (ent.businessType || 'Test Entity') + '</div>' +
-                '<div style="margin-top:8px;display:inline-flex;align-items:center;gap:4px;' +
-                'padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;' +
-                'background:rgba(46,168,113,.12);color:var(--success)">Active</div></div>';
+                '<div style="margin-top:8px;padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;' +
+                'background:rgba(46,168,113,.15);color:var(--success);display:inline-block">Active</div>' +
+                '<div style="margin-top:8px;font-size:.68rem;color:var(--primary);font-weight:600">' +
+                '<i class="fas fa-sign-in-alt"></i> Enter Entity</div></div>';
         });
         html += '</div>';
     }
     html += '</div>';
 
-    // SEARCH
-    html += '<div class="search-bar" style="margin-bottom:16px">' +
-        '<i class="fas fa-search"></i>' +
-        '<input type="text" id="master-search" placeholder="Search customers by name or email..." ' +
-        'oninput="filterMasterCards()"></div>';
+    // Search
+    html += '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);' +
+        'border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:16px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
+        '<input type="text" id="master-search" placeholder="Search customers..." ' +
+        'style="flex:1;border:none;outline:none;font-size:.88rem;font-family:inherit;' +
+        'color:var(--text);background:transparent" oninput="filterMasterCards()"></div>';
 
-    // CUSTOMER CARDS
+    // Customers
     html += '<h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px">' +
         '<i class="fas fa-users" style="color:var(--primary)"></i> All Customers (' + customers.length + ')</h3>';
 
@@ -2018,9 +1580,9 @@ function renderMasterDashboard(customers) {
         'style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">';
 
     if (customers.length === 0) {
-        html += '<div class="empty-state" style="grid-column:1/-1">' +
-            '<i class="fas fa-users"></i><h3>No Customers Yet</h3>' +
-            '<p>Customers will appear here once they sign up</p></div>';
+        html += '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-users" style="font-size:3rem;opacity:.2;display:block;margin-bottom:14px"></i>' +
+            '<h3>No Customers Yet</h3><p>Customers appear here once they sign up</p></div>';
     } else {
         customers.forEach(function(c) {
             html += renderMasterCustomerCard(c);
@@ -2039,11 +1601,6 @@ function masterStatCard(label, value, color) {
         '<div style="font-size:1.5rem;font-weight:800;color:var(--text)">' + value + '</div></div>';
 }
 
-function fmtMRR(n) {
-    if (n >= 1000) return 'R' + (n / 1000).toFixed(1) + 'K';
-    return 'R' + n.toLocaleString();
-}
-
 function renderMasterCustomerCard(customer) {
     var data     = customer.data;
     var owner    = data.owner || {};
@@ -2055,61 +1612,50 @@ function renderMasterCustomerCard(customer) {
     return '<div class="info-card" data-search="' +
         ((owner.name || '') + ' ' + (owner.email || '')).toLowerCase() + '" ' +
         'style="border-left:4px solid ' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
-
-        // Header
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">' +
         '<div style="width:44px;height:44px;border-radius:12px;' +
-        'background:linear-gradient(135deg,' + (isActive ? 'var(--primary),var(--primary-dark)' : 'var(--danger),#a83232') + ');' +
+        'background:linear-gradient(135deg,' + (isActive ? 'var(--primary),var(--primary-dark)' : '#c94545,#a83232') + ');' +
         'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:700;flex-shrink:0">' +
         (owner.name ? owner.name.charAt(0).toUpperCase() : '?') + '</div>' +
         '<div style="flex:1;min-width:0">' +
         '<div style="font-size:.92rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
         (owner.name || 'Unknown') + '</div>' +
-        '<div style="font-size:.7rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-        (owner.email || '') + '</div>' +
-        (owner.phone ? '<div style="font-size:.68rem;color:var(--text-light)">' + owner.phone + '</div>' : '') +
+        '<div style="font-size:.7rem;color:var(--text-light)">' + (owner.email || '') + '</div>' +
         '</div>' +
         '<span style="padding:3px 10px;border-radius:12px;font-size:.68rem;font-weight:600;flex-shrink:0;' +
         'background:' + (isActive ? 'rgba(46,168,113,.12)' : 'rgba(201,69,69,.12)') + ';' +
         'color:' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
         (isActive ? 'Active' : 'Inactive') + '</span></div>' +
-
-        // Details
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;' +
         'padding:10px;background:var(--bg);border-radius:var(--rs);font-size:.72rem">' +
         '<div><span style="color:var(--text-muted)">Entities: </span>' +
-        '<strong style="color:var(--text)">' + entities.length + '</strong></div>' +
+        '<strong>' + entities.length + '</strong></div>' +
         '<div><span style="color:var(--text-muted)">Active: </span>' +
-        '<strong style="color:var(--text)">' + activeEnts + '</strong></div>' +
+        '<strong>' + activeEnts + '</strong></div>' +
         '<div><span style="color:var(--text-muted)">MRR: </span>' +
         '<strong style="color:var(--success)">R' + mrr.toLocaleString() + '</strong></div>' +
-        '<div><span style="color:var(--text-muted)">Business: </span>' +
-        '<strong style="color:var(--text)">' + (owner.bizType || '—') + '</strong></div></div>' +
-
-        // Entity pills
+        '<div><span style="color:var(--text-muted)">Type: </span>' +
+        '<strong>' + (owner.bizType || '—') + '</strong></div></div>' +
         (entities.length > 0 ?
             '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">' +
             entities.slice(0, 4).map(function(ent) {
-                var active = ent.status !== 'inactive';
                 return '<span style="padding:2px 8px;border-radius:10px;font-size:.62rem;font-weight:600;' +
-                    'background:' + (active ? 'rgba(26,139,168,.1)' : 'rgba(201,69,69,.1)') + ';' +
-                    'color:' + (active ? 'var(--primary)' : 'var(--danger)') + '">' +
-                    ent.name + '</span>';
-            }).join('') +
-            (entities.length > 4 ? '<span style="padding:2px 8px;border-radius:10px;font-size:.62rem;color:var(--text-muted)">+' + (entities.length - 4) + ' more</span>' : '') +
-            '</div>' : '') +
-
-        // Action buttons
-        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        '<button class="btn btn-sm btn-primary" onclick="adminViewCustomer(\'' + customer.id + '\')" style="flex:1">' +
+                    'background:rgba(26,139,168,.1);color:var(--primary)">' + ent.name + '</span>';
+            }).join('') + '</div>' : '') +
+        '<div style="display:flex;gap:8px">' +
+        '<button onclick="adminViewCustomer(\'' + customer.id + '\')" ' +
+        'style="flex:1;padding:8px;background:var(--primary);color:#fff;border:none;border-radius:var(--rs);' +
+        'font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit">' +
         '<i class="fas fa-eye"></i> View</button>' +
-        '<button class="btn btn-sm ' + (isActive ? 'btn-danger' : 'btn-success') + '" ' +
-        'onclick="adminToggleStatus(\'' + customer.id + '\',' + isActive + ')" style="flex:1">' +
+        '<button onclick="adminToggleStatus(\'' + customer.id + '\',' + isActive + ')" ' +
+        'style="flex:1;padding:8px;background:' + (isActive ? 'var(--danger)' : 'var(--success)') + ';' +
+        'color:#fff;border:none;border-radius:var(--rs);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit">' +
         '<i class="fas fa-' + (isActive ? 'ban' : 'check') + '"></i> ' +
         (isActive ? 'Deactivate' : 'Activate') + '</button>' +
         (owner.phone ?
-            '<a href="https://wa.me/27' + (owner.phone || '').replace(/[^0-9]/g, '').slice(-9) + '" ' +
-            'target="_blank" class="btn btn-sm btn-outline" style="color:#25D366;border-color:#25D366;flex-shrink:0">' +
+            '<a href="https://wa.me/27' + (owner.phone || '').replace(/[^0-9]/g,'').slice(-9) + '" target="_blank" ' +
+            'style="padding:8px 12px;background:#25D366;color:#fff;border:none;border-radius:var(--rs);' +
+            'font-size:.78rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center">' +
             '<i class="fab fa-whatsapp"></i></a>' : '') +
         '</div></div>';
 }
@@ -2117,213 +1663,67 @@ function renderMasterCustomerCard(customer) {
 function filterMasterCards() {
     var q = (document.getElementById('master-search').value || '').toLowerCase();
     document.querySelectorAll('#master-cards .info-card').forEach(function(card) {
-        var searchVal = card.dataset.search || '';
-        card.style.display = searchVal.includes(q) ? '' : 'none';
-    });
-}
-
-function renderAdminPanel(customers) {
-    var content = document.getElementById('admin-content');
-
-    // Stats
-    var totalCustomers = customers.length;
-    var totalActive = customers.filter(function(c) {
-        return (c.data.accountStatus || 'active') === 'active';
-    }).length;
-    var totalEntities = customers.reduce(function(s, c) {
-        return s + (c.data.entities || []).length;
-    }, 0);
-    var totalInactive = totalCustomers - totalActive;
-
-    var html = '<div style="max-width:1000px;margin:0 auto">';
-
-    // Header
-    html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">' +
-        '<div style="width:56px;height:56px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
-        'border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem">' +
-        '<i class="fas fa-crown"></i></div>' +
-        '<div><h1 style="font-size:1.5rem;font-weight:800;color:var(--text)">Master Admin Panel</h1>' +
-        '<p style="font-size:.82rem;color:var(--text-light)">All StockAI-Pro customers</p></div></div>';
-
-    // Stats cards
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">';
-    html += adminStatCard('Total Customers', totalCustomers, 'var(--primary)');
-    html += adminStatCard('Active', totalActive, 'var(--success)');
-    html += adminStatCard('Inactive', totalInactive, 'var(--danger)');
-    html += adminStatCard('Total Entities', totalEntities, 'var(--gold)');
-    html += '</div>';
-
-    // Search
-    html += '<div class="search-bar" style="max-width:100%">' +
-        '<i class="fas fa-search"></i>' +
-        '<input type="text" id="admin-search" placeholder="Search customers..." ' +
-        'oninput="filterAdminCards()"></div>';
-
-    // Customer cards
-    html += '<div id="admin-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">';
-
-    if (customers.length === 0) {
-        html += '<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-users"></i>' +
-            '<h3>No Customers Yet</h3><p>Customers will appear here once they sign up.</p></div>';
-    } else {
-        customers.forEach(function(c) {
-            html += renderAdminCard(c);
-        });
-    }
-
-    html += '</div></div>';
-    content.innerHTML = html;
-}
-
-function adminStatCard(label, value, color) {
-    return '<div style="background:var(--bg-card);border-radius:var(--r);padding:18px;' +
-        'box-shadow:var(--shadow);border-left:4px solid ' + color + ';text-align:center">' +
-        '<div style="font-size:.65rem;color:var(--text-light);text-transform:uppercase;' +
-        'font-weight:600;margin-bottom:4px">' + label + '</div>' +
-        '<div style="font-size:1.6rem;font-weight:800;color:var(--text)">' + value + '</div></div>';
-}
-
-function renderAdminCard(customer) {
-    var data     = customer.data;
-    var owner    = data.owner || {};
-    var entities = data.entities || [];
-    var isActive = (data.accountStatus || 'active') === 'active';
-    var billing  = data.billing || {};
-    var plan     = billing.planName || 'Premium';
-    var price    = billing.price || 999;
-
-    var activeCount = entities.filter(function(e) {
-        return e.status !== 'inactive';
-    }).length;
-
-    return '<div class="info-card" data-name="' +
-        (owner.name || '').toLowerCase() + ' ' +
-        (owner.email || '').toLowerCase() + '" ' +
-        'style="border-left:4px solid ' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
-
-        // Header
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">' +
-        '<div style="width:44px;height:44px;border-radius:12px;' +
-        'background:linear-gradient(135deg,' + (isActive ? 'var(--primary),var(--primary-dark)' : 'var(--danger),#a83232') + ');' +
-        'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:700;flex-shrink:0">' +
-        (owner.name ? owner.name.charAt(0).toUpperCase() : '?') + '</div>' +
-        '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:.92rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-        (owner.name || 'Unknown') + '</div>' +
-        '<div style="font-size:.72rem;color:var(--text-light)">' + (owner.email || '') + '</div></div>' +
-        '<span class="badge ' + (isActive ? 'badge-green' : 'badge-red') + '">' +
-        (isActive ? 'Active' : 'Inactive') + '</span></div>' +
-
-        // Details
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">' +
-        '<div style="font-size:.72rem;color:var(--text-light)">Entities: <strong style="color:var(--text)">' +
-        entities.length + '</strong> (' + activeCount + ' active)</div>' +
-        '<div style="font-size:.72rem;color:var(--text-light)">Plan: <strong style="color:var(--text)">' +
-        plan + '</strong></div>' +
-        '<div style="font-size:.72rem;color:var(--text-light)">Phone: <strong style="color:var(--text)">' +
-        (owner.phone || '—') + '</strong></div>' +
-        '<div style="font-size:.72rem;color:var(--text-light)">Revenue: <strong style="color:var(--success)">R' +
-        price + '/mo</strong></div></div>' +
-
-        // Entity pills
-        (entities.length > 0 ?
-            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">' +
-            entities.map(function(ent) {
-                var entActive = ent.status !== 'inactive';
-                return '<span class="badge ' + (entActive ? 'badge-blue' : 'badge-red') + '">' +
-                    ent.name + '</span>';
-            }).join('') + '</div>' : '') +
-
-        // Actions
-        '<div style="display:flex;gap:8px">' +
-        '<button class="btn btn-sm btn-outline" onclick="adminViewCustomer(\'' + customer.id + '\')">' +
-        '<i class="fas fa-eye"></i> View</button>' +
-        '<button class="btn btn-sm ' + (isActive ? 'btn-danger' : 'btn-success') + '" ' +
-        'onclick="adminToggleStatus(\'' + customer.id + '\',' + isActive + ')">' +
-        '<i class="fas fa-' + (isActive ? 'ban' : 'check') + '"></i> ' +
-        (isActive ? 'Deactivate' : 'Activate') + '</button>' +
-        '<a href="https://wa.me/27' + ((owner.phone || '').replace(/[^0-9]/g, '').slice(-9)) + '" ' +
-        'target="_blank" class="btn btn-sm btn-outline" style="color:#25D366;border-color:#25D366">' +
-        '<i class="fab fa-whatsapp"></i></a></div>' +
-        '</div>';
-}
-
-function filterAdminCards() {
-    var q = (document.getElementById('admin-search').value || '').toLowerCase();
-    document.querySelectorAll('#admin-cards .info-card').forEach(function(card) {
-        var name = card.dataset.name || '';
-        card.style.display = name.includes(q) ? '' : 'none';
+        card.style.display = (card.dataset.search || '').includes(q) ? '' : 'none';
     });
 }
 
 // ============================================================
-// ADMIN — VIEW CUSTOMER DETAILS
-// ============================================================
-// ============================================================
-// CREATE ENTITY FOR MASTER ACCOUNT
+// CREATE TEST ENTITY (Master)
 // ============================================================
 function showCreateMasterEntity() {
-    var allSections = [
-        'Walk-in Fridge','Walk-in Freezer','Dry Store','Bar',
-        'Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen',
-        'Receiving Area','Wine Cellar'
-    ];
-
+    var allSections = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar',
+        'Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
     var sectionChecks = allSections.map(function(s) {
-        var checked = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'].indexOf(s) !== -1;
+        var def = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'].indexOf(s) !== -1;
         return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;' +
             'background:var(--bg);border-radius:var(--rs);cursor:pointer">' +
-            '<input type="checkbox" value="' + s + '" ' + (checked ? 'checked' : '') + ' ' +
+            '<input type="checkbox" value="' + s + '" ' + (def ? 'checked' : '') + ' ' +
             'style="width:16px;height:16px;accent-color:var(--primary)">' +
             '<span style="font-size:.82rem;color:var(--text)">' + s + '</span></label>';
     }).join('');
 
-    showHubModal(
-        '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> Create New Entity',
-
+    showHubModal('<i class="fas fa-plus-circle" style="color:var(--gold)"></i> Create Test Entity',
         '<div style="background:rgba(245,158,11,.08);border-left:3px solid var(--gold);' +
-        'padding:12px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.82rem;color:var(--text)">' +
+        'padding:12px;border-radius:var(--rs);margin-bottom:16px;font-size:.82rem;color:var(--text)">' +
         '<i class="fas fa-info-circle" style="color:var(--gold)"></i> ' +
-        'This entity will be created under your master account — unlimited entities, no payment required.</div>' +
-
+        'Creates a test/demo entity under your master account. No payment required.</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Entity Name *</label>' +
-        '<input type="text" id="me-name" class="login-input" placeholder="e.g. Test Restaurant"></div>' +
+        '<input type="text" id="me-name" class="login-input" placeholder="e.g. Demo Restaurant"></div>' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Business Type</label>' +
         '<select id="me-type" class="login-input">' +
         '<option>Restaurant</option><option>Bar & Nightclub</option><option>Hotel & Resort</option>' +
         '<option>Café & Bakery</option><option>Retail Store</option><option>Demo Account</option>' +
         '</select></div></div>' +
-
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Contact Person</label>' +
-        '<input type="text" id="me-contact" class="login-input" placeholder="Contact name" value="Miguel Cidrais"></div>' +
+        '<input type="text" id="me-contact" class="login-input" value="Miguel Cidrais"></div>' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Food Cost Target %</label>' +
         '<input type="number" id="me-fc" class="login-input" value="28" min="10" max="60"></div></div>' +
-
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Phone</label>' +
         '<input type="tel" id="me-phone" class="login-input" placeholder="082 555 0000"></div>' +
         '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Email</label>' +
         '<input type="email" id="me-email" class="login-input" placeholder="entity@email.com"></div></div>' +
-
-        '<div style="margin-bottom:14px">' +
-        '<label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Stock Sections</label>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Stock Sections</label>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">' + sectionChecks + '</div></div>',
-
-        '<button class="btn btn-outline" onclick="closeHubModal()" style="flex:1">Cancel</button>' +
-        '<button class="btn btn-primary" onclick="saveMasterEntity()" style="flex:1">' +
-        '<i class="fas fa-save"></i> Create Entity</button>'
+        '<button onclick="closeHubModal()" style="flex:1;padding:12px;background:var(--bg);color:var(--text-mid);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="saveMasterEntity()" style="flex:1;padding:12px;' +
+        'background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;' +
+        'border-radius:var(--rs);font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-save"></i> Create & Enter Entity</button>'
     );
 }
 
 function saveMasterEntity() {
-    var name    = (document.getElementById('me-name').value || '').trim();
+    var name    = (document.getElementById('me-name').value    || '').trim();
     var type    = document.getElementById('me-type').value;
     var contact = (document.getElementById('me-contact').value || '').trim();
     var fc      = parseInt(document.getElementById('me-fc').value) || 28;
-    var phone   = (document.getElementById('me-phone').value || '').trim();
-    var email   = (document.getElementById('me-email').value || '').trim();
+    var phone   = (document.getElementById('me-phone').value   || '').trim();
+    var email   = (document.getElementById('me-email').value   || '').trim();
 
     if (!name) { hubToast('error', 'Enter entity name'); return; }
 
@@ -2333,31 +1733,27 @@ function saveMasterEntity() {
     });
     if (sections.length === 0) sections = ['Walk-in Fridge','Dry Store'];
 
-    var entityId = 'ENT-MASTER-' + Date.now();
+    var entityId  = 'ENT-MASTER-' + Date.now();
     var newEntity = {
-        id:              entityId,
-        name:            name,
-        businessType:    type,
-        contact:         contact,
-        phone:           phone,
-        email:           email,
-        foodCostTarget:  fc,
-        sections:        sections,
-        status:          'active',
-        plan:            'master',
-        createdAt:       new Date().toISOString(),
-        createdBy:       'Master Admin'
+        id:             entityId,
+        name:           name,
+        businessType:   type,
+        contact:        contact,
+        phone:          phone,
+        email:          email,
+        foodCostTarget: fc,
+        sections:       sections,
+        status:         'active',
+        plan:           'master',
+        createdAt:      new Date().toISOString()
     };
 
-    // Add to master account entities
     var updatedEntities = (HUB.entities || []).slice();
     updatedEntities.push(newEntity);
 
-    // Initialize empty data collections for this entity
     var update = {
         entities:    updatedEntities,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-        lastUpdatedBy: 'Master Admin'
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
     update['inventory.'  + entityId] = [];
     update['purchases.'  + entityId] = [];
@@ -2375,164 +1771,394 @@ function saveMasterEntity() {
         .set(update, { merge: true })
         .then(function() {
             HUB.entities = updatedEntities;
+            HUB.entity   = newEntity;
+            HUB.entityId = entityId;
+            HUB.entityName = name;
             closeHubModal();
-            hubToast('success', '✅ Entity "' + name + '" created!');
-            showMasterDashboard();
+            hubToast('success', '✅ "' + name + '" created! Opening Web App...');
+            // Go directly to web app for this entity
+            setTimeout(function() {
+                window.location.href = 'app.html';
+            }, 1200);
         })
         .catch(function(err) {
             hubToast('error', 'Error: ' + err.message);
         });
 }
 
-// Enter master's own entity
-function masterEnterEntity(type, idx) {
-    if (type === 'own') {
-        HUB.entity     = HUB.entities[idx];
-        HUB.entityId   = HUB.entities[idx].id;
-        HUB.entityName = HUB.entities[idx].name;
-        HUB.isMaster   = true;
-        document.getElementById('admin-panel').classList.add('hidden');
-        enterHub();
+function masterEnterOwnEntity(idx) {
+    HUB.entity     = HUB.entities[idx];
+    HUB.entityId   = HUB.entities[idx].id;
+    HUB.entityName = HUB.entities[idx].name;
+    showEntityHub();
+}
+
+// ============================================================
+// OWNER ENTITY DASHBOARD
+// Shows all the owner's entities as cards
+// ============================================================
+function showOwnerEntityDashboard() {
+    HUB.currentView = 'owner-dashboard';
+
+    document.getElementById('hub-app').classList.remove('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+    document.getElementById('app-frame').classList.add('hidden');
+    document.getElementById('login-screen').classList.add('hidden');
+
+    document.getElementById('hub-user-name').textContent =
+        HUB.user ? HUB.user.name : 'Owner';
+    document.getElementById('hub-user-role').textContent =
+        'Owner Dashboard • ' + HUB.entities.length + ' Entities';
+
+    HUB.clockInTime = new Date();
+    startHubSync();
+
+    var dash = document.getElementById('hub-dashboard');
+    var entities = HUB.entities;
+    var activeEnts = entities.filter(function(e) { return e.status !== 'inactive'; });
+
+    var html = '';
+
+    // Welcome
+    html += '<div style="width:100%;max-width:640px;background:var(--bg-card);border-radius:var(--r);' +
+        'padding:20px;box-shadow:var(--shadow);margin-bottom:20px;' +
+        'display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)">' +
+        '<div style="width:52px;height:52px;border-radius:50%;' +
+        'background:linear-gradient(135deg,var(--primary),var(--primary-dark));' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;' +
+        'font-size:1.3rem;font-weight:800;flex-shrink:0">' +
+        (HUB.user ? HUB.user.name.charAt(0).toUpperCase() : 'O') + '</div>' +
+        '<div><h3 style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:2px">' +
+        'Welcome, ' + (HUB.user ? HUB.user.name : 'Owner') + '</h3>' +
+        '<p style="font-size:.75rem;color:var(--text-light)">Select an entity below to get started</p>' +
+        '<div style="font-size:.72rem;color:var(--primary);font-weight:600;margin-top:4px">' +
+        '<i class="fas fa-building"></i> ' + entities.length + ' Entities in your group</div></div></div>';
+
+    // Section title
+    html += '<div style="width:100%;max-width:640px;font-size:.72rem;font-weight:700;' +
+        'color:var(--text-light);text-transform:uppercase;letter-spacing:1.5px;margin:8px 0;padding-left:4px">' +
+        'Your Entities</div>';
+
+    // Entity cards
+    html += '<div style="width:100%;max-width:640px;display:flex;flex-direction:column;gap:12px;margin-bottom:20px">';
+
+    entities.forEach(function(ent, idx) {
+        var isInactive = ent.status === 'inactive';
+        html += '<div onclick="' + (isInactive ? '' : 'selectOwnerEntity(' + idx + ')') + '" ' +
+            'style="background:var(--bg-card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);' +
+            'display:flex;align-items:center;gap:14px;cursor:' + (isInactive ? 'default' : 'pointer') + ';' +
+            'transition:.2s;border:2px solid ' + (isInactive ? 'var(--danger)' : 'var(--border)') + ';' +
+            'opacity:' + (isInactive ? '.6' : '1') + '" ' +
+            (isInactive ? '' : 'onmouseover="this.style.borderColor=\'var(--primary)\';this.style.transform=\'translateX(4px)\'" ' +
+            'onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'translateX(0)\'"') + '>' +
+            '<div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;' +
+            'background:linear-gradient(135deg,' + (isInactive ? '#c94545,#a83232' : 'var(--primary),var(--primary-dark)') + ');' +
+            'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:800">' +
+            ent.name.charAt(0).toUpperCase() + '</div>' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:.95rem;font-weight:700;color:var(--text)">' + ent.name + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light);margin-top:2px">' +
+            (ent.contact || '') + (ent.foodCostTarget ? ' • FC: ' + ent.foodCostTarget + '%' : '') + '</div>' +
+            (isInactive ? '<div style="font-size:.65rem;color:var(--danger);font-weight:700;margin-top:4px">' +
+            '🔒 INACTIVE — Contact support to reactivate</div>' : '') +
+            '</div>' +
+            (isInactive ? '' :
+                '<i class="fas fa-chevron-right" style="color:var(--text-muted);font-size:.9rem"></i>') +
+            '</div>';
+    });
+
+    // Global view card (if 2+ active entities)
+    if (activeEnts.length >= 2) {
+        html += '<div onclick="selectOwnerEntity(-1)" ' +
+            'style="background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:var(--r);' +
+            'padding:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;' +
+            'cursor:pointer;transition:.2s;border:2px solid var(--gold)" ' +
+            'onmouseover="this.style.transform=\'translateX(4px)\'" ' +
+            'onmouseout="this.style.transform=\'translateX(0)\'">' +
+            '<div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;' +
+            'background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
+            'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem">' +
+            '<i class="fas fa-globe"></i></div>' +
+            '<div style="flex:1">' +
+            '<div style="font-size:.95rem;font-weight:800;color:#fff">👑 GLOBAL VIEW</div>' +
+            '<div style="font-size:.72rem;color:var(--gold);margin-top:2px">' +
+            'All ' + activeEnts.length + ' entities combined</div></div>' +
+            '<i class="fas fa-chevron-right" style="color:var(--gold)"></i></div>';
+    }
+
+    html += '</div>';
+    dash.innerHTML = html;
+}
+
+function selectOwnerEntity(idx) {
+    if (idx === -1) {
+        // Global view
+        HUB.entity     = null;
+        HUB.entityId   = null;
+        HUB.entityName = 'Global View';
+        // For global view, go to web app
+        window.location.href = 'app.html';
+        return;
+    }
+    HUB.entity     = HUB.entities[idx];
+    HUB.entityId   = HUB.entities[idx].id;
+    HUB.entityName = HUB.entities[idx].name;
+    showEntityHub();
+}
+
+// ============================================================
+// ENTITY HUB
+// The hub for a specific entity — shows all assigned apps
+// ============================================================
+function showEntityHub() {
+    HUB.currentView = 'entity-hub';
+
+    document.getElementById('hub-app').classList.remove('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+    document.getElementById('app-frame').classList.add('hidden');
+
+    document.getElementById('hub-user-name').textContent =
+        HUB.user ? HUB.user.name : 'User';
+    document.getElementById('hub-user-role').textContent =
+        (HUB.user ? HUB.user.role : '') +
+        (HUB.entityName ? ' • ' + HUB.entityName : '');
+
+    HUB.clockInTime = HUB.clockInTime || new Date();
+    if (!HUB.syncListener) startHubSync();
+
+    renderEntityHubDashboard();
+    hubToast('success', 'Welcome to ' + (HUB.entityName || '') + ' 👋');
+}
+
+function renderEntityHubDashboard() {
+    var dash = document.getElementById('hub-dashboard');
+    var initial = HUB.user ? HUB.user.name.charAt(0).toUpperCase() : 'U';
+
+    var html = '';
+
+    // Back to entities button (if owner has multiple)
+    var isOwner = HUB.user && (HUB.user.role === 'Owner' ||
+        HUB.user.role === 'Area Manager' ||
+        HUB.user.role === 'Operations Manager' ||
+        HUB.isMaster);
+
+    if (isOwner && HUB.entities.length > 1) {
+        html += '<div style="width:100%;max-width:640px;margin-bottom:14px">' +
+            '<button onclick="goBackToEntityDashboard()" ' +
+            'style="display:flex;align-items:center;gap:8px;padding:10px 16px;' +
+            'background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--rs);' +
+            'color:var(--text-light);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;' +
+            'transition:.2s" ' +
+            'onmouseover="this.style.borderColor=\'var(--primary)\';this.style.color=\'var(--primary)\'" ' +
+            'onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text-light)\'">' +
+            '<i class="fas fa-arrow-left"></i> Back to All Entities</button></div>';
+    }
+
+    // Welcome card
+    html += '<div style="width:100%;max-width:640px;background:var(--bg-card);border-radius:var(--r);' +
+        'padding:20px;box-shadow:var(--shadow);margin-bottom:20px;' +
+        'display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)">' +
+        '<div style="width:52px;height:52px;border-radius:50%;' +
+        'background:linear-gradient(135deg,var(--primary),var(--primary-dark));' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;' +
+        'font-size:1.3rem;font-weight:800;flex-shrink:0">' + initial + '</div>' +
+        '<div><h3 style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:2px">' +
+        'Welcome, ' + (HUB.user ? HUB.user.name : 'User') + '</h3>' +
+        '<p style="font-size:.75rem;color:var(--text-light)">' +
+        (HUB.user ? HUB.user.role : '') + ' • ' + (HUB.entityName || '') + '</p>' +
+        '<div style="font-size:.72rem;color:var(--primary);font-weight:600;margin-top:4px">' +
+        '<i class="fas fa-clock"></i> On shift: <span id="hub-shift-display">00:00</span></div></div></div>';
+
+    // Apps grid
+    html += '<div style="width:100%;max-width:640px;font-size:.72rem;font-weight:700;' +
+        'color:var(--text-light);text-transform:uppercase;letter-spacing:1.5px;margin:8px 0;padding-left:4px">' +
+        'Your Applications</div>';
+
+    html += '<div style="width:100%;max-width:640px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">';
+
+    ALL_APPS.forEach(function(app) {
+        var allowed = HUB.allowedApps.indexOf(app.id) !== -1;
+        html += '<div class="hub-app-card' + (allowed ? '' : ' disabled') + '" ' +
+            (allowed ? 'onclick="openHubApp(\'' + app.id + '\')"' : '') + '>' +
+            '<div class="hub-app-icon" style="background:linear-gradient(135deg,' +
+            app.color + ',' + adjustHexColor(app.color, -30) + ')">' +
+            '<i class="fas ' + app.icon + '"></i></div>' +
+            '<div class="hub-app-name">' + app.name + '</div>' +
+            '<div class="hub-app-desc">' + app.desc + '</div></div>';
+    });
+
+    html += '</div>';
+
+    // Quick info
+    html += '<div style="width:100%;max-width:640px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);text-align:center">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:4px">Apps</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + HUB.allowedApps.length + '</div></div>' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);text-align:center">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:4px">Entity</div>' +
+        '<div style="font-size:.75rem;font-weight:700;color:var(--text)">' + (HUB.entityName || 'N/A') + '</div></div>' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);text-align:center">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:4px">Role</div>' +
+        '<div style="font-size:.72rem;font-weight:700;color:var(--text)">' + (HUB.user ? HUB.user.role : '') + '</div></div></div>';
+
+    dash.innerHTML = html;
+}
+
+function goBackToEntityDashboard() {
+    if (HUB.isMaster) {
+        showMasterDashboard();
+    } else {
+        showOwnerEntityDashboard();
     }
 }
+
+// ============================================================
+// OPEN APP
+// ============================================================
+function openHubApp(appId) {
+    var app = ALL_APPS.find(function(a) { return a.id === appId; });
+    if (!app) return;
+
+    if (app.embed) {
+        openEmbeddedApp(appId);
+    } else {
+        // For web app and others — pass entity info via sessionStorage
+        sessionStorage.setItem('hub_account_id',   HUB.accountId || '');
+        sessionStorage.setItem('hub_entity_id',    HUB.entityId  || '');
+        sessionStorage.setItem('hub_entity_name',  HUB.entityName || '');
+        sessionStorage.setItem('hub_user_name',    HUB.user ? HUB.user.name  : '');
+        sessionStorage.setItem('hub_user_email',   HUB.user ? HUB.user.email : '');
+        sessionStorage.setItem('hub_user_role',    HUB.user ? HUB.user.role  : '');
+        sessionStorage.setItem('hub_return',       'true');
+        window.location.href = app.url;
+    }
+}
+
+function openEmbeddedApp(appId) {
+    var frame = document.getElementById('app-frame');
+    frame.classList.remove('hidden');
+    document.getElementById('hub-app').classList.add('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+
+    frame.innerHTML = '';
+
+    if (appId === 'mobile')     { frame.innerHTML = getMobileAppHTML();     initMobileApp(); }
+    else if (appId === 'procure')    { frame.innerHTML = getProcureAppHTML();    initProcureApp(); }
+    else if (appId === 'menumaster') { frame.innerHTML = getMenuMasterHTML();    initMenuMasterApp(); }
+}
+
+function closeEmbeddedApp() {
+    document.getElementById('app-frame').classList.add('hidden');
+    renderEntityHubDashboard();
+    document.getElementById('hub-app').classList.remove('hidden');
+}
+
+// ============================================================
+// LOGOUT
+// ============================================================
+function hubLogout() {
+    if (HUB.syncListener) { HUB.syncListener(); HUB.syncListener = null; }
+    localStorage.removeItem('stockai_remember');
+    localStorage.removeItem('stockai_email');
+
+    auth.signOut().then(function() {
+        HUB.user        = null;
+        HUB.accountId   = null;
+        HUB.allowedApps = [];
+        HUB.clockInTime = null;
+        HUB.isMaster    = false;
+        HUB.currentView = null;
+        HUB.entity      = null;
+        HUB.entityId    = null;
+
+        document.getElementById('hub-app').classList.add('hidden');
+        document.getElementById('admin-panel').classList.add('hidden');
+        document.getElementById('app-frame').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+
+        document.getElementById('hub-email').value       = '';
+        document.getElementById('hub-password').value    = '';
+        document.getElementById('hub-remember').checked  = false;
+
+        hubToast('info', 'Logged out successfully');
+    });
+}
+
+// ============================================================
+// FORGOT PASSWORD
+// ============================================================
+function hubForgotPw() {
+    var email = document.getElementById('hub-email').value.trim();
+    if (!email) { showLoginError('Enter your email address first'); return; }
+    auth.sendPasswordResetEmail(email.toLowerCase())
+        .then(function() { hubToast('success', '📧 Password reset link sent'); })
+        .catch(function(err) { hubToast('error', err.message); });
+}
+
+// ============================================================
+// ADMIN FUNCTIONS (Customer view)
+// ============================================================
 function adminViewCustomer(accountId) {
     hubToast('info', '🔄 Loading customer...');
-
     db.collection('accounts').doc(accountId).get()
         .then(function(doc) {
             if (!doc.exists) { hubToast('error', 'Customer not found'); return; }
             var data     = doc.data();
             var owner    = data.owner || {};
             var entities = data.entities || [];
-            var billing  = data.billing || {};
 
-            var entitiesHtml = entities.map(function(ent, idx) {
+            var entCards = entities.map(function(ent, idx) {
                 var isActive = ent.status !== 'inactive';
-                var inv      = (data.inventory || {})[ent.id] || [];
+                var inv = (data.inventory || {})[ent.id] || [];
                 var stockVal = inv.reduce(function(s, i) { return s + (i.value || 0); }, 0);
-                var users    = (data.users || {})[ent.id] || [];
 
-                return '<div class="info-card" style="border-left:4px solid ' +
-                    (isActive ? 'var(--primary)' : 'var(--danger)') + '">' +
-                    '<div class="info-card-header">' +
-                    '<h4><i class="fas fa-building"></i> ' + ent.name + '</h4>' +
-                    '<span class="badge ' + (isActive ? 'badge-green' : 'badge-red') + '">' +
+                return '<div style="background:var(--bg);border-radius:var(--r);padding:14px;margin-bottom:10px;' +
+                    'border-left:3px solid ' + (isActive ? 'var(--primary)' : 'var(--danger)') + '">' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+                    '<strong>' + ent.name + '</strong>' +
+                    '<span style="padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;' +
+                    'background:' + (isActive ? 'rgba(46,168,113,.12)' : 'rgba(201,69,69,.12)') + ';' +
+                    'color:' + (isActive ? 'var(--success)' : 'var(--danger)') + '">' +
                     (isActive ? 'Active' : 'Inactive') + '</span></div>' +
-                    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px">' +
-                    '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:var(--rs)">' +
-                    '<div style="font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600">Stock Items</div>' +
-                    '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + inv.length + '</div></div>' +
-                    '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:var(--rs)">' +
-                    '<div style="font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600">Stock Value</div>' +
-                    '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">R' + stockVal.toLocaleString() + '</div></div>' +
-                    '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:var(--rs)">' +
-                    '<div style="font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600">Users</div>' +
-                    '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + users.length + '</div></div></div>' +
-                    '<div style="margin-top:12px;display:flex;gap:8px">' +
-                    '<button class="btn btn-sm btn-primary" onclick="adminEnterEntity(\'' +
-                    accountId + '\',\'' + ent.id + '\')">' +
-                    '<i class="fas fa-sign-in-alt"></i> Enter Entity</button>' +
-                    '<button class="btn btn-sm ' + (isActive ? 'btn-danger' : 'btn-success') + '" ' +
-                    'onclick="adminToggleEntity(\'' + accountId + '\',' + idx + ',' + isActive + ')">' +
-                    '<i class="fas fa-' + (isActive ? 'ban' : 'check') + '"></i> ' +
-                    (isActive ? 'Deactivate' : 'Activate') + '</button></div></div>';
+                    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">' +
+                    '<div style="text-align:center;padding:8px;background:var(--bg-card);border-radius:var(--rs)">' +
+                    '<div style="font-size:.6rem;color:var(--text-muted)">Stock Items</div>' +
+                    '<div style="font-size:.9rem;font-weight:700">' + inv.length + '</div></div>' +
+                    '<div style="text-align:center;padding:8px;background:var(--bg-card);border-radius:var(--rs)">' +
+                    '<div style="font-size:.6rem;color:var(--text-muted)">Stock Value</div>' +
+                    '<div style="font-size:.9rem;font-weight:700">R' + (stockVal >= 1000 ? (stockVal/1000).toFixed(1)+'K' : stockVal.toFixed(0)) + '</div></div>' +
+                    '<div style="text-align:center;padding:8px;background:var(--bg-card);border-radius:var(--rs)">' +
+                    '<div style="font-size:.6rem;color:var(--text-muted)">Users</div>' +
+                    '<div style="font-size:.9rem;font-weight:700">' + ((data.users || {})[ent.id] || []).length + '</div></div></div>' +
+                    '<button onclick="masterEnterCustomerEntity(\'' + accountId + '\',\'' + ent.id + '\')" ' +
+                    'style="width:100%;padding:9px;background:var(--primary);color:#fff;border:none;' +
+                    'border-radius:var(--rs);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">' +
+                    '<i class="fas fa-sign-in-alt"></i> Enter Entity</button></div>';
             }).join('');
 
             showHubModal(
-                '<i class="fas fa-user-circle" style="color:var(--primary)"></i> ' +
-                (owner.name || 'Customer'),
-
-                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Name</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--text)">' + (owner.name || '—') + '</div></div>' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Email</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--text)">' + (owner.email || '—') + '</div></div>' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Phone</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--text)">' + (owner.phone || '—') + '</div></div>' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Plan</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--text)">' + (billing.planName || 'Premium') + '</div></div>' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Monthly</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--success)">R' + (billing.price || 999) + '/mo</div></div>' +
-                '<div><div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Entities</div>' +
-                '<div style="font-size:.92rem;font-weight:600;color:var(--text)">' + entities.length + '</div></div></div>' +
-                '<h4 style="font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:12px;' +
-                'padding-bottom:8px;border-bottom:2px solid var(--primary)">' +
+                '<i class="fas fa-user-circle" style="color:var(--primary)"></i> ' + (owner.name || 'Customer'),
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;padding:14px;background:var(--bg);border-radius:var(--rs)">' +
+                '<div><div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Name</div><div style="font-weight:600">' + (owner.name || '—') + '</div></div>' +
+                '<div><div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Email</div><div style="font-weight:600;font-size:.82rem">' + (owner.email || '—') + '</div></div>' +
+                '<div><div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Phone</div><div style="font-weight:600">' + (owner.phone || '—') + '</div></div>' +
+                '<div><div style="font-size:.62rem;color:var(--text-muted);text-transform:uppercase;font-weight:600">Entities</div><div style="font-weight:600">' + entities.length + '</div></div></div>' +
+                '<h4 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:var(--text)">' +
                 '<i class="fas fa-building" style="color:var(--primary)"></i> Entities (' + entities.length + ')</h4>' +
-                entitiesHtml,
-
-                '<button class="btn btn-outline" onclick="closeHubModal()">Close</button>'
+                entCards,
+                '<button onclick="closeHubModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600">Close</button>'
             );
-        })
-        .catch(function(err) {
-            hubToast('error', 'Error: ' + err.message);
         });
 }
 
-// ============================================================
-// ADMIN — TOGGLE ACCOUNT STATUS
-// ============================================================
-function adminToggleStatus(accountId, currentlyActive) {
-    var action = currentlyActive ? 'deactivate' : 'activate';
-    if (!confirm('Are you sure you want to ' + action + ' this customer account?')) return;
-
-    var newStatus = currentlyActive ? 'suspended' : 'active';
-    db.collection('accounts').doc(accountId).update({
-        accountStatus: newStatus,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-        lastUpdatedBy: 'Master Admin'
-    })
-    .then(function() {
-        hubToast('success', '✅ Account ' + (currentlyActive ? 'deactivated' : 'activated'));
-        showAdminPanel(); // Refresh
-    })
-    .catch(function(err) {
-        hubToast('error', 'Error: ' + err.message);
-    });
-}
-
-// ============================================================
-// ADMIN — TOGGLE ENTITY STATUS
-// ============================================================
-function adminToggleEntity(accountId, entityIdx, currentlyActive) {
-    var action = currentlyActive ? 'deactivate' : 'activate';
-    if (!confirm('Are you sure you want to ' + action + ' this entity?')) return;
-
-    db.collection('accounts').doc(accountId).get()
-        .then(function(doc) {
-            if (!doc.exists) return;
-            var data     = doc.data();
-            var entities = data.entities || [];
-            if (entities[entityIdx]) {
-                entities[entityIdx].status = currentlyActive ? 'inactive' : 'active';
-            }
-            return db.collection('accounts').doc(accountId).update({
-                entities: entities,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                lastUpdatedBy: 'Master Admin'
-            });
-        })
-        .then(function() {
-            hubToast('success', '✅ Entity ' + (currentlyActive ? 'deactivated' : 'activated'));
-            closeHubModal();
-            showAdminPanel();
-        })
-        .catch(function(err) {
-            hubToast('error', 'Error: ' + err.message);
-        });
-}
-
-// ============================================================
-// ADMIN — ENTER CUSTOMER ENTITY (for support)
-// ============================================================
-function adminEnterEntity(accountId, entityId) {
+function masterEnterCustomerEntity(accountId, entityId) {
     hubToast('info', '🔄 Loading entity...');
-
     db.collection('accounts').doc(accountId).get()
         .then(function(doc) {
             if (!doc.exists) { hubToast('error', 'Account not found'); return; }
             var data = doc.data();
 
-            // Set HUB state to this customer's entity
+            // Temporarily set HUB state to this customer's entity
             HUB.accountId   = accountId;
             HUB.accountData = data;
             HUB.entities    = data.entities || [];
@@ -2543,23 +2169,200 @@ function adminEnterEntity(accountId, entityId) {
 
             closeHubModal();
             document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('hub-app').classList.remove('hidden');
-
-            document.getElementById('hub-user-name').textContent = 'Admin → ' +
-                (data.owner ? data.owner.name : accountId);
-            document.getElementById('hub-user-role').textContent = 'Master Admin • ' + HUB.entityName;
-
-            HUB.clockInTime = new Date();
-            renderHubDashboard();
+            showEntityHub();
             hubToast('success', '✅ Viewing: ' + HUB.entityName);
-        })
-        .catch(function(err) {
-            hubToast('error', 'Error: ' + err.message);
         });
 }
 
-console.log('✅ StockAI-Pro 2.0 Hub — Admin Panel loaded');
-</script>
+function adminToggleStatus(accountId, currentlyActive) {
+    var action = currentlyActive ? 'deactivate' : 'activate';
+    if (!confirm('Are you sure you want to ' + action + ' this account?')) return;
+    db.collection('accounts').doc(accountId).update({
+        accountStatus: currentlyActive ? 'suspended' : 'active',
+        lastUpdated:   firebase.firestore.FieldValue.serverTimestamp(),
+        lastUpdatedBy: 'Master Admin'
+    }).then(function() {
+        hubToast('success', '✅ Account ' + (currentlyActive ? 'deactivated' : 'activated'));
+        showMasterDashboard();
+    }).catch(function(err) { hubToast('error', err.message); });
+}
+
+// ============================================================
+// REAL-TIME SYNC
+// ============================================================
+function startHubSync() {
+    if (!HUB.accountId || HUB.isMaster && !HUB.entityId) return;
+    if (HUB.syncListener) HUB.syncListener();
+    HUB.syncListener = db.collection('accounts').doc(HUB.accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+            HUB.accountData = data;
+            HUB.entities    = data.entities || [];
+        }, function(err) { console.warn('Hub sync error:', err); });
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function startHubClock() {
+    setInterval(function() {
+        var now     = new Date();
+        var timeStr = now.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        var dateStr = now.toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' });
+
+        var headerTime = document.getElementById('hub-header-time');
+        if (headerTime) {
+            headerTime.innerHTML = '<strong>' + timeStr + '</strong><span>' + dateStr + '</span>';
+        }
+
+        if (HUB.clockInTime) {
+            var diff = Date.now() - HUB.clockInTime.getTime();
+            var h    = Math.floor(diff / 3600000);
+            var m    = Math.floor((diff % 3600000) / 60000);
+            var shiftEl = document.getElementById('hub-shift-display');
+            if (shiftEl) shiftEl.textContent = ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2);
+        }
+    }, 1000);
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+function showHubNotifications() {
+    if (!HUB.accountData) { hubToast('info', 'No notifications'); return; }
+    var notifs = HUB.accountData.notifs || [];
+    showHubModal('Notifications',
+        notifs.length === 0
+            ? '<div class="empty-state"><i class="fas fa-bell"></i><h3>No notifications</h3></div>'
+            : notifs.slice(0, 20).map(function(n) {
+                return '<div style="display:flex;gap:10px;padding:12px;margin-bottom:6px;' +
+                    'background:var(--bg);border-radius:var(--rs);border-left:3px solid var(--primary)">' +
+                    '<div style="flex:1"><div style="font-size:.82rem;font-weight:600;color:var(--text)">' +
+                    n.title + '</div>' +
+                    '<div style="font-size:.75rem;color:var(--text-light);margin-top:2px">' + n.text + '</div>' +
+                    '<div style="font-size:.65rem;color:var(--text-muted);margin-top:2px">' + n.time + '</div></div></div>';
+            }).join('')
+    );
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function hubToast(type, msg) {
+    var icons = { success:'check-circle', error:'times-circle', info:'info-circle', warning:'exclamation-triangle' };
+    var t = document.createElement('div');
+    t.className = 'hub-toast ' + type;
+    t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i><span>' + msg + '</span>' +
+        '<button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+    var wrap = document.getElementById('hub-toast-wrap');
+    if (wrap) wrap.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+    }, 4000);
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function showHubModal(title, bodyHtml, footerHtml) {
+    var container = document.getElementById('hub-modal-container');
+    container.innerHTML =
+        '<div class="hub-modal-overlay" id="hub-modal-overlay">' +
+        '<div class="hub-modal">' +
+        '<div class="hub-modal-header"><h3>' + title + '</h3>' +
+        '<button class="hub-modal-close" onclick="closeHubModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="hub-modal-body">' + bodyHtml + '</div>' +
+        (footerHtml ? '<div class="hub-modal-footer">' + footerHtml + '</div>' : '') +
+        '</div></div>';
+    document.getElementById('hub-modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeHubModal();
+    });
+}
+
+function closeHubModal() {
+    var c = document.getElementById('hub-modal-container');
+    if (c) c.innerHTML = '';
+}
+
+// ============================================================
+// COLOR HELPER
+// ============================================================
+function adjustHexColor(hex, amount) {
+    hex = hex.replace('#', '');
+    var r = Math.max(0, Math.min(255, parseInt(hex.substring(0, 2), 16) + amount));
+    var g = Math.max(0, Math.min(255, parseInt(hex.substring(2, 4), 16) + amount));
+    var b = Math.max(0, Math.min(255, parseInt(hex.substring(4, 6), 16) + amount));
+    return '#' + ('0'+r.toString(16)).slice(-2) + ('0'+g.toString(16)).slice(-2) + ('0'+b.toString(16)).slice(-2);
+}
+
+// ============================================================
+// INSTALL GUIDE
+// ============================================================
+function showInstallGuide() {
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPad|iPhone|iPod/.test(ua);
+    var steps = isIOS
+        ? installStep(1,'Open in Safari','Must use Safari browser on iOS','🧭') +
+          installStep(2,'Tap Share ⬆️','Bottom of Safari browser','⬆️') +
+          installStep(3,'Add to Home Screen','Scroll down in share menu','➕') +
+          installStep(4,'Tap Add','App installs on home screen','✅')
+        : installStep(1,'Tap ⋮ menu','Top right of Chrome','⋮') +
+          installStep(2,'Add to Home screen','Or "Install app"','📲') +
+          installStep(3,'Tap Add','App appears on home screen','✅');
+    showHubModal('Install StockAI-Pro', steps,
+        '<button onclick="copyHubLink()" style="flex:1;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600"><i class="fas fa-copy"></i> Copy Link</button>' +
+        '<button onclick="closeHubModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600">Close</button>'
+    );
+}
+
+function installStep(num, title, desc, emoji) {
+    return '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;' +
+        'display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;flex-shrink:0">' +
+        num + '</div><div><h4 style="font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:2px">' +
+        title + '</h4><p style="font-size:.78rem;color:var(--text-light)">' + desc + '</p>' +
+        (emoji ? '<div style="font-size:1.3rem;margin-top:4px">' + emoji + '</div>' : '') + '</div></div>';
+}
+
+function copyHubLink() {
+    var link = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(function() { hubToast('success', '✅ Link copied!'); });
+    } else {
+        var input = document.createElement('input');
+        input.value = link;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        hubToast('success', '✅ Link copied!');
+    }
+}
+
+// ============================================================
+// NETWORK
+// ============================================================
+window.addEventListener('online',  function() { hubToast('success', '✅ Back online'); });
+window.addEventListener('offline', function() { hubToast('warning', '📵 No internet'); });
+
+// ============================================================
+// SECURITY
+// ============================================================
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+var lastTouch = 0;
+document.addEventListener('touchend', function(e) {
+    var now = Date.now();
+    if (now - lastTouch <= 300) e.preventDefault();
+    lastTouch = now;
+}, { passive: false });
+
+console.log('✅ StockAI-Pro 2.0 Hub — Complete');
+console.log('🔐 Master: cidraism@gmail.com');
+console.log('🏢 Entity routing: Active');
+console.log('🎨 Color scheme: Teal Dark');
 
 <script>
 // ============================================================
