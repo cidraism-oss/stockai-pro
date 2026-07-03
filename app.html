@@ -6412,7 +6412,183 @@ function migSpeak(text, duration) {
     if (mouth) mouth.classList.add('talking');
     clearTimeout(MIG.speechTimer);
     MIG.speechTimer = setTimeout(hideMigSpeech, duration || 4000);
+
+    // Text-to-Speech — Miglatron talks out loud!
+    migVoiceSpeak(text);
 }
+
+// ============================================================
+// MIGLATRON VOICE ENGINE (Free — Browser SpeechSynthesis)
+// ============================================================
+var MIG_VOICE_ENABLED = true; // Set to false to mute
+
+function migVoiceSpeak(text) {
+    if (!MIG_VOICE_ENABLED) return;
+    if (!('speechSynthesis' in window)) return;
+
+    // Cancel any current speech
+    window.speechSynthesis.cancel();
+
+    // Strip HTML tags for speech
+    var cleanText = text.replace(/<strong>/g, '')
+        .replace(/<\/strong>/g, '')
+        .replace(/<br>/g, '. ')
+        .replace(/<br\/>/g, '. ')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&amp;/g, 'and')
+        .replace(/&/g, 'and')
+        .replace(/•/g, ',')
+        .replace(/→/g, 'to')
+        .replace(/✓/g, 'check')
+        .replace(/✅/g, '')
+        .replace(/🤖/g, '')
+        .replace(/👋/g, '')
+        .replace(/💧/g, '')
+        .replace(/😅/g, '')
+        .replace(/🎉/g, '')
+        .replace(/😴/g, '')
+        .replace(/📊/g, '')
+        .replace(/📦/g, '')
+        .replace(/🍽️/g, '')
+        .replace(/📋/g, '')
+        .replace(/💰/g, '')
+        .replace(/🌙/g, '')
+        .replace(/🛒/g, '')
+        .replace(/🚚/g, '')
+        .replace(/🗑️/g, '')
+        .replace(/👥/g, '')
+        .replace(/📺/g, '')
+        .replace(/💳/g, '')
+        .replace(/⚙️/g, '')
+        .replace(/📅/g, '')
+        .replace(/🔒/g, '')
+        .trim();
+
+    if (!cleanText) return;
+
+    var utterance = new SpeechSynthesisUtterance(cleanText);
+
+    // Voice settings — robotic but friendly
+    utterance.rate = 1.05;    // Slightly faster than normal
+    utterance.pitch = 1.3;    // Higher pitch — more robotic
+    utterance.volume = 0.85;  // Not too loud
+
+    // Try to find a good voice
+    var voices = window.speechSynthesis.getVoices();
+    var preferredVoice = null;
+
+    // Priority: Look for a robotic/unique sounding voice
+    var voicePriority = ['Google UK English Male', 'Google UK English Female',
+        'Microsoft David', 'Microsoft Mark', 'Microsoft Zira',
+        'Alex', 'Daniel', 'Karen', 'Samantha', 'Tessa'];
+
+    for (var i = 0; i < voicePriority.length; i++) {
+        var found = voices.find(function(v) {
+            return v.name.includes(voicePriority[i]);
+        });
+        if (found) { preferredVoice = found; break; }
+    }
+
+    // Fallback — any English voice
+    if (!preferredVoice) {
+        preferredVoice = voices.find(function(v) {
+            return v.lang.startsWith('en');
+        });
+    }
+
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
+
+    // Animate mouth while speaking
+    utterance.onstart = function() {
+        var mouth = document.getElementById('mig-mouth');
+        if (mouth) mouth.classList.add('talking');
+    };
+
+    utterance.onend = function() {
+        var mouth = document.getElementById('mig-mouth');
+        if (mouth) mouth.classList.remove('talking');
+    };
+
+    utterance.onerror = function() {
+        var mouth = document.getElementById('mig-mouth');
+        if (mouth) mouth.classList.remove('talking');
+    };
+
+    // Speak!
+    window.speechSynthesis.speak(utterance);
+}
+
+// Stop speaking when speech bubble hides
+var _origHideMigSpeech = hideMigSpeech;
+hideMigSpeech = function() {
+    _origHideMigSpeech();
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+};
+
+// Stop speaking when chat opens (so it doesn't overlap)
+var _origOpenMigChat = openMigChat;
+openMigChat = function() {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    _origOpenMigChat();
+};
+
+// Also speak FAQ answers in chat
+var _origMigAnswer = migAnswer;
+migAnswer = function(key) {
+    _origMigAnswer(key);
+
+    // Speak the answer after a short delay
+    var answer = MIG_FAQ[key];
+    if (answer) {
+        setTimeout(function() {
+            migVoiceSpeak(answer);
+        }, 600);
+    }
+};
+
+// Mute/Unmute button — add to chat header
+setTimeout(function() {
+    var header = document.querySelector('.mig-chat-header');
+    if (header) {
+        var muteBtn = document.createElement('button');
+        muteBtn.id = 'mig-mute-btn';
+        muteBtn.style.cssText = 'background:rgba(255,255,255,.2);border:none;color:#fff;' +
+            'width:28px;height:28px;border-radius:50%;cursor:pointer;' +
+            'display:flex;align-items:center;justify-content:center;font-size:.8rem;margin-right:4px';
+        muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        muteBtn.title = 'Mute/Unmute Miglatron';
+        muteBtn.onclick = function() {
+            MIG_VOICE_ENABLED = !MIG_VOICE_ENABLED;
+            this.innerHTML = MIG_VOICE_ENABLED
+                ? '<i class="fas fa-volume-up"></i>'
+                : '<i class="fas fa-volume-mute"></i>';
+            if (!MIG_VOICE_ENABLED && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            hubToast ? hubToast('info', MIG_VOICE_ENABLED ? '🔊 Voice ON' : '🔇 Voice OFF')
+                     : toast('info', MIG_VOICE_ENABLED ? '🔊 Voice ON' : '🔇 Voice OFF');
+        };
+        // Insert before close button
+        var closeBtn = header.querySelector('.mig-chat-close');
+        if (closeBtn) header.insertBefore(muteBtn, closeBtn);
+    }
+}, 3000);
+
+// Load voices (some browsers load them async)
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = function() {
+        // Voices loaded — ready to speak
+        console.log('🎤 Miglatron voice ready — ' + window.speechSynthesis.getVoices().length + ' voices available');
+    };
+    // Trigger voice loading
+    window.speechSynthesis.getVoices();
+}
+
+console.log('🔊 Miglatron Voice Engine loaded');
 
 function hideMigSpeech() {
     var speech = document.getElementById('mig-speech');
