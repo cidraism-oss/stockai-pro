@@ -678,11 +678,18 @@ function confirmAddItem(item,notes,subSelections){
     var tab=POS.menuTabs.find(function(t){return t.id===item.tabId;});
     var section=item.sectionId||( tab?tab.sectionId:null);
 
-    var orderItem={
-        id:'OI-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
-        menuItemId:item.id,name:item.name,price:price,
-        notes:notes||'',subSelections:subSelections||[],
-        section:section,
+    // Determine if item goes to bar or kitchen
+var itemSection=section;
+var tab2=POS.menuTabs.find(function(t){return t.id===item.tabId;});
+if(tab2&&(tab2.name.toLowerCase().includes('bar')||tab2.name.toLowerCase().includes('drink')||tab2.name.toLowerCase().includes('beverage'))){
+    itemSection='bar';
+}
+
+var orderItem={
+    id:'OI-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+    menuItemId:item.id,name:item.name,price:price,
+    notes:notes||'',subSelections:subSelections||[],
+    section:itemSection,
         status:'ordered',orderedAt:new Date().toISOString(),
         voidReason:null,voidBy:null,transferTo:null
     };
@@ -795,15 +802,24 @@ function sendToKitchen(){
     var newItems=POS.currentOrder.filter(function(i){return i.status==='ordered'&&!i.voided;});
     if(newItems.length===0){posToast('info','No new items to send');return;}
 
+    var kitchenItems=newItems.filter(function(i){return i.section!=='bar';});
+    var barItems=newItems.filter(function(i){return i.section==='bar';});
+
     newItems.forEach(function(i){i.status='sent';i.sentAt=new Date().toISOString();});
 
     var update={};update['posOrders.'+POS.entityId]=POS.orders;
     posSave(update).then(function(){
-        posToast('success','✅ '+newItems.length+' item(s) sent to kitchen!');
+        var msg='';
+        if(kitchenItems.length>0)msg+=kitchenItems.length+' item(s) sent to Kitchen';
+        if(barItems.length>0)msg+=(msg?' + ':'')+barItems.length+' item(s) sent to Bar';
+        posToast('success','✅ '+msg+'!');
+
+        if(barItems.length>0){
+            posToast('info','🍺 Bar order: '+barItems.map(function(i){return i.name;}).join(', '));
+        }
         renderBill();
     });
 }
-
 // ============================================================
 // VOID / TRANSFER
 // ============================================================
