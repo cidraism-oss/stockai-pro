@@ -254,6 +254,16 @@ input, textarea, select { user-select:text; -webkit-user-select:text; }
 .hub-header-time { font-size:.7rem; color:rgba(255,255,255,.7); text-align:right; }
 .hub-header-time strong { display:block; font-size:.82rem; color:#fff; }
 .hub-hbtn {
+<select id="hub-lang-selector" onchange="hubChangeLang(this.value)"
+    style="padding:5px 8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+    border-radius:var(--rs);color:#fff;font-family:inherit;font-size:.72rem;cursor:pointer">
+    <option value="en">🇬🇧 EN</option>
+    <option value="zu">🇿🇦 ZU</option>
+    <option value="pt">🇵🇹 PT</option>
+    <option value="zh">🇨🇳 ZH</option>
+    <option value="fr">🇫🇷 FR</option>
+    <option value="af">🇿🇦 AF</option>
+</select>
     width:36px; height:36px; background:rgba(255,255,255,.15); border:none;
     border-radius:var(--rs); color:#fff; font-size:.9rem; cursor:pointer;
     display:flex; align-items:center; justify-content:center; margin-left:6px;
@@ -1248,5 +1258,990 @@ function initMenuMasterApp() {}
 console.log('✅ Menu Master embedded');
 </script>
 
+<script>
+// ============================================================
+// EMBEDDED APP: FUNCTIONS AI
+// Complete Events & Functions Management System
+// ============================================================
+
+// Add FunctionsAI to ALL_APPS
+ALL_APPS.push({
+    id:'functions',
+    name:'FunctionsAI',
+    icon:'fa-glass-cheers',
+    color:'#ec4899',
+    desc:'Events & functions',
+    url:null,
+    embed:true
+});
+
+// Add to role defaults
+['Owner','General Manager','Manager','Operations Manager'].forEach(function(role){
+    if(ROLE_DEFAULTS[role] && ROLE_DEFAULTS[role].indexOf('functions')===-1){
+        ROLE_DEFAULTS[role].push('functions');
+    }
+});
+
+// Override openEmbeddedApp to handle functions
+var _funcOrigOpen = openEmbeddedApp;
+openEmbeddedApp = function(appId) {
+    if (appId === 'functions') {
+        var frame = document.getElementById('app-frame');
+        frame.classList.remove('hidden');
+        document.getElementById('hub-app').classList.add('hidden');
+        document.getElementById('admin-panel') && document.getElementById('admin-panel').classList.add('hidden');
+        frame.innerHTML = getFunctionsAppHTML();
+        initFunctionsApp();
+    } else {
+        _funcOrigOpen(appId);
+    }
+};
+
+// ============================================================
+// FUNCTIONS APP HTML SHELL
+// ============================================================
+function getFunctionsAppHTML() {
+    return '<div style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)">' +
+
+        // Header
+        '<header class="hub-header" style="background:linear-gradient(90deg,#be185d,#ec4899)">' +
+        '<button class="return-hub-btn" onclick="closeEmbeddedApp()">' +
+        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff">' +
+        '<i class="fas fa-glass-cheers" style="font-size:1.2rem"></i>' +
+        '<div><div style="font-size:.88rem;font-weight:700">FunctionsAI</div>' +
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' + (HUB.entityName || 'Entity') + '</div>' +
+        '</div></div>' +
+        '<button class="hub-hbtn" onclick="funcRefresh()" style="background:rgba(255,255,255,.15)">' +
+        '<i class="fas fa-sync-alt"></i></button>' +
+        '</header>' +
+
+        // Content
+        '<div id="func-content" style="flex:1;overflow-y:auto;padding:16px;' +
+        'padding-bottom:80px;-webkit-overflow-scrolling:touch"></div>' +
+
+        // Bottom Nav
+        '<nav style="height:var(--nav-h);background:var(--bg-card);border-top:1px solid var(--border);' +
+        'display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+        funcNavBtn('func-dash',    'fa-chart-pie',    'Dashboard',  true) +
+        funcNavBtn('func-create',  'fa-plus-circle',  'New Event',  false) +
+        funcNavBtn('func-list',    'fa-list',         'All Events', false) +
+        '</nav></div>';
+}
+
+function funcNavBtn(page, icon, label, active) {
+    return '<div data-fpage="' + page + '" onclick="funcNavigate(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;' +
+        'border-radius:var(--rs);cursor:pointer;min-width:56px;' +
+        'color:' + (active ? '#ec4899' : 'var(--text-light)') + ';' +
+        'background:' + (active ? 'rgba(236,72,153,.08)' : 'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:1.1rem"></i>' +
+        '<span style="font-size:.6rem;font-weight:600">' + label + '</span></div>';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initFunctionsApp() {
+    if (HUB.accountData) {
+        HUB.functionsData = (HUB.accountData.functions || {})[HUB.entityId] || [];
+    } else {
+        HUB.functionsData = [];
+    }
+    funcNavigate('func-dash');
+}
+
+function funcRefresh() {
+    if (!HUB.accountId) return;
+    hubToast('info', '🔄 Refreshing...');
+    db.collection('accounts').doc(HUB.accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                HUB.accountData = doc.data();
+                HUB.functionsData = (doc.data().functions || {})[HUB.entityId] || [];
+                funcNavigate('func-dash');
+                hubToast('success', '✅ Refreshed');
+            }
+        });
+}
+
+function funcNavigate(page) {
+    document.querySelectorAll('[data-fpage]').forEach(function(item) {
+        var isActive = item.dataset.fpage === page;
+        item.style.color = isActive ? '#ec4899' : 'var(--text-light)';
+        item.style.background = isActive ? 'rgba(236,72,153,.08)' : 'transparent';
+    });
+    var content = document.getElementById('func-content');
+    if (!content) return;
+    content.scrollTop = 0;
+
+    if      (page === 'func-dash')   content.innerHTML = funcDashboard();
+    else if (page === 'func-create') content.innerHTML = funcCreate();
+    else if (page === 'func-list')   content.innerHTML = funcList();
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+function funcFmt(n) {
+    n = n || 0;
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return n.toFixed(0);
+}
+
+function funcFmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function funcStat(label, value, color) {
+    return '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px 10px;' +
+        'box-shadow:var(--shadow);border-left:3px solid ' + color + ';text-align:center">' +
+        '<div style="font-size:.58rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:3px">' + label + '</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + value + '</div></div>';
+}
+
+function funcInput(label, id, type, placeholder, value) {
+    return '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">' + label + '</label>' +
+        '<input type="' + type + '" id="' + id + '" ' +
+        (placeholder ? 'placeholder="' + placeholder + '" ' : '') +
+        (value !== undefined ? 'value="' + value + '" ' : '') +
+        'style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.85rem"></div>';
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function funcDashboard() {
+    var funcs = HUB.functionsData || [];
+    var now = new Date();
+    var upcoming = funcs.filter(function(f) { return new Date(f.functionDate) >= now; });
+    var past = funcs.filter(function(f) { return new Date(f.functionDate) < now; });
+    var totalRev = funcs.reduce(function(s, f) { return s + (f.totalExVat || 0); }, 0);
+    var totalGuests = funcs.reduce(function(s, f) { return s + (parseInt(f.pax) || 0); }, 0);
+
+    var html = '';
+
+    // Stats
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">';
+    html += funcStat('Total Events', funcs.length, '#ec4899');
+    html += funcStat('Upcoming', upcoming.length, 'var(--success)');
+    html += funcStat('Past', past.length, 'var(--text-muted)');
+    html += funcStat('Revenue (excl.)', 'R' + funcFmt(totalRev), 'var(--gold)');
+    html += '</div>';
+
+    // Upcoming functions
+    if (upcoming.length > 0) {
+        upcoming.sort(function(a, b) { return new Date(a.functionDate) - new Date(b.functionDate); });
+        html += '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;' +
+            'letter-spacing:1px;margin:14px 0 8px">🎉 Upcoming Events</div>';
+
+        upcoming.forEach(function(f) {
+            var daysUntil = Math.ceil((new Date(f.functionDate) - now) / 86400000);
+            var urgentColor = daysUntil <= 3 ? 'var(--danger)' : daysUntil <= 7 ? 'var(--warning)' : '#ec4899';
+
+            html += '<div onclick="funcViewDetail(\'' + f.id + '\')" ' +
+                'style="background:var(--bg-card);border-radius:var(--r);padding:14px;margin-bottom:10px;' +
+                'box-shadow:var(--shadow);border-left:4px solid #ec4899;cursor:pointer;transition:.2s">' +
+                '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+                '<div><div style="font-size:.92rem;font-weight:700;color:var(--text)">' + f.functionName + '</div>' +
+                '<div style="font-size:.72rem;color:var(--text-light)">' + f.clientName +
+                (f.contactPerson ? ' • ' + f.contactPerson : '') + '</div></div>' +
+                '<span style="padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:700;' +
+                'background:rgba(236,72,153,.1);color:' + urgentColor + '">' +
+                daysUntil + ' day' + (daysUntil !== 1 ? 's' : '') + '</span></div>' +
+                '<div style="display:flex;gap:14px;font-size:.72rem;color:var(--text-light);flex-wrap:wrap">' +
+                '<span><i class="fas fa-calendar"></i> ' + funcFmtDate(f.functionDate) + '</span>' +
+                '<span><i class="fas fa-users"></i> ' + (f.pax || 0) + ' guests</span>' +
+                '<span><i class="fas fa-tag"></i> R' + funcFmt(f.totalExVat || 0) + ' excl.</span>' +
+                (f.theme ? '<span><i class="fas fa-paint-brush"></i> ' + f.theme + '</span>' : '') +
+                '</div></div>';
+        });
+    } else {
+        html += '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-glass-cheers" style="font-size:3rem;opacity:.3;display:block;margin-bottom:14px"></i>' +
+            '<h3 style="color:var(--text);margin-bottom:6px">No Upcoming Events</h3>' +
+            '<p>Create your first event to get started</p>' +
+            '<button onclick="funcNavigate(\'func-create\')" ' +
+            'style="margin-top:14px;padding:12px 24px;background:linear-gradient(135deg,#ec4899,#be185d);' +
+            'color:#fff;border:none;border-radius:var(--r);font-size:.88rem;font-weight:700;cursor:pointer;' +
+            'font-family:inherit"><i class="fas fa-plus"></i> Create Event</button></div>';
+    }
+
+    // Past events summary
+    if (past.length > 0) {
+        html += '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;' +
+            'letter-spacing:1px;margin:14px 0 8px">📁 Recent Past Events</div>';
+        past.slice(0, 3).forEach(function(f) {
+            html += '<div onclick="funcViewDetail(\'' + f.id + '\')" ' +
+                'style="background:var(--bg-card);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;' +
+                'box-shadow:var(--shadow);border-left:4px solid var(--text-muted);cursor:pointer;opacity:.7">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center">' +
+                '<div><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + f.functionName + '</div>' +
+                '<div style="font-size:.7rem;color:var(--text-light)">' + f.clientName + ' • ' + funcFmtDate(f.functionDate) + '</div></div>' +
+                '<span style="font-size:.82rem;font-weight:700;color:var(--text-muted)">R' + funcFmt(f.totalExVat || 0) + '</span></div></div>';
+        });
+    }
+
+    return html;
+}
+
+// ============================================================
+// CREATE NEW FUNCTION
+// ============================================================
+function funcCreate() {
+    var menuItems = HUB.accountData ? ((HUB.accountData.menuItems || {})[HUB.entityId] || []) : [];
+    var inv = HUB.accountData ? ((HUB.accountData.inventory || {})[HUB.entityId] || []) : [];
+    var beverages = inv.filter(function(i) {
+        var dept = (i.department || '').toLowerCase();
+        var cat = (i.category || '').toLowerCase();
+        return dept.includes('bev') || cat.includes('bev') || dept.includes('bar') || cat.includes('bar') ||
+               dept.includes('drink') || cat.includes('drink') || dept.includes('beverage') || cat.includes('beverage');
+    });
+
+    return '<div style="background:var(--bg-card);border-radius:var(--r);padding:16px;' +
+        'box-shadow:var(--shadow);margin-bottom:14px;border-left:4px solid #ec4899">' +
+        '<div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:16px">' +
+        '<i class="fas fa-plus-circle" style="color:#ec4899"></i> Create New Function / Event</div>' +
+
+        // ── CLIENT DETAILS ──
+        '<div style="font-size:.82rem;font-weight:700;color:#ec4899;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ec4899">' +
+        '<i class="fas fa-user"></i> Client Details</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">' +
+        funcInput('Client / Company Name *', 'fc-client', 'text', 'e.g. Smith Family / ABC Corp') +
+        funcInput('Contact Person *', 'fc-contact', 'text', 'e.g. John Smith') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        funcInput('Phone *', 'fc-phone', 'tel', '082 555 0000') +
+        funcInput('Email', 'fc-email', 'email', 'client@email.com') +
+        '</div>' +
+
+        // ── FUNCTION DETAILS ──
+        '<div style="font-size:.82rem;font-weight:700;color:#ec4899;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ec4899">' +
+        '<i class="fas fa-glass-cheers"></i> Function Details</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">' +
+        funcInput('Function Name *', 'fc-name', 'text', 'e.g. Smith Wedding Reception') +
+        funcInput('Function Date *', 'fc-date', 'date', '') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">' +
+        funcInput('Theme', 'fc-theme', 'text', 'e.g. Black & Gold, Garden Party') +
+        funcInput('Purpose', 'fc-purpose', 'text', 'e.g. Wedding, Birthday, Corporate') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px">' +
+        funcInput('Number of Guests *', 'fc-pax', 'number', '0') +
+        '</div>' +
+        '<div style="margin-bottom:14px">' +
+        '<label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Function Notes</label>' +
+        '<textarea id="fc-notes" rows="5" placeholder="Detailed notes about the function:&#10;• Special requirements&#10;• Dietary needs&#10;• Setup instructions&#10;• Timing&#10;• Any other important information..." ' +
+        'style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);' +
+        'background:var(--bg-dark);font-family:inherit;font-size:.85rem;resize:vertical;min-height:120px"></textarea>' +
+        '</div>' +
+
+        // ── MENU ITEMS ──
+        '<div style="font-size:.82rem;font-weight:700;color:#ec4899;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ec4899">' +
+        '<i class="fas fa-utensils"></i> Menu Items</div>' +
+        '<p style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
+        'Select from menu items created in the Web App. Prices pull automatically from the system.</p>' +
+        '<div id="fc-menu-lines"></div>' +
+        '<button onclick="funcAddMenuLine()" ' +
+        'style="width:100%;padding:10px;background:var(--bg);border:1px dashed #ec4899;border-radius:var(--rs);' +
+        'color:#ec4899;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:14px;transition:.2s">' +
+        '<i class="fas fa-plus"></i> Add Menu Item</button>' +
+
+        // ── BEVERAGES ──
+        '<div style="font-size:.82rem;font-weight:700;color:#ec4899;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ec4899">' +
+        '<i class="fas fa-wine-glass-alt"></i> Beverages</div>' +
+        '<p style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
+        'Select beverages from the Bar/Beverages department in your inventory.</p>' +
+        '<div id="fc-bev-lines"></div>' +
+        '<button onclick="funcAddBevLine()" ' +
+        'style="width:100%;padding:10px;background:var(--bg);border:1px dashed #ec4899;border-radius:var(--rs);' +
+        'color:#ec4899;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:14px;transition:.2s">' +
+        '<i class="fas fa-plus"></i> Add Beverage</button>' +
+
+        // ── TOTALS ──
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:14px;border:1px solid var(--border)">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>Menu Total:</span><strong id="fc-menu-total">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>Beverage Total:</span><strong id="fc-bev-total">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid);' +
+        'border-bottom:1px solid var(--border)">' +
+        '<span>Subtotal (excl. VAT):</span><strong id="fc-subtotal" style="color:var(--text)">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>VAT (15%):</span><strong id="fc-vat-amt">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:1.2rem;font-weight:900;color:#ec4899">' +
+        '<span>TOTAL (incl. VAT):</span><strong id="fc-total">R 0.00</strong></div>' +
+        '</div>' +
+
+        // ── SUBMIT ──
+        '<button onclick="funcSubmit()" ' +
+        'style="width:100%;padding:16px;background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;' +
+        'border:none;border-radius:var(--r);font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;gap:10px;transition:.3s">' +
+        '<i class="fas fa-check-circle"></i> Create Function & Generate Invoice</button>' +
+        '</div>';
+}
+
+// ============================================================
+// ADD MENU ITEM LINE
+// ============================================================
+function funcAddMenuLine() {
+    var menuItems = HUB.accountData ? ((HUB.accountData.menuItems || {})[HUB.entityId] || []) : [];
+    var opts = '<option value="">— Select menu item —</option>' +
+        menuItems.map(function(m) {
+            return '<option value="' + m.id + '" ' +
+                'data-name="' + m.name + '" ' +
+                'data-price="' + (m.setPrice || 0) + '" ' +
+                'data-cost="' + (m.costPerPortion || 0) + '">' +
+                m.name + ' (R' + (m.setPrice || 0).toFixed(2) + '/portion)' +
+                '</option>';
+        }).join('') +
+        '<option value="custom">✏️ Custom item...</option>';
+
+    var row = document.createElement('div');
+    row.className = 'fc-menu-row';
+    row.style.cssText = 'margin-bottom:8px;background:var(--bg);border-radius:var(--rs);padding:10px;border:1px solid var(--border)';
+    row.innerHTML =
+        '<div style="margin-bottom:6px">' +
+        '<select class="fc-menu-sel" onchange="funcMenuSel(this)" ' +
+        'style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem">' + opts + '</select></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center">' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Description</label>' +
+        '<input type="text" class="fc-menu-desc" placeholder="Menu item description" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem"></div>' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Qty / Portions</label>' +
+        '<input type="number" class="fc-menu-qty" value="1" min="1" step="1" oninput="funcCalcTotals()" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);text-align:center;font-family:inherit"></div>' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Price (excl.)</label>' +
+        '<input type="number" class="fc-menu-price" placeholder="0.00" step="0.01" oninput="funcCalcTotals()" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);text-align:right;font-family:inherit"></div>' +
+        '<button onclick="this.closest(\'.fc-menu-row\').remove();funcCalcTotals()" ' +
+        'style="width:30px;height:30px;border-radius:50%;background:rgba(201,69,69,.15);border:none;' +
+        'color:var(--danger);cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        '<i class="fas fa-times" style="font-size:.8rem"></i></button></div>' +
+        '<div class="fc-menu-lt" style="text-align:right;font-size:.78rem;font-weight:700;color:#ec4899;margin-top:4px">R 0.00</div>';
+
+    document.getElementById('fc-menu-lines').appendChild(row);
+}
+
+function funcMenuSel(sel) {
+    var row = sel.closest('.fc-menu-row');
+    var desc = row.querySelector('.fc-menu-desc');
+    var price = row.querySelector('.fc-menu-price');
+
+    if (sel.value === 'custom') {
+        desc.value = '';
+        desc.focus();
+    } else if (sel.selectedIndex > 0) {
+        var opt = sel.options[sel.selectedIndex];
+        desc.value = opt.dataset.name || '';
+        price.value = opt.dataset.price || '';
+        funcCalcTotals();
+    }
+}
+
+// ============================================================
+// ADD BEVERAGE LINE
+// ============================================================
+function funcAddBevLine() {
+    var inv = HUB.accountData ? ((HUB.accountData.inventory || {})[HUB.entityId] || []) : [];
+    var beverages = inv.filter(function(i) {
+        var dept = (i.department || '').toLowerCase();
+        var cat = (i.category || '').toLowerCase();
+        return dept.includes('bev') || cat.includes('bev') || dept.includes('bar') ||
+               cat.includes('bar') || dept.includes('drink') || dept.includes('beverage');
+    });
+
+    var opts = '<option value="">— Select beverage —</option>' +
+        beverages.map(function(b) {
+            return '<option value="' + b.id + '" ' +
+                'data-name="' + b.name + '" ' +
+                'data-price="' + (b.cost || 0) + '">' +
+                b.name + ' (R' + (b.cost || 0).toFixed(2) + '/' + b.unit + ')' +
+                '</option>';
+        }).join('') +
+        '<option value="custom">✏️ Custom item...</option>';
+
+    var row = document.createElement('div');
+    row.className = 'fc-bev-row';
+    row.style.cssText = 'margin-bottom:8px;background:var(--bg);border-radius:var(--rs);padding:10px;border:1px solid var(--border)';
+    row.innerHTML =
+        '<div style="margin-bottom:6px">' +
+        '<select class="fc-bev-sel" onchange="funcBevSel(this)" ' +
+        'style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem">' + opts + '</select></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center">' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Description</label>' +
+        '<input type="text" class="fc-bev-desc" placeholder="Beverage description" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem"></div>' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Quantity</label>' +
+        '<input type="number" class="fc-bev-qty" value="1" min="1" step="1" oninput="funcCalcTotals()" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);text-align:center;font-family:inherit"></div>' +
+        '<div><label style="font-size:.65rem;color:var(--text-muted);display:block;margin-bottom:2px">Price (excl.)</label>' +
+        '<input type="number" class="fc-bev-price" placeholder="0.00" step="0.01" oninput="funcCalcTotals()" ' +
+        'style="width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text);background:var(--bg-dark);text-align:right;font-family:inherit"></div>' +
+        '<button onclick="this.closest(\'.fc-bev-row\').remove();funcCalcTotals()" ' +
+        'style="width:30px;height:30px;border-radius:50%;background:rgba(201,69,69,.15);border:none;' +
+        'color:var(--danger);cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        '<i class="fas fa-times" style="font-size:.8rem"></i></button></div>' +
+        '<div class="fc-bev-lt" style="text-align:right;font-size:.78rem;font-weight:700;color:#ec4899;margin-top:4px">R 0.00</div>';
+
+    document.getElementById('fc-bev-lines').appendChild(row);
+}
+
+function funcBevSel(sel) {
+    var row = sel.closest('.fc-bev-row');
+    var desc = row.querySelector('.fc-bev-desc');
+    var price = row.querySelector('.fc-bev-price');
+
+    if (sel.value === 'custom') {
+        desc.value = '';
+        desc.focus();
+    } else if (sel.selectedIndex > 0) {
+        var opt = sel.options[sel.selectedIndex];
+        desc.value = opt.dataset.name || '';
+        price.value = opt.dataset.price || '';
+        funcCalcTotals();
+    }
+}
+
+// ============================================================
+// CALCULATE TOTALS
+// ============================================================
+function funcCalcTotals() {
+    var menuTotal = 0;
+    document.querySelectorAll('.fc-menu-row').forEach(function(row) {
+        var qty   = parseFloat(row.querySelector('.fc-menu-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.fc-menu-price').value) || 0;
+        var lt = qty * price;
+        var ltEl = row.querySelector('.fc-menu-lt');
+        if (ltEl) ltEl.textContent = 'R ' + lt.toFixed(2);
+        menuTotal += lt;
+    });
+
+    var bevTotal = 0;
+    document.querySelectorAll('.fc-bev-row').forEach(function(row) {
+        var qty   = parseFloat(row.querySelector('.fc-bev-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.fc-bev-price').value) || 0;
+        var lt = qty * price;
+        var ltEl = row.querySelector('.fc-bev-lt');
+        if (ltEl) ltEl.textContent = 'R ' + lt.toFixed(2);
+        bevTotal += lt;
+    });
+
+    var subtotal = menuTotal + bevTotal;
+    var vat = parseFloat((subtotal * 0.15).toFixed(2));
+    var total = parseFloat((subtotal + vat).toFixed(2));
+
+    var el;
+    el = document.getElementById('fc-menu-total'); if (el) el.textContent = 'R ' + menuTotal.toFixed(2);
+    el = document.getElementById('fc-bev-total');  if (el) el.textContent = 'R ' + bevTotal.toFixed(2);
+    el = document.getElementById('fc-subtotal');   if (el) el.textContent = 'R ' + subtotal.toFixed(2);
+    el = document.getElementById('fc-vat-amt');    if (el) el.textContent = 'R ' + vat.toFixed(2);
+    el = document.getElementById('fc-total');      if (el) el.textContent = 'R ' + total.toFixed(2);
+}
+
+// ============================================================
+// SUBMIT FUNCTION
+// ============================================================
+function funcSubmit() {
+    // Validate
+    var clientName  = (document.getElementById('fc-client').value  || '').trim();
+    var contact     = (document.getElementById('fc-contact').value || '').trim();
+    var phone       = (document.getElementById('fc-phone').value   || '').trim();
+    var funcName    = (document.getElementById('fc-name').value    || '').trim();
+    var funcDate    = document.getElementById('fc-date').value;
+    var pax         = parseInt(document.getElementById('fc-pax').value) || 0;
+
+    if (!clientName) { hubToast('error', 'Enter client/company name'); return; }
+    if (!contact)    { hubToast('error', 'Enter contact person');       return; }
+    if (!phone)      { hubToast('error', 'Enter phone number');         return; }
+    if (!funcName)   { hubToast('error', 'Enter function name');        return; }
+    if (!funcDate)   { hubToast('error', 'Select function date');       return; }
+    if (pax <= 0)    { hubToast('error', 'Enter number of guests');     return; }
+
+    // Collect menu items
+    var menuItems = [];
+    document.querySelectorAll('.fc-menu-row').forEach(function(row) {
+        var sel   = row.querySelector('.fc-menu-sel');
+        var desc  = (row.querySelector('.fc-menu-desc').value  || '').trim();
+        var qty   = parseFloat(row.querySelector('.fc-menu-qty').value)   || 0;
+        var price = parseFloat(row.querySelector('.fc-menu-price').value) || 0;
+        if (desc && qty > 0 && price >= 0) {
+            var menuItemId = sel ? sel.value : '';
+            var cost = 0;
+            if (sel && sel.selectedIndex > 0) {
+                cost = parseFloat(sel.options[sel.selectedIndex].dataset.cost || 0);
+            }
+            menuItems.push({
+                menuItemId: menuItemId,
+                name:  desc,
+                qty:   qty,
+                price: price,
+                cost:  cost,
+                total: parseFloat((qty * price).toFixed(2))
+            });
+        }
+    });
+
+    // Collect beverages
+    var beverages = [];
+    document.querySelectorAll('.fc-bev-row').forEach(function(row) {
+        var desc  = (row.querySelector('.fc-bev-desc').value  || '').trim();
+        var qty   = parseFloat(row.querySelector('.fc-bev-qty').value)   || 0;
+        var price = parseFloat(row.querySelector('.fc-bev-price').value) || 0;
+        if (desc && qty > 0) {
+            beverages.push({
+                name:  desc,
+                qty:   qty,
+                price: price,
+                total: parseFloat((qty * price).toFixed(2))
+            });
+        }
+    });
+
+    if (menuItems.length === 0 && beverages.length === 0) {
+        hubToast('error', 'Add at least one menu item or beverage');
+        return;
+    }
+
+    // Calculate totals
+    var menuTotal = menuItems.reduce(function(s, i) { return s + i.total; }, 0);
+    var bevTotal  = beverages.reduce(function(s, i) { return s + i.total; }, 0);
+    var subtotal  = menuTotal + bevTotal;
+    var vat       = parseFloat((subtotal * 0.15).toFixed(2));
+    var totalIncl = parseFloat((subtotal + vat).toFixed(2));
+
+    var funcId = 'FUNC-' + Date.now();
+    var invNum = 'FI-' + new Date().getFullYear() +
+        (new Date().getMonth() + 1 < 10 ? '0' : '') +
+        (new Date().getMonth() + 1) + '-' +
+        Math.floor(Math.random() * 10000);
+
+    var functionData = {
+        id:             funcId,
+        invoiceNumber:  invNum,
+        clientName:     clientName,
+        contactPerson:  contact,
+        phone:          phone,
+        email:          (document.getElementById('fc-email').value || '').trim(),
+        functionName:   funcName,
+        functionDate:   funcDate,
+        theme:          (document.getElementById('fc-theme').value   || '').trim(),
+        purpose:        (document.getElementById('fc-purpose').value || '').trim(),
+        pax:            pax,
+        notes:          (document.getElementById('fc-notes').value   || '').trim(),
+        menuItems:      menuItems,
+        beverages:      beverages,
+        menuTotal:      parseFloat(menuTotal.toFixed(2)),
+        bevTotal:       parseFloat(bevTotal.toFixed(2)),
+        totalExVat:     parseFloat(subtotal.toFixed(2)),
+        vat:            vat,
+        totalIncl:      totalIncl,
+        status:         'confirmed',
+        createdAt:      new Date().toISOString(),
+        createdBy:      HUB.user ? HUB.user.name : 'Unknown',
+        entityId:       HUB.entityId,
+        entityName:     HUB.entityName
+    };
+
+    // Build invoice line items
+    var invoiceItems = menuItems.map(function(m) {
+        return { description: m.name, quantity: m.qty, unitPrice: m.price, total: m.total };
+    }).concat(beverages.map(function(b) {
+        return { description: b.name, quantity: b.qty, unitPrice: b.price, total: b.total };
+    }));
+
+    var clientInvoice = {
+        id:             'CINV-FUNC-' + Date.now(),
+        invoiceNumber:  invNum,
+        invoiceDate:    new Date().toISOString().split('T')[0],
+        clientName:     clientName,
+        clientCompany:  clientName,
+        contactPerson:  contact,
+        clientEmail:    (document.getElementById('fc-email').value || '').trim(),
+        clientPhone:    phone,
+        items:          invoiceItems,
+        subtotal:       subtotal,
+        vat:            vat,
+        totalIncl:      totalIncl,
+        notes:          'Function: ' + funcName + ' | Date: ' + funcDate + ' | Guests: ' + pax,
+        status:         'unpaid',
+        createdAt:      new Date().toISOString(),
+        createdBy:      HUB.user ? HUB.user.name : 'Unknown',
+        functionId:     funcId
+    };
+
+    hubToast('info', '🔄 Creating function & invoice...');
+
+    // Save to Firestore
+    if (!Array.isArray(HUB.functionsData)) HUB.functionsData = [];
+    HUB.functionsData.unshift(functionData);
+
+    var existingInvoices = (HUB.accountData.clientInvoices || {})[HUB.entityId] || [];
+    existingInvoices.unshift(clientInvoice);
+
+    var update = {};
+    update['functions.' + HUB.entityId]      = HUB.functionsData;
+    update['clientInvoices.' + HUB.entityId] = existingInvoices;
+    update.lastUpdated    = firebase.firestore.FieldValue.serverTimestamp();
+    update.lastUpdatedBy  = HUB.user ? HUB.user.name : 'FunctionsAI';
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge: true })
+        .then(function() {
+            if (HUB.accountData) {
+                if (!HUB.accountData.functions) HUB.accountData.functions = {};
+                HUB.accountData.functions[HUB.entityId] = HUB.functionsData;
+                if (!HUB.accountData.clientInvoices) HUB.accountData.clientInvoices = {};
+                HUB.accountData.clientInvoices[HUB.entityId] = existingInvoices;
+            }
+            hubToast('success', '✅ "' + funcName + '" created! Invoice ' + invNum + ' generated in Web App.');
+            funcNavigate('func-list');
+        })
+        .catch(function(err) {
+            hubToast('error', 'Error: ' + err.message);
+        });
+}
+
+// ============================================================
+// ALL FUNCTIONS LIST
+// ============================================================
+function funcList() {
+    var funcs = HUB.functionsData || [];
+
+    if (funcs.length === 0) {
+        return '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-glass-cheers" style="font-size:3rem;opacity:.3;display:block;margin-bottom:14px"></i>' +
+            '<h3 style="color:var(--text);margin-bottom:6px">No Functions Yet</h3>' +
+            '<p>Create your first event to get started</p>' +
+            '<button onclick="funcNavigate(\'func-create\')" ' +
+            'style="margin-top:14px;padding:12px 24px;background:linear-gradient(135deg,#ec4899,#be185d);' +
+            'color:#fff;border:none;border-radius:var(--r);font-size:.88rem;font-weight:700;cursor:pointer;' +
+            'font-family:inherit"><i class="fas fa-plus"></i> Create Event</button></div>';
+    }
+
+    // Sort: upcoming first, then by date
+    var sorted = funcs.slice().sort(function(a, b) {
+        return new Date(b.functionDate) - new Date(a.functionDate);
+    });
+
+    var html = '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;' +
+        'letter-spacing:1px;margin-bottom:12px">All Functions (' + funcs.length + ')</div>';
+
+    sorted.forEach(function(f) {
+        var isPast = new Date(f.functionDate) < new Date();
+        html += '<div onclick="funcViewDetail(\'' + f.id + '\')" ' +
+            'style="background:var(--bg-card);border-radius:var(--r);padding:14px;margin-bottom:10px;' +
+            'box-shadow:var(--shadow);border-left:4px solid ' + (isPast ? 'var(--text-muted)' : '#ec4899') + ';' +
+            'cursor:pointer;opacity:' + (isPast ? '.75' : '1') + '">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:.92rem;font-weight:700;color:var(--text)">' + f.functionName + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light)">' + f.clientName +
+            (f.contactPerson ? ' • ' + f.contactPerson : '') + '</div></div>' +
+            '<span style="padding:3px 10px;border-radius:12px;font-size:.62rem;font-weight:600;flex-shrink:0;' +
+            'background:' + (isPast ? 'rgba(74,138,154,.1)' : 'rgba(236,72,153,.1)') + ';' +
+            'color:' + (isPast ? 'var(--text-muted)' : '#ec4899') + '">' +
+            (isPast ? 'Past' : 'Upcoming') + '</span></div>' +
+            '<div style="display:flex;gap:12px;font-size:.72rem;color:var(--text-light);flex-wrap:wrap">' +
+            '<span><i class="fas fa-calendar"></i> ' + funcFmtDate(f.functionDate) + '</span>' +
+            '<span><i class="fas fa-users"></i> ' + (f.pax || 0) + ' guests</span>' +
+            '<span><i class="fas fa-tag"></i> R' + funcFmt(f.totalExVat || 0) + ' excl. VAT</span>' +
+            '<span><i class="fas fa-file-invoice"></i> ' + f.invoiceNumber + '</span>' +
+            (f.theme ? '<span><i class="fas fa-paint-brush"></i> ' + f.theme + '</span>' : '') +
+            '</div></div>';
+    });
+
+    return html;
+}
+
+// ============================================================
+// VIEW FUNCTION DETAIL
+// ============================================================
+function funcViewDetail(funcId) {
+    var f = (HUB.functionsData || []).find(function(fn) { return fn.id === funcId; });
+    if (!f) return;
+
+    var userName = HUB.user ? HUB.user.name : 'Staff';
+    var content = document.getElementById('func-content');
+
+    // Menu rows
+    var menuRows = (f.menuItems || []).map(function(m) {
+        return '<tr>' +
+            '<td>' + m.name + '</td>' +
+            '<td style="text-align:center">' + m.qty + '</td>' +
+            '<td style="text-align:right">R' + (m.price || 0).toFixed(2) + '</td>' +
+            '<td style="text-align:right;font-weight:600">R' + (m.total || 0).toFixed(2) + '</td></tr>';
+    }).join('');
+
+    var bevRows = (f.beverages || []).map(function(b) {
+        return '<tr>' +
+            '<td>' + b.name + '</td>' +
+            '<td style="text-align:center">' + b.qty + '</td>' +
+            '<td style="text-align:right">R' + (b.price || 0).toFixed(2) + '</td>' +
+            '<td style="text-align:right;font-weight:600">R' + (b.total || 0).toFixed(2) + '</td></tr>';
+    }).join('');
+
+    var tableStyle = 'width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:14px';
+    var thStyle = 'padding:8px;text-align:left;background:rgba(236,72,153,.1);color:#ec4899;font-size:.7rem;text-transform:uppercase;border-bottom:2px solid #ec4899';
+    var tdStyle = 'padding:8px;border-bottom:1px solid var(--border)';
+
+    content.innerHTML =
+        // Back button
+        '<button onclick="funcNavigate(\'func-list\')" ' +
+        'style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg-card);' +
+        'border:1px solid var(--border);border-radius:var(--rs);color:var(--text-light);font-size:.82rem;' +
+        'font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px">' +
+        '<i class="fas fa-arrow-left"></i> Back to All Events</button>' +
+
+        // Function header card
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);' +
+        'margin-bottom:14px;border-top:4px solid #ec4899">' +
+
+        // Title
+        '<div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">' +
+        '<div style="font-size:1.2rem;font-weight:900;color:var(--text);margin-bottom:4px">' + f.functionName + '</div>' +
+        '<div style="font-size:.78rem;color:var(--text-light)">Invoice: ' + f.invoiceNumber + ' | Created: ' + funcFmtDate(f.createdAt) + '</div></div>' +
+
+        // Client + Function info grid
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        funcDetailCard('Client', f.clientName) +
+        funcDetailCard('Contact', f.contactPerson || '—') +
+        funcDetailCard('Phone', f.phone || '—') +
+        funcDetailCard('Email', f.email || '—') +
+        funcDetailCard('Function Date', funcFmtDate(f.functionDate)) +
+        funcDetailCard('Number of Guests', (f.pax || 0) + ' guests') +
+        (f.theme ? funcDetailCard('Theme', f.theme) : '') +
+        (f.purpose ? funcDetailCard('Purpose', f.purpose) : '') +
+        '</div>' +
+
+        // Notes
+        (f.notes ? '<div style="padding:12px;background:rgba(236,72,153,.05);border-radius:var(--rs);' +
+        'margin-bottom:14px;font-size:.82rem;color:var(--text-mid);border-left:3px solid #ec4899;' +
+        'white-space:pre-wrap"><strong style="display:block;margin-bottom:4px">Notes:</strong>' + f.notes + '</div>' : '') +
+
+        // Menu items table
+        (menuRows ?
+            '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px">' +
+            '<i class="fas fa-utensils" style="color:#ec4899"></i> Menu Items</div>' +
+            '<div style="overflow-x:auto"><table style="' + tableStyle + '">' +
+            '<thead><tr><th style="' + thStyle + '">Item</th><th style="' + thStyle + ';text-align:center">Qty</th>' +
+            '<th style="' + thStyle + ';text-align:right">Price (excl.)</th><th style="' + thStyle + ';text-align:right">Total</th></tr></thead>' +
+            '<tbody>' + menuRows + '</tbody></table></div>' : '') +
+
+        // Beverages table
+        (bevRows ?
+            '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px">' +
+            '<i class="fas fa-wine-glass-alt" style="color:#ec4899"></i> Beverages</div>' +
+            '<div style="overflow-x:auto"><table style="' + tableStyle + '">' +
+            '<thead><tr><th style="' + thStyle + '">Item</th><th style="' + thStyle + ';text-align:center">Qty</th>' +
+            '<th style="' + thStyle + ';text-align:right">Price (excl.)</th><th style="' + thStyle + ';text-align:right">Total</th></tr></thead>' +
+            '<tbody>' + bevRows + '</tbody></table></div>' : '') +
+
+        // Totals
+        '<div style="background:rgba(236,72,153,.05);border-radius:var(--rs);padding:14px;border:1px solid rgba(236,72,153,.2)">' +
+        '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>Menu Total:</span><strong>R' + (f.menuTotal || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>Beverage Total:</span><strong>R' + (f.bevTotal || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.85rem;color:var(--text-mid);border-top:1px solid var(--border);margin-top:4px;padding-top:10px">' +
+        '<span>Subtotal (excl. VAT):</span><strong>R' + (f.totalExVat || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.85rem;color:var(--text-mid)">' +
+        '<span>VAT (15%):</span><strong>R' + (f.vat || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:1.2rem;font-weight:900;color:#ec4899;border-top:2px solid #ec4899;margin-top:6px">' +
+        '<span>TOTAL (incl. VAT):</span><strong>R' + (f.totalIncl || 0).toFixed(2) + '</strong></div></div>' +
+
+        // ── SIGNATURE LINES ──
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px;padding-top:16px;border-top:1px solid var(--border)">' +
+        '<div style="text-align:center">' +
+        '<div style="border-bottom:2px solid var(--border);margin-bottom:10px;height:50px"></div>' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text)">' + f.clientName + '</div>' +
+        '<div style="font-size:.68rem;color:var(--text-muted)">Client Signature</div></div>' +
+        '<div style="text-align:center">' +
+        '<div style="border-bottom:2px solid var(--border);margin-bottom:10px;height:50px"></div>' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text)">' + userName + '</div>' +
+        '<div style="font-size:.68rem;color:var(--text-muted)">Authorised By</div></div></div>' +
+        '</div>' +
+
+        // ── ACTION BUTTONS ──
+        '<div style="display:flex;gap:10px;margin-top:14px">' +
+        '<button onclick="funcPrint(\'' + f.id + '\')" ' +
+        'style="flex:1;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text-mid);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-print"></i> Print Sheet</button>' +
+        '<button onclick="funcEmail(\'' + f.id + '\')" ' +
+        'style="flex:1;padding:12px;background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;border:none;' +
+        'border-radius:var(--rs);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-envelope"></i> Email to Client</button>' +
+        '</div>';
+}
+
+function funcDetailCard(label, value) {
+    return '<div style="padding:10px;background:var(--bg);border-radius:var(--rs)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:3px">' + label + '</div>' +
+        '<div style="font-size:.85rem;font-weight:600;color:var(--text)">' + value + '</div></div>';
+}
+
+// ============================================================
+// PRINT & EMAIL
+// ============================================================
+function funcPrint(funcId) {
+    var f = (HUB.functionsData || []).find(function(fn) { return fn.id === funcId; });
+    if (!f) return;
+
+    var userName = HUB.user ? HUB.user.name : 'Staff';
+    var entityName = HUB.entityName || 'StockAI-Pro';
+
+    var menuRows = (f.menuItems || []).map(function(m) {
+        return '<tr><td>' + m.name + '</td><td align="center">' + m.qty + '</td>' +
+            '<td align="right">R' + (m.price || 0).toFixed(2) + '</td>' +
+            '<td align="right">R' + (m.total || 0).toFixed(2) + '</td></tr>';
+    }).join('');
+
+    var bevRows = (f.beverages || []).map(function(b) {
+        return '<tr><td>' + b.name + '</td><td align="center">' + b.qty + '</td>' +
+            '<td align="right">R' + (b.price || 0).toFixed(2) + '</td>' +
+            '<td align="right">R' + (b.total || 0).toFixed(2) + '</td></tr>';
+    }).join('');
+
+    var html = '<!DOCTYPE html><html><head><title>Function Sheet — ' + f.functionName + '</title>' +
+        '<style>' +
+        'body{font-family:Arial,sans-serif;padding:30px;color:#0d4a5c;font-size:13px}' +
+        'h1{color:#be185d;font-size:22px;margin:0}' +
+        '.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #ec4899;padding-bottom:14px;margin-bottom:20px}' +
+        '.brand{font-size:18px;font-weight:bold;color:#1a8ba8}' +
+        '.inv-num{background:#ec4899;color:#fff;padding:6px 14px;border-radius:6px;font-weight:bold}' +
+        '.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0;background:#f9f0f5;padding:14px;border-radius:8px}' +
+        '.info-cell label{font-size:10px;color:#be185d;text-transform:uppercase;font-weight:bold;display:block;margin-bottom:2px}' +
+        '.info-cell strong{font-size:13px;color:#0d4a5c}' +
+        '.notes{background:#fff5f9;border-left:3px solid #ec4899;padding:12px;margin:14px 0;font-size:12px;border-radius:4px;white-space:pre-wrap}' +
+        'table{width:100%;border-collapse:collapse;margin:8px 0 16px}' +
+        'th{background:#ec4899;color:#fff;padding:9px;text-align:left;font-size:11px;text-transform:uppercase}' +
+        'td{padding:9px;border-bottom:1px solid #f0d0e0;font-size:12px}' +
+        'tr:nth-child(even){background:#fef9fb}' +
+        '.section-title{font-size:14px;font-weight:bold;color:#be185d;margin:16px 0 6px;border-bottom:2px solid #ec4899;padding-bottom:4px}' +
+        '.totals{background:#fff5f9;border:1px solid #f0d0e0;border-radius:8px;padding:14px;margin-top:14px}' +
+        '.total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#5a4050}' +
+        '.total-row.main{font-size:16px;font-weight:900;color:#be185d;border-top:2px solid #ec4899;margin-top:8px;padding-top:10px}' +
+        '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-top:50px}' +
+        '.sig-box{text-align:center}.sig-line{border-bottom:2px solid #ccc;margin-bottom:8px;height:50px}' +
+        '.sig-name{font-size:12px;font-weight:bold;color:#0d4a5c}.sig-label{font-size:10px;color:#8aabb5}' +
+        '@media print{body{padding:20px}}' +
+        '</style></head><body>' +
+
+        '<div class="header">' +
+        '<div><div class="brand">' + entityName + '</div>' +
+        '<div style="font-size:11px;color:#5a8a96;margin-top:4px">Function & Event Sheet</div></div>' +
+        '<div class="inv-num">' + f.invoiceNumber + '</div></div>' +
+
+        '<h1>' + f.functionName + '</h1>' +
+        '<div style="color:#be185d;font-size:12px;margin-bottom:16px">' +
+        'Created: ' + funcFmtDate(f.createdAt) + ' | Created By: ' + f.createdBy + '</div>' +
+
+        '<div class="info-grid">' +
+        '<div class="info-cell"><label>Client / Company</label><strong>' + f.clientName + '</strong></div>' +
+        '<div class="info-cell"><label>Contact Person</label><strong>' + (f.contactPerson || '—') + '</strong></div>' +
+        '<div class="info-cell"><label>Phone</label><strong>' + (f.phone || '—') + '</strong></div>' +
+        '<div class="info-cell"><label>Email</label><strong>' + (f.email || '—') + '</strong></div>' +
+        '<div class="info-cell"><label>Function Date</label><strong>' + funcFmtDate(f.functionDate) + '</strong></div>' +
+        '<div class="info-cell"><label>Number of Guests</label><strong>' + (f.pax || 0) + '</strong></div>' +
+        (f.theme ? '<div class="info-cell"><label>Theme</label><strong>' + f.theme + '</strong></div>' : '') +
+        (f.purpose ? '<div class="info-cell"><label>Purpose</label><strong>' + f.purpose + '</strong></div>' : '') +
+        '</div>' +
+
+        (f.notes ? '<div class="notes"><strong>Notes:</strong>\n' + f.notes + '</div>' : '') +
+
+        (menuRows ? '<div class="section-title">Menu Items</div>' +
+        '<table><thead><tr><th>Item</th><th>Qty</th><th>Price (excl.)</th><th>Total</th></tr></thead>' +
+        '<tbody>' + menuRows + '</tbody></table>' : '') +
+
+        (bevRows ? '<div class="section-title">Beverages</div>' +
+        '<table><thead><tr><th>Item</th><th>Qty</th><th>Price (excl.)</th><th>Total</th></tr></thead>' +
+        '<tbody>' + bevRows + '</tbody></table>' : '') +
+
+        '<div class="totals">' +
+        '<div class="total-row"><span>Menu Total:</span><strong>R' + (f.menuTotal || 0).toFixed(2) + '</strong></div>' +
+        '<div class="total-row"><span>Beverage Total:</span><strong>R' + (f.bevTotal || 0).toFixed(2) + '</strong></div>' +
+        '<div class="total-row"><span>Subtotal (excl. VAT):</span><strong>R' + (f.totalExVat || 0).toFixed(2) + '</strong></div>' +
+        '<div class="total-row"><span>VAT (15%):</span><strong>R' + (f.vat || 0).toFixed(2) + '</strong></div>' +
+        '<div class="total-row main"><span>TOTAL (incl. VAT):</span><strong>R' + (f.totalIncl || 0).toFixed(2) + '</strong></div></div>' +
+
+        '<div class="signatures">' +
+        '<div class="sig-box"><div class="sig-line"></div><div class="sig-name">' + f.clientName + '</div><div class="sig-label">Client Signature</div></div>' +
+        '<div class="sig-box"><div class="sig-line"></div><div class="sig-name">' + userName + '</div><div class="sig-label">Authorised By</div></div>' +
+        '</div>' +
+
+        '<div style="margin-top:30px;font-size:10px;color:#8aabb5;text-align:center;border-top:1px solid #f0d0e0;padding-top:14px">' +
+        entityName + ' | Generated by StockAI-Pro FunctionsAI | ' + new Date().toLocaleString('en-ZA') +
+        '</div></body></html>';
+
+    var w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function() { w.print(); }, 600);
+    hubToast('success', '📄 Function sheet ready to print');
+}
+
+function funcEmail(funcId) {
+    var f = (HUB.functionsData || []).find(function(fn) { return fn.id === funcId; });
+    if (!f) { hubToast('error', 'Function not found'); return; }
+    if (!f.email) { hubToast('error', 'No client email address on this function'); return; }
+
+    hubToast('info', '📧 Sending to ' + f.email + '...');
+
+    try {
+        sendEmail(
+            f.email,
+            'Function Confirmation — ' + f.functionName + ' — ' + funcFmtDate(f.functionDate),
+            '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">' +
+            '<div style="background:linear-gradient(135deg,#be185d,#ec4899);padding:24px;border-radius:12px 12px 0 0;text-align:center;color:#fff">' +
+            '<h1 style="margin:0;font-size:1.4rem">' + f.functionName + '</h1>' +
+            '<p style="margin:6px 0 0;opacity:.9">' + (HUB.entityName || 'StockAI-Pro') + '</p></div>' +
+            '<div style="background:#fff;padding:24px;border:1px solid #f0d0e0;border-radius:0 0 12px 12px">' +
+            '<p>Dear <strong>' + f.contactPerson + '</strong>,</p>' +
+            '<p>Thank you for choosing us! Your function details are confirmed:</p>' +
+            '<table style="width:100%;border-collapse:collapse;margin:14px 0">' +
+            '<tr style="background:#fff5f9"><td style="padding:8px;color:#be185d;font-size:12px">Function</td><td style="padding:8px;font-weight:700">' + f.functionName + '</td></tr>' +
+            '<tr><td style="padding:8px;color:#be185d;font-size:12px">Date</td><td style="padding:8px;font-weight:700">' + funcFmtDate(f.functionDate) + '</td></tr>' +
+            '<tr style="background:#fff5f9"><td style="padding:8px;color:#be185d;font-size:12px">Guests</td><td style="padding:8px;font-weight:700">' + f.pax + '</td></tr>' +
+            '<tr><td style="padding:8px;color:#be185d;font-size:12px">Invoice</td><td style="padding:8px;font-weight:700">' + f.invoiceNumber + '</td></tr>' +
+            '<tr style="background:#fff5f9"><td style="padding:8px;color:#be185d;font-size:12px">Total</td><td style="padding:8px;font-weight:700;color:#be185d;font-size:1.1rem">R' + (f.totalIncl || 0).toFixed(2) + '</td></tr>' +
+            '</table>' +
+            (f.notes ? '<div style="background:#fff5f9;border-left:3px solid #ec4899;padding:12px;border-radius:4px;margin:14px 0;font-size:12px"><strong>Notes:</strong><br>' + f.notes + '</div>' : '') +
+            '<p style="color:#5a8a96;font-size:12px">Please contact us if you have any questions.</p>' +
+            '<p style="color:#5a8a96;font-size:11px;margin-top:20px;padding-top:14px;border-top:1px solid #f0d0e0">Generated by StockAI-Pro FunctionsAI</p>' +
+            '</div></div>'
+        );
+        hubToast('success', '✅ Function sheet emailed to ' + f.email);
+    } catch(e) {
+        hubToast('error', 'Email failed: ' + e.message);
+    }
+}
+
+console.log('✅ FunctionsAI — Fully loaded');
+console.log('🎉 Events & Functions Management System ready');
+function hubChangeLang(lang) {
+    localStorage.setItem('stockai_lang', lang);
+    hubToast('success', '✅ Language changed');
+}
+// Apply saved language
+setTimeout(function() {
+    var sel = document.getElementById('hub-lang-selector');
+    if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
+}, 300);
+</script>
 </body>
 </html>
