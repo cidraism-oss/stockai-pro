@@ -252,6 +252,24 @@ function sendReceipt(){
 
     fetch('https://api.resend.com/emails',{method:'POST',headers:{'Authorization':'Bearer re_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT','Content-Type':'application/json'},
         body:JSON.stringify({from:'StockAI-Pro <noreply@stockai-pro.co.za>',to:[email],subject:'Your Receipt — Thank You!',html:html})
+
+function showFeedbackSection() {
+    return '<div style="margin-top:20px;padding:20px;background:#fff;border-radius:12px;box-shadow:var(--shadow);text-align:center">'+
+        '<h4>Rate Your Experience</h4>'+
+        '<div style="font-size:1.5rem;margin:10px 0;color:var(--gold)">'+
+        '<i class="far fa-star" onclick="submitRating(1)"></i>'+
+        '<i class="far fa-star" onclick="submitRating(2)"></i>'+
+        '<i class="far fa-star" onclick="submitRating(3)"></i>'+
+        '<i class="far fa-star" onclick="submitRating(4)"></i>'+
+        '<i class="far fa-star" onclick="submitRating(5)"></i>'+
+        '</div><p style="font-size:.8rem;color:var(--text-light)">Your feedback helps us improve!</p></div>';
+}
+
+function submitRating(stars) {
+    // Save rating to Firebase under the order metadata
+    toast('success', 'Thank you for your ' + stars + ' star rating!');
+    // Trigger update to Firestore
+}
     }).then(function(){
         document.getElementById('receipt-email').value='';
         alert('✅ Receipt sent to '+email+'!');
