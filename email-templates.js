@@ -108,6 +108,18 @@ function emailButton(text, url, color) {
         text + '</a></div>';
 }
 
+function emailEventFeedbackRequest(data) {
+    // data = { clientName, eventName, clientEmail }
+    var html = emailHeader('How did we do?', 'We would love your feedback on ' + data.eventName) +
+        '<p>Hi ' + data.clientName + ',</p>' +
+        '<p>Thank you for hosting your event with us yesterday. We hope everything was perfect!</p>' +
+        '<p>Could you please take 30 seconds to rate your experience?</p>' +
+        emailButton('Rate My Event', 'https://www.stockai-pro.co.za/feedback?id=' + data.id, '#ec4899') +
+        emailFooter();
+        
+    return sendEmail(data.clientEmail, 'Feedback Request: ' + data.eventName, html);
+}
+
 // ============================================================
 // EMAIL 1 — WELCOME EMAIL
 // ============================================================
