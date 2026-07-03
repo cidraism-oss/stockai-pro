@@ -14,708 +14,299 @@
 <link rel="canonical" href="https://www.stockai-pro.co.za">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
 <style>
-/* ============================================================
-   STOCKAI-PRO 2.0 — MARKETING WEBSITE
-   ============================================================ */
-:root {
-    --teal-dark:#0d4a5c;
-    --teal-mid:#1a8ba8;
-    --teal-light:#4dbdd5;
-    --teal-pale:#a0e9f8;
-    --bg:#f0f7f9;
-    --bg-alt:#e4f1f5;
-    --white:#fff;
-    --text-dark:#0d4a5c;
-    --text-mid:#2a5f70;
-    --text-light:#5a8a96;
-    --gold:#f59e0b;
-    --gold-dark:#d97706;
-    --success:#2ea871;
-    --danger:#c94545;
-    --border:#c4dde4;
-    --shadow:0 4px 20px rgba(13,74,92,.08);
-    --shadow-lg:0 12px 50px rgba(13,74,92,.15);
+:root{
+--teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--teal-pale:#a0e9f8;
+--bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;
+--text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
+--gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;--border:#c4dde4;
+--shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15);
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { font-family:'Poppins',sans-serif; color:var(--text-dark); background:var(--bg); line-height:1.6; overflow-x:hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;color:var(--text-dark);background:var(--bg);line-height:1.6;overflow-x:hidden}
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s ease}
+.reveal.active{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-60px);transition:all .8s ease}
+.reveal-left.active{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(60px);transition:all .8s ease}
+.reveal-right.active{opacity:1;transform:translateX(0)}
+.reveal-scale{opacity:0;transform:scale(.8);transition:all .8s ease}
+.reveal-scale.active{opacity:1;transform:scale(1)}
 
-/* ── SCROLL ANIMATIONS ── */
-.reveal { opacity:0; transform:translateY(40px); transition:all .8s ease; }
-.reveal.active { opacity:1; transform:translateY(0); }
-.reveal-left { opacity:0; transform:translateX(-60px); transition:all .8s ease; }
-.reveal-left.active { opacity:1; transform:translateX(0); }
-.reveal-right { opacity:0; transform:translateX(60px); transition:all .8s ease; }
-.reveal-right.active { opacity:1; transform:translateX(0); }
-.reveal-scale { opacity:0; transform:scale(.8); transition:all .8s ease; }
-.reveal-scale.active { opacity:1; transform:scale(1); }
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(13,74,92,.97);backdrop-filter:blur(12px);padding:12px 0;box-shadow:0 2px 20px rgba(0,0,0,.15);transition:all .3s ease}
+.header.scrolled{padding:8px 0}
+.nav{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.3rem;font-weight:900;color:#fff;text-decoration:none;letter-spacing:1px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--teal-light),var(--teal-mid));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:500;font-size:.88rem;transition:.2s;position:relative}
+.nav-links a:hover{color:#fff}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--gold);transition:.3s}
+.nav-links a:hover::after{width:100%}
+.btn-nav{padding:8px 20px;background:var(--gold);color:#fff!important;border-radius:8px;font-weight:600;transition:.3s}
+.btn-nav:hover{background:var(--gold-dark);transform:translateY(-2px)}
+.btn-nav::after{display:none!important}
+.btn-login-nav{padding:8px 20px;background:rgba(255,255,255,.15);color:#fff!important;border-radius:8px;font-weight:600;border:1px solid rgba(255,255,255,.3)}
+.btn-login-nav:hover{background:rgba(255,255,255,.25)}
+.btn-login-nav::after{display:none!important}
+.menu-toggle{display:none;background:none;border:none;font-size:1.5rem;color:#fff;cursor:pointer}
 
-/* ── HEADER ── */
-.header {
-    position:fixed; top:0; left:0; right:0; z-index:1000;
-    background:rgba(13,74,92,.97); backdrop-filter:blur(12px);
-    padding:12px 0; box-shadow:0 2px 20px rgba(0,0,0,.15);
-    transition:all .3s ease;
-}
-.header.scrolled { padding:8px 0; background:rgba(13,74,92,.99); }
-.nav { max-width:1200px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; }
-.logo { display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:900; color:#fff; text-decoration:none; letter-spacing:1px; }
-.logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--teal-light),var(--teal-mid)); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; }
-.nav-links { display:flex; gap:24px; align-items:center; }
-.nav-links a { color:rgba(255,255,255,.85); text-decoration:none; font-weight:500; font-size:.88rem; transition:.2s; position:relative; }
-.nav-links a:hover { color:#fff; }
-.nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--gold); transition:.3s; }
-.nav-links a:hover::after { width:100%; }
-.btn-nav { padding:8px 20px; background:var(--gold); color:#fff !important; border-radius:8px; font-weight:600; transition:.3s; }
-.btn-nav:hover { background:var(--gold-dark); transform:translateY(-2px); }
-.btn-nav::after { display:none !important; }
-.btn-login-nav { padding:8px 20px; background:rgba(255,255,255,.15); color:#fff !important; border-radius:8px; font-weight:600; border:1px solid rgba(255,255,255,.3); }
-.btn-login-nav:hover { background:rgba(255,255,255,.25); }
-.btn-login-nav::after { display:none !important; }
-.menu-toggle { display:none; background:none; border:none; font-size:1.5rem; color:#fff; cursor:pointer; }
+/* HERO */
+.hero{padding:140px 24px 100px;background:linear-gradient(135deg,#071a22 0%,#0d4a5c 30%,#1a8ba8 60%,#0d4a5c 100%);position:relative;overflow:hidden;color:#fff}
+.hero-particle{position:absolute;border-radius:50%;pointer-events:none;animation:heroFloat var(--dur,8s) ease-in-out infinite var(--delay,0s)}
+@keyframes heroFloat{0%{opacity:0;transform:translateY(80px) scale(0)}20%{opacity:.6}80%{opacity:.3}100%{opacity:0;transform:translateY(-120px) scale(0)}}
+.hero-star{position:absolute;width:2px;background:linear-gradient(transparent,#f59e0b,transparent);opacity:0;transform:rotate(35deg);animation:wStar var(--dur,4s) ease-in infinite var(--delay,0s)}
+@keyframes wStar{0%{opacity:0;transform:rotate(35deg) translateY(-150px)}20%{opacity:1}100%{opacity:0;transform:rotate(35deg) translateY(400px)}}
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(77,189,213,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(77,189,213,.05) 1px,transparent 1px);background-size:80px 80px;animation:heroGridMove 20s linear infinite}
+@keyframes heroGridMove{0%{background-position:0 0}100%{background-position:80px 80px}}
+.hero-content{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:2}
+.hero-text h1{font-size:3.2rem;line-height:1.08;font-weight:900;margin-bottom:18px;color:#fff}
+.hero-text h1 .highlight{color:var(--gold);display:inline-block;position:relative}
+.hero-text h1 .highlight::after{content:'';position:absolute;bottom:4px;left:0;right:0;height:10px;background:rgba(245,158,11,.25);z-index:-1;border-radius:6px}
+.hero-tagline{font-size:1.1rem;color:var(--teal-pale);margin-bottom:10px;font-weight:500}
+.hero-desc{font-size:.95rem;color:rgba(255,255,255,.8);margin-bottom:28px;max-width:520px;line-height:1.7}
+.hero-buttons{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+.btn-hero{padding:16px 32px;border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.3s;text-decoration:none;font-family:inherit;border:none}
+.btn-hero-primary{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;box-shadow:0 6px 20px rgba(245,158,11,.4)}
+.btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(245,158,11,.5)}
+.btn-hero-secondary{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.3)}
+.btn-hero-secondary:hover{background:rgba(255,255,255,.2);border-color:#fff}
+.hero-stats{display:flex;gap:36px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-value{font-size:2rem;font-weight:900;color:var(--gold);display:block;line-height:1}
+.hero-stat-label{font-size:.78rem;color:rgba(255,255,255,.7);margin-top:4px}
+.counter{display:inline-block}
 
-/* ── HERO ── */
-.hero {
-    padding:140px 24px 100px;
-    background:linear-gradient(135deg,#071a22 0%,#0d4a5c 30%,#1a8ba8 60%,#0d4a5c 100%);
-    position:relative; overflow:hidden; color:#fff;
-}
+/* DEMO SECTION */
+.demo-section{padding:80px 24px;background:linear-gradient(180deg,var(--bg-alt),var(--bg));position:relative;overflow:hidden}
+.demo-container{max-width:1200px;margin:0 auto}
+.demo-browser{background:#1a1a2e;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);max-width:900px;margin:0 auto}
+.demo-toolbar{background:linear-gradient(90deg,#0d4a5c,#1a8ba8);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-dot.r{background:#ff5f57}.demo-dot.y{background:#ffbd2e}.demo-dot.g{background:#28c940}
+.demo-url{margin-left:10px;font-size:.72rem;color:rgba(255,255,255,.7);background:rgba(0,0,0,.2);padding:4px 14px;border-radius:12px;flex:1}
+.demo-screen{height:400px;position:relative;overflow:hidden;background:#0f1923;display:flex;flex-direction:column;padding:20px}
+.demo-dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.demo-stat-card{background:rgba(255,255,255,.05);border-radius:8px;padding:12px;border-left:3px solid var(--teal-mid);animation:demoFadeIn .6s ease both}
+.demo-stat-card:nth-child(2){animation-delay:.2s;border-left-color:var(--gold)}
+.demo-stat-card:nth-child(3){animation-delay:.4s;border-left-color:var(--success)}
+.demo-stat-card:nth-child(4){animation-delay:.6s;border-left-color:var(--danger)}
+@keyframes demoFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.demo-stat-label{font-size:.58rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px}
+.demo-stat-value{font-size:1.1rem;font-weight:800;color:#fff;margin-top:2px}
+.demo-chart-area{flex:1;background:rgba(255,255,255,.03);border-radius:8px;position:relative;overflow:hidden}
+.demo-chart-line{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(180deg,rgba(26,139,168,.3),transparent);clip-path:polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%);animation:demoChartGrow 2s ease both}
+@keyframes demoChartGrow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+.demo-notif{position:absolute;right:20px;padding:10px 16px;background:rgba(46,168,113,.15);border:1px solid rgba(46,168,113,.3);border-radius:8px;color:#fff;font-size:.72rem;font-weight:600;display:flex;align-items:center;gap:8px;animation:demoNotifSlide .5s ease both}
+.demo-notif:nth-child(1){top:20px;animation-delay:1s}
+.demo-notif:nth-child(2){top:60px;animation-delay:2s;background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3)}
+.demo-notif:nth-child(3){top:100px;animation-delay:3s;background:rgba(201,69,69,.15);border-color:rgba(201,69,69,.3)}
+@keyframes demoNotifSlide{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.demo-voice-area{position:absolute;bottom:20px;left:20px;right:20px;background:rgba(26,139,168,.1);border:1px solid rgba(26,139,168,.3);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px}
+.demo-voice-circle{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;animation:demoPulse 2s ease-in-out infinite}
+@keyframes demoPulse{0%,100%{box-shadow:0 0 0 0 rgba(26,139,168,.4)}50%{box-shadow:0 0 0 10px rgba(26,139,168,0)}}
+.demo-voice-text{color:rgba(255,255,255,.8);font-size:.82rem}
+.demo-voice-typed{display:inline;border-right:2px solid var(--gold);animation:demoBlink .8s step-end infinite}
+@keyframes demoBlink{50%{border-color:transparent}}
+.demo-indicators{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.demo-dot-indicator{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:.3s}
+.demo-dot-indicator.active{background:var(--teal-mid);width:24px;border-radius:8px}
 
-/* Hero particles */
-.hero-particle {
-    position:absolute; border-radius:50%; pointer-events:none;
-    animation:heroFloat var(--dur,8s) ease-in-out infinite var(--delay,0s);
-}
-@keyframes heroFloat {
-    0%   { opacity:0; transform:translateY(80px) scale(0); }
-    20%  { opacity:.6; }
-    80%  { opacity:.3; }
-    100% { opacity:0; transform:translateY(-120px) scale(0); }
-}
+/* SECTIONS */
+section{padding:80px 24px;position:relative}
+.container{max-width:1200px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:50px}
+.section-tag{display:inline-block;padding:6px 18px;background:rgba(26,139,168,.1);color:var(--teal-mid);border-radius:20px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.section-header h2{font-size:2.4rem;font-weight:800;color:var(--text-dark);margin-bottom:10px;letter-spacing:-.5px}
+.section-header p{font-size:1rem;color:var(--text-light);max-width:600px;margin:0 auto}
 
-/* Hero shooting stars */
-.hero-star {
-    position:absolute; width:2px; background:linear-gradient(transparent,var(--gold),transparent);
-    opacity:0; transform:rotate(35deg);
-    animation:heroStar var(--dur,4s) ease-in infinite var(--delay,0s);
-}
-@keyframes heroStar {
-    0%   { opacity:0; transform:rotate(35deg) translateY(-150px); }
-    20%  { opacity:1; }
-    100% { opacity:0; transform:rotate(35deg) translateY(400px); }
-}
+/* INDUSTRIES */
+.industries{background:linear-gradient(180deg,var(--bg),var(--bg-alt))}
+.industries-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;max-width:1200px;margin:0 auto}
+.industry-card{background:#fff;border-radius:14px;padding:28px 16px;text-align:center;box-shadow:var(--shadow);transition:.4s;border-bottom:3px solid transparent}
+.industry-card:hover{transform:translateY(-8px);border-bottom-color:var(--teal-mid);box-shadow:var(--shadow-lg)}
+.industry-card i{font-size:2.2rem;color:var(--teal-mid);margin-bottom:12px;display:block}
+.industry-card h4{font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:4px}
+.industry-card p{font-size:.72rem;color:var(--text-light)}
 
-/* Hero grid lines */
-.hero-grid {
-    position:absolute; inset:0; pointer-events:none;
-    background-image:
-        linear-gradient(rgba(77,189,213,.05) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(77,189,213,.05) 1px,transparent 1px);
-    background-size:80px 80px;
-    animation:heroGridMove 20s linear infinite;
-}
-@keyframes heroGridMove {
-    0% { background-position:0 0; }
-    100% { background-position:80px 80px; }
-}
+/* FEATURES */
+.features{background:linear-gradient(180deg,var(--bg-alt),var(--bg))}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.feature{background:#fff;padding:28px;border-radius:14px;box-shadow:var(--shadow);transition:.4s;position:relative;overflow:hidden}
+.feature::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal-mid),var(--gold));transform:scaleX(0);transform-origin:left;transition:.4s}
+.feature:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.feature:hover::before{transform:scaleX(1)}
+.feature-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;margin-bottom:16px}
+.feature h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;color:var(--text-dark)}
+.feature p{color:var(--text-light);font-size:.88rem;line-height:1.6}
+.feature-tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:.68rem;font-weight:700;margin-top:10px}
+.feature-tag.ai{background:rgba(245,158,11,.12);color:var(--gold)}
+.feature-tag.new{background:rgba(46,168,113,.12);color:var(--success)}
+.feature-tag.coming{background:rgba(26,139,168,.1);color:var(--teal-mid)}
 
-.hero-content {
-    max-width:1200px; margin:0 auto; display:grid;
-    grid-template-columns:1fr 1fr; gap:60px; align-items:center;
-    position:relative; z-index:2;
-}
-.hero-text h1 {
-    font-size:3.2rem; line-height:1.08; font-weight:900;
-    margin-bottom:18px; color:#fff;
-}
-.hero-text h1 .highlight {
-    color:var(--gold); display:inline-block; position:relative;
-}
-.hero-text h1 .highlight::after {
-    content:''; position:absolute; bottom:4px; left:0; right:0;
-    height:10px; background:rgba(245,158,11,.25); z-index:-1; border-radius:6px;
-}
-.hero-tagline { font-size:1.1rem; color:var(--teal-pale); margin-bottom:10px; font-weight:500; }
-.hero-desc { font-size:.95rem; color:rgba(255,255,255,.8); margin-bottom:28px; max-width:520px; line-height:1.7; }
-.hero-buttons { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:30px; }
-.btn-hero {
-    padding:16px 32px; border-radius:12px; font-size:.95rem; font-weight:700;
-    cursor:pointer; display:inline-flex; align-items:center; gap:10px;
-    transition:.3s; text-decoration:none; font-family:inherit; border:none;
-}
-.btn-hero-primary {
-    background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:#fff;
-    box-shadow:0 6px 20px rgba(245,158,11,.4);
-}
-.btn-hero-primary:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(245,158,11,.5); }
-.btn-hero-secondary {
-    background:rgba(255,255,255,.1); color:#fff;
-    border:2px solid rgba(255,255,255,.3);
-}
-.btn-hero-secondary:hover { background:rgba(255,255,255,.2); border-color:#fff; }
+/* AI SECTION */
+.ai-section{background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:80px 24px;color:#fff}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;margin:0 auto}
+.ai-text h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;color:#fff}
+.ai-text p{font-size:.95rem;color:rgba(255,255,255,.85);margin-bottom:20px;line-height:1.7}
+.ai-feature-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+.ai-feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;color:rgba(255,255,255,.9)}
+.ai-feature-list li i{color:var(--gold);font-size:1rem;margin-top:3px;flex-shrink:0}
+.ai-chat-demo{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:24px}
+.ai-bubble{padding:12px 16px;border-radius:14px;font-size:.85rem;max-width:85%;line-height:1.5;margin-bottom:10px}
+.ai-bubble.bot{background:rgba(255,255,255,.12);color:#fff}
+.ai-bubble.user{background:var(--gold);color:#fff;margin-left:auto}
+.ai-typing{display:flex;gap:4px;padding:12px 16px;background:rgba(255,255,255,.1);border-radius:14px;width:fit-content}
+.ai-typing span{width:8px;height:8px;background:rgba(255,255,255,.5);border-radius:50%;animation:aiTyping 1.4s infinite}
+.ai-typing span:nth-child(2){animation-delay:.2s}
+.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes aiTyping{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 
-/* Hero stats */
-.hero-stats { display:flex; gap:36px; flex-wrap:wrap; }
-.hero-stat { text-align:center; }
-.hero-stat-value {
-    font-size:2rem; font-weight:900; color:var(--gold);
-    display:block; line-height:1;
-}
-.hero-stat-label { font-size:.78rem; color:rgba(255,255,255,.7); margin-top:4px; }
+/* PRICING */
+.pricing{background:var(--bg);padding:80px 24px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.plan{background:#fff;padding:32px 24px;border-radius:18px;box-shadow:var(--shadow);position:relative;border:2px solid transparent;transition:.4s;display:flex;flex-direction:column}
+.plan:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.plan.popular{border-color:var(--gold)}
+.plan.popular::before{content:'⭐ MOST POPULAR';position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;padding:5px 16px;border-radius:18px;font-size:.68rem;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.plan-name{font-size:1.15rem;font-weight:800;color:var(--text-dark);margin-bottom:4px}
+.plan-tagline{color:var(--text-light);font-size:.82rem;margin-bottom:18px}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.plan-currency{font-size:1.1rem;color:var(--text-mid);font-weight:600}
+.plan-amount{font-size:2.8rem;font-weight:900;color:var(--text-dark);line-height:1}
+.plan-period{color:var(--text-light);font-size:.82rem}
+.plan-per{font-size:.75rem;color:var(--text-light);margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.plan-features{list-style:none;flex:1;margin-bottom:24px}
+.plan-features li{padding:7px 0;font-size:.84rem;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid #f0f7f9}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li i.fa-check{color:var(--success);margin-top:3px;flex-shrink:0}
+.plan-features li i.fa-times{color:#ccd;margin-top:3px;flex-shrink:0}
+.btn-plan{width:100%;padding:14px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;border:2px solid var(--teal-mid);background:#fff;color:var(--teal-mid);transition:.3s;font-family:inherit}
+.btn-plan:hover{background:var(--teal-mid);color:#fff}
+.plan.popular .btn-plan{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-color:transparent}
 
-/* Animated counter */
-.counter { display:inline-block; }
+/* HOW IT WORKS */
+.how-it-works{background:var(--bg-alt)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:36px}
+.step{text-align:center;padding:20px}
+.step-num{width:64px;height:64px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;margin:0 auto 18px;box-shadow:0 8px 20px rgba(26,139,168,.3);transition:.3s}
+.step:hover .step-num{transform:scale(1.1) rotate(5deg)}
+.step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;color:var(--text-dark)}
+.step p{color:var(--text-light);font-size:.88rem}
 
-/* ── LIVE DEMO SECTION ── */
-.demo-section {
-    padding:80px 24px; background:linear-gradient(180deg,var(--bg-alt),var(--bg));
-    position:relative; overflow:hidden;
-}
-.demo-container { max-width:1200px; margin:0 auto; }
-.demo-browser {
-    background:#1a1a2e; border-radius:16px; overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1);
-    max-width:900px; margin:0 auto;
-}
-.demo-toolbar {
-    background:linear-gradient(90deg,#0d4a5c,#1a8ba8); padding:12px 16px;
-    display:flex; align-items:center; gap:8px;
-}
-.demo-dot { width:10px; height:10px; border-radius:50%; }
-.demo-dot.r { background:#ff5f57; }
-.demo-dot.y { background:#ffbd2e; }
-.demo-dot.g { background:#28c940; }
-.demo-url {
-    margin-left:10px; font-size:.72rem; color:rgba(255,255,255,.7);
-    background:rgba(0,0,0,.2); padding:4px 14px; border-radius:12px; flex:1;
-}
-.demo-screen {
-    height:400px; position:relative; overflow:hidden; background:#0f1923;
-    display:flex; flex-direction:column; padding:20px;
-}
+/* TESTIMONIALS */
+.testimonials{background:linear-gradient(180deg,var(--bg),var(--bg-alt))}
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.testimonial{background:#fff;padding:28px;border-radius:14px;box-shadow:var(--shadow);position:relative;transition:.3s}
+.testimonial:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.testimonial::before{content:'"';position:absolute;top:10px;left:18px;font-size:4rem;color:var(--teal-pale);font-family:Georgia;line-height:1}
+.testimonial p{color:var(--text-mid);font-size:.92rem;line-height:1.6;margin-bottom:18px;position:relative;z-index:1}
+.testimonial-author{display:flex;align-items:center;gap:10px}
+.testimonial-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem}
+.testimonial-info strong{display:block;color:var(--text-dark);font-size:.88rem}
+.testimonial-info span{color:var(--text-light);font-size:.75rem}
 
-/* Animated dashboard inside demo */
-.demo-dash-stats {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;
-}
-.demo-stat-card {
-    background:rgba(255,255,255,.05); border-radius:8px; padding:12px;
-    border-left:3px solid var(--teal-mid); animation:demoFadeIn .6s ease both;
-}
-.demo-stat-card:nth-child(2) { animation-delay:.2s; border-left-color:var(--gold); }
-.demo-stat-card:nth-child(3) { animation-delay:.4s; border-left-color:var(--success); }
-.demo-stat-card:nth-child(4) { animation-delay:.6s; border-left-color:var(--danger); }
-@keyframes demoFadeIn {
-    from { opacity:0; transform:translateY(10px); }
-    to { opacity:1; transform:translateY(0); }
-}
-.demo-stat-label { font-size:.58rem; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.5px; }
-.demo-stat-value { font-size:1.1rem; font-weight:800; color:#fff; margin-top:2px; }
-.demo-chart-area {
-    flex:1; background:rgba(255,255,255,.03); border-radius:8px;
-    position:relative; overflow:hidden;
-}
-.demo-chart-line {
-    position:absolute; bottom:0; left:0; right:0; height:60%;
-    background:linear-gradient(180deg,rgba(26,139,168,.3),transparent);
-    clip-path:polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%);
-    animation:demoChartGrow 2s ease both;
-}
-@keyframes demoChartGrow {
-    from { transform:scaleY(0); transform-origin:bottom; }
-    to { transform:scaleY(1); transform-origin:bottom; }
-}
+/* CTA */
+.cta{background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;text-align:center;padding:80px 24px;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(255,255,255,.08),transparent 50%)}
+.cta h2{font-size:2.4rem;font-weight:800;margin-bottom:12px;position:relative;z-index:1}
+.cta p{font-size:1rem;opacity:.9;margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;position:relative;z-index:1}
 
-/* Animated notifications in demo */
-.demo-notif {
-    position:absolute; right:20px; padding:10px 16px;
-    background:rgba(46,168,113,.15); border:1px solid rgba(46,168,113,.3);
-    border-radius:8px; color:#fff; font-size:.72rem; font-weight:600;
-    display:flex; align-items:center; gap:8px;
-    animation:demoNotifSlide .5s ease both;
-}
-.demo-notif:nth-child(1) { top:20px; animation-delay:1s; }
-.demo-notif:nth-child(2) { top:60px; animation-delay:2s; background:rgba(245,158,11,.15); border-color:rgba(245,158,11,.3); }
-.demo-notif:nth-child(3) { top:100px; animation-delay:3s; background:rgba(201,69,69,.15); border-color:rgba(201,69,69,.3); }
-@keyframes demoNotifSlide {
-    from { transform:translateX(100px); opacity:0; }
-    to { transform:translateX(0); opacity:1; }
-}
+/* FAQ */
+.faq{padding:80px 24px;background:var(--bg-alt)}
+.faq-list{max-width:800px;margin:0 auto}
+.faq-item{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:.3s}
+.faq-item:hover{border-color:var(--teal-mid)}
+.faq-question{padding:18px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--text-dark);font-size:.95rem}
+.faq-question i{transition:.3s;color:var(--teal-mid)}
+.faq-item.open .faq-question i{transform:rotate(180deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:.4s;padding:0 22px;color:var(--text-light);font-size:.88rem;line-height:1.7}
+.faq-item.open .faq-answer{max-height:300px;padding:0 22px 18px}
 
-/* Animated typing in demo */
-.demo-voice-area {
-    position:absolute; bottom:20px; left:20px; right:20px;
-    background:rgba(26,139,168,.1); border:1px solid rgba(26,139,168,.3);
-    border-radius:10px; padding:14px; display:flex; align-items:center; gap:12px;
-}
-.demo-voice-circle {
-    width:36px; height:36px; border-radius:50%;
-    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    display:flex; align-items:center; justify-content:center; color:#fff;
-    font-size:.9rem; animation:demoPulse 2s ease-in-out infinite;
-}
-@keyframes demoPulse {
-    0%,100% { box-shadow:0 0 0 0 rgba(26,139,168,.4); }
-    50% { box-shadow:0 0 0 10px rgba(26,139,168,0); }
-}
-.demo-voice-text { color:rgba(255,255,255,.8); font-size:.82rem; }
-.demo-voice-typed {
-    display:inline; border-right:2px solid var(--gold);
-    animation:demoBlink .8s step-end infinite;
-}
-@keyframes demoBlink { 50% { border-color:transparent; } }
+/* FOOTER */
+.footer{background:var(--text-dark);color:#fff;padding:50px 24px 24px}
+.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px}
+.footer .logo{color:#fff;margin-bottom:14px}
+.footer-brand p{color:rgba(255,255,255,.7);font-size:.88rem;line-height:1.6}
+.footer h4{font-size:.88rem;font-weight:700;margin-bottom:16px;color:#fff}
+.footer ul{list-style:none}
+.footer ul li{margin-bottom:8px}
+.footer ul li a{color:rgba(255,255,255,.7);text-decoration:none;font-size:.85rem;transition:.2s}
+.footer ul li a:hover{color:var(--gold)}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);text-align:center;color:rgba(255,255,255,.5);font-size:.78rem}
+.social-links{display:flex;gap:10px;margin-top:12px}
+.social-links a{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;transition:.3s}
+.social-links a:hover{background:var(--gold);transform:translateY(-3px)}
 
-.demo-indicators { display:flex; gap:8px; justify-content:center; margin-top:16px; }
-.demo-dot-indicator {
-    width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; transition:.3s;
-}
-.demo-dot-indicator.active { background:var(--teal-mid); width:24px; border-radius:8px; }
+/* STOCKY BOT */
+#stocky-container{position:fixed;bottom:0;left:0;right:0;z-index:9000;pointer-events:none;height:120px}
+#stocky{position:absolute;bottom:20px;right:80px;width:60px;height:70px;cursor:pointer;pointer-events:all;animation:stockyBounce 2s ease-in-out infinite;transition:right 2s ease}
+@keyframes stockyBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.stocky-body{position:relative;width:60px;height:70px}
+.stocky-head{width:46px;height:40px;background:linear-gradient(180deg,#1a8ba8,#0d4a5c);border-radius:12px 12px 8px 8px;position:absolute;top:0;left:7px;border:2px solid #4dbdd5}
+.stocky-eye{width:10px;height:12px;background:#fff;border-radius:50%;position:absolute;top:10px;animation:stockyBlink 4s ease-in-out infinite}
+.stocky-eye.left{left:8px}.stocky-eye.right{right:8px}
+.stocky-eye::after{content:'';width:5px;height:5px;background:#0d4a5c;border-radius:50%;position:absolute;top:3px;left:3px}
+@keyframes stockyBlink{0%,45%,55%,100%{transform:scaleY(1)}50%{transform:scaleY(.1)}}
+.stocky-mouth{width:14px;height:6px;border:2px solid #4dbdd5;border-top:none;border-radius:0 0 8px 8px;position:absolute;bottom:8px;left:14px}
+.stocky-antenna{width:3px;height:12px;background:#4dbdd5;position:absolute;top:-10px;left:20px;border-radius:2px}
+.stocky-antenna::after{content:'';width:8px;height:8px;background:var(--gold);border-radius:50%;position:absolute;top:-6px;left:-2.5px;animation:stockyGlow 2s ease-in-out infinite}
+@keyframes stockyGlow{0%,100%{box-shadow:0 0 4px var(--gold)}50%{box-shadow:0 0 12px var(--gold)}}
+.stocky-torso{width:40px;height:22px;background:linear-gradient(180deg,#0d4a5c,#071a22);border-radius:6px;position:absolute;top:42px;left:10px;border:2px solid #1a8ba8}
+.stocky-arm{width:8px;height:20px;background:#1a8ba8;border-radius:4px;position:absolute;top:44px}
+.stocky-arm.left{left:0;animation:stockyWave 3s ease-in-out infinite;transform-origin:top center}
+.stocky-arm.right{right:0}
+@keyframes stockyWave{0%,70%,100%{transform:rotate(0)}80%{transform:rotate(-20deg)}90%{transform:rotate(10deg)}}
+.stocky-leg{width:10px;height:10px;background:#0d4a5c;border-radius:0 0 4px 4px;position:absolute;top:62px;border:1px solid #1a8ba8}
+.stocky-leg.left{left:14px}.stocky-leg.right{right:14px}
+#stocky-bubble{position:absolute;bottom:95px;right:0;background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,.15);min-width:220px;max-width:260px;pointer-events:all;cursor:pointer;opacity:0;transform:scale(.8) translateY(10px);transition:all .4s cubic-bezier(.68,-.55,.27,1.55);border:2px solid var(--teal-mid)}
+#stocky-bubble.visible{opacity:1;transform:scale(1) translateY(0)}
+#stocky-bubble::after{content:'';position:absolute;bottom:-10px;right:30px;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #fff}
+#stocky-bubble::before{content:'';position:absolute;bottom:-13px;right:28px;border-left:12px solid transparent;border-right:12px solid transparent;border-top:12px solid var(--teal-mid)}
+.stocky-bubble-text{font-size:.82rem;font-weight:600;color:var(--text-dark);display:flex;align-items:center;gap:8px}
+.stocky-bubble-text i{color:var(--teal-mid);font-size:1rem}
+#stocky-chat{position:fixed;bottom:100px;right:20px;width:340px;max-height:450px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.2);z-index:9001;overflow:hidden;display:none;border:2px solid var(--teal-mid);animation:stockyChatIn .4s ease}
+@keyframes stockyChatIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.stocky-chat-header{background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff}
+.stocky-chat-avatar{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.stocky-chat-header h4{font-size:.88rem;font-weight:700;flex:1}
+.stocky-chat-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.stocky-chat-messages{height:280px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.stocky-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:.82rem;line-height:1.5}
+.stocky-msg.bot{align-self:flex-start;background:#fff;color:var(--text-dark);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.stocky-msg.user{align-self:flex-end;background:var(--teal-mid);color:#fff;border-bottom-right-radius:4px}
+.stocky-faq-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.stocky-faq-btn{padding:6px 12px;background:var(--bg);border:1px solid var(--border);border-radius:16px;font-size:.72rem;color:var(--text-dark);cursor:pointer;font-family:inherit;transition:.2s}
+.stocky-faq-btn:hover{background:var(--teal-mid);color:#fff;border-color:var(--teal-mid)}
 
-/* ── SECTION STYLES ── */
-section { padding:80px 24px; position:relative; }
-.container { max-width:1200px; margin:0 auto; }
-.section-header { text-align:center; margin-bottom:50px; }
-.section-tag {
-    display:inline-block; padding:6px 18px;
-    background:rgba(26,139,168,.1); color:var(--teal-mid);
-    border-radius:20px; font-size:.75rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;
-}
-.section-header h2 {
-    font-size:2.4rem; font-weight:800; color:var(--text-dark);
-    margin-bottom:10px; letter-spacing:-.5px;
-}
-.section-header p { font-size:1rem; color:var(--text-light); max-width:600px; margin:0 auto; }
-
-/* ── INDUSTRIES ── */
-.industries { background:linear-gradient(180deg,var(--bg),var(--bg-alt)); }
-.industries-grid {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:16px; max-width:1200px; margin:0 auto;
-}
-.industry-card {
-    background:#fff; border-radius:14px; padding:28px 16px; text-align:center;
-    box-shadow:var(--shadow); transition:.4s; border-bottom:3px solid transparent;
-    cursor:default;
-}
-.industry-card:hover { transform:translateY(-8px); border-bottom-color:var(--teal-mid); box-shadow:var(--shadow-lg); }
-.industry-card i { font-size:2.2rem; color:var(--teal-mid); margin-bottom:12px; display:block; }
-.industry-card h4 { font-size:.88rem; font-weight:700; color:var(--text-dark); margin-bottom:4px; }
-.industry-card p { font-size:.72rem; color:var(--text-light); }
-
-/* ── FEATURES ── */
-.features { background:linear-gradient(180deg,var(--bg-alt),var(--bg)); }
-.features-grid {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;
-}
-.feature {
-    background:#fff; padding:28px; border-radius:14px; box-shadow:var(--shadow);
-    transition:.4s; position:relative; overflow:hidden;
-}
-.feature::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:4px;
-    background:linear-gradient(90deg,var(--teal-mid),var(--gold)); transform:scaleX(0);
-    transform-origin:left; transition:.4s;
-}
-.feature:hover { transform:translateY(-8px); box-shadow:var(--shadow-lg); }
-.feature:hover::before { transform:scaleX(1); }
-.feature-icon {
-    width:56px; height:56px; background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    border-radius:14px; display:flex; align-items:center; justify-content:center;
-    color:#fff; font-size:1.4rem; margin-bottom:16px;
-}
-.feature h3 { font-size:1.05rem; font-weight:700; margin-bottom:8px; color:var(--text-dark); }
-.feature p { color:var(--text-light); font-size:.88rem; line-height:1.6; }
-.feature-tag {
-    display:inline-block; padding:3px 10px; border-radius:10px;
-    font-size:.68rem; font-weight:700; margin-top:10px;
-}
-.feature-tag.ai { background:rgba(245,158,11,.12); color:var(--gold); }
-.feature-tag.new { background:rgba(46,168,113,.12); color:var(--success); }
-
-/* ── AI SECTION ── */
-.ai-section { background:linear-gradient(135deg,#0d4a5c,#1a8ba8); padding:80px 24px; color:#fff; }
-.ai-grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:60px;
-    align-items:center; max-width:1200px; margin:0 auto;
-}
-.ai-text h2 { font-size:2.2rem; font-weight:800; margin-bottom:16px; color:#fff; }
-.ai-text p { font-size:.95rem; color:rgba(255,255,255,.85); margin-bottom:20px; line-height:1.7; }
-.ai-feature-list { list-style:none; display:flex; flex-direction:column; gap:14px; }
-.ai-feature-list li {
-    display:flex; align-items:flex-start; gap:12px;
-    font-size:.92rem; color:rgba(255,255,255,.9);
-}
-.ai-feature-list li i { color:var(--gold); font-size:1rem; margin-top:3px; flex-shrink:0; }
-.ai-chat-demo {
-    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-    border-radius:16px; padding:24px;
-}
-.ai-bubble {
-    padding:12px 16px; border-radius:14px; font-size:.85rem;
-    max-width:85%; line-height:1.5; margin-bottom:10px;
-}
-.ai-bubble.bot {
-    background:rgba(255,255,255,.12); color:#fff; align-self:flex-start;
-    border-bottom-left-radius:4px;
-}
-.ai-bubble.user {
-    background:var(--gold); color:#fff; margin-left:auto;
-    border-bottom-right-radius:4px;
-}
-.ai-typing {
-    display:flex; gap:4px; padding:12px 16px;
-    background:rgba(255,255,255,.08); border-radius:14px; width:fit-content;
-}
-.ai-typing span {
-    width:8px; height:8px; background:rgba(255,255,255,.5);
-    border-radius:50%; animation:aiTyping 1.4s infinite;
-}
-.ai-typing span:nth-child(2) { animation-delay:.2s; }
-.ai-typing span:nth-child(3) { animation-delay:.4s; }
-@keyframes aiTyping { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-6px); } }
-
-/* ── PRICING ── */
-.pricing { background:var(--bg); padding:80px 24px; }
-.pricing-grid {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:24px; max-width:1100px; margin:0 auto;
-}
-.plan {
-    background:#fff; padding:32px 24px; border-radius:18px;
-    box-shadow:var(--shadow); position:relative; border:2px solid transparent;
-    transition:.4s; display:flex; flex-direction:column;
-}
-.plan:hover { transform:translateY(-8px); box-shadow:var(--shadow-lg); }
-.plan.popular { border-color:var(--gold); }
-.plan.popular::before {
-    content:'⭐ MOST POPULAR'; position:absolute; top:-13px; left:50%;
-    transform:translateX(-50%); background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-    color:#fff; padding:5px 16px; border-radius:18px; font-size:.68rem;
-    font-weight:700; letter-spacing:1px; white-space:nowrap;
-}
-.plan-name { font-size:1.15rem; font-weight:800; color:var(--text-dark); margin-bottom:4px; }
-.plan-tagline { color:var(--text-light); font-size:.82rem; margin-bottom:18px; }
-.plan-price { display:flex; align-items:baseline; gap:4px; margin-bottom:4px; }
-.plan-currency { font-size:1.1rem; color:var(--text-mid); font-weight:600; }
-.plan-amount { font-size:2.8rem; font-weight:900; color:var(--text-dark); line-height:1; }
-.plan-period { color:var(--text-light); font-size:.82rem; }
-.plan-per {
-    font-size:.75rem; color:var(--text-light); margin-bottom:20px;
-    padding-bottom:20px; border-bottom:1px solid var(--border);
-}
-.plan-features { list-style:none; flex:1; margin-bottom:24px; }
-.plan-features li {
-    padding:7px 0; font-size:.84rem; color:var(--text-mid);
-    display:flex; align-items:flex-start; gap:8px;
-    border-bottom:1px solid #f0f7f9;
-}
-.plan-features li:last-child { border-bottom:none; }
-.plan-features li i.fa-check { color:var(--success); margin-top:3px; flex-shrink:0; }
-.plan-features li i.fa-times { color:#ccd; margin-top:3px; flex-shrink:0; }
-.btn-plan {
-    width:100%; padding:14px; border-radius:10px; font-size:.92rem; font-weight:700;
-    cursor:pointer; border:2px solid var(--teal-mid); background:#fff; color:var(--teal-mid);
-    transition:.3s; font-family:inherit;
-}
-.btn-plan:hover { background:var(--teal-mid); color:#fff; }
-.plan.popular .btn-plan {
-    background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-    color:#fff; border-color:transparent;
-}
-
-/* ── HOW IT WORKS ── */
-.how-it-works { background:var(--bg-alt); }
-.steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:28px; margin-top:36px; }
-.step { text-align:center; padding:20px; }
-.step-num {
-    width:64px; height:64px; background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:1.5rem; font-weight:800; margin:0 auto 18px;
-    box-shadow:0 8px 20px rgba(26,139,168,.3);
-    transition:.3s;
-}
-.step:hover .step-num { transform:scale(1.1) rotate(5deg); }
-.step h3 { font-size:1.05rem; font-weight:700; margin-bottom:8px; color:var(--text-dark); }
-.step p { color:var(--text-light); font-size:.88rem; }
-
-/* ── TESTIMONIALS ── */
-.testimonials { background:linear-gradient(180deg,var(--bg),var(--bg-alt)); }
-.testimonials-grid {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px;
-}
-.testimonial {
-    background:#fff; padding:28px; border-radius:14px; box-shadow:var(--shadow);
-    position:relative; transition:.3s;
-}
-.testimonial:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
-.testimonial::before {
-    content:'"'; position:absolute; top:10px; left:18px;
-    font-size:4rem; color:var(--teal-pale); font-family:Georgia; line-height:1;
-}
-.testimonial p { color:var(--text-mid); font-size:.92rem; line-height:1.6; margin-bottom:18px; position:relative; z-index:1; }
-.testimonial-author { display:flex; align-items:center; gap:10px; }
-.testimonial-avatar {
-    width:44px; height:44px; border-radius:50%;
-    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-weight:700; font-size:1rem;
-}
-.testimonial-info strong { display:block; color:var(--text-dark); font-size:.88rem; }
-.testimonial-info span { color:var(--text-light); font-size:.75rem; }
-
-/* ── CTA ── */
-.cta {
-    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    color:#fff; text-align:center; padding:80px 24px;
-    position:relative; overflow:hidden;
-}
-.cta::before {
-    content:''; position:absolute; inset:0;
-    background:radial-gradient(circle at 20% 50%,rgba(255,255,255,.08),transparent 50%);
-}
-.cta h2 { font-size:2.4rem; font-weight:800; margin-bottom:12px; position:relative; z-index:1; }
-.cta p { font-size:1rem; opacity:.9; margin-bottom:28px; max-width:600px; margin-left:auto; margin-right:auto; position:relative; z-index:1; }
-
-/* ── FAQ ── */
-.faq { padding:80px 24px; background:var(--bg-alt); }
-.faq-list { max-width:800px; margin:0 auto; }
-.faq-item {
-    background:#fff; border:1px solid var(--border); border-radius:10px;
-    margin-bottom:10px; overflow:hidden; transition:.3s;
-}
-.faq-item:hover { border-color:var(--teal-mid); }
-.faq-question {
-    padding:18px 22px; cursor:pointer; display:flex; justify-content:space-between;
-    align-items:center; font-weight:600; color:var(--text-dark); font-size:.95rem;
-}
-.faq-question i { transition:.3s; color:var(--teal-mid); }
-.faq-item.open .faq-question i { transform:rotate(180deg); }
-.faq-answer {
-    max-height:0; overflow:hidden; transition:.4s;
-    padding:0 22px; color:var(--text-light); font-size:.88rem; line-height:1.7;
-}
-.faq-item.open .faq-answer { max-height:300px; padding:0 22px 18px; }
-
-/* ── FOOTER ── */
-.footer { background:var(--text-dark); color:#fff; padding:50px 24px 24px; }
-.footer-grid {
-    max-width:1200px; margin:0 auto;
-    display:grid; grid-template-columns:2fr 1fr 1fr 1fr;
-    gap:36px; margin-bottom:36px;
-}
-.footer .logo { color:#fff; margin-bottom:14px; }
-.footer-brand p { color:rgba(255,255,255,.7); font-size:.88rem; line-height:1.6; }
-.footer h4 { font-size:.88rem; font-weight:700; margin-bottom:16px; color:#fff; }
-.footer ul { list-style:none; }
-.footer ul li { margin-bottom:8px; }
-.footer ul li a { color:rgba(255,255,255,.7); text-decoration:none; font-size:.85rem; transition:.2s; }
-.footer ul li a:hover { color:var(--gold); }
-.footer-bottom {
-    max-width:1200px; margin:0 auto; padding-top:24px;
-    border-top:1px solid rgba(255,255,255,.1); text-align:center;
-    color:rgba(255,255,255,.5); font-size:.78rem;
-}
-.social-links { display:flex; gap:10px; margin-top:12px; }
-.social-links a {
-    width:34px; height:34px; border-radius:50%;
-    background:rgba(255,255,255,.1); display:flex; align-items:center;
-    justify-content:center; color:#fff; text-decoration:none; transition:.3s;
-}
-.social-links a:hover { background:var(--gold); transform:translateY(-3px); }
-
-/* ── STOCKY THE BOT ── */
-#stocky-container {
-    position:fixed; bottom:0; left:0; right:0; z-index:9000;
-    pointer-events:none; height:120px;
-}
-#stocky {
-    position:absolute; bottom:20px; right:80px;
-    width:60px; height:70px; cursor:pointer; pointer-events:all;
-    animation:stockyBounce 2s ease-in-out infinite;
-    transition:right 2s ease;
-}
-@keyframes stockyBounce {
-    0%,100% { transform:translateY(0); }
-    50% { transform:translateY(-8px); }
-}
-/* Robot body */
-.stocky-body { position:relative; width:60px; height:70px; }
-.stocky-head {
-    width:46px; height:40px; background:linear-gradient(180deg,#1a8ba8,#0d4a5c);
-    border-radius:12px 12px 8px 8px; position:absolute; top:0; left:7px;
-    border:2px solid #4dbdd5;
-}
-.stocky-eye {
-    width:10px; height:12px; background:#fff; border-radius:50%;
-    position:absolute; top:10px;
-    animation:stockyBlink 4s ease-in-out infinite;
-}
-.stocky-eye.left { left:8px; }
-.stocky-eye.right { right:8px; }
-.stocky-eye::after {
-    content:''; width:5px; height:5px; background:#0d4a5c; border-radius:50%;
-    position:absolute; top:3px; left:3px;
-}
-@keyframes stockyBlink {
-    0%,45%,55%,100% { transform:scaleY(1); }
-    50% { transform:scaleY(.1); }
-}
-.stocky-mouth {
-    width:14px; height:6px; border:2px solid #4dbdd5; border-top:none;
-    border-radius:0 0 8px 8px; position:absolute; bottom:8px; left:14px;
-}
-.stocky-antenna {
-    width:3px; height:12px; background:#4dbdd5; position:absolute;
-    top:-10px; left:20px; border-radius:2px;
-}
-.stocky-antenna::after {
-    content:''; width:8px; height:8px; background:var(--gold);
-    border-radius:50%; position:absolute; top:-6px; left:-2.5px;
-    animation:stockyGlow 2s ease-in-out infinite;
-}
-@keyframes stockyGlow {
-    0%,100% { box-shadow:0 0 4px var(--gold); }
-    50% { box-shadow:0 0 12px var(--gold),0 0 20px rgba(245,158,11,.3); }
-}
-.stocky-torso {
-    width:40px; height:22px; background:linear-gradient(180deg,#0d4a5c,#071a22);
-    border-radius:6px; position:absolute; top:42px; left:10px;
-    border:2px solid #1a8ba8;
-}
-.stocky-arm {
-    width:8px; height:20px; background:#1a8ba8; border-radius:4px;
-    position:absolute; top:44px;
-}
-.stocky-arm.left { left:0; animation:stockyWave 3s ease-in-out infinite; transform-origin:top center; }
-.stocky-arm.right { right:0; }
-@keyframes stockyWave {
-    0%,70%,100% { transform:rotate(0deg); }
-    80% { transform:rotate(-20deg); }
-    90% { transform:rotate(10deg); }
-}
-.stocky-leg {
-    width:10px; height:10px; background:#0d4a5c; border-radius:0 0 4px 4px;
-    position:absolute; top:62px; border:1px solid #1a8ba8;
-}
-.stocky-leg.left { left:14px; }
-.stocky-leg.right { right:14px; }
-
-/* Speech bubble */
-#stocky-bubble {
-    position:absolute; bottom:95px; right:0;
-    background:#fff; border-radius:14px; padding:12px 16px;
-    box-shadow:0 4px 20px rgba(0,0,0,.15); min-width:220px; max-width:260px;
-    pointer-events:all; cursor:pointer; opacity:0; transform:scale(.8) translateY(10px);
-    transition:all .4s cubic-bezier(.68,-.55,.27,1.55);
-    border:2px solid var(--teal-mid);
-}
-#stocky-bubble.visible { opacity:1; transform:scale(1) translateY(0); }
-#stocky-bubble::after {
-    content:''; position:absolute; bottom:-10px; right:30px;
-    border-left:10px solid transparent; border-right:10px solid transparent;
-    border-top:10px solid #fff;
-}
-#stocky-bubble::before {
-    content:''; position:absolute; bottom:-13px; right:28px;
-    border-left:12px solid transparent; border-right:12px solid transparent;
-    border-top:12px solid var(--teal-mid);
-}
-.stocky-bubble-text {
-    font-size:.82rem; font-weight:600; color:var(--text-dark);
-    display:flex; align-items:center; gap:8px;
-}
-.stocky-bubble-text i { color:var(--teal-mid); font-size:1rem; }
-
-/* Stocky chat panel */
-#stocky-chat {
-    position:fixed; bottom:100px; right:20px; width:340px; max-height:450px;
-    background:#fff; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,.2);
-    z-index:9001; overflow:hidden; display:none;
-    border:2px solid var(--teal-mid);
-    animation:stockyChatIn .4s ease;
-}
-@keyframes stockyChatIn {
-    from { opacity:0; transform:translateY(20px) scale(.9); }
-    to { opacity:1; transform:translateY(0) scale(1); }
-}
-.stocky-chat-header {
-    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    padding:14px 18px; display:flex; align-items:center; gap:10px; color:#fff;
-}
-.stocky-chat-avatar {
-    width:36px; height:36px; background:rgba(255,255,255,.2);
-    border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:1rem;
-}
-.stocky-chat-header h4 { font-size:.88rem; font-weight:700; flex:1; }
-.stocky-chat-close {
-    background:rgba(255,255,255,.2); border:none; color:#fff;
-    width:28px; height:28px; border-radius:50%; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-}
-.stocky-chat-messages {
-    height:280px; overflow-y:auto; padding:14px; display:flex;
-    flex-direction:column; gap:10px; background:var(--bg);
-}
-.stocky-msg {
-    max-width:85%; padding:10px 14px; border-radius:12px; font-size:.82rem; line-height:1.5;
-}
-.stocky-msg.bot {
-    align-self:flex-start; background:#fff; color:var(--text-dark);
-    border-bottom-left-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-.stocky-msg.user {
-    align-self:flex-end; background:var(--teal-mid); color:#fff;
-    border-bottom-right-radius:4px;
-}
-.stocky-faq-btns {
-    display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;
-}
-.stocky-faq-btn {
-    padding:6px 12px; background:var(--bg); border:1px solid var(--border);
-    border-radius:16px; font-size:.72rem; color:var(--text-dark);
-    cursor:pointer; font-family:inherit; transition:.2s;
-}
-.stocky-faq-btn:hover { background:var(--teal-mid); color:#fff; border-color:var(--teal-mid); }
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px) {
-    .hero-content { grid-template-columns:1fr; gap:36px; }
-    .hero-text h1 { font-size:2.2rem; }
-    .menu-toggle { display:block; }
-    .nav-links {
-        display:none; position:absolute; top:100%; left:0; right:0;
-        background:var(--teal-dark); flex-direction:column; padding:20px; gap:12px;
-    }
-    .nav-links.open { display:flex; }
-    .footer-grid { grid-template-columns:1fr 1fr; }
-    .ai-grid { grid-template-columns:1fr; }
-    .section-header h2 { font-size:1.8rem; }
-    .demo-dash-stats { grid-template-columns:repeat(2,1fr); }
-    #stocky-chat { width:300px; right:10px; }
-}
-@media(max-width:480px) {
-    .footer-grid { grid-template-columns:1fr; }
-    .hero-text h1 { font-size:1.8rem; }
-    .plan-amount { font-size:2.2rem; }
-    .hero-stats { gap:20px; }
-    #stocky-chat { width:calc(100vw - 20px); right:10px; }
+/* RESPONSIVE */
+@media(max-width:900px){
+.hero-content{grid-template-columns:1fr;gap:36px}
+.hero-text h1{font-size:2.2rem}
+.menu-toggle{display:block}
+.nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:var(--teal-dark);flex-direction:column;padding:20px;gap:12px}
+.nav-links.open{display:flex}
+.footer-grid{grid-template-columns:1fr 1fr}
+.section-header h2{font-size:1.8rem}
+.ai-grid{grid-template-columns:1fr}
+.demo-dash-stats{grid-template-columns:repeat(2,1fr)}
+#stocky-chat{width:300px;right:10px}
+}
+@media(max-width:480px){
+.footer-grid{grid-template-columns:1fr}
+.hero-text h1{font-size:1.8rem}
+.plan-amount{font-size:2.2rem}
+#stocky-chat{width:calc(100vw - 20px);right:10px}
 }
 </style>
 </head>
 <body>
-<!-- ============================================================
-     HEADER
-     ============================================================ -->
+<!-- HEADER -->
 <header class="header" id="site-header">
 <nav class="nav">
-    <a href="#" class="logo">
-        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
-        STOCKAI-PRO
-    </a>
+    <a href="#" class="logo"><div class="logo-icon"><i class="fas fa-chart-line"></i></div>STOCKAI-PRO</a>
     <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#demo-section">Live Demo</a>
@@ -725,30 +316,18 @@ section { padding:80px 24px; position:relative; }
         <a href="hub.html" class="btn-login-nav"><i class="fas fa-user"></i> Login</a>
         <a href="signup.html" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
     </div>
-    <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">
-        <i class="fas fa-bars"></i>
-    </button>
+    <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
 </nav>
 </header>
 
-<!-- ============================================================
-     HERO
-     ============================================================ -->
+<!-- HERO -->
 <section class="hero">
-    <!-- Grid background -->
     <div class="hero-grid"></div>
-
-    <!-- Particles -->
     <div class="hero-particle" style="width:6px;height:6px;background:#f59e0b;top:15%;left:10%;--dur:7s;--delay:0s"></div>
     <div class="hero-particle" style="width:4px;height:4px;background:#4dbdd5;top:25%;right:15%;--dur:9s;--delay:1s"></div>
     <div class="hero-particle" style="width:8px;height:8px;background:#f59e0b;bottom:20%;left:20%;--dur:6s;--delay:2s"></div>
     <div class="hero-particle" style="width:5px;height:5px;background:#fff;top:50%;right:25%;--dur:8s;--delay:.5s"></div>
     <div class="hero-particle" style="width:3px;height:3px;background:#4dbdd5;bottom:35%;left:35%;--dur:10s;--delay:3s"></div>
-    <div class="hero-particle" style="width:7px;height:7px;background:#f59e0b;top:70%;right:10%;--dur:7.5s;--delay:1.5s"></div>
-    <div class="hero-particle" style="width:4px;height:4px;background:#fff;top:40%;left:45%;--dur:8.5s;--delay:4s"></div>
-    <div class="hero-particle" style="width:6px;height:6px;background:#4dbdd5;bottom:15%;right:40%;--dur:9.5s;--delay:2.5s"></div>
-
-    <!-- Shooting stars -->
     <div class="hero-star" style="height:80px;top:10%;left:15%;--dur:4s;--delay:0s"></div>
     <div class="hero-star" style="height:60px;top:30%;left:55%;--dur:3.5s;--delay:1.5s"></div>
     <div class="hero-star" style="height:100px;top:50%;left:80%;--dur:5s;--delay:3s"></div>
@@ -758,162 +337,70 @@ section { padding:80px 24px; position:relative; }
         <div class="hero-text reveal-left">
             <h1>The <span class="highlight">AI-Powered</span> Stock Management System for Every Business</h1>
             <p class="hero-tagline">South Africa's smartest stock control platform</p>
-            <p class="hero-desc">Restaurants, retail, manufacturers — if you hold stock, StockAI-Pro saves you money. AI predictions, voice counting, automated purchase orders, live food cost tracking, and real-time insights from anywhere.</p>
+            <p class="hero-desc">Restaurants, retail, manufacturers — if you hold stock, StockAI-Pro saves you money. AI predictions, voice counting, automated purchase orders, live food cost tracking, event management, client invoicing, and real-time insights from anywhere.</p>
             <div class="hero-buttons">
-                <a href="signup.html" class="btn-hero btn-hero-primary">
-                    <i class="fas fa-rocket"></i> Get Started Now
-                </a>
-                <a href="#demo-section" class="btn-hero btn-hero-secondary">
-                    <i class="fas fa-play-circle"></i> See It In Action
-                </a>
+                <a href="signup.html" class="btn-hero btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
+                <a href="#demo-section" class="btn-hero btn-hero-secondary"><i class="fas fa-play-circle"></i> See It In Action</a>
             </div>
             <div class="hero-stats">
-                <div class="hero-stat">
-                    <span class="hero-stat-value"><span class="counter" data-target="20">0</span>%</span>
-                    <span class="hero-stat-label">Cost Reduction</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value">R<span class="counter" data-target="3200">0</span></span>
-                    <span class="hero-stat-label">Avg Monthly Savings</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value"><span class="counter" data-target="5">0</span> min</span>
-                    <span class="hero-stat-label">To Set Up</span>
-                </div>
+                <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="20">0</span>%</span><span class="hero-stat-label">Cost Reduction</span></div>
+                <div class="hero-stat"><span class="hero-stat-value">R<span class="counter" data-target="3200">0</span></span><span class="hero-stat-label">Avg Monthly Savings</span></div>
+                <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="5">0</span> min</span><span class="hero-stat-label">To Set Up</span></div>
             </div>
         </div>
         <div class="hero-visual reveal-right">
-            <!-- Floating badges -->
-            <div style="position:absolute;top:-20px;right:-10px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#2ea871;animation:float 3s ease-in-out infinite;z-index:3">
-                <i class="fas fa-check-circle"></i> AI Active
-            </div>
-            <div style="position:absolute;bottom:60px;left:-25px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#f59e0b;animation:float 3s ease-in-out infinite 1s;z-index:3">
-                <i class="fas fa-bolt"></i> Real-time
-            </div>
-            <div style="position:absolute;top:50%;left:-30px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#1a8ba8;animation:float 3s ease-in-out infinite 2s;z-index:3">
-                <i class="fas fa-microphone"></i> Voice Control
-            </div>
-
-            <!-- App mockup -->
-            <div style="background:#1a1a2e;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(255,255,255,.1);position:relative">
+            <div style="position:absolute;top:-20px;right:-10px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#2ea871;animation:float 3s ease-in-out infinite;z-index:3"><i class="fas fa-check-circle"></i> AI Active</div>
+            <div style="position:absolute;bottom:60px;left:-25px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#f59e0b;animation:float 3s ease-in-out infinite 1s;z-index:3"><i class="fas fa-bolt"></i> Real-time</div>
+            <div style="position:absolute;top:50%;left:-30px;background:#fff;padding:8px 16px;border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:600;color:#1a8ba8;animation:float 3s ease-in-out infinite 2s;z-index:3"><i class="fas fa-microphone"></i> Voice Control</div>
+            <div style="background:#1a1a2e;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(255,255,255,.1)">
                 <div style="background:linear-gradient(90deg,#0d4a5c,#1a8ba8);padding:10px 14px;display:flex;align-items:center;gap:6px">
                     <div style="width:8px;height:8px;border-radius:50%;background:#ff5f57"></div>
                     <div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
                     <div style="width:8px;height:8px;border-radius:50%;background:#28c940"></div>
-                    <span style="margin-left:8px;font-size:.65rem;color:rgba(255,255,255,.6);background:rgba(0,0,0,.2);padding:3px 10px;border-radius:10px;flex:1">
-                        <i class="fas fa-lock" style="font-size:.55rem"></i> stockai-pro.co.za/app
-                    </span>
+                    <span style="margin-left:8px;font-size:.65rem;color:rgba(255,255,255,.6);background:rgba(0,0,0,.2);padding:3px 10px;border-radius:10px;flex:1"><i class="fas fa-lock" style="font-size:.55rem"></i> stockai-pro.co.za/app</span>
                 </div>
                 <div style="height:280px;padding:16px;display:flex;flex-direction:column;gap:10px;background:#0f1923">
-                    <!-- Mini dashboard -->
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
-                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #1a8ba8">
-                            <div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Stock Value</div>
-                            <div style="font-size:.88rem;font-weight:800;color:#fff">R125K</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #f59e0b">
-                            <div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Sales</div>
-                            <div style="font-size:.88rem;font-weight:800;color:#fff">R48K</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #2ea871">
-                            <div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Food Cost</div>
-                            <div style="font-size:.88rem;font-weight:800;color:#2ea871">27.4%</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #c94545">
-                            <div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Wastage</div>
-                            <div style="font-size:.88rem;font-weight:800;color:#c94545">R890</div>
-                        </div>
+                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #1a8ba8"><div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Stock Value</div><div style="font-size:.88rem;font-weight:800;color:#fff">R125K</div></div>
+                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #f59e0b"><div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Sales</div><div style="font-size:.88rem;font-weight:800;color:#fff">R48K</div></div>
+                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #2ea871"><div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Food Cost</div><div style="font-size:.88rem;font-weight:800;color:#2ea871">27.4%</div></div>
+                        <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;border-left:3px solid #c94545"><div style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase">Wastage</div><div style="font-size:.88rem;font-weight:800;color:#c94545">R890</div></div>
                     </div>
-                    <!-- Chart area -->
-                    <div style="flex:1;background:rgba(255,255,255,.03);border-radius:8px;position:relative;overflow:hidden">
-                        <div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:linear-gradient(180deg,rgba(26,139,168,.3),transparent);clip-path:polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%)"></div>
-                    </div>
-                    <!-- AI notification -->
-                    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(46,168,113,.1);border:1px solid rgba(46,168,113,.3);border-radius:8px">
-                        <i class="fas fa-robot" style="color:#2ea871;font-size:.75rem"></i>
-                        <span style="font-size:.68rem;color:rgba(255,255,255,.8)">AI: 3 items need reordering — PO generated automatically</span>
-                    </div>
+                    <div style="flex:1;background:rgba(255,255,255,.03);border-radius:8px;position:relative;overflow:hidden"><div style="position:absolute;bottom:0;left:0;right:0;height:70%;background:linear-gradient(180deg,rgba(26,139,168,.3),transparent);clip-path:polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%)"></div></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(46,168,113,.1);border:1px solid rgba(46,168,113,.3);border-radius:8px"><i class="fas fa-robot" style="color:#2ea871;font-size:.75rem"></i><span style="font-size:.68rem;color:rgba(255,255,255,.8)">AI: 3 items need reordering — PO generated automatically</span></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     LIVE DEMO SECTION
-     ============================================================ -->
+<!-- LIVE DEMO -->
 <section class="demo-section" id="demo-section">
     <div class="demo-container">
-        <div class="section-header reveal">
-            <span class="section-tag">Live Demo</span>
-            <h2>See StockAI-Pro In Action</h2>
-            <p>Watch the system work in real-time — AI predictions, voice counting, auto ordering</p>
-        </div>
-        <div class="demo-browser reveal-scale" id="demo-browser">
-            <div class="demo-toolbar">
-                <div class="demo-dot r"></div>
-                <div class="demo-dot y"></div>
-                <div class="demo-dot g"></div>
-                <div class="demo-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div>
-            </div>
+        <div class="section-header reveal"><span class="section-tag">Live Demo</span><h2>See StockAI-Pro In Action</h2><p>Watch the system work in real-time</p></div>
+        <div class="demo-browser reveal-scale">
+            <div class="demo-toolbar"><div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div><div class="demo-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div></div>
             <div class="demo-screen" id="demo-screen">
-                <!-- Dashboard demo -->
                 <div class="demo-dash-stats">
-                    <div class="demo-stat-card">
-                        <div class="demo-stat-label">Stock Value</div>
-                        <div class="demo-stat-value" id="demo-stock-val">R0</div>
-                    </div>
-                    <div class="demo-stat-card">
-                        <div class="demo-stat-label">Daily Sales</div>
-                        <div class="demo-stat-value" id="demo-sales-val">R0</div>
-                    </div>
-                    <div class="demo-stat-card">
-                        <div class="demo-stat-label">Food Cost</div>
-                        <div class="demo-stat-value" id="demo-fc-val" style="color:#2ea871">0%</div>
-                    </div>
-                    <div class="demo-stat-card">
-                        <div class="demo-stat-label">AI Orders</div>
-                        <div class="demo-stat-value" id="demo-ai-val" style="color:#f59e0b">0</div>
-                    </div>
+                    <div class="demo-stat-card"><div class="demo-stat-label">Stock Value</div><div class="demo-stat-value" id="demo-stock-val">R0</div></div>
+                    <div class="demo-stat-card"><div class="demo-stat-label">Daily Sales</div><div class="demo-stat-value" id="demo-sales-val">R0</div></div>
+                    <div class="demo-stat-card"><div class="demo-stat-label">Food Cost</div><div class="demo-stat-value" id="demo-fc-val" style="color:#2ea871">0%</div></div>
+                    <div class="demo-stat-card"><div class="demo-stat-label">AI Orders</div><div class="demo-stat-value" id="demo-ai-val" style="color:#f59e0b">0</div></div>
                 </div>
-                <div class="demo-chart-area">
-                    <div class="demo-chart-line"></div>
-                </div>
-                <!-- Animated notifications -->
-                <div class="demo-notif" style="display:none" id="demo-notif-1">
-                    <i class="fas fa-check-circle" style="color:#2ea871"></i>
-                    Stock count completed — 45 items updated
-                </div>
-                <div class="demo-notif" style="display:none" id="demo-notif-2">
-                    <i class="fas fa-robot" style="color:#f59e0b"></i>
-                    AI generated 3 purchase orders
-                </div>
-                <div class="demo-notif" style="display:none" id="demo-notif-3">
-                    <i class="fas fa-exclamation-triangle" style="color:#c94545"></i>
-                    Low stock: Chicken Breast — 2kg remaining
-                </div>
-                <!-- Voice area -->
-                <div class="demo-voice-area">
-                    <div class="demo-voice-circle"><i class="fas fa-microphone"></i></div>
-                    <div class="demo-voice-text">
-                        <span class="demo-voice-typed" id="demo-typed"></span>
-                    </div>
-                </div>
+                <div class="demo-chart-area"><div class="demo-chart-line"></div></div>
+                <div class="demo-notif" style="display:none" id="demo-notif-1"><i class="fas fa-check-circle" style="color:#2ea871"></i>Stock count completed — 45 items</div>
+                <div class="demo-notif" style="display:none" id="demo-notif-2"><i class="fas fa-robot" style="color:#f59e0b"></i>AI generated 3 purchase orders</div>
+                <div class="demo-notif" style="display:none" id="demo-notif-3"><i class="fas fa-exclamation-triangle" style="color:#c94545"></i>Low stock: Chicken Breast — 2kg</div>
+                <div class="demo-voice-area"><div class="demo-voice-circle"><i class="fas fa-microphone"></i></div><div class="demo-voice-text"><span class="demo-voice-typed" id="demo-typed"></span></div></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     WHO WE SERVE
-     ============================================================ -->
+<!-- INDUSTRIES -->
 <section class="industries">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Who We Serve</span>
-            <h2>Built for Any Business That Holds Stock</h2>
-            <p>StockAI-Pro works for any business that needs to track, manage, and optimise stock levels.</p>
-        </div>
+        <div class="section-header reveal"><span class="section-tag">Who We Serve</span><h2>Built for Any Business That Holds Stock</h2><p>StockAI-Pro works for any business that needs to track, manage, and optimise stock levels.</p></div>
         <div class="industries-grid">
             <div class="industry-card reveal"><i class="fas fa-utensils"></i><h4>Restaurants & Bars</h4><p>Full food cost control & AI reorders</p></div>
             <div class="industry-card reveal"><i class="fas fa-hotel"></i><h4>Hotels & Resorts</h4><p>Multi-entity management across outlets</p></div>
@@ -927,36 +414,33 @@ section { padding:80px 24px; position:relative; }
     </div>
 </section>
 
-<!-- ============================================================
-     FEATURES
-     ============================================================ -->
+<!-- FEATURES -->
 <section class="features" id="features">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Powerful Features</span>
-            <h2>Everything Your Business Needs</h2>
-            <p>AI-powered, cloud-based, mobile-ready — built for South African businesses</p>
-        </div>
+        <div class="section-header reveal"><span class="section-tag">Powerful Features</span><h2>Everything Your Business Needs</h2><p>AI-powered, cloud-based, mobile-ready — built for South African businesses</p></div>
         <div class="features-grid">
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI Stock Predictions</h3><p>Machine learning analyses your history to predict exactly what stock you need before you run out.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-microphone"></i></div><h3>Voice Stock Counting</h3><p>Walk through your store and speak your counts. "Chicken breast twenty five" — done. 70% faster than manual.</p><span class="feature-tag ai">🎤 Voice AI</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Auto Purchase Orders</h3><p>When stock hits reorder level, AI generates POs and emails them directly to suppliers. Just approve and go.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
-            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Live Food Cost</h3><p>Real-time food cost calculation: (Opening + Purchases - Closing) / Sales. Always know exactly where you stand.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Live Food Cost</h3><p>Real-time food cost: (Opening + Purchases - Closing) / Sales. Always know exactly where you stand.</p><span class="feature-tag new">✨ New</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-utensils"></i></div><h3>Menu & Recipe Costing</h3><p>Link ingredients to recipes. Prices pulled automatically from your latest invoices. Know the cost of every dish.</p><span class="feature-tag new">✨ New</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-clipboard-check"></i></div><h3>GRV System</h3><p>Full Goods Received Voucher process. Costs only update when invoices are captured. Complete control.</p><span class="feature-tag new">✨ New</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-cash-register"></i></div><h3>POS Integration</h3><p>Build your POS selling screen right from the web app. Link menu items for automatic stock deduction on every sale.</p><span class="feature-tag new">✨ New</span></div>
-            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-calendar-check"></i></div><h3>Month End Process</h3><p>Guided month-end: complete GRVs, run closing stock take, auto-calculate food cost, reset for new month.</p><span class="feature-tag new">✨ New</span></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h3>Mobile App (PWA)</h3><p>Full mobile app installable on any phone. Stock counts, purchase approvals, AI chat — all on mobile.</p></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-shopping-basket"></i></div><h3>Procurement App</h3><p>Chefs place orders from their phone. Auto-splits to cheapest suppliers. Emailed automatically.</p><span class="feature-tag new">✨ New</span></div>
-            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-exchange-alt"></i></div><h3>Internal Transfers</h3><p>Transfer stock between locations with full acceptance workflow. Every transfer tracked.</p></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-exchange-alt"></i></div><h3>Internal Transfers</h3><p>Transfer stock between locations with full acceptance workflow. Every transfer tracked with audit trail.</p></div>
             <div class="feature reveal"><div class="feature-icon"><i class="fas fa-users"></i></div><h3>Custom Roles & Permissions</h3><p>Create custom roles with specific permissions. Invite users via email. Full access control.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-glass-cheers"></i></div><h3>FunctionsAI — Events Manager</h3><p>Full function & event management. Book clients, select menus and beverages, auto-calculate costs, generate invoices with signature lines.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div><h3>Client Invoicing</h3><p>Create professional tax invoices for external clients. Auto-calculates VAT, marks paid invoices, adds revenue to daily sales automatically.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-calendar-check"></i></div><h3>Guided Month End</h3><p>Two-step month end process. Complete GRVs first, then closing stock take. Auto-calculates food cost and resets for new month.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-tv"></i></div><h3>POS Menu Builder</h3><p>Build your front-of-house selling screen. Create color-coded departments, add selling buttons linked to menu items for auto stock deduction.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Miglatron — AI Guide</h3><p>Personal AI assistant in the web app. Guides new users through every tab, answers questions, stores unknown queries for weekly improvement.</p><span class="feature-tag new">✨ New</span></div>
+            <div class="feature reveal"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>6 Languages</h3><p>English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Your whole team can work in their language.</p><span class="feature-tag new">✨ New</span></div>
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     AI SECTION
-     ============================================================ -->
+<!-- AI SECTION -->
 <section class="ai-section">
     <div class="ai-grid">
         <div class="ai-text reveal-left">
@@ -985,16 +469,10 @@ section { padding:80px 24px; position:relative; }
     </div>
 </section>
 
-<!-- ============================================================
-     HOW IT WORKS
-     ============================================================ -->
+<!-- HOW IT WORKS -->
 <section class="how-it-works" id="how">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Simple Setup</span>
-            <h2>Up & Running in 5 Minutes</h2>
-            <p>No technical skills needed. No software to install. Works on any device.</p>
-        </div>
+        <div class="section-header reveal"><span class="section-tag">Simple Setup</span><h2>Up & Running in 5 Minutes</h2><p>No technical skills needed. No software to install. Works on any device.</p></div>
         <div class="steps">
             <div class="step reveal"><div class="step-num">1</div><h3>Sign Up Online</h3><p>Choose your plan and create your account instantly.</p></div>
             <div class="step reveal"><div class="step-num">2</div><h3>Add Your Suppliers</h3><p>Add suppliers and download blank price lists for them to complete.</p></div>
@@ -1003,195 +481,135 @@ section { padding:80px 24px; position:relative; }
         </div>
     </div>
 </section>
-
-<!-- ============================================================
-     PRICING
-     ============================================================ -->
+<!-- PRICING -->
 <section class="pricing" id="pricing">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Simple Pricing</span>
-            <h2>Choose Your Plan</h2>
-            <p>No contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee.</p>
-        </div>
-     <div style="max-width:700px;margin:0 auto">
-            <!-- Pricing Breakdown -->
+        <div class="section-header reveal"><span class="section-tag">Simple Pricing</span><h2>Choose Your Plan</h2><p>No contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee.</p></div>
+        <div style="max-width:700px;margin:0 auto">
             <div class="plan popular reveal" style="margin-bottom:24px">
                 <div style="text-align:center;margin-bottom:20px">
-                    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(245,158,11,.1);border-radius:20px;font-size:.72rem;font-weight:700;color:#d97706;margin-bottom:14px">
-                        <i class="fas fa-tag"></i> SIMPLE & TRANSPARENT
-                    </div>
+                    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(245,158,11,.1);border-radius:20px;font-size:.72rem;font-weight:700;color:#d97706;margin-bottom:14px"><i class="fas fa-tag"></i> SIMPLE & TRANSPARENT</div>
                     <h3 style="font-size:1.8rem;font-weight:900;color:#0d4a5c;margin-bottom:4px">One Platform. One Price.</h3>
                     <p style="font-size:.88rem;color:#5a8a96">No hidden fees. No feature locks. Everything included.</p>
                 </div>
 
-                <!-- Base Platform Fee -->
+                <!-- Base Fee -->
                 <div style="background:#f0f7f9;border-radius:12px;padding:24px;margin-bottom:14px;border:2px solid #1a8ba8;position:relative;overflow:hidden">
                     <div style="position:absolute;top:0;right:0;background:#1a8ba8;color:#fff;padding:4px 14px;border-radius:0 0 0 12px;font-size:.65rem;font-weight:700">INCL. VAT</div>
                     <div style="display:flex;align-items:center;justify-content:space-between">
-                        <div>
-                            <div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Base Platform Fee</div>
-                            <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Full access to ALL features</div>
-                        </div>
-                        <div style="text-align:right">
-                            <div style="display:flex;align-items:baseline;gap:2px">
-                                <span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span>
-                                <span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">799</span>
-                                <span style="font-size:.82rem;color:#5a8a96">/mo</span>
-                            </div>
-                        </div>
+                        <div><div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Base Platform Fee</div>
+                        <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Full access to ALL features</div></div>
+                        <div style="text-align:right"><div style="display:flex;align-items:baseline;gap:2px"><span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span><span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">799</span><span style="font-size:.82rem;color:#5a8a96">/mo</span></div></div>
                     </div>
                 </div>
 
-                <!-- Plus sign -->
                 <div style="text-align:center;font-size:1.5rem;font-weight:900;color:#1a8ba8;margin:10px 0">+</div>
 
-                <!-- Per Entity Fee -->
+                <!-- Entity Fee -->
                 <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;border:2px solid #f59e0b;position:relative;overflow:hidden">
                     <div style="position:absolute;top:0;right:0;background:#f59e0b;color:#fff;padding:4px 14px;border-radius:0 0 0 12px;font-size:.65rem;font-weight:700">INCL. VAT</div>
                     <div style="display:flex;align-items:center;justify-content:space-between">
-                        <div>
-                            <div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Per Entity / Location</div>
-                            <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Per branch, store, or outlet</div>
-                        </div>
-                        <div style="text-align:right">
-                            <div style="display:flex;align-items:baseline;gap:2px">
-                                <span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span>
-                                <span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">599</span>
-                                <span style="font-size:.82rem;color:#5a8a96">/mo per entity</span>
-                            </div>
-                        </div>
+                        <div><div style="font-size:.78rem;color:#5a8a96;font-weight:600;text-transform:uppercase;letter-spacing:1px">Per Entity / Location</div>
+                        <div style="font-size:.82rem;color:#2a5f70;margin-top:4px">Per branch, store, or outlet</div></div>
+                        <div style="text-align:right"><div style="display:flex;align-items:baseline;gap:2px"><span style="font-size:1.2rem;color:#2a5f70;font-weight:600">R</span><span style="font-size:3rem;font-weight:900;color:#0d4a5c;line-height:1">599</span><span style="font-size:.82rem;color:#5a8a96">/mo per entity</span></div></div>
                     </div>
                 </div>
 
-                <!-- Price Calculator -->
+                <!-- Calculator -->
                 <div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:20px;color:#fff;margin-bottom:20px">
-                    <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:12px">
-                        <i class="fas fa-calculator"></i> QUICK CALCULATOR
-                    </div>
+                    <div style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:12px"><i class="fas fa-calculator"></i> QUICK CALCULATOR</div>
                     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
                         <label style="font-size:.85rem;font-weight:500">How many entities?</label>
                         <select id="entity-calc" onchange="calcPricing()" style="padding:8px 14px;border-radius:8px;border:none;font-size:.92rem;font-weight:700;color:#0d4a5c;font-family:inherit;cursor:pointer;background:#fff">
-                            <option value="1">1 Entity</option>
-                            <option value="2">2 Entities</option>
-                            <option value="3">3 Entities</option>
-                            <option value="4">4 Entities</option>
-                            <option value="5" selected>5 Entities</option>
-                            <option value="10">10 Entities</option>
-                            <option value="20">20 Entities</option>
+                            <option value="1">1 Entity</option><option value="2">2 Entities</option><option value="3">3 Entities</option>
+                            <option value="4">4 Entities</option><option value="5" selected>5 Entities</option>
+                            <option value="10">10 Entities</option><option value="20">20 Entities</option>
                         </select>
                     </div>
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem">
-                        <span>Base Platform Fee</span><strong>R799.00</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem">
-                        <span>Entity Fee (<span id="calc-entity-count">5</span> × R599)</span>
-                        <strong id="calc-entity-fee">R2,995.00</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:6px;font-size:1.2rem;font-weight:900">
-                        <span>Monthly Total (incl. VAT)</span>
-                        <strong id="calc-total" style="color:#f59e0b">R3,794.00</strong>
-                    </div>
-                    <div style="font-size:.72rem;opacity:.7;margin-top:4px;text-align:right">
-                        That's only <strong id="calc-per-entity">R758.80</strong> per entity!
-                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem"><span>Base Platform Fee</span><strong>R799.00</strong></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:.85rem"><span>Entity Fee (<span id="calc-entity-count">5</span> × R599)</span><strong id="calc-entity-fee">R2,995.00</strong></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:6px;font-size:1.2rem;font-weight:900"><span>Monthly Total (incl. VAT)</span><strong id="calc-total" style="color:#f59e0b">R3,794.00</strong></div>
+                    <div style="font-size:.72rem;opacity:.7;margin-top:4px;text-align:right">That's only <strong id="calc-per-entity">R758.80</strong> per entity!</div>
                 </div>
 
-                <!-- All features included -->
+                <!-- Features -->
                 <div style="margin-bottom:20px">
-                    <h4 style="font-size:.92rem;font-weight:700;color:#0d4a5c;margin-bottom:12px;text-align:center">
-                        ✅ ALL of this is included — no feature locks:
-                    </h4>
+                    <h4 style="font-size:.92rem;font-weight:700;color:#0d4a5c;margin-bottom:12px;text-align:center">✅ ALL of this included — no feature locks:</h4>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Full Web App</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Mobile App (PWA)</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> AI Predictions</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Voice Counting</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Auto Purchase Orders</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Live Food Cost</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> GRV System</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Menu & Recipe Costing</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> POS System</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Kitchen Display</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Procurement App</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Menu Master App</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> POS Menu Builder</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Month End Automation</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Internal Transfers</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> QR Table Payments</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Unlimited Stock Items</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Unlimited Users</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> Custom Roles</div>
-                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:6px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0"></i> WhatsApp Support</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Full Web App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Mobile App (PWA)</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> AI Predictions</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Voice Counting</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Auto Purchase Orders</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Live Food Cost</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> GRV System</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Menu & Recipe Costing</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> POS System</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Kitchen Display</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Procurement App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Menu Master App</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> POS Menu Builder</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Month End Automation</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> FunctionsAI (Events)</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Client Invoicing</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Internal Transfers</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> QR Table Payments</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Unlimited Users & Items</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Custom Roles</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> Multi-Language (6)</div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#2a5f70;padding:4px 0"><i class="fas fa-check" style="color:#2ea871;flex-shrink:0;font-size:.65rem"></i> WhatsApp Support</div>
                     </div>
                 </div>
 
-                <button class="btn-plan" onclick="window.location.href='signup.html'" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-color:transparent;color:#fff;font-size:1rem;padding:16px">
-                    <i class="fas fa-rocket"></i> Get Started — From R1,398/mo
-                </button>
+                <button class="btn-plan" onclick="window.location.href='signup.html'" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-color:transparent;color:#fff;font-size:1rem;padding:16px"><i class="fas fa-rocket"></i> Get Started — From R1,398/mo</button>
             </div>
 
-            <!-- Guarantee -->
-            <div class="reveal" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 20px rgba(13,74,92,.08);text-align:center;border-left:4px solid #2ea871">
+            <div class="reveal" style="background:#fff;border-radius:14px;padding:24px;box-shadow:var(--shadow);text-align:center;border-left:4px solid #2ea871">
                 <h3 style="font-size:1rem;font-weight:700;color:#0d4a5c;margin-bottom:8px">✅ 30-Day Money-Back Guarantee</h3>
                 <p style="font-size:.85rem;color:#5a8a96;max-width:500px;margin:0 auto">Not satisfied within 30 days? We'll refund you in full — no questions asked. Zero risk.</p>
             </div>
         </div>
-        <p style="text-align:center;margin-top:30px;color:var(--text-light);font-size:.82rem">All prices include 15% VAT • No contracts • Cancel anytime with 30 days notice • POPIA compliant</p>   
+        <p style="text-align:center;margin-top:30px;color:var(--text-light);font-size:.82rem">All prices include 15% VAT • No contracts • Cancel anytime with 30 days notice • POPIA compliant</p>
     </div>
 </section>
 
-<!-- ============================================================
-     TESTIMONIALS
-     ============================================================ -->
+<!-- TESTIMONIALS -->
 <section class="testimonials">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Happy Customers</span>
-            <h2>Businesses Love StockAI-Pro</h2>
-        </div>
+        <div class="section-header reveal"><span class="section-tag">Happy Customers</span><h2>Businesses Love StockAI-Pro</h2></div>
         <div class="testimonials-grid">
             <div class="testimonial reveal"><p>StockAI-Pro cut our food cost from 34% to 27% in just 2 months. The AI reorder feature alone saves us thousands every month.</p><div class="testimonial-author"><div class="testimonial-avatar">JM</div><div class="testimonial-info"><strong>James Mahlangu</strong><span>Owner, The Boma Restaurant</span></div></div></div>
             <div class="testimonial reveal"><p>The voice stock count is a game-changer. What used to take 3 hours now takes 45 minutes. My whole team loves it.</p><div class="testimonial-author"><div class="testimonial-avatar">SP</div><div class="testimonial-info"><strong>Sarah Pretorius</strong><span>GM, Vine & Olive Bistro</span></div></div></div>
-            <div class="testimonial reveal"><p>The live food cost feature means I know exactly where we stand every single day. No more month-end surprises.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Retail Group</span></div></div></div>
+            <div class="testimonial reveal"><p>The live food cost feature means I know exactly where we stand every single day. No more month-end surprises. The FunctionsAI for our events is incredible.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Hospitality Group</span></div></div></div>
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     CTA
-     ============================================================ -->
+<!-- CTA -->
 <section class="cta">
     <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
     <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control.</p>
-    <a href="signup.html" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)">
-        <i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee
-    </a>
+    <a href="signup.html" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
 </section>
 
-<!-- ============================================================
-     FAQ
-     ============================================================ -->
+<!-- FAQ -->
 <section class="faq" id="faq">
     <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Questions?</span>
-            <h2>Frequently Asked Questions</h2>
-        </div>
+        <div class="section-header reveal"><span class="section-tag">Questions?</span><h2>Frequently Asked Questions</h2></div>
         <div class="faq-list">
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs entirely in your browser. The mobile app installs directly from the browser — no app store needed.</div></div>
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is it only for restaurants?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Not at all! StockAI-Pro works for any business that holds stock — restaurants, retail, manufacturers, pharmacies, warehouses, and more.</div></div>
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the live food cost work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Food cost is calculated in real-time: (Opening Stock + Purchases - Closing Stock) / Sales. All values are calculated excluding VAT. You always know exactly where you stand.</div></div>
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I control who sees what?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! Create custom roles with specific permissions. Each user only sees the apps and pages you assign to them. You can also control which apps appear in their Hub.</div></div>
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. We use bank-level encryption, daily backups, and are fully POPIA compliant. Data is stored securely in Google Firebase.</div></div>
-            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no long-term contracts. Cancel anytime with 30 days notice. We also offer a 30-day money-back guarantee.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs entirely in your browser. The mobile app installs directly — no app store needed.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is it only for restaurants?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Not at all! StockAI-Pro works for any business that holds stock — restaurants, retail, manufacturers, pharmacies, warehouses.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the live food cost work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Food cost is calculated in real-time: (Opening Stock + Purchases - Closing Stock) / Sales. All values excluding VAT.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I manage events and functions?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! FunctionsAI lets you create full event sheets with client details, menu selection, beverage packages, auto-pricing, and professional invoices with signature lines.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I control who sees what?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! Create custom roles with specific permissions. Each user only sees the apps and pages you assign.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. Bank-level encryption, daily backups, POPIA compliant. Data stored securely in Google Firebase.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee included.</div></div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What languages does it support?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">StockAI-Pro supports 6 languages: English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Switch languages with one click.</div></div>
         </div>
     </div>
 </section>
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
+<!-- FOOTER -->
 <footer class="footer">
     <div class="footer-grid">
         <div class="footer-brand">
@@ -1204,9 +622,22 @@ section { padding:80px 24px; position:relative; }
                 <a href="https://wa.me/27790440508" target="_blank"><i class="fab fa-whatsapp"></i></a>
             </div>
         </div>
-        <div><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#how">How It Works</a></li><li><a href="#faq">FAQ</a></li></ul></div>
-        <div><h4>Company</h4><ul><li><a href="https://wa.me/27790440508">Contact Us</a></li><li><a href="hub.html">Customer Login</a></li><li><a href="hub.html">Mobile App</a></li></ul></div>
-        <div><h4>Legal</h4><ul><li><a href="#">Terms of Service</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">POPIA Compliance</a></li></ul></div>
+        <div><h4>Product</h4><ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul></div>
+        <div><h4>Company</h4><ul>
+            <li><a href="https://wa.me/27790440508">Contact Us</a></li>
+            <li><a href="hub.html">Customer Login</a></li>
+            <li><a href="hub.html">Mobile App</a></li>
+        </ul></div>
+        <div><h4>Legal</h4><ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">POPIA Compliance</a></li>
+        </ul></div>
     </div>
     <div class="footer-bottom">
         <p>&copy; 2025 StockAI-Pro. All rights reserved. Built with ❤️ in South Africa.</p>
@@ -1214,34 +645,21 @@ section { padding:80px 24px; position:relative; }
     </div>
 </footer>
 
-<!-- ============================================================
-     STOCKY THE BOT
-     ============================================================ -->
+<!-- STOCKY THE BOT -->
 <div id="stocky-container">
     <div id="stocky" onclick="openStockyChat()">
         <div class="stocky-body">
             <div class="stocky-antenna"></div>
-            <div class="stocky-head">
-                <div class="stocky-eye left"></div>
-                <div class="stocky-eye right"></div>
-                <div class="stocky-mouth"></div>
-            </div>
-            <div class="stocky-arm left"></div>
-            <div class="stocky-arm right"></div>
+            <div class="stocky-head"><div class="stocky-eye left"></div><div class="stocky-eye right"></div><div class="stocky-mouth"></div></div>
+            <div class="stocky-arm left"></div><div class="stocky-arm right"></div>
             <div class="stocky-torso"></div>
-            <div class="stocky-leg left"></div>
-            <div class="stocky-leg right"></div>
+            <div class="stocky-leg left"></div><div class="stocky-leg right"></div>
         </div>
     </div>
-    <div id="stocky-bubble">
-        <div class="stocky-bubble-text">
-            <i class="fas fa-comment-dots"></i>
-            <span id="stocky-bubble-msg">Need Assistance?</span>
-        </div>
-    </div>
+    <div id="stocky-bubble"><div class="stocky-bubble-text"><i class="fas fa-comment-dots"></i><span id="stocky-bubble-msg">Need Assistance?</span></div></div>
 </div>
 
-<!-- STOCKY CHAT PANEL -->
+<!-- STOCKY CHAT -->
 <div id="stocky-chat">
     <div class="stocky-chat-header">
         <div class="stocky-chat-avatar"><i class="fas fa-robot"></i></div>
@@ -1250,14 +668,14 @@ section { padding:80px 24px; position:relative; }
     </div>
     <div class="stocky-chat-messages" id="stocky-messages">
         <div class="stocky-msg bot">
-            <p>👋 Hey! I'm Stocky, your AI assistant. What would you like to know about StockAI-Pro?</p>
+            <p>👋 Hey! I'm Stocky. What would you like to know about StockAI-Pro?</p>
             <div class="stocky-faq-btns">
                 <button class="stocky-faq-btn" onclick="stockyAnswer('what')">What is StockAI-Pro?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('cost')">How much does it cost?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('ai')">How does AI help?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('trial')">Is there a trial?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('start')">How do I start?</button>
-                <button class="stocky-faq-btn" onclick="stockyAnswer('demo')">Can I see a demo?</button>
+                <button class="stocky-faq-btn" onclick="stockyAnswer('functions')">What is FunctionsAI?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('devices')">What devices?</button>
                 <button class="stocky-faq-btn" onclick="stockyAnswer('safe')">Is my data safe?</button>
             </div>
@@ -1265,269 +683,77 @@ section { padding:80px 24px; position:relative; }
     </div>
 </div>
 
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
+<!-- JAVASCRIPT -->
 <script>
-// ============================================================
-// SCROLL ANIMATIONS
-// ============================================================
-function revealOnScroll() {
-    var reveals = document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
-    reveals.forEach(function(el) {
-        var top = el.getBoundingClientRect().top;
-        var windowHeight = window.innerHeight;
-        if (top < windowHeight - 80) {
-            el.classList.add('active');
-        }
-    });
+// Scroll animations
+function revealOnScroll(){document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight-80)el.classList.add('active');});}
+window.addEventListener('scroll',revealOnScroll);window.addEventListener('load',revealOnScroll);
+
+// Header scroll
+window.addEventListener('scroll',function(){document.getElementById('site-header').classList.toggle('scrolled',window.scrollY>50);});
+
+// Animated counters
+function animateCounters(){document.querySelectorAll('.counter').forEach(function(c){if(c.dataset.animated)return;if(c.getBoundingClientRect().top>window.innerHeight)return;c.dataset.animated='true';var t=parseInt(c.dataset.target);var cur=0;var inc=t/60;var timer=setInterval(function(){cur+=inc;if(cur>=t){cur=t;clearInterval(timer);}c.textContent=Math.floor(cur).toLocaleString();},30);});}
+window.addEventListener('scroll',animateCounters);window.addEventListener('load',function(){setTimeout(animateCounters,500);});
+
+// Demo animation
+function animateDemo(){var ds=document.getElementById('demo-screen');if(!ds||ds.dataset.animated)return;if(ds.getBoundingClientRect().top>window.innerHeight)return;ds.dataset.animated='true';
+    animateValue('demo-stock-val',0,125000,2000,'R');setTimeout(function(){animateValue('demo-sales-val',0,48320,1500,'R');},500);
+    setTimeout(function(){animateValue('demo-fc-val',0,27.4,1000,'','%');},1000);setTimeout(function(){animateValue('demo-ai-val',0,3,800,'');},1500);
+    setTimeout(function(){var e=document.getElementById('demo-notif-1');if(e)e.style.display='flex';},2000);
+    setTimeout(function(){var e=document.getElementById('demo-notif-2');if(e)e.style.display='flex';},3500);
+    setTimeout(function(){var e=document.getElementById('demo-notif-3');if(e)e.style.display='flex';},5000);
+    setTimeout(function(){typeText('demo-typed','"Chicken breast twenty five"',60);},3000);
 }
-window.addEventListener('scroll', revealOnScroll);
-window.addEventListener('load', revealOnScroll);
+function animateValue(id,start,end,dur,pre,suf){var el=document.getElementById(id);if(!el)return;pre=pre||'';suf=suf||'';var range=end-start;var st=null;function step(ts){if(!st)st=ts;var p=Math.min((ts-st)/dur,1);var cur=start+(range*p);if(end>=1000)el.textContent=pre+Math.floor(cur).toLocaleString();else el.textContent=pre+cur.toFixed(end%1!==0?1:0)+suf;if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+function typeText(id,text,speed){var el=document.getElementById(id);if(!el)return;var i=0;el.textContent='';function t(){if(i<text.length){el.textContent+=text.charAt(i);i++;setTimeout(t,speed);}}t();}
+window.addEventListener('scroll',animateDemo);
 
-// ============================================================
-// HEADER SCROLL EFFECT
-// ============================================================
-window.addEventListener('scroll', function() {
-    var header = document.getElementById('site-header');
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
+// Price calculator
+function calcPricing(){var b=799;var e=599;var sel=document.getElementById('entity-calc');var c=parseInt(sel.value)||1;var et=c*e;var gt=b+et;var pe=gt/c;
+    document.getElementById('calc-entity-count').textContent=c;document.getElementById('calc-entity-fee').textContent='R'+et.toLocaleString()+'.00';
+    document.getElementById('calc-total').textContent='R'+gt.toLocaleString()+'.00';document.getElementById('calc-per-entity').textContent='R'+pe.toFixed(2)+' per entity!';}
+window.addEventListener('load',function(){setTimeout(calcPricing,100);});
 
-// ============================================================
-// ANIMATED COUNTERS
-// ============================================================
-function animateCounters() {
-    document.querySelectorAll('.counter').forEach(function(counter) {
-        if (counter.dataset.animated) return;
-        var top = counter.getBoundingClientRect().top;
-        if (top > window.innerHeight) return;
+// Float animation
+var floatStyle=document.createElement('style');floatStyle.textContent='@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}';document.head.appendChild(floatStyle);
 
-        counter.dataset.animated = 'true';
-        var target = parseInt(counter.dataset.target);
-        var current = 0;
-        var increment = target / 60;
-        var timer = setInterval(function() {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-            }
-            counter.textContent = Math.floor(current).toLocaleString();
-        }, 30);
-    });
-}
-window.addEventListener('scroll', animateCounters);
-window.addEventListener('load', function() { setTimeout(animateCounters, 500); });
+// Stocky Bot
+var stockyPrompts=['Need Assistance?','Have Questions on What You\'re Seeing?','Want to Know How Much?','Confused? I Can Help!','Need Help? I\'m Here!'];
+var stockyIdx=0;var stockyChatOpen=false;var stockyTimer=null;
 
-// ============================================================
-// LIVE DEMO ANIMATION
-// ============================================================
-function animateDemo() {
-    var demoScreen = document.getElementById('demo-screen');
-    if (!demoScreen) return;
+setTimeout(function(){showStockyBubble();stockyTimer=setInterval(cycleStockyPrompt,15000);},5000);
 
-    var top = demoScreen.getBoundingClientRect().top;
-    if (top > window.innerHeight || demoScreen.dataset.animated) return;
-    demoScreen.dataset.animated = 'true';
+function showStockyBubble(){var b=document.getElementById('stocky-bubble');if(b&&!stockyChatOpen){b.classList.add('visible');setTimeout(function(){if(!stockyChatOpen)b.classList.remove('visible');},8000);}}
+function cycleStockyPrompt(){if(stockyChatOpen)return;stockyIdx=(stockyIdx+1)%stockyPrompts.length;var m=document.getElementById('stocky-bubble-msg');if(m)m.textContent=stockyPrompts[stockyIdx];showStockyBubble();}
+function openStockyChat(){stockyChatOpen=true;document.getElementById('stocky-bubble').classList.remove('visible');document.getElementById('stocky-chat').style.display='block';}
+function closeStockyChat(){stockyChatOpen=false;document.getElementById('stocky-chat').style.display='none';setTimeout(showStockyBubble,10000);}
 
-    // Animate stock value counting up
-    animateValue('demo-stock-val', 0, 125000, 2000, 'R');
-    setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R'); }, 500);
-    setTimeout(function() { animateValue('demo-fc-val', 0, 27.4, 1000, '', '%'); }, 1000);
-    setTimeout(function() { animateValue('demo-ai-val', 0, 3, 800, ''); }, 1500);
-
-    // Show notifications
-    setTimeout(function() { showDemoNotif('demo-notif-1'); }, 2000);
-    setTimeout(function() { showDemoNotif('demo-notif-2'); }, 3500);
-    setTimeout(function() { showDemoNotif('demo-notif-3'); }, 5000);
-
-    // Animated typing
-    setTimeout(function() { typeText('demo-typed', '"Chicken breast twenty five"', 60); }, 3000);
-}
-
-function animateValue(id, start, end, duration, prefix, suffix) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    prefix = prefix || '';
-    suffix = suffix || '';
-    var range = end - start;
-    var startTime = null;
-    function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        var progress = Math.min((timestamp - startTime) / duration, 1);
-        var current = start + (range * progress);
-        if (end >= 1000) {
-            el.textContent = prefix + Math.floor(current).toLocaleString();
-        } else {
-            el.textContent = prefix + current.toFixed(end % 1 !== 0 ? 1 : 0) + suffix;
-        }
-        if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-}
-
-function showDemoNotif(id) {
-    var el = document.getElementById(id);
-    if (el) { el.style.display = 'flex'; }
-}
-
-function typeText(id, text, speed) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var i = 0;
-    el.textContent = '';
-    function type() {
-        if (i < text.length) {
-            el.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
-    }
-    type();
-}
-
-window.addEventListener('scroll', animateDemo);
-
-// ============================================================
-// STOCKY THE BOT
-// ============================================================
-var stockyPrompts = [
-    'Need Assistance?',
-    'Have Questions on What You\'re Seeing?',
-    'Want to Know How Much?',
-    'Confused? I Can Help!',
-    'Need Help? I\'m Here!'
-];
-var stockyPromptIndex = 0;
-var stockyChatOpen = false;
-var stockyBubbleTimer = null;
-
-// Start Stocky prompts after 5 seconds
-setTimeout(function() {
-    showStockyBubble();
-    stockyBubbleTimer = setInterval(cycleStockyPrompt, 15000);
-}, 5000);
-
-function showStockyBubble() {
-    var bubble = document.getElementById('stocky-bubble');
-    if (bubble && !stockyChatOpen) {
-        bubble.classList.add('visible');
-        // Hide after 8 seconds
-        setTimeout(function() {
-            if (!stockyChatOpen) bubble.classList.remove('visible');
-        }, 8000);
-    }
-}
-
-function cycleStockyPrompt() {
-    if (stockyChatOpen) return;
-    stockyPromptIndex = (stockyPromptIndex + 1) % stockyPrompts.length;
-    var msgEl = document.getElementById('stocky-bubble-msg');
-    if (msgEl) msgEl.textContent = stockyPrompts[stockyPromptIndex];
-    showStockyBubble();
-}
-
-function openStockyChat() {
-    stockyChatOpen = true;
-    document.getElementById('stocky-bubble').classList.remove('visible');
-    document.getElementById('stocky-chat').style.display = 'block';
-}
-
-function closeStockyChat() {
-    stockyChatOpen = false;
-    document.getElementById('stocky-chat').style.display = 'none';
-    // Resume prompts after 10 seconds
-    setTimeout(showStockyBubble, 10000);
-}
-
-// ============================================================
-// STOCKY FAQ ANSWERS
-// ============================================================
-var stockyAnswers = {
-    'what': '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any stock-holding business track inventory, reduce costs, and automate ordering — all powered by artificial intelligence!',
-    'cost': '💰 Plans start from <strong>R999/month</strong> per entity:<br><br>• <strong>Premium:</strong> R999/mo — single location<br>• <strong>Premium Plus:</strong> R1,799/mo — up to 5 entities + POS<br>• <strong>Premium Exclusive:</strong> R2,599/mo — unlimited entities<br><br>No contracts — cancel anytime!',
-    'ai': '🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts what stock you\'ll need<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Calculates live food cost in real-time<br>• AI assistant answers your questions',
-    'trial': '🎯 We don\'t offer a trial, but we do offer a <strong>30-day money-back guarantee</strong>. If you\'re not satisfied within 30 days, we\'ll refund you in full — no questions asked!',
-    'start': '🚀 Getting started is easy:<br><br>1. Click "Get Started" on our website<br>2. Choose your plan<br>3. Fill in your details<br>4. Start adding suppliers & stock<br><br>The whole setup takes about <strong>5 minutes</strong>!',
-    'demo': '📺 You can see a live demo right here on our website! Scroll up to the "Live Demo" section. For a <strong>personal walkthrough</strong>, WhatsApp us on <a href="https://wa.me/27790440508" style="color:#1a8ba8;font-weight:600">079 044 0508</a>.',
-    'devices': '📱 StockAI-Pro works on <strong>any device</strong>:<br><br>• Desktop / Laptop (Chrome, Safari, Firefox)<br>• Tablet (iPad, Android)<br>• Mobile phone (iPhone, Android)<br>• Kitchen display screens<br><br>Install as an app on your phone — no app store needed!',
-    'safe': '🔒 Absolutely! Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured<br>• Session timeout for security'
+var stockyAnswers={
+    'what':'🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any business track inventory, reduce costs, and automate ordering — all powered by AI!',
+    'cost':'💰 Simple pricing:<br><br>• <strong>Base Fee:</strong> R799/month<br>• <strong>Per Entity:</strong> R599/month per location<br><br>All features included. No hidden fees!<br><br>Example: 1 entity = R1,398/month',
+    'ai':'🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts stock needs<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Live food cost in real-time<br>• AI assistant answers questions',
+    'trial':'🎯 We don\'t offer a trial, but we have a <strong>30-day money-back guarantee</strong>. Not satisfied? Full refund, no questions asked!',
+    'start':'🚀 Getting started is easy:<br><br>1. Click "Get Started"<br>2. Fill in your details<br>3. Start adding suppliers & stock<br><br>Setup takes about <strong>5 minutes</strong>!',
+    'functions':'🎉 <strong>FunctionsAI</strong> is our event management system:<br><br>• Create full event sheets<br>• Select menus & beverages from your system<br>• Auto-calculate costs & VAT<br>• Generate professional invoices<br>• Print with signature lines<br>• Email directly to clients<br><br>Perfect for conferencing, weddings, corporate events!',
+    'devices':'📱 Works on <strong>any device</strong>:<br><br>• Desktop / Laptop<br>• Tablet (iPad, Android)<br>• Mobile phone<br>• Kitchen display screens<br><br>Install as an app — no app store needed!',
+    'safe':'🔒 Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured<br>• Session timeout for security'
 };
 
-function stockyAnswer(key) {
-    var answer = stockyAnswers[key] || 'I\'m not sure about that! WhatsApp us on 079 044 0508 for more info.';
-    var messages = document.getElementById('stocky-messages');
-
-    // Add user message
-    var labels = {
-        'what':'What is StockAI-Pro?','cost':'How much does it cost?',
-        'ai':'How does AI help?','trial':'Is there a trial?',
-        'start':'How do I get started?','demo':'Can I see a demo?',
-        'devices':'What devices?','safe':'Is my data safe?'
-    };
-    var userMsg = document.createElement('div');
-    userMsg.className = 'stocky-msg user';
-    userMsg.innerHTML = '<p>' + (labels[key] || key) + '</p>';
-    messages.appendChild(userMsg);
-
-    // Add bot reply
-    setTimeout(function() {
-        var botMsg = document.createElement('div');
-        botMsg.className = 'stocky-msg bot';
-        botMsg.innerHTML = '<p>' + answer + '</p>' +
-            '<div class="stocky-faq-btns" style="margin-top:8px">' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button>' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'cost\')">Pricing</button>' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button>' +
-            '</div>';
-        messages.appendChild(botMsg);
-        messages.scrollTop = messages.scrollHeight;
-    }, 500);
-
-    messages.scrollTop = messages.scrollHeight;
+function stockyAnswer(key){
+    var answer=stockyAnswers[key]||'I\'m not sure! WhatsApp us on 079 044 0508';
+    var messages=document.getElementById('stocky-messages');
+    var labels={'what':'What is StockAI-Pro?','cost':'How much does it cost?','ai':'How does AI help?','trial':'Is there a trial?','start':'How do I get started?','functions':'What is FunctionsAI?','devices':'What devices?','safe':'Is my data safe?'};
+    var userMsg=document.createElement('div');userMsg.className='stocky-msg user';userMsg.innerHTML='<p>'+(labels[key]||key)+'</p>';messages.appendChild(userMsg);
+    setTimeout(function(){var botMsg=document.createElement('div');botMsg.className='stocky-msg bot';botMsg.innerHTML='<p>'+answer+'</p><div class="stocky-faq-btns" style="margin-top:8px"><button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'cost\')">Pricing</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'functions\')">FunctionsAI</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button></div>';messages.appendChild(botMsg);messages.scrollTop=messages.scrollHeight;},500);
+    messages.scrollTop=messages.scrollHeight;
 }
 
-// Randomly move Stocky position
-setInterval(function() {
-    if (stockyChatOpen) return;
-    var stocky = document.getElementById('stocky');
-    var newRight = Math.floor(Math.random() * (window.innerWidth - 200)) + 40;
-    if (stocky) stocky.style.right = newRight + 'px';
-}, 20000);
-
-// ============================================================
-// FLOATING ANIMATION (used by hero badges)
-// ============================================================
-var style = document.createElement('style');
-style.textContent = '@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}';
-document.head.appendChild(style);
-// ============================================================
-// PRICING CALCULATOR
-// ============================================================
-function calcPricing() {
-    var baseFee    = 799;
-    var entityFee  = 599;
-    var sel        = document.getElementById('entity-calc');
-    var count      = parseInt(sel.value) || 1;
-    var entTotal   = count * entityFee;
-    var grandTotal = baseFee + entTotal;
-    var perEntity  = (grandTotal / count);
-
-    document.getElementById('calc-entity-count').textContent = count;
-    document.getElementById('calc-entity-fee').textContent   = 'R' + entTotal.toLocaleString() + '.00';
-    document.getElementById('calc-total').textContent         = 'R' + grandTotal.toLocaleString() + '.00';
-    document.getElementById('calc-per-entity').textContent    = 'R' + perEntity.toFixed(2) + ' per entity!';
-}
-// Init calculator
-window.addEventListener('load', function() { setTimeout(calcPricing, 100); });
+// Random Stocky position
+setInterval(function(){if(stockyChatOpen)return;var s=document.getElementById('stocky');var r=Math.floor(Math.random()*(window.innerWidth-200))+40;if(s)s.style.right=r+'px';},20000);
 
 console.log('✅ StockAI-Pro 2.0 Website — Fully Loaded');
-console.log('🤖 Stocky the Bot — Active');
-console.log('✨ Animations — Active');
+console.log('🤖 Stocky Bot — Active');
 </script>
 </body>
 </html>
