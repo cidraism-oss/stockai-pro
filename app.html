@@ -539,7 +539,7 @@ var S = {
     inventory: {}, purchases: {}, wastage: {}, suppliers: {},
     users: {}, menuItems: {}, cashups: {}, activities: {},
     pendingPOs: {}, userLogs: {}, dayEnds: {}, invoices: {},
-    internalTransfers: [], grvQueue: {},
+    internalTransfers: [], grvQueue: {}, shifts: {},
     notifs: [], billing: null,
     selectedDate: new Date().toISOString().split('T')[0],
     viewFilter: 'all',
@@ -1388,6 +1388,11 @@ function renderDashContent() {
 
     // Top/Bottom sellers
     renderTopBottomSellers();
+// Filter alerts by user department if locked
+var userDept = S.user.lockedDepartment;
+var deptAlerts = lowStock;
+if (userDept && userDept !== 'All') {
+    deptAlerts = lowStock.filter(function(i) { return i.department === userDept; });
 }
 
 function quickReorder(id) {
@@ -4136,6 +4141,11 @@ function saveNewUser() {
     debouncedSave();
     closeModal();
     renderUsers();
+// Logic to handle Department Lock
+if (!user.lockedDepartment && selectedDepartment) {
+    user.lockedDepartment = selectedDepartment;
+    // Trigger the initial WhatsApp verification message via Resend/Webhook
+    triggerWhatsAppInvite(user.phone, user.lockedDepartment);
 }
 
 function editUser(userId) {
@@ -4292,14 +4302,41 @@ function emailReport(type) {
 function pageSettings() {
     var ent = S.entities[S.activeEntity];
     if (!ent) return '';
+    var currInfo = CURRENCIES[DISPLAY_CURRENCY] || CURRENCIES['ZAR'];
+
     return '<div class="page-watermark">STOCKAI-PRO</div><h1 class="page-heading">Settings</h1>' +
         '<div class="form-card"><h3 class="block-title"><i class="fas fa-building" style="color:var(--accent)"></i> Entity Information</h3>' +
         '<div class="form-row"><div class="form-field"><label>Entity Name</label><input type="text" value="' + ent.name + '" disabled></div>' +
         '<div class="form-field"><label>Contact</label><input type="text" value="' + (ent.contact || '') + '" disabled></div></div>' +
         '<div class="form-row"><div class="form-field"><label>Food Cost Target</label><input type="text" value="' + (ent.foodCostTarget || 28) + '%" disabled></div>' +
-        '<div class="form-field"><label>Sections</label><input type="text" value="' + (ent.sections || []).join(', ') + '" disabled></div></div></div>';
-}
+        '<div class="form-field"><label>Sections</label><input type="text" value="' + (ent.sections || []).join(', ') + '" disabled></div></div></div>' +
 
+        // Currency section
+        '<div class="form-card" style="border-left-color:var(--gold)">' +
+        '<h3 class="block-title"><i class="fas fa-coins" style="color:var(--gold)"></i> Display Currency</h3>' +
+        '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">' +
+        '<div style="font-size:8mm">' + currInfo.flag + '</div>' +
+        '<div style="flex:1"><div style="font-size:1rem;font-weight:700;color:var(--text)">' +
+        currInfo.symbol + ' — ' + currInfo.name + '</div>' +
+        '<div style="font-size:.78rem;color:var(--text-light)">' + currInfo.code + '</div></div>' +
+        '<button class="btn-primary" onclick="showCurrencySelector()" style="padding:8px 16px;font-size:.82rem">' +
+        '<i class="fas fa-exchange-alt"></i> Change</button></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">' +
+'<p style="font-size:.72rem;color:var(--text-muted)">Rates updated daily via ExchangeRate-API</p>' +
+'<button onclick="refreshRatesNow()" style="padding:5px 12px;background:var(--primary);color:#fff;border:none;border-radius:var(--rs);font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit"><i class="fas fa-sync-alt"></i> Refresh</button></div>' +
+(RATES_LAST_UPDATED ? '<p style="font-size:.68rem;color:var(--success);margin-top:4px">✅ Last updated: ' + RATES_LAST_UPDATED + '</p>' : '<p style="font-size:.68rem;color:var(--text-muted);margin-top:4px">⏳ Loading live rates...</p>') +
+'</div>';
+function refreshRatesNow() {
+    localStorage.removeItem('stockai_rates_date');
+    localStorage.removeItem('stockai_rates_cache');
+    fetchLiveRates();
+    toast('info', '🔄 Fetching live exchange rates...');
+    setTimeout(function() {
+        if (RATES_LAST_UPDATED) {
+            toast('success', '✅ Rates updated: ' + RATES_LAST_UPDATED);
+        }
+    }, 3000);
+}
 // ============================================================
 // PAGE: TRANSFERS
 // ============================================================
@@ -4314,32 +4351,34 @@ function pageTransfers() {
 // PAGE: MONTH END
 // ============================================================
 function pageMonthEnd() {
-    var ent = S.entities[S.activeEntity] || {};
-    var monthEndState = (S.monthEndState || {})[eid()] || { grvDone: false, stockTakeDone: false };
+    var mes = (S.monthEndState || {})[eid()] || { grvDone: false, stockTakeDone: false };
 
-    return '<div class="page-watermark">STOCKAI-PRO</div><h1 class="page-heading">Month End</h1>' +
-        '<div style="background:rgba(26,139,168,.1);border-left:3px solid var(--accent);padding:14px;border-radius:var(--radius-sm);margin-bottom:18px;font-size:.85rem;color:var(--text)">' +
-        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> <strong>Month End:</strong> Complete both steps — GRV first, then Stock Take. This closes the month and sets opening stock for the new month.</div>' +
+    return '<div class="page-watermark">STOCKAI-PRO</div><h1 class="page-heading">Month End Closing</h1>' +
+        '<div id="month-end-wizard" style="max-width:700px;margin:0 auto">' +
+        
+        // STEP 1: GRV
+        '<div class="month-end-option ' + (mes.grvDone ? 'completed' : '') + '" onclick="startMEGrv()">' +
+        '<i class="fas fa-file-invoice" style="background:' + (mes.grvDone ? 'var(--success)' : 'var(--accent)') + '"></i>' +
+        '<div style="flex:1"><strong>1. Complete All Outstanding GRVs</strong>' +
+        '<p>Ensure all deliveries for the month are captured to lock in final costs.</p></div>' +
+        (mes.grvDone ? '<span class="status-badge in-stock">SUBMITTED</span>' : '<button class="btn-primary flash-submit">START</button>') +
+        '</div>' +
 
-        '<div style="max-width:600px">' +
-        // Step 1
-        '<div class="month-end-option ' + (monthEndState.grvDone ? 'completed' : '') + '" onclick="' + (monthEndState.grvDone ? '' : 'startMonthEndGRV()') + '">' +
-        '<i class="fas fa-clipboard-check" style="background:' + (monthEndState.grvDone ? 'var(--success)' : 'var(--gold)') + '"></i>' +
-        '<div style="flex:1"><strong style="color:var(--text)">Step 1: Complete All GRVs</strong>' +
-        '<p style="font-size:.78rem;color:var(--text-light);margin-top:4px">' + (monthEndState.grvDone ? 'Done ✓' : 'Process all outstanding invoices') + '</p></div></div>' +
+        // STEP 2: STOCK TAKE
+        '<div class="month-end-option ' + (mes.stockTakeDone ? 'completed' : '') + ' ' + (!mes.grvDone ? 'disabled' : '') + '" onclick="startMEStock()">' +
+        '<i class="fas fa-clipboard-list" style="background:' + (mes.stockTakeDone ? 'var(--success)' : 'var(--accent)') + '"></i>' +
+        '<div style="flex:1"><strong>2. Final Monthly Stock Take</strong>' +
+        '<p>Count all items by department for accurate month-end valuation.</p></div>' +
+        (mes.stockTakeDone ? '<span class="status-badge in-stock">SUBMITTED</span>' : '<button class="btn-primary ' + (mes.grvDone ? 'flash-submit' : '') + '">START</button>') +
+        '</div>' +
 
-        // Step 2
-        '<div class="month-end-option ' + (monthEndState.stockTakeDone ? 'completed' : '') + '" ' +
-        'style="' + (!monthEndState.grvDone ? 'opacity:.5;pointer-events:none' : '') + '" ' +
-        'onclick="' + (monthEndState.grvDone && !monthEndState.stockTakeDone ? 'startMonthEndStockTake()' : '') + '">' +
-        '<i class="fas fa-clipboard-list" style="background:' + (monthEndState.stockTakeDone ? 'var(--success)' : 'var(--accent)') + '"></i>' +
-        '<div style="flex:1"><strong style="color:var(--text)">Step 2: Closing Stock Take</strong>' +
-        '<p style="font-size:.78rem;color:var(--text-light);margin-top:4px">' + (monthEndState.stockTakeDone ? 'Done ✓' : 'Count all stock for closing values') + '</p></div></div>' +
+        // FINAL EXECUTION
+        (mes.grvDone && mes.stockTakeDone ? 
+            '<div class="form-card" style="text-align:center;border-top:4px solid var(--success)">' +
+            '<h3>Ready to Close Month</h3><p>All data will be archived and live values reset to zero.</p>' +
+            '<button class="btn-success btn-block flash-submit" style="height:60px;font-size:1.2rem" onclick="execMonthEnd()">CLOSE MONTH & ARCHIVE</button></div>' 
+        : '') +
 
-        // Submit
-        (monthEndState.grvDone && monthEndState.stockTakeDone ?
-            '<button class="btn-success flash-submit" onclick="executeMonthEnd()" style="width:100%;padding:18px;font-size:1.1rem;margin-top:14px">' +
-            '<i class="fas fa-calendar-check"></i> Submit Month End & Close Month</button>' : '') +
         '</div>';
 }
 
@@ -5744,6 +5783,11 @@ function saveEditedUser(userId) {
     closeModal();
     renderUsers();
     toast('success', '✅ ' + user.name + ' updated');
+// Logic to handle Department Lock
+if (!user.lockedDepartment && selectedDepartment) {
+    user.lockedDepartment = selectedDepartment;
+    // Trigger the initial WhatsApp verification message via Resend/Webhook
+    triggerWhatsAppInvite(user.phone, user.lockedDepartment);
 }
 // ============================================================
 // MULTI-LANGUAGE SUPPORT
@@ -6722,6 +6766,66 @@ console.log('✅ Miglatron — Fully Loaded');
 console.log('🤖 Tour system ready');
 console.log('💬 FAQ system ready');
 console.log('📊 Analytics tracking active');
+
+// ============================================================
+// STAFF CLOCK IN/OUT SYSTEM
+// ============================================================
+function showClockInOutModal() {
+    showModal('<i class="fas fa-clock" style="color:var(--accent)"></i> Staff Clock In/Out',
+        '<div style="text-align:center;padding:10px">'+
+        '<p style="font-size:.9rem;color:var(--text-mid);margin-bottom:20px">Enter your password to Clock In or Out</p>'+
+        '<input type="password" id="clock-pass" class="form-input" style="text-align:center;font-size:1.5rem;letter-spacing:5px" placeholder="******">'+
+        '<div id="clock-status-msg" style="margin-top:15px;min-height:20px;font-weight:600"></div>'+
+        '</div>',
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>'+
+        '<button class="btn-primary" onclick="processClockAction()">Confirm</button>'
+    );
+}
+
+function processClockAction() {
+    var pass = document.getElementById('clock-pass').value;
+    var statusEl = document.getElementById('clock-status-msg');
+    
+    // Find user with this password in current entity
+    var users = getUsers();
+    var user = users.find(function(u) { return u.password === pass; });
+
+    if (!user) {
+        statusEl.style.color = 'var(--danger)';
+        statusEl.textContent = '❌ Invalid Password';
+        return;
+    }
+
+    var now = new Date();
+    var dateKey = now.toISOString().split('T')[0];
+    if (!S.shifts[eid()]) S.shifts[eid()] = {};
+    if (!S.shifts[eid()][dateKey]) S.shifts[eid()][dateKey] = [];
+
+    var userShift = S.shifts[eid()][dateKey].find(function(s) { return s.userId === user.id && !s.clockOut; });
+
+    if (userShift) {
+        // Clock Out
+        userShift.clockOut = now.toISOString();
+        var duration = (new Date(userShift.clockOut) - new Date(userShift.clockIn)) / 3600000;
+        statusEl.style.color = 'var(--warning)';
+        statusEl.textContent = '👋 Goodbye ' + user.name + '! Clocked out. Duration: ' + duration.toFixed(2) + ' hrs';
+        logAction('Clock Out', user.name);
+    } else {
+        // Clock In
+        S.shifts[eid()][dateKey].push({
+            userId: user.id,
+            userName: user.name,
+            clockIn: now.toISOString(),
+            clockOut: null
+        });
+        statusEl.style.color = 'var(--success)';
+        statusEl.textContent = '✅ Welcome ' + user.name + '! Clocked in at ' + now.toLocaleTimeString();
+        logAction('Clock In', user.name);
+    }
+    
+    debouncedSave();
+    setTimeout(closeModal, 2500);
+}
 </script>
 </body>
 </html>
