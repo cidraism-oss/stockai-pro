@@ -1566,19 +1566,341 @@ console.log('✅ ProcureAI embedded');
 
 <script>
 // ============================================================
-// EMBEDDED: MENU MASTER
+// EMBEDDED APP: MENU MASTER — FULL VERSION
 // ============================================================
 function getMenuMasterHTML() {
     return '<div style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)">' +
-        '<header class="hub-header" style="background:linear-gradient(90deg,#6b21a8,#8b5cf6)"><button class="return-hub-btn" onclick="closeEmbeddedApp()"><i class="fas fa-arrow-left"></i> Hub</button>' +
-        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff"><i class="fas fa-utensils"></i><div><div style="font-size:.88rem;font-weight:700">Menu Master</div><div style="font-size:.62rem;color:rgba(255,255,255,.7)">'+(HUB.entityName||'')+'</div></div></div></header>' +
-        '<div style="flex:1;overflow-y:auto;padding:16px;text-align:center;color:var(--text-light)">' +
-        '<div style="padding:40px"><i class="fas fa-utensils" style="font-size:3rem;opacity:.3;display:block;margin-bottom:14px;color:#8b5cf6"></i>' +
-        '<h3 style="color:var(--text)">Menu Master</h3><p style="margin-top:8px">Create and manage menu items. Use the Web App for full recipe costing features.</p></div></div></div>';
+        '<header class="hub-header" style="background:linear-gradient(90deg,#6b21a8,#8b5cf6)">' +
+        '<button class="return-hub-btn" onclick="closeEmbeddedApp()"><i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff"><i class="fas fa-utensils"></i>' +
+        '<div><div style="font-size:.88rem;font-weight:700">Menu Master</div>' +
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' + (HUB.entityName || 'Entity') + '</div></div></div>' +
+        '<button class="hub-hbtn" onclick="mmRefresh()" style="background:rgba(255,255,255,.15)"><i class="fas fa-sync-alt"></i></button></header>' +
+        '<div id="mm-content" style="flex:1;overflow-y:auto;padding:16px;padding-bottom:80px;-webkit-overflow-scrolling:touch"></div>' +
+        '<nav style="height:var(--nav-h);background:var(--bg-card);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+        mmNavBtn('mm-dash', 'fa-chart-pie', 'Dashboard', true) +
+        mmNavBtn('mm-items', 'fa-utensils', 'Items', false) +
+        mmNavBtn('mm-create', 'fa-plus-circle', 'Create', false) +
+        mmNavBtn('mm-stock', 'fa-box', 'Stock', false) +
+        '</nav></div>';
 }
-function initMenuMasterApp() {}
-console.log('✅ Menu Master embedded');
-</script>
+
+function mmNavBtn(page, icon, label, active) {
+    return '<div data-mmpage="' + page + '" onclick="mmNav(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;' +
+        'border-radius:var(--rs);cursor:pointer;min-width:56px;' +
+        'color:' + (active ? '#8b5cf6' : 'var(--text-light)') + ';' +
+        'background:' + (active ? 'rgba(139,92,246,.08)' : 'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:1.1rem"></i>' +
+        '<span style="font-size:.6rem;font-weight:600">' + label + '</span></div>';
+}
+
+function initMenuMasterApp() { mmNav('mm-dash'); }
+
+function mmRefresh() {
+    if (!HUB.accountId) return;
+    hubToast('info', '🔄 Refreshing...');
+    db.collection('accounts').doc(HUB.accountId).get().then(function(doc) {
+        if (doc.exists) { HUB.accountData = doc.data(); mmNav('mm-dash'); hubToast('success', '✅ Done'); }
+    });
+}
+
+function mmNav(page) {
+    document.querySelectorAll('[data-mmpage]').forEach(function(item) {
+        var isActive = item.dataset.mmpage === page;
+        item.style.color = isActive ? '#8b5cf6' : 'var(--text-light)';
+        item.style.background = isActive ? 'rgba(139,92,246,.08)' : 'transparent';
+    });
+    var content = document.getElementById('mm-content');
+    if (!content) return;
+    content.scrollTop = 0;
+
+    if      (page === 'mm-dash')   content.innerHTML = mmPageDash();
+    else if (page === 'mm-items')  content.innerHTML = mmPageItems();
+    else if (page === 'mm-create') content.innerHTML = mmPageCreate();
+    else if (page === 'mm-stock')  content.innerHTML = mmPageStock();
+}
+
+function mmGetMenuItems() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.menuItems || {})[HUB.entityId] || [];
+}
+
+function mmGetInv() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.inventory || {})[HUB.entityId] || [];
+}
+
+function mmSaveMenuItems(menuArray) {
+    if (!HUB.accountId || !HUB.entityId) return;
+    var update = {};
+    update['menuItems.' + HUB.entityId] = menuArray;
+    update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+    update.lastUpdatedBy = HUB.user ? HUB.user.name : 'Menu Master';
+    db.collection('accounts').doc(HUB.accountId).set(update, { merge: true })
+        .then(function() {
+            if (HUB.accountData) {
+                if (!HUB.accountData.menuItems) HUB.accountData.menuItems = {};
+                HUB.accountData.menuItems[HUB.entityId] = menuArray;
+            }
+        }).catch(function(err) { hubToast('error', 'Save error: ' + err.message); });
+}
+
+function mmFmt(n) { n = n || 0; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return n.toFixed(0); }
+function mmStat(l, v, c) { return '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px 10px;box-shadow:var(--shadow);border-left:3px solid ' + c + ';text-align:center"><div style="font-size:.58rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:3px">' + l + '</div><div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + v + '</div></div>'; }
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function mmPageDash() {
+    var ent = HUB.entity || {};
+    var inv = mmGetInv();
+    var menu = mmGetMenuItems();
+    var stockVal = inv.reduce(function(s, i) { return s + (i.value || 0); }, 0);
+
+    // Live food cost
+    var openingStock = ent.openingStockValue || stockVal;
+    var totalPurch = ((HUB.accountData || {}).purchases || {})[HUB.entityId] || [];
+    var purchTotal = totalPurch.reduce(function(s, p) { return s + (p.grvTotal || p.total || 0); }, 0);
+    var cashups = ((HUB.accountData || {}).cashups || {})[HUB.entityId] || {};
+    var totalSales = 0;
+    Object.values(cashups).forEach(function(cu) { if (typeof cu === 'object' && cu.total) totalSales += cu.total; });
+    var salesExVat = totalSales / 1.15;
+    var purchExVat = purchTotal / 1.15;
+    var liveFoodCost = salesExVat > 0 ? ((openingStock + purchExVat - stockVal) / salesExVat * 100) : 0;
+    var targetFC = ent.foodCostTarget || 28;
+    var fcColor = liveFoodCost > targetFC ? 'var(--danger)' : 'var(--success)';
+
+    var html = '';
+
+    // FC Comparison Card
+    html += '<div style="background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;border-left:4px solid #8b5cf6">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+        '<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#6b21a8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem"><i class="fas fa-chart-line"></i></div>' +
+        '<div><div style="font-size:1rem;font-weight:800;color:var(--text)">Food Cost Analysis</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">' + (HUB.entityName || '') + '</div></div></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">' +
+        '<div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs)">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:4px">Live Food Cost</div>' +
+        '<div style="font-size:2rem;font-weight:900;color:' + fcColor + '">' + liveFoodCost.toFixed(1) + '%</div></div>' +
+        '<div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs)">' +
+        '<div style="font-size:.62rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:4px">Target</div>' +
+        '<div style="font-size:2rem;font-weight:900;color:#8b5cf6">' + targetFC + '%</div></div></div>' +
+        '<div style="margin-top:14px;padding:12px;background:' + (liveFoodCost > targetFC ? 'rgba(201,69,69,.08)' : 'rgba(46,168,113,.08)') + ';border-radius:var(--rs);text-align:center;font-size:.85rem;font-weight:600;color:' + fcColor + '">' +
+        (liveFoodCost > targetFC ? '⚠️ ' + (liveFoodCost - targetFC).toFixed(1) + '% ABOVE target' : '✅ ' + (targetFC - liveFoodCost).toFixed(1) + '% BELOW target') + '</div></div>';
+
+    // Stats
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">' +
+        mmStat('Menu Items', menu.length, '#8b5cf6') +
+        mmStat('Stock Items', inv.length, 'var(--primary)') +
+        mmStat('Stock Value', 'R' + mmFmt(stockVal), 'var(--gold)') + '</div>';
+
+    // Menu cost analysis
+    if (menu.length > 0) {
+        var sorted = menu.slice().sort(function(a, b) { return (b.actualFC || 0) - (a.actualFC || 0); });
+        html += '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">📊 Menu Cost Analysis</div>';
+        sorted.slice(0, 8).forEach(function(m) {
+            var fc = m.actualFC || 0;
+            var fcBadge = fc > targetFC ? 'rgba(201,69,69,.1)' : 'rgba(46,168,113,.1)';
+            var fcCol = fc > targetFC ? 'var(--danger)' : 'var(--success)';
+            html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;box-shadow:var(--shadow)">' +
+                '<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + m.name + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-light)">Cost: R' + (m.costPerPortion || 0).toFixed(2) + ' • Price: R' + (m.setPrice || 0).toFixed(2) + '</div></div>' +
+                '<span style="padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;background:' + fcBadge + ';color:' + fcCol + '">' + fc.toFixed(1) + '%</span></div>';
+        });
+    }
+    return html;
+}
+
+// ============================================================
+// ITEMS LIST
+// ============================================================
+function mmPageItems() {
+    var menu = mmGetMenuItems();
+    var html = '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:12px"><i class="fas fa-search" style="color:var(--text-muted)"></i><input type="text" id="mm-search" placeholder="Search menu items..." oninput="mmFilterItems()" style="flex:1;border:none;outline:none;font-size:.88rem;font-family:inherit;color:var(--text);background:transparent"></div>';
+
+    if (menu.length === 0) {
+        return html + '<div style="text-align:center;padding:40px;color:var(--text-light)"><i class="fas fa-utensils" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:14px;color:#8b5cf6"></i><h3 style="color:var(--text)">No Menu Items</h3><p style="margin-top:6px">Tap "Create" to add your first dish</p></div>';
+    }
+
+    html += '<div id="mm-items-list">';
+    menu.forEach(function(m, idx) {
+        var fc = m.actualFC || 0;
+        var targetFC = (HUB.entity || {}).foodCostTarget || 28;
+        var fcColor = fc > targetFC ? 'var(--danger)' : 'var(--success)';
+        var fcBg = fc > targetFC ? 'rgba(201,69,69,.1)' : 'rgba(46,168,113,.1)';
+
+        html += '<div data-mmname="' + m.name.toLowerCase() + '" style="background:var(--bg-card);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid #8b5cf6">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">' +
+            '<div style="flex:1"><div style="font-size:.92rem;font-weight:700;color:var(--text)">' + m.name + '</div>' +
+            '<div style="font-size:.7rem;color:var(--text-light);margin-top:2px">' + (m.ingredients ? m.ingredients.length : 0) + ' ingredients • Yield: ' + (m.yield || 1) + '</div></div>' +
+            '<span style="padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;background:' + fcBg + ';color:' + fcColor + '">FC: ' + fc.toFixed(1) + '%</span></div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px">' +
+            '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:var(--rs)"><div style="font-size:.58rem;color:var(--text-muted)">Cost</div><div style="font-size:.85rem;font-weight:700">R' + (m.costPerPortion || 0).toFixed(2) + '</div></div>' +
+            '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:var(--rs)"><div style="font-size:.58rem;color:var(--text-muted)">Price</div><div style="font-size:.85rem;font-weight:700;color:#8b5cf6">R' + (m.setPrice || 0).toFixed(2) + '</div></div>' +
+            '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:var(--rs)"><div style="font-size:.58rem;color:var(--text-muted)">FC%</div><div style="font-size:.85rem;font-weight:700;color:' + fcColor + '">' + fc.toFixed(1) + '%</div></div>' +
+            '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:var(--rs)"><div style="font-size:.58rem;color:var(--text-muted)">GP%</div><div style="font-size:.85rem;font-weight:700;color:var(--success)">' + (m.setPrice ? (100 - fc).toFixed(1) : '0') + '%</div></div></div>' +
+
+            '<div style="display:flex;gap:8px">' +
+            '<button onclick="showRecipeScaler(\'' + m.id + '\')" style="flex:1;padding:8px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:var(--rs);color:#8b5cf6;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fas fa-calculator"></i> Scale</button>' +
+            '<button onclick="mmViewItem(\'' + m.id + '\')" style="flex:1;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);color:var(--text-mid);font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fas fa-eye"></i> View</button>' +
+            '<button onclick="mmDeleteItemById(\'' + m.id + '\')" style="flex:1;padding:8px;background:rgba(201,69,69,.1);border:1px solid rgba(201,69,69,.3);border-radius:var(--rs);color:var(--danger);font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fas fa-trash"></i> Delete</button></div></div>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function mmFilterItems() {
+    var q = (document.getElementById('mm-search').value || '').toLowerCase();
+    document.querySelectorAll('#mm-items-list [data-mmname]').forEach(function(el) {
+        el.style.display = (el.dataset.mmname || '').includes(q) ? '' : 'none';
+    });
+}
+
+function mmViewItem(id) {
+    var m = mmGetMenuItems().find(function(x) { return x.id === id; });
+    if (!m) return;
+    var ingList = (m.ingredients || []).map(function(i) {
+        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem"><span style="color:var(--text)">' + i.item + ' (' + i.qty + ' ' + i.unit + ')</span><span style="font-weight:600;color:#8b5cf6">R' + (i.total || 0).toFixed(2) + '</span></div>';
+    }).join('');
+    var fc = m.actualFC || 0;
+    var fcColor = fc > ((HUB.entity || {}).foodCostTarget || 28) ? 'var(--danger)' : 'var(--success)';
+    showHubModal(m.name,
+        ingList + '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-top:14px">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem"><span>Cost/Portion:</span><strong style="color:#8b5cf6">R' + (m.costPerPortion || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem"><span>Price:</span><strong>R' + (m.setPrice || 0).toFixed(2) + '</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:1rem;font-weight:800;border-top:2px solid #8b5cf6;padding-top:10px;margin-top:4px"><span>FC%:</span><strong style="color:' + fcColor + '">' + fc.toFixed(1) + '%</strong></div></div>' +
+        '<button onclick="closeHubModal();showRecipeScaler(\'' + m.id + '\')" style="width:100%;margin-top:14px;padding:12px;background:linear-gradient(135deg,#8b5cf6,#6b21a8);color:#fff;border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-calculator"></i> Scale This Recipe</button>',
+        '<button onclick="closeHubModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600;color:var(--text-mid)">Close</button>'
+    );
+}
+
+function mmDeleteItemById(id) {
+    if (!confirm('Delete this menu item?')) return;
+    var menu = mmGetMenuItems().filter(function(m) { return m.id !== id; });
+    mmSaveMenuItems(menu);
+    mmNav('mm-items');
+    hubToast('success', 'Deleted');
+}
+
+// ============================================================
+// CREATE ITEM
+// ============================================================
+function mmPageCreate() {
+    var inv = mmGetInv();
+    var ent = HUB.entity || {};
+
+    return '<div style="background:var(--bg-card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px;border-left:4px solid #8b5cf6">' +
+        '<div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:14px"><i class="fas fa-plus-circle" style="color:#8b5cf6"></i> Create Menu Item</div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Menu Item Name *</label>' +
+        '<input type="text" id="mm-name" placeholder="e.g. Grilled Chicken Burger" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.85rem"></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Yield (Portions)</label>' +
+        '<input type="number" id="mm-yield" value="1" min="1" oninput="mmCalcCost()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);background:var(--bg-dark);font-family:inherit"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Selling Price (R) *</label>' +
+        '<input type="number" id="mm-price" placeholder="0.00" step="0.01" oninput="mmCalcCost()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);background:var(--bg-dark);font-family:inherit"></div></div>' +
+        '<div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:8px"><i class="fas fa-list"></i> Ingredients</div>' +
+        '<p style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">Prices pulled from system automatically</p>' +
+        '<div id="mm-ingredients"></div>' +
+        '<button onclick="mmAddIngredient()" style="width:100%;padding:10px;background:var(--bg);border:1px dashed #8b5cf6;border-radius:var(--rs);color:#8b5cf6;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:14px"><i class="fas fa-plus"></i> Add Ingredient</button>' +
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:14px">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)"><span>Recipe Cost:</span><strong id="mm-total">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)"><span>÷ Yield:</span><strong id="mm-ydisp">1</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;border-top:1px solid var(--border);padding-top:8px;color:#8b5cf6"><span><strong>Cost/Portion:</strong></span><strong id="mm-pp" style="font-size:1rem">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem;color:var(--text-mid)"><span>Target FC:</span><strong>' + (ent.foodCostTarget || 28) + '%</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:1rem;font-weight:800;border-top:2px solid #8b5cf6;padding-top:10px;margin-top:4px"><span style="color:var(--text)">Actual FC%:</span><strong id="mm-fc" style="color:#8b5cf6">—</strong></div></div>' +
+        '<button onclick="mmSaveItem()" style="width:100%;padding:16px;background:linear-gradient(135deg,#8b5cf6,#6b21a8);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-save"></i> Save Menu Item</button></div>';
+}
+
+function mmAddIngredient() {
+    var inv = mmGetInv();
+    var opts = inv.length === 0 ? '<option value="">No stock items</option>' :
+        '<option value="">Select</option>' + inv.map(function(i) {
+            return '<option value="' + i.id + '" data-cost="' + (i.cost || 0) + '" data-unit="' + (i.unit || 'each') + '" data-name="' + i.name + '">' + i.name + '</option>';
+        }).join('');
+    var row = document.createElement('div');
+    row.className = 'mm-ing-row';
+    row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin-bottom:6px;align-items:center;padding:8px;background:var(--bg);border-radius:var(--rs)';
+    row.innerHTML = '<select class="mm-sel" onchange="mmCalcCost()" style="padding:8px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem">' + opts + '</select>' +
+        '<input type="number" class="mm-qty" placeholder="Qty" step="0.001" oninput="mmCalcCost()" style="padding:8px;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);background:var(--bg-dark);font-family:inherit;font-size:.82rem">' +
+        '<button onclick="this.parentElement.remove();mmCalcCost()" style="width:28px;height:28px;border-radius:50%;background:rgba(201,69,69,.1);border:none;color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>';
+    var container = document.getElementById('mm-ingredients');
+    if (container) container.appendChild(row);
+}
+
+function mmCalcCost() {
+    var totalCost = 0;
+    document.querySelectorAll('.mm-ing-row').forEach(function(row) {
+        var sel = row.querySelector('.mm-sel');
+        var qty = parseFloat(row.querySelector('.mm-qty').value) || 0;
+        if (sel && sel.selectedIndex > 0) totalCost += qty * (parseFloat(sel.options[sel.selectedIndex].dataset.cost) || 0);
+    });
+    var yieldVal = parseFloat(document.getElementById('mm-yield').value) || 1;
+    var costPP = totalCost / yieldVal;
+    var setPrice = parseFloat(document.getElementById('mm-price').value) || 0;
+    var targetFC = (HUB.entity || {}).foodCostTarget || 28;
+    var actualFC = setPrice > 0 ? (costPP / setPrice * 100) : 0;
+    var el;
+    el = document.getElementById('mm-total'); if (el) el.textContent = 'R ' + totalCost.toFixed(2);
+    el = document.getElementById('mm-ydisp'); if (el) el.textContent = yieldVal;
+    el = document.getElementById('mm-pp'); if (el) el.textContent = 'R ' + costPP.toFixed(2);
+    el = document.getElementById('mm-fc'); if (el) { el.textContent = setPrice > 0 ? actualFC.toFixed(1) + '%' : '—'; el.style.color = actualFC > targetFC ? 'var(--danger)' : 'var(--success)'; }
+}
+
+function mmSaveItem() {
+    var name = (document.getElementById('mm-name').value || '').trim();
+    if (!name) { hubToast('error', 'Enter name'); return; }
+    var yieldVal = parseFloat(document.getElementById('mm-yield').value) || 1;
+    var setPrice = parseFloat(document.getElementById('mm-price').value) || 0;
+    if (setPrice <= 0) { hubToast('error', 'Enter selling price'); return; }
+    var ingredients = []; var totalCost = 0;
+    document.querySelectorAll('.mm-ing-row').forEach(function(row) {
+        var sel = row.querySelector('.mm-sel'); var qty = parseFloat(row.querySelector('.mm-qty').value) || 0;
+        if (sel && sel.selectedIndex > 0 && qty > 0) {
+            var opt = sel.options[sel.selectedIndex]; var cost = parseFloat(opt.dataset.cost) || 0; var lc = qty * cost; totalCost += lc;
+            ingredients.push({ itemId: sel.value, item: opt.dataset.name, qty: qty, unit: opt.dataset.unit, cost: cost, total: parseFloat(lc.toFixed(2)) });
+        }
+    });
+    if (ingredients.length === 0) { hubToast('error', 'Add ingredients'); return; }
+    var costPP = totalCost / yieldVal; var targetFC = (HUB.entity || {}).foodCostTarget || 28;
+    var suggested = costPP / (targetFC / 100); var actualFC = (costPP / setPrice * 100);
+    var menu = mmGetMenuItems();
+    menu.push({ id: 'MN-' + Date.now(), name: name, ingredients: ingredients, yield: yieldVal, totalCost: parseFloat(totalCost.toFixed(2)), costPerPortion: parseFloat(costPP.toFixed(2)), suggestedPrice: parseFloat(suggested.toFixed(2)), setPrice: setPrice, actualFC: parseFloat(actualFC.toFixed(2)), sold: 0, createdBy: HUB.user ? HUB.user.name : 'Menu Master', createdAt: new Date().toISOString() });
+    mmSaveMenuItems(menu);
+    hubToast('success', '✅ ' + name + ' added!');
+    mmNav('mm-items');
+}
+
+// ============================================================
+// STOCK VIEW
+// ============================================================
+function mmPageStock() {
+    var inv = mmGetInv();
+    var html = '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:12px"><i class="fas fa-search" style="color:var(--text-muted)"></i><input type="text" id="mm-stock-search" placeholder="Search stock..." oninput="mmFilterStock()" style="flex:1;border:none;outline:none;font-size:.88rem;font-family:inherit;color:var(--text);background:transparent"></div>';
+    html += '<div id="mm-stock-list">';
+    inv.forEach(function(item) {
+        var bc = item.status === 'in-stock' ? 'var(--success)' : item.status === 'low-stock' ? 'var(--gold)' : 'var(--danger)';
+        var statusText = (item.status || '').split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+        html += '<div data-stkname="' + item.name.toLowerCase() + '" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;box-shadow:var(--shadow)">' +
+            '<div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;color:#8b5cf6;flex-shrink:0"><i class="fas fa-box"></i></div>' +
+            '<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-light)">' + (item.category || '') + ' • ' + (item.quantity || 0) + ' ' + item.unit + ' • R' + (item.cost || 0).toFixed(2) + '/' + item.unit + '</div></div>' +
+            '<span style="padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;background:rgba(0,0,0,.1);color:' + bc + '">' + statusText + '</span></div>';
+    });
+    html += '</div>';
+    if (inv.length === 0) html += '<div style="text-align:center;padding:40px;color:var(--text-light)"><i class="fas fa-box" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i><p>No stock items — add in Web App</p></div>';
+    return html;
+}
+
+function mmFilterStock() {
+    var q = (document.getElementById('mm-stock-search').value || '').toLowerCase();
+    document.querySelectorAll('#mm-stock-list [data-stkname]').forEach(function(el) {
+        el.style.display = (el.dataset.stkname || '').includes(q) ? '' : 'none';
+    });
+}
+
+console.log('✅ Menu Master embedded — Full Version');
 
 <script>
 // ============================================================
@@ -2564,6 +2886,171 @@ setTimeout(function() {
     var sel = document.getElementById('hub-lang-selector');
     if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
 }, 300);
+// ============================================================
+// MULTI-CURRENCY SUPPORT
+// ============================================================
+var CURRENCIES = {
+    ZAR: { code:'ZAR', symbol:'R',   name:'South African Rand', flag:'🇿🇦', rate:1 },
+    USD: { code:'USD', symbol:'$',   name:'US Dollar',          flag:'🇺🇸', rate:0.055 },
+    GBP: { code:'GBP', symbol:'£',   name:'British Pound',      flag:'🇬🇧', rate:0.044 },
+    EUR: { code:'EUR', symbol:'€',   name:'Euro',               flag:'🇪🇺', rate:0.051 },
+    ZWL: { code:'ZWL', symbol:'ZWL', name:'Zimbabwe Dollar',    flag:'🇿🇼', rate:18.5 },
+    MZN: { code:'MZN', symbol:'MT',  name:'Mozambique Metical', flag:'🇲🇿', rate:3.5 },
+    BWP: { code:'BWP', symbol:'P',   name:'Botswana Pula',      flag:'🇧🇼', rate:0.75 },
+    NAD: { code:'NAD', symbol:'N$',  name:'Namibian Dollar',    flag:'🇳🇦', rate:1 },
+    KES: { code:'KES', symbol:'KSh', name:'Kenyan Shilling',    flag:'🇰🇪', rate:8.5 },
+    NGN: { code:'NGN', symbol:'₦',   name:'Nigerian Naira',     flag:'🇳🇬', rate:85 }
+};
+
+// ============================================================
+// LIVE EXCHANGE RATES — Free Daily API
+// ExchangeRate-API (free tier — 1,500 requests/month)
+// ============================================================
+var RATES_LAST_UPDATED = null;
+var RATES_LOADING = false;
+
+function fetchLiveRates() {
+    if (RATES_LOADING) return;
+
+    // Only fetch once per day
+    var lastFetch = localStorage.getItem('stockai_rates_date');
+    var today = new Date().toISOString().split('T')[0];
+    if (lastFetch === today) {
+        // Load from cache
+        try {
+            var cached = localStorage.getItem('stockai_rates_cache');
+            if (cached) {
+                var rates = JSON.parse(cached);
+                applyRates(rates);
+                console.log('💱 Exchange rates loaded from cache');
+                return;
+            }
+        } catch(e) {}
+    }
+
+    RATES_LOADING = true;
+    console.log('💱 Fetching live exchange rates...');
+
+    // Free API — no key needed for this endpoint
+    // Base currency: USD — we convert via USD to ZAR
+    fetch('https://api.exchangerate-api.com/v4/latest/ZAR')
+        .then(function(response) {
+            if (!response.ok) throw new Error('Rate fetch failed');
+            return response.json();
+        })
+        .then(function(data) {
+            RATES_LOADING = false;
+            var rates = data.rates;
+
+            if (rates) {
+                applyRates(rates);
+
+                // Cache for today
+                localStorage.setItem('stockai_rates_cache', JSON.stringify(rates));
+                localStorage.setItem('stockai_rates_date', today);
+
+                RATES_LAST_UPDATED = new Date().toLocaleTimeString('en-ZA');
+                console.log('✅ Live exchange rates updated — ' + RATES_LAST_UPDATED);
+            }
+        })
+        .catch(function(err) {
+            RATES_LOADING = false;
+            console.warn('⚠️ Live rates unavailable — using cached rates:', err.message);
+            // Silently fail — keep hardcoded rates as fallback
+        });
+}
+
+function applyRates(rates) {
+    // rates are: 1 ZAR = X currency
+    Object.keys(CURRENCIES).forEach(function(code) {
+        if (code === 'ZAR') return; // Base currency
+        if (rates[code]) {
+            CURRENCIES[code].rate = rates[code];
+        }
+    });
+}
+
+// Fetch rates on app load
+setTimeout(function() {
+    try { fetchLiveRates(); } catch(e) { console.warn('Rate fetch error:', e); }
+}, 2000);
+
+// Refresh rates every 6 hours if app stays open
+setInterval(function() {
+    localStorage.removeItem('stockai_rates_date'); // Force refresh
+    try { fetchLiveRates(); } catch(e) {}
+}, 6 * 60 * 60 * 1000);
+
+var APP_CURRENCY = 'ZAR';
+var DISPLAY_CURRENCY = 'ZAR';
+
+function setCurrency(code) {
+    if (!CURRENCIES[code]) return;
+    DISPLAY_CURRENCY = code;
+    localStorage.setItem('stockai_currency', code);
+    toast('success', CURRENCIES[code].flag + ' Currency: ' + CURRENCIES[code].name);
+    safeRenderAll();
+}
+
+function formatCurrency(amountInZAR) {
+    var curr = CURRENCIES[DISPLAY_CURRENCY] || CURRENCIES['ZAR'];
+    var converted = amountInZAR * curr.rate;
+    if (converted >= 1e6) return curr.symbol + (converted / 1e6).toFixed(1) + 'M';
+    if (converted >= 1e3) return curr.symbol + (converted / 1e3).toFixed(1) + 'K';
+    return curr.symbol + converted.toFixed(2);
+}
+
+function formatCurrencyFull(amountInZAR) {
+    var curr = CURRENCIES[DISPLAY_CURRENCY] || CURRENCIES['ZAR'];
+    var converted = amountInZAR * curr.rate;
+    return curr.symbol + converted.toFixed(2);
+}
+
+// Load saved currency
+setTimeout(function() {
+    var saved = localStorage.getItem('stockai_currency');
+    if (saved && CURRENCIES[saved]) {
+        DISPLAY_CURRENCY = saved;
+    }
+}, 100);
+
+// Currency selector for Settings page
+function showCurrencySelector() {
+    var options = Object.keys(CURRENCIES).map(function(code) {
+        var c = CURRENCIES[code];
+        var isActive = DISPLAY_CURRENCY === code;
+        return '<div onclick="setCurrency(\'' + code + '\');closeModal()" ' +
+            'style="display:flex;align-items:center;gap:10px;padding:12px;' +
+            'background:' + (isActive ? 'rgba(26,139,168,.15)' : 'var(--bg)') + ';' +
+            'border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + ';' +
+            'border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:.2s">' +
+            '<span style="font-size:5mm">' + c.flag + '</span>' +
+            '<div style="flex:1"><div style="font-size:.88rem;font-weight:700;color:var(--text)">' +
+            c.symbol + ' — ' + c.name + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light)">' + c.code +
+            (code !== 'ZAR' ? ' (1 ZAR = ' + c.rate + ' ' + code + ')' : ' (Base Currency)') +
+            '</div></div>' +
+            (isActive ? '<i class="fas fa-check-circle" style="color:var(--accent);font-size:1rem"></i>' : '') +
+            '</div>';
+    }).join('');
+
+    showModal('<i class="fas fa-coins" style="color:var(--accent)"></i> Display Currency',
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:14px">' +
+        'Select your display currency. All values are stored in ZAR and converted for display.</p>' +
+        '<div style="max-height:400px;overflow-y:auto">' + options + '</div>',
+        '<button class="btn-outline" onclick="closeModal()">Close</button>'
+    );
+}
+
+// Update exchange rates (manual for now — could be API later)
+function updateExchangeRate(code, newRate) {
+    if (CURRENCIES[code]) {
+        CURRENCIES[code].rate = newRate;
+        toast('success', CURRENCIES[code].flag + ' Rate updated: 1 ZAR = ' + newRate + ' ' + code);
+    }
+}
+
+console.log('💱 Multi-Currency loaded — ' + Object.keys(CURRENCIES).length + ' currencies');
 </script>
 </body>
 </html>
