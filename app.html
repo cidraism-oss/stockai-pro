@@ -5911,6 +5911,641 @@ setTimeout(function() {
     if (APP_LANG !== 'en') appChangeLang(APP_LANG);
 }, 500);
 </script>
+<!-- ============================================================
+     MIGLATRON — THE WEB APP AI BOT
+     ============================================================ -->
+<style>
+/* ── MIGLATRON CONTAINER ── */
+#miglatron-container {
+    position:fixed;
+    bottom:0;
+    right:20px;
+    z-index:9500;
+    pointer-events:none;
+    width:100px;
+    height:110px;
+    overflow:visible;
+}
 
+#miglatron {
+    position:absolute;
+    bottom:10px;
+    right:10px;
+    width:70px;
+    height:90px;
+    cursor:pointer;
+    pointer-events:all;
+    transition:all .5s ease;
+}
+
+/* Sleeping */
+#miglatron.sleeping {
+    transform:rotate(90deg) translateX(10px);
+    transform-origin:bottom center;
+    bottom:5px;
+    right:10px;
+}
+
+/* Standing */
+#miglatron.standing {
+    transform:rotate(0deg) translateY(0);
+}
+
+/* Waking */
+#miglatron.waking {
+    animation:migWakeUp 1.5s ease forwards;
+}
+@keyframes migWakeUp {
+    0%   { transform:rotate(90deg) translateX(10px); }
+    30%  { transform:rotate(45deg) translateX(5px); }
+    50%  { transform:rotate(-10deg) translateY(-5px); }
+    70%  { transform:rotate(5deg) translateY(0); }
+    100% { transform:rotate(0deg) translateY(0); }
+}
+
+/* Walking */
+#miglatron.walking {
+    animation:migWalk .6s steps(2) infinite;
+}
+@keyframes migWalk {
+    0%   { transform:translateY(0); }
+    50%  { transform:translateY(-6px); }
+    100% { transform:translateY(0); }
+}
+
+/* Web shoot */
+#miglatron.webshoot .mig-arm.right {
+    animation:migWebShoot 1.5s ease forwards;
+}
+@keyframes migWebShoot {
+    0%   { transform:rotate(0); }
+    20%  { transform:rotate(-90deg) translateX(10px); }
+    40%  { transform:rotate(-120deg) translateX(15px); }
+    60%  { transform:rotate(-120deg) translateX(15px); }
+    100% { transform:rotate(0); }
+}
+
+/* ── ROBOT PARTS ── */
+.mig-body { position:relative; width:70px; height:90px; }
+.mig-head {
+    width:50px; height:44px; position:absolute; top:0; left:10px;
+    background:linear-gradient(180deg,#2a2a3e,#1a1a2e);
+    border-radius:8px 8px 4px 4px; border:2px solid #6366f1;
+    box-shadow:0 0 10px rgba(99,102,241,.3);
+}
+.mig-visor {
+    position:absolute; top:10px; left:6px; right:6px; height:16px;
+    background:linear-gradient(90deg,#0f0f1a,#1a1a2e);
+    border-radius:4px; border:1px solid #6366f1; overflow:hidden;
+}
+.mig-eye {
+    width:12px; height:10px; border-radius:2px; position:absolute; top:3px;
+    background:#00ff88; box-shadow:0 0 6px #00ff88;
+    animation:migBlink 5s ease-in-out infinite;
+}
+.mig-eye.left { left:5px; }
+.mig-eye.right { right:5px; }
+@keyframes migBlink {
+    0%,42%,58%,100% { transform:scaleY(1); }
+    45%,55% { transform:scaleY(.1); }
+}
+.mig-mouth {
+    position:absolute; bottom:6px; left:12px; right:12px; height:4px;
+    background:#6366f1; border-radius:2px;
+    box-shadow:0 0 6px rgba(99,102,241,.5);
+}
+.mig-mouth.talking { animation:migTalk .3s ease infinite alternate; }
+@keyframes migTalk { 0%{height:3px;opacity:.6} 100%{height:6px;opacity:1} }
+
+.mig-antenna {
+    width:3px; height:14px; background:#6366f1;
+    position:absolute; top:-12px; left:22px; border-radius:2px;
+}
+.mig-antenna::after {
+    content:''; width:10px; height:10px;
+    background:radial-gradient(circle,#f59e0b,#d97706);
+    border-radius:50%; position:absolute; top:-8px; left:-3.5px;
+    box-shadow:0 0 8px #f59e0b;
+    animation:migGlow 2s ease-in-out infinite;
+}
+@keyframes migGlow {
+    0%,100% { box-shadow:0 0 4px #f59e0b; transform:scale(1); }
+    50% { box-shadow:0 0 16px #f59e0b; transform:scale(1.2); }
+}
+
+.mig-torso {
+    width:42px; height:24px; position:absolute; top:46px; left:14px;
+    background:linear-gradient(180deg,#1a1a2e,#0f0f1a);
+    border-radius:4px; border:2px solid #6366f1;
+}
+.mig-chest-light {
+    width:12px; height:12px; border-radius:50%; position:absolute;
+    top:4px; left:13px; background:radial-gradient(circle,#00ff88,#00aa55);
+    box-shadow:0 0 8px #00ff88;
+    animation:migChest 3s ease-in-out infinite;
+}
+@keyframes migChest {
+    0%,100% { box-shadow:0 0 4px #00ff88; opacity:.8; }
+    50% { box-shadow:0 0 16px #00ff88; opacity:1; }
+}
+
+.mig-arm {
+    width:8px; height:22px; position:absolute; top:48px;
+    background:linear-gradient(180deg,#2a2a3e,#1a1a2e);
+    border-radius:4px; border:1px solid #6366f1;
+    transform-origin:top center; transition:transform .3s ease;
+}
+.mig-arm.left { left:4px; }
+.mig-arm.right { right:4px; }
+.mig-arm::after {
+    content:''; width:10px; height:8px;
+    background:#2a2a3e; border:1px solid #6366f1;
+    border-radius:3px; position:absolute; bottom:-6px; left:-2px;
+}
+
+.mig-leg {
+    width:12px; height:14px; position:absolute; top:68px;
+    background:linear-gradient(180deg,#1a1a2e,#0f0f1a);
+    border-radius:0 0 4px 4px; border:1px solid #6366f1;
+}
+.mig-leg.left { left:16px; }
+.mig-leg.right { right:16px; }
+.mig-leg::after {
+    content:''; width:16px; height:6px;
+    background:#0f0f1a; border:1px solid #6366f1;
+    border-radius:0 6px 6px 0; position:absolute;
+    bottom:-4px; left:-2px;
+}
+
+/* ── ZZZ ── */
+.mig-zzz {
+    position:absolute; top:-20px; right:-30px;
+    color:#6366f1; font-weight:900; font-size:.7rem;
+    opacity:0; animation:migZzz 3s ease-in-out infinite;
+}
+.mig-zzz:nth-child(2) { animation-delay:1s; font-size:.9rem; right:-35px; top:-30px; }
+.mig-zzz:nth-child(3) { animation-delay:2s; font-size:1.1rem; right:-40px; top:-40px; }
+@keyframes migZzz {
+    0%   { opacity:0; transform:translateY(0) rotate(0); }
+    30%  { opacity:1; }
+    100% { opacity:0; transform:translateY(-30px) rotate(15deg); }
+}
+
+/* ── OIL DROPS ── */
+.mig-oil-drop {
+    position:absolute; width:6px; height:8px;
+    background:#333; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    opacity:0;
+}
+@keyframes migOilDrip {
+    0%   { opacity:1; transform:translateY(0); }
+    100% { opacity:0; transform:translateY(60px); }
+}
+
+/* ── SPEECH BUBBLE ── */
+#mig-speech {
+    position:fixed; bottom:120px; right:30px;
+    background:var(--bg-card); border-radius:16px; padding:14px 18px;
+    box-shadow:0 6px 24px rgba(0,0,0,.3);
+    max-width:320px; min-width:240px; z-index:9501;
+    pointer-events:all; display:none;
+    border:2px solid #6366f1;
+    animation:migSpeechIn .4s cubic-bezier(.68,-.55,.27,1.55);
+}
+@keyframes migSpeechIn { from{opacity:0;transform:scale(.8) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+#mig-speech::after {
+    content:''; position:absolute; bottom:-10px; right:40px;
+    border-left:10px solid transparent; border-right:10px solid transparent;
+    border-top:10px solid var(--bg-card);
+}
+#mig-speech::before {
+    content:''; position:absolute; bottom:-13px; right:38px;
+    border-left:12px solid transparent; border-right:12px solid transparent;
+    border-top:12px solid #6366f1;
+}
+.mig-speech-text {
+    font-size:.82rem; color:var(--text); line-height:1.5; font-weight:500;
+}
+.mig-speech-text strong { color:#6366f1; }
+
+/* ── SIDEBAR HIGHLIGHT ── */
+.nav-link.mig-highlight {
+    background:rgba(99,102,241,.15) !important;
+    border-color:#6366f1 !important;
+    box-shadow:0 0 12px rgba(99,102,241,.3);
+    animation:migHighlight 1s ease-in-out infinite;
+}
+@keyframes migHighlight {
+    0%,100% { box-shadow:0 0 6px rgba(99,102,241,.2); }
+    50% { box-shadow:0 0 16px rgba(99,102,241,.4); }
+}
+
+/* ── CHAT PANEL ── */
+#mig-chat {
+    position:fixed; bottom:110px; right:20px; width:340px;
+    max-height:420px; background:var(--bg-card); border-radius:16px;
+    box-shadow:0 12px 40px rgba(0,0,0,.3); z-index:9502;
+    overflow:hidden; display:none; border:2px solid #6366f1;
+}
+.mig-chat-header {
+    background:linear-gradient(135deg,#6366f1,#4f46e5);
+    padding:14px 18px; display:flex; align-items:center; gap:10px; color:#fff;
+}
+.mig-chat-avatar {
+    width:36px; height:36px; background:rgba(255,255,255,.2);
+    border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:.9rem;
+}
+.mig-chat-header h4 { font-size:.85rem; font-weight:700; flex:1; }
+.mig-chat-close {
+    background:rgba(255,255,255,.2); border:none; color:#fff;
+    width:28px; height:28px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:.8rem;
+}
+.mig-chat-messages {
+    height:280px; overflow-y:auto; padding:14px;
+    display:flex; flex-direction:column; gap:10px; background:var(--bg);
+}
+.mig-msg {
+    max-width:85%; padding:10px 14px; border-radius:12px;
+    font-size:.8rem; line-height:1.5;
+}
+.mig-msg.bot {
+    align-self:flex-start; background:var(--bg-card); color:var(--text);
+    border-bottom-left-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,.1);
+    border-left:3px solid #6366f1;
+}
+.mig-msg.user {
+    align-self:flex-end; background:#6366f1; color:#fff;
+    border-bottom-right-radius:4px;
+}
+.mig-faq-btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.mig-faq-btn {
+    padding:5px 10px; background:var(--bg); border:1px solid var(--border);
+    border-radius:14px; font-size:.7rem; color:var(--text);
+    cursor:pointer; font-family:inherit; transition:.2s;
+}
+.mig-faq-btn:hover { background:#6366f1; color:#fff; border-color:#6366f1; }
+
+@media(max-width:768px) {
+    #mig-chat { width:calc(100vw - 30px); right:15px; }
+    #mig-speech { max-width:260px; right:15px; }
+}
+</style>
+
+<!-- MIGLATRON HTML -->
+<div id="miglatron-container">
+    <div id="miglatron" class="sleeping" onclick="miglatronInteract()">
+        <div class="mig-body">
+            <div class="mig-antenna"></div>
+            <div class="mig-head">
+                <div class="mig-visor">
+                    <div class="mig-eye left"></div>
+                    <div class="mig-eye right"></div>
+                </div>
+                <div class="mig-mouth" id="mig-mouth"></div>
+            </div>
+            <div class="mig-arm left"></div>
+            <div class="mig-arm right"></div>
+            <div class="mig-torso"><div class="mig-chest-light"></div></div>
+            <div class="mig-leg left"></div>
+            <div class="mig-leg right"></div>
+        </div>
+        <span class="mig-zzz" id="mig-zzz-1">Z</span>
+        <span class="mig-zzz" id="mig-zzz-2">Z</span>
+        <span class="mig-zzz" id="mig-zzz-3">Z</span>
+    </div>
+</div>
+
+<div id="mig-speech"><div class="mig-speech-text" id="mig-speech-text"></div></div>
+
+<div id="mig-chat">
+    <div class="mig-chat-header">
+        <div class="mig-chat-avatar"><i class="fas fa-robot"></i></div>
+        <h4>Miglatron</h4>
+        <button class="mig-chat-close" onclick="closeMigChat()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mig-chat-messages" id="mig-messages">
+        <div class="mig-msg bot">
+            <p>🤖 Hey! What can I help you with?</p>
+            <div class="mig-faq-btns" id="mig-faq-default"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// MIGLATRON ENGINE
+// ============================================================
+var MIG = { state:'sleeping', tourDone:false, tourStep:0, speechTimer:null };
+
+var MIG_TOUR = [
+    {page:'dashboard',text:'📊 <strong>Dashboard</strong> — Your command center! See live food cost, stock values, sales, AI insights.'},
+    {page:'inventory',text:'📦 <strong>Inventory</strong> — All stock items. Add items, create departments & categories. Costs locked — only via GRV.'},
+    {page:'menu-creation',text:'🍽️ <strong>Menu Creation</strong> — Build recipes, link ingredients. Prices pulled from last invoices.'},
+    {page:'stock-take',text:'📋 <strong>Stock Take</strong> — Count stock manually or use voice. Print count sheets.'},
+    {page:'cashup',text:'💰 <strong>Cash-up</strong> — Record daily sales. Waiter cash-ups from POS appear here.'},
+    {page:'day-end',text:'🌙 <strong>Day End</strong> — Close the day. Top sellers, wastage. All cashups must be reviewed first.'},
+    {page:'purchases',text:'🛒 <strong>Purchases</strong> — All POs. AI generates orders! Track from ordering → delivery → GRV → payment.'},
+    {page:'grv',text:'✅ <strong>GRV</strong> — Process deliveries. Enter actual qty & costs. The ONLY way stock & costs update.'},
+    {page:'suppliers',text:'🚚 <strong>Suppliers</strong> — Manage info, delivery days, payment terms. Download & upload price lists.'},
+    {page:'wastage',text:'🗑️ <strong>Wastage</strong> — Log waste with reasons. Track monthly totals. AI identifies patterns.'},
+    {page:'reports',text:'📊 <strong>Reports</strong> — Date range reports. Print & email. Food cost, stock, wastage, user logs.'},
+    {page:'users',text:'👥 <strong>Users</strong> — Add team members, create custom roles, control app access.'},
+    {page:'pos-builder',text:'📺 <strong>POS Builder</strong> — Build front-of-house selling screen. Color-coded departments, linked menu items.'},
+    {page:'invoicing',text:'💳 <strong>Invoicing</strong> — Create professional client invoices. Paid invoices add to sales.'},
+    {page:'settings',text:'⚙️ <strong>Settings</strong> — Entity details, food cost target.'},
+    {page:'month-end',text:'📅 <strong>Month End</strong> — Complete GRVs first, then closing stock take. Auto-calculates food cost.'}
+];
+
+var MIG_FAQ = {
+    'food-cost':'📊 <strong>Live Food Cost</strong> = (Opening Stock + Purchases - Closing Stock) ÷ Sales × 100. All excl. VAT. Updates in real-time!',
+    'add-stock':'📦 Go to <strong>Inventory</strong> → <strong>Add Item</strong> → Fill Tab 1 (details) → Tab 2 (link suppliers) → Save. Costs only update via GRV.',
+    'voice-count':'🎤 Go to <strong>Stock Take</strong> → Click <strong>Voice Count</strong> → Say item + quantity → System updates automatically.',
+    'create-po':'🛒 Go to <strong>Purchases</strong> → <strong>Manual PO</strong> → Select supplier → Only their linked items show → Enter qty → Submit. Auto-emailed!',
+    'grv':'✅ Mark order as <strong>Delivered</strong> in Purchases → Go to <strong>GRV</strong> → Enter actual qty & cost → Submit → Stock & costs update!',
+    'month-end':'📅 Step 1: Complete all GRVs → Step 2: Closing stock take → Submit → Food cost calculated, data resets for new month.',
+    'add-supplier':'🚚 Go to <strong>Suppliers</strong> → <strong>Add</strong> → Enter details, delivery days, payment terms → Save.',
+    'add-user':'👥 Go to <strong>Users</strong> → <strong>Create User</strong> → Enter name, email, role, app access → Invite sent automatically.',
+    'pos-builder':'📺 Go to <strong>POS Builder</strong> → Create departments (color-coded) → Add selling items → Link to menu items → Submit to POS.',
+    'invoicing':'💳 Go to <strong>Invoicing</strong> → <strong>Create Invoice</strong> → Add client details + line items → Save or Save & Email.',
+    'help':'🤖 I can help with: food cost, adding stock, voice counting, purchase orders, GRV, month end, suppliers, users, POS builder, invoicing.'
+};
+
+var MIG_FAQ_BUTTONS = [
+    {key:'food-cost',label:'Food Cost?'},{key:'add-stock',label:'Add Stock?'},
+    {key:'voice-count',label:'Voice Count?'},{key:'create-po',label:'Create PO?'},
+    {key:'grv',label:'GRV Process?'},{key:'month-end',label:'Month End?'},
+    {key:'add-supplier',label:'Add Supplier?'},{key:'add-user',label:'Add User?'},
+    {key:'pos-builder',label:'POS Builder?'},{key:'invoicing',label:'Invoicing?'},
+    {key:'help',label:'What can you do?'}
+];
+
+// Check if first time
+function checkMigTour() {
+    var key = 'mig_tour_' + (S._accountId || 'x') + '_' + (eid() || 'x');
+    if (localStorage.getItem(key)) {
+        MIG.tourDone = true;
+        MIG.state = 'sleeping';
+        showMigZzz(true);
+        return;
+    }
+    setTimeout(startMigIntro, 2000);
+    localStorage.setItem(key, 'done');
+}
+
+// Hook into enterApp
+var _migOrigEnter = enterApp;
+enterApp = function() {
+    _migOrigEnter();
+    setTimeout(checkMigTour, 1500);
+};
+
+// Intro sequence
+function startMigIntro() {
+    MIG.state = 'intro';
+    showMigZzz(false);
+    var bot = document.getElementById('miglatron');
+    bot.className = 'waking';
+
+    setTimeout(function() {
+        bot.className = 'standing';
+        migSpeak('👋 Hi there! My name is <strong>Miglatron</strong>!', 3000);
+    }, 1500);
+
+    setTimeout(function() { migSpeak("I'm your friendly neighbourhood...", 2000); }, 5000);
+    setTimeout(function() {
+        bot.classList.add('webshoot');
+        migSpeak('💧 *tries to shoot webs*... 😅', 1500);
+        spawnOilDrops();
+    }, 7500);
+    setTimeout(function() {
+        bot.classList.remove('webshoot');
+        migSpeak('...🤖 <strong>Robot!</strong> Haha, wrong franchise!', 2500);
+    }, 9500);
+    setTimeout(function() {
+        migSpeak("I'm here as your <strong>navigation guide</strong>! Let me show you around...", 3000);
+    }, 12500);
+    setTimeout(startMigTour, 16000);
+}
+
+function spawnOilDrops() {
+    var container = document.getElementById('miglatron-container');
+    for (var i = 0; i < 5; i++) {
+        var drop = document.createElement('div');
+        drop.className = 'mig-oil-drop';
+        drop.style.cssText = 'position:fixed;bottom:' + (70 + Math.random() * 20) + 'px;right:' + (30 + Math.random() * 30) + 'px;animation:migOilDrip ' + (.8 + Math.random() * .5) + 's ease ' + (i * .15) + 's forwards;';
+        container.appendChild(drop);
+        (function(d) { setTimeout(function() { if (d.parentElement) d.remove(); }, 2000); })(drop);
+    }
+}
+
+// Tour
+function startMigTour() {
+    MIG.state = 'touring';
+    MIG.tourStep = 0;
+    tourNextStep();
+}
+
+function tourNextStep() {
+    if (MIG.tourStep >= MIG_TOUR.length) { finishTour(); return; }
+    var step = MIG_TOUR[MIG.tourStep];
+    var navLinks = document.querySelectorAll('.nav-link');
+    var found = false;
+    navLinks.forEach(function(link) {
+        link.classList.remove('mig-highlight');
+        if (link.dataset.page === step.page) { link.classList.add('mig-highlight'); link.scrollIntoView({behavior:'smooth',block:'nearest'}); found = true; }
+    });
+    if (!found) { MIG.tourStep++; tourNextStep(); return; }
+    migSpeak(step.text, 8000);
+    MIG.tourStep++;
+    setTimeout(function() {
+        navLinks.forEach(function(l) { l.classList.remove('mig-highlight'); });
+        tourNextStep();
+    }, 10000);
+}
+
+function finishTour() {
+    MIG.state = 'idle';
+    MIG.tourDone = true;
+    document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('mig-highlight'); });
+    migSpeak('🎉 That\'s the tour! Click me anytime for help. Nap time... 😴', 4000);
+    setTimeout(goToSleep, 5000);
+}
+
+// Sleep/Wake
+function goToSleep() {
+    MIG.state = 'sleeping';
+    var bot = document.getElementById('miglatron');
+    bot.className = 'sleeping';
+    showMigZzz(true);
+    hideMigSpeech();
+}
+
+function wakeUp() {
+    MIG.state = 'waking';
+    showMigZzz(false);
+    var bot = document.getElementById('miglatron');
+    bot.className = 'waking';
+    setTimeout(function() { bot.className = 'standing'; MIG.state = 'idle'; }, 1500);
+}
+
+function showMigZzz(show) {
+    for (var i = 1; i <= 3; i++) {
+        var z = document.getElementById('mig-zzz-' + i);
+        if (z) {
+            z.style.display = show ? 'block' : 'none';
+            z.style.position = 'absolute';
+            z.style.top = '-20px';
+            z.style.right = '-30px';
+        }
+    }
+}
+
+// Speech
+function migSpeak(text, duration) {
+    var speech = document.getElementById('mig-speech');
+    var textEl = document.getElementById('mig-speech-text');
+    var mouth = document.getElementById('mig-mouth');
+    textEl.innerHTML = text;
+    speech.style.display = 'block';
+    if (mouth) mouth.classList.add('talking');
+    clearTimeout(MIG.speechTimer);
+    MIG.speechTimer = setTimeout(hideMigSpeech, duration || 4000);
+}
+
+function hideMigSpeech() {
+    var speech = document.getElementById('mig-speech');
+    var mouth = document.getElementById('mig-mouth');
+    if (speech) speech.style.display = 'none';
+    if (mouth) mouth.classList.remove('talking');
+}
+
+// Interaction
+function miglatronInteract() {
+    if (MIG.state === 'touring' || MIG.state === 'intro') return;
+    if (MIG.state === 'sleeping') {
+        wakeUp();
+        setTimeout(openMigChat, 1600);
+    } else {
+        openMigChat();
+    }
+}
+
+// Chat
+function openMigChat() {
+    MIG.state = 'chatting';
+    hideMigSpeech();
+    document.getElementById('mig-chat').style.display = 'block';
+    var faqContainer = document.getElementById('mig-faq-default');
+    if (faqContainer && faqContainer.innerHTML === '') {
+        faqContainer.innerHTML = MIG_FAQ_BUTTONS.map(function(btn) {
+            return '<button class="mig-faq-btn" onclick="migAnswer(\'' + btn.key + '\')">' + btn.label + '</button>';
+        }).join('');
+    }
+}
+
+function closeMigChat() {
+    document.getElementById('mig-chat').style.display = 'none';
+    MIG.state = 'idle';
+    setTimeout(function() { if (MIG.state === 'idle') goToSleep(); }, 10000);
+}
+
+function migAnswer(key) {
+    var answer = MIG_FAQ[key];
+    var messages = document.getElementById('mig-messages');
+    var label = key;
+    MIG_FAQ_BUTTONS.forEach(function(btn) { if (btn.key === key) label = btn.label; });
+
+    var userMsg = document.createElement('div');
+    userMsg.className = 'mig-msg user';
+    userMsg.innerHTML = '<p>' + label + '</p>';
+    messages.appendChild(userMsg);
+
+    setTimeout(function() {
+        var botMsg = document.createElement('div');
+        botMsg.className = 'mig-msg bot';
+        if (answer) {
+            botMsg.innerHTML = '<p>' + answer + '</p>' +
+                '<div class="mig-faq-btns" style="margin-top:8px">' +
+                '<button class="mig-faq-btn" onclick="migAnswer(\'help\')">More help</button></div>';
+        } else {
+            storeUnknownQuestion(label);
+            botMsg.innerHTML = '<p>🤔 I don\'t have an answer for that yet! I\'ve noted your question.' +
+                '<br><br>WhatsApp: <a href="https://wa.me/27790440508" style="color:#6366f1;font-weight:600">079 044 0508</a></p>';
+        }
+        messages.appendChild(botMsg);
+        messages.scrollTop = messages.scrollHeight;
+    }, 500);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// Store unknown questions
+function storeUnknownQuestion(question) {
+    if (!S._accountId) return;
+    try {
+        db.collection('miglatron_questions').add({
+            question: question,
+            askedAt: new Date().toISOString(),
+            askedBy: S.user ? S.user.email : 'unknown',
+            entity: S.entities[S.activeEntity] ? S.entities[S.activeEntity].name : 'unknown',
+            userName: S.user ? S.user.name : 'unknown'
+        });
+    } catch(e) { console.warn('Q store error:', e); }
+}
+
+// Weekly FAQ report check
+function checkWeeklyMigReport() {
+    var lastReport = localStorage.getItem('mig_last_report');
+    var now = new Date();
+    var daysSince = lastReport ? Math.floor((now - new Date(lastReport)) / 86400000) : 999;
+    if (daysSince >= 7 && S.user && S.user.email === 'cidraism@gmail.com') {
+        db.collection('miglatron_questions').orderBy('askedAt', 'desc').limit(50).get()
+            .then(function(snap) {
+                if (snap.empty) return;
+                var questions = {};
+                snap.forEach(function(doc) {
+                    var d = doc.data();
+                    if (!questions[d.question]) questions[d.question] = { count: 0 };
+                    questions[d.question].count++;
+                });
+                var sorted = Object.entries(questions).sort(function(a, b) { return b[1].count - a[1].count; }).slice(0, 10);
+                var html = '<div style="font-family:Poppins;max-width:600px;margin:0 auto"><div style="background:#6366f1;padding:24px;text-align:center;border-radius:12px 12px 0 0;color:#fff"><h1 style="font-size:1.3rem;margin:0">🤖 Miglatron Weekly Report</h1></div>' +
+                    '<div style="background:#fff;padding:24px;border:1px solid #e0e0f0;border-radius:0 0 12px 12px"><p style="color:#0d4a5c;margin-bottom:16px">Top unanswered questions:</p><table style="width:100%;border-collapse:collapse">' +
+                    sorted.map(function(e, i) { return '<tr style="border-bottom:1px solid #f0f0ff"><td style="padding:10px;font-weight:700;color:#6366f1">#' + (i + 1) + '</td><td style="padding:10px;color:#0d4a5c">' + e[0] + '</td><td style="padding:10px;color:#5a8a96;text-align:center">' + e[1].count + 'x</td></tr>'; }).join('') +
+                    '</table></div></div>';
+                try { sendEmail('cidraism@gmail.com', '🤖 Miglatron Weekly Report — ' + now.toLocaleDateString('en-ZA'), html); } catch(e) {}
+                localStorage.setItem('mig_last_report', now.toISOString());
+            }).catch(function() {});
+    }
+}
+
+// Analytics tracking
+var _migOrigNav = navigate;
+navigate = function(page) {
+    _migOrigNav(page);
+    if (S._accountId && S.user) {
+        try {
+            db.collection('analytics').add({
+                action: 'navigate', page: page,
+                userId: S.user.email || '', userName: S.user.name || '',
+                role: S.user.role || '', entityId: eid() || '',
+                timestamp: new Date().toISOString(), device: navigator.platform || ''
+            });
+        } catch(e) {}
+    }
+};
+
+setTimeout(function() {
+    if (S.user && S.user.email === 'cidraism@gmail.com') {
+        try { checkWeeklyMigReport(); } catch(e) {}
+    }
+}, 5000);
+
+console.log('✅ Miglatron — Fully Loaded');
+console.log('🤖 Tour system ready');
+console.log('💬 FAQ system ready');
+console.log('📊 Analytics tracking active');
+</script>
 </body>
 </html>
