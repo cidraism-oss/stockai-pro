@@ -936,6 +936,7 @@ section { padding: 90px 24px; position: relative; }
           <div class="booking-field"><label>Contact Number *</label><input type="tel" id="book-phone" placeholder="079 044 0508"></div>
           <div class="booking-field"><label>Business / Entity Name *</label><input type="text" id="book-business" placeholder="The Boma Restaurant"></div>
           <div class="booking-field"><label>Email Address *</label><input type="email" id="book-email" placeholder="you@business.co.za"></div>
+<div class="booking-field" style="grid-column:1/-1"><label>Business Address *</label><input type="text" id="book-address" placeholder="123 Main Street, Sandton, Johannesburg, 2196"></div>
         </div>
         <button class="booking-submit" onclick="submitBooking()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
       </div>
@@ -1422,8 +1423,9 @@ function submitBooking() {
   var phone    = document.getElementById('book-phone').value.trim();
   var business = document.getElementById('book-business').value.trim();
   var email    = document.getElementById('book-email').value.trim();
+  var address  = document.getElementById('book-address').value.trim();
 
-  if (!name || !phone || !business || !email) { showToast('error', 'Please fill in all fields'); return; }
+if (!name || !phone || !business || !email || !address) { showToast('error', 'Please fill in all fields'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('error', 'Please enter a valid email'); return; }
   if (!selectedBookingDate || !selectedBookingSlot) { showToast('error', 'Please select a date and time slot'); return; }
 
@@ -1435,14 +1437,14 @@ function submitBooking() {
 
   var slotLabels = { morning: '08:00 — 12:00 (Morning)', afternoon: '13:00 — 17:00 (Afternoon)' };
 
-  var booking = {
+ var booking = {
     id: 'BK-' + Date.now(),
     date: selectedBookingDate,
     slot: selectedBookingSlot,
     slotLabel: slotLabels[selectedBookingSlot],
-    customer: { name: name, phone: phone, business: business, email: email },
+    customer: { name: name, phone: phone, business: business, email: email, address: address },
     timestamp: new Date().toISOString()
-  };
+};
 
   storedBookings.push(booking);
   localStorage.setItem('stockai_bookings', JSON.stringify(storedBookings));
@@ -1469,6 +1471,7 @@ function submitBooking() {
     document.getElementById('book-phone').value = '';
     document.getElementById('book-business').value = '';
     document.getElementById('book-email').value = '';
+    document.getElementById('book-address').value = '';
     document.getElementById('time-slot-wrap').style.display = 'none';
     document.getElementById('booking-form-wrap').style.display = 'none';
   }, 1500);
