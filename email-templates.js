@@ -68,15 +68,16 @@ function sendEmail(to, subject, html) {
         console.warn('sendEmail: no valid recipients');
         return Promise.resolve({ ok: false });
     }
+
+    // Use Cloudflare Worker proxy to bypass CORS
+    var PROXY_URL = 'https://YOUR-ACTUAL-WORKER-URL.workers.dev';
+
     console.log('📧 Sending to:', recipients.join(', '), '| Subject:', subject);
-    return fetch('https://api.resend.com/emails', {
+
+    return fetch(PROXY_URL, {
         method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + EMAIL_CONFIG.apiKey,
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            from: EMAIL_CONFIG.fromName + ' <' + EMAIL_CONFIG.fromEmail + '>',
             to: recipients,
             subject: subject,
             html: html
@@ -86,9 +87,7 @@ function sendEmail(to, subject, html) {
         if (res.ok) {
             console.log('✅ Email sent to:', recipients.join(', '));
         } else {
-            res.text().then(function(body) {
-                console.error('❌ Email failed. Status:', res.status, 'Body:', body);
-            });
+            console.error('❌ Email failed. Status:', res.status);
         }
         return res;
     })
@@ -97,7 +96,6 @@ function sendEmail(to, subject, html) {
         return { ok: false };
     });
 }
-
 // ============================================================
 // REUSABLE COMPONENTS
 // ============================================================
