@@ -7,203 +7,825 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-:root{--primary:#1a8ba8;--primary-dark:#0d4a5c;--bg:#0a1a1f;--bg-card:#0f2a33;--text:#e0f0f4;--text-light:#6a9aaa;--gold:#f59e0b;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--border:#1a3a44}
+:root{
+    --primary:#1a8ba8;
+    --primary-dark:#0d4a5c;
+    --bg:#0a1a1f;
+    --bg-card:#0f2a33;
+    --text:#e0f0f4;
+    --text-light:#6a9aaa;
+    --gold:#f59e0b;
+    --success:#2ea871;
+    --danger:#c94545;
+    --warning:#d4a017;
+    --border:#1a3a44
+}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.kd-header{background:linear-gradient(90deg,var(--primary-dark),var(--primary));padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+
+/* ── HEADER ── */
+.kd-header{
+    background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    padding:12px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:100
+}
 .kd-header h1{font-size:1.1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
 .kd-header-info{display:flex;gap:16px;align-items:center;font-size:.82rem;color:rgba(255,255,255,.7)}
-.kd-section-tabs{display:flex;gap:8px;padding:12px 24px;background:var(--bg-card);border-bottom:1px solid var(--border);overflow-x:auto}
-.kd-section-tab{padding:8px 18px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;color:#fff;border:none;font-family:inherit;opacity:.6;transition:.2s;background:var(--primary-dark)}
+.kd-header-info span{display:flex;align-items:center;gap:6px}
+.kd-disconnect-btn{
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.3);
+    color:#fff;
+    padding:6px 12px;
+    border-radius:6px;
+    font-size:.75rem;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+    transition:.2s
+}
+.kd-disconnect-btn:hover{background:rgba(201,69,69,.5)}
+
+/* ── SECTION TABS ── */
+.kd-section-tabs{
+    display:flex;
+    gap:8px;
+    padding:12px 24px;
+    background:var(--bg-card);
+    border-bottom:1px solid var(--border);
+    overflow-x:auto
+}
+.kd-section-tab{
+    padding:8px 18px;
+    border-radius:20px;
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    color:#fff;
+    border:none;
+    font-family:inherit;
+    opacity:.6;
+    transition:.2s;
+    background:var(--primary-dark);
+    white-space:nowrap
+}
 .kd-section-tab.active{opacity:1;background:var(--primary);box-shadow:0 2px 8px rgba(26,139,168,.4)}
-.kd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:20px 24px;align-content:start;min-height:calc(100vh - 120px)}
-.kd-card{background:var(--bg-card);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3);border:2px solid transparent;transition:border-color .3s}
+.kd-section-tab:hover{opacity:.9}
+
+/* ── GRID ── */
+.kd-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:16px;
+    padding:20px 24px;
+    align-content:start;
+    min-height:calc(100vh - 120px)
+}
+
+/* ── ORDER CARD ── */
+.kd-card{
+    background:var(--bg-card);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,.3);
+    border:2px solid transparent;
+    transition:border-color .3s;
+    display:flex;
+    flex-direction:column
+}
 .kd-card.green{border-color:var(--success)}
 .kd-card.orange{border-color:var(--warning)}
 .kd-card.red{border-color:var(--danger);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,69,69,.3)}50%{box-shadow:0 0 20px 4px rgba(201,69,69,.2)}}
+@keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(201,69,69,.3)}
+    50%{box-shadow:0 0 20px 4px rgba(201,69,69,.2)}
+}
 .kd-card-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
 .kd-card-header.green{background:rgba(46,168,113,.15)}
 .kd-card-header.orange{background:rgba(212,160,23,.15)}
 .kd-card-header.red{background:rgba(201,69,69,.15)}
 .kd-table-num{font-size:1.2rem;font-weight:900;color:var(--text)}
-.kd-waiter{font-size:.72rem;color:var(--text-light)}
-.kd-timer{padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:700;min-width:60px;text-align:center}
+.kd-order-type{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:3px;display:inline-block}
+.kd-order-type.dine-in{background:rgba(26,139,168,.2);color:var(--primary)}
+.kd-order-type.takeaway{background:rgba(245,158,11,.2);color:var(--gold)}
+.kd-waiter{font-size:.72rem;color:var(--text-light);margin-top:2px}
+.kd-timer{padding:6px 12px;border-radius:8px;font-size:.88rem;font-weight:700;min-width:64px;text-align:center;line-height:1.2}
 .kd-timer.green{background:rgba(46,168,113,.2);color:var(--success)}
 .kd-timer.orange{background:rgba(212,160,23,.2);color:var(--warning)}
 .kd-timer.red{background:rgba(201,69,69,.2);color:var(--danger)}
-.kd-items{padding:12px 16px}
-.kd-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.kd-timer small{display:block;font-size:.6rem;font-weight:400;opacity:.7}
+
+/* ── ITEMS ── */
+.kd-items{padding:12px 16px;flex:1}
+.kd-item{
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px
+}
 .kd-item:last-child{border-bottom:none}
+.kd-item-left{flex:1}
 .kd-item-name{font-size:.88rem;font-weight:600;color:var(--text)}
-.kd-item-note{font-size:.72rem;color:var(--gold);font-style:italic;margin-top:2px}
-.kd-item-qty{font-size:.82rem;font-weight:700;color:var(--primary)}
-.kd-done-btn{width:100%;padding:14px;background:var(--success);color:#fff;border:none;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.kd-item-note{font-size:.72rem;color:var(--gold);font-style:italic;margin-top:3px}
+.kd-item-qty{
+    font-size:.85rem;
+    font-weight:800;
+    color:#fff;
+    background:var(--primary);
+    border-radius:6px;
+    padding:2px 8px;
+    min-width:32px;
+    text-align:center
+}
+
+/* ── DONE BUTTON ── */
+.kd-done-btn{
+    width:100%;
+    padding:14px;
+    background:var(--success);
+    color:#fff;
+    border:none;
+    font-size:.88rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:.2s;
+    margin-top:auto
+}
 .kd-done-btn:hover{background:#1a7a4a}
-.kd-empty{text-align:center;padding:60px;color:var(--text-light)}
+.kd-done-btn:disabled{background:#2a4a3a;cursor:not-allowed;opacity:.6}
+
+/* ── EMPTY STATE ── */
+.kd-empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-light);
+    grid-column:1/-1
+}
 .kd-empty i{font-size:4rem;opacity:.2;display:block;margin-bottom:16px}
 .kd-empty h2{font-size:1.2rem;margin-bottom:6px;color:var(--text)}
-.kd-setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;z-index:200}
-.kd-setup-card{background:var(--bg-card);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.kd-empty p{font-size:.85rem}
+
+/* ── SETUP SCREEN ── */
+.kd-setup{
+    position:fixed;
+    inset:0;
+    background:var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:200
+}
+.kd-setup-card{
+    background:var(--bg-card);
+    border-radius:16px;
+    padding:32px;
+    width:100%;
+    max-width:420px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    border:1px solid var(--border)
+}
 .kd-setup-card h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
-.kd-setup-card p{font-size:.85rem;color:var(--text-light);margin-bottom:20px}
-.kd-setup-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text);background:var(--bg);margin-bottom:12px}
-.kd-setup-input:focus{outline:none;border-color:var(--primary)}
-.kd-setup-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit}
+.kd-setup-card>p{font-size:.85rem;color:var(--text-light);margin-bottom:24px}
+.kd-setup-input{
+    width:100%;
+    padding:12px 16px;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    font-size:.9rem;
+    font-family:inherit;
+    color:var(--text);
+    background:var(--bg);
+    margin-bottom:12px;
+    transition:.2s
+}
+.kd-setup-input:focus{outline:none;border-color:var(--primary);background:#0d2028}
+.kd-setup-input option{background:var(--bg)}
+.kd-setup-btn{
+    width:100%;
+    padding:14px;
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:.95rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    transition:.2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px
+}
+.kd-setup-btn:hover{background:var(--primary-dark)}
+.kd-setup-btn:disabled{opacity:.5;cursor:not-allowed}
+.kd-setup-error{
+    color:var(--danger);
+    font-size:.78rem;
+    margin-top:10px;
+    display:none
+}
+.kd-setup-hint{font-size:.72rem;color:var(--text-light);margin-top:12px}
+
+/* ── LOADING OVERLAY ── */
+.kd-loading{
+    position:fixed;
+    inset:0;
+    background:rgba(10,26,31,.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:300;
+    flex-direction:column;
+    gap:16px
+}
+.kd-loading-spinner{
+    width:48px;height:48px;
+    border:4px solid var(--border);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin .8s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.kd-loading p{color:var(--text-light);font-size:.85rem}
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
+<!-- ══════════════════════════════════════════
+     LOADING OVERLAY
+════════════════════════════════════════════ -->
+<div class="kd-loading" id="kd-loading" style="display:none">
+    <div class="kd-loading-spinner"></div>
+    <p>Connecting to kitchen...</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SETUP SCREEN
+════════════════════════════════════════════ -->
 <div class="kd-setup" id="kd-setup">
-<div class="kd-setup-card">
-<i class="fas fa-utensils" style="font-size:2.5rem;color:var(--primary);margin-bottom:16px"></i>
+    <div class="kd-setup-card">
+       <img src="/logo.svg" 
+     alt="StockAI-Pro" 
+     style="height:70px;width:auto;
+            margin-bottom:16px;display:block;
+            margin-left:auto;margin-right:auto">
 <h2>Kitchen Display Setup</h2>
-<p>Enter your account details to connect this screen to your POS.</p>
-<input type="text" class="kd-setup-input" id="kd-account" placeholder="Account ID (email format)">
-<input type="text" class="kd-setup-input" id="kd-entity" placeholder="Entity ID">
-<select class="kd-setup-input" id="kd-section">
-<option value="">All Sections</option>
-</select>
-<button class="kd-setup-btn" onclick="connectKitchen()"><i class="fas fa-plug"></i> Connect Kitchen Display</button>
-<p style="font-size:.72rem;color:var(--text-light);margin-top:12px">Contact your admin for these details</p>
-</div>
+        <p>Enter your account details to connect this screen to your POS system.</p>
+
+        <input type="text" class="kd-setup-input" id="kd-account"
+               placeholder="Account ID (e.g. user@email.com)"
+               autocomplete="off" spellcheck="false">
+
+        <input type="text" class="kd-setup-input" id="kd-entity"
+               placeholder="Entity ID"
+               autocomplete="off" spellcheck="false">
+
+        <select class="kd-setup-input" id="kd-section">
+            <option value="">All Sections</option>
+        </select>
+
+        <button class="kd-setup-btn" id="kd-connect-btn" onclick="connectKitchen()">
+            <i class="fas fa-plug"></i> Connect Kitchen Display
+        </button>
+
+        <div class="kd-setup-error" id="kd-setup-error">
+            <i class="fas fa-exclamation-circle"></i> <span id="kd-error-msg"></span>
+        </div>
+
+        <p class="kd-setup-hint">Contact your admin for Account ID and Entity ID details.</p>
+    </div>
 </div>
 
-<!-- MAIN DISPLAY -->
+<!-- ══════════════════════════════════════════
+     MAIN KITCHEN DISPLAY
+════════════════════════════════════════════ -->
 <div id="kd-main" style="display:none">
-<header class="kd-header">
-<a href="hub.html" style="color:#fff;font-size:1rem;text-decoration:none;margin-right:8px"><i class="fas fa-th"></i></a>
-<h1><i class="fas fa-fire-alt"></i> <span id="kd-title">Kitchen</span></h1>
-<div class="kd-header-info">
-<span id="kd-order-count">0 orders</span>
-<span id="kd-time"></span>
-</div>
-</header>
-<div class="kd-section-tabs" id="kd-tabs"></div>
-<div class="kd-grid" id="kd-grid"></div>
+
+    <!-- Header -->
+    <header class="kd-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a href="hub.html" style="color:rgba(255,255,255,.7);font-size:1rem;text-decoration:none"
+               title="Back to Hub"><i class="fas fa-th"></i></a>
+            <h1>
+    <img src="/logo.svg" 
+         alt="StockAI-Pro" 
+         style="height:24px;width:auto;
+                filter:brightness(0) invert(1);
+                vertical-align:middle;margin-right:6px">
+    <span id="kd-title">Kitchen</span>
+</h1>
+        </div>
+        <div class="kd-header-info">
+            <span><i class="fas fa-receipt"></i> <strong id="kd-order-count">0</strong>&nbsp;orders</span>
+            <span><i class="fas fa-clock"></i> <span id="kd-time">--:--:--</span></span>
+            <button class="kd-disconnect-btn" onclick="disconnectKitchen()" title="Disconnect">
+                <i class="fas fa-sign-out-alt"></i> Disconnect
+            </button>
+        </div>
+    </header>
+
+    <!-- Section Tabs -->
+    <div class="kd-section-tabs" id="kd-tabs"></div>
+
+    <!-- Order Cards Grid -->
+    <div class="kd-grid" id="kd-grid"></div>
+
 </div>
 
+<!-- ══════════════════════════════════════════
+     FIREBASE + APP SCRIPT
+════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-var firebaseConfig={apiKey:"AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",authDomain:"stockai-pro-b232e.firebaseapp.com",projectId:"stockai-pro-b232e",storageBucket:"stockai-pro-b232e.firebasestorage.app",messagingSenderId:"424200946359",appId:"1:424200946359:web:4c638eccd4e422ccc94332"};
-if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-var db=firebase.firestore();
+/* ─────────────────────────────────────────
+   FIREBASE INIT
+───────────────────────────────────────── */
+var firebaseConfig = {
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId:             "1:424200946379:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
-var KD={accountId:null,entityId:null,sectionId:null,orders:{},sections:[],listener:null};
+/* ─────────────────────────────────────────
+   APP STATE
+───────────────────────────────────────── */
+var KD = {
+    accountId:      null,
+    entityId:       null,
+    sectionId:      null,   // null = show all sections
+    orders:         {},
+    sections:       [],
+    listener:       null,   // Firestore unsubscribe fn
+    renderInterval: null,   // timer refresh interval
+    clockInterval:  null    // clock interval
+};
 
-// Check saved config
-var savedConfig=localStorage.getItem('kd_config');
-if(savedConfig){
-    try{var c=JSON.parse(savedConfig);KD.accountId=c.accountId;KD.entityId=c.entityId;KD.sectionId=c.sectionId;
-    document.getElementById('kd-setup').style.display='none';
-    document.getElementById('kd-main').style.display='block';
-    startKitchenSync();}catch(e){}
+/* ─────────────────────────────────────────
+   STARTUP — check saved config
+───────────────────────────────────────── */
+(function init() {
+    try {
+        var saved = localStorage.getItem('kd_config');
+        if (saved) {
+            var c = JSON.parse(saved);
+            if (c.accountId && c.entityId) {
+                KD.accountId = c.accountId;
+                KD.entityId  = c.entityId;
+                KD.sectionId = c.sectionId || null;
+                showLoading(true);
+                startKitchenSync();
+                return;
+            }
+        }
+    } catch (e) { /* corrupt storage — fall through to setup */ }
+    showSetup();
+})();
+
+/* ─────────────────────────────────────────
+   UI HELPERS
+───────────────────────────────────────── */
+function showSetup() {
+    document.getElementById('kd-setup').style.display = 'flex';
+    document.getElementById('kd-main').style.display  = 'none';
+    showLoading(false);
 }
 
-function connectKitchen(){
-    var accountId=(document.getElementById('kd-account').value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'_');
-    var entityId=(document.getElementById('kd-entity').value||'').trim();
-    var sectionId=document.getElementById('kd-section').value;
-    if(!accountId||!entityId){alert('Please enter Account ID and Entity ID');return;}
-    KD.accountId=accountId;KD.entityId=entityId;KD.sectionId=sectionId;
-    localStorage.setItem('kd_config',JSON.stringify({accountId:accountId,entityId:entityId,sectionId:sectionId}));
-    document.getElementById('kd-setup').style.display='none';
-    document.getElementById('kd-main').style.display='block';
-    startKitchenSync();
+function showMain() {
+    document.getElementById('kd-setup').style.display = 'none';
+    document.getElementById('kd-main').style.display  = 'block';
+    showLoading(false);
 }
 
-function startKitchenSync(){
-    if(!KD.accountId)return;
-    if(KD.listener)KD.listener();
-    KD.listener=db.collection('accounts').doc(KD.accountId).onSnapshot(function(doc){
-        if(!doc.exists)return;var d=doc.data();
-        KD.orders=(d.posOrders||{})[KD.entityId]||{};
-        KD.sections=(d.posKitchenSections||{})[KD.entityId]||[];
-        var entityName='';(d.entities||[]).forEach(function(e){if(e.id===KD.entityId)entityName=e.name;});
-        document.getElementById('kd-title').textContent=(KD.sectionId?
-            (KD.sections.find(function(s){return s.id===KD.sectionId;})||{}).name||'Kitchen':'Kitchen')+
-            (entityName?' — '+entityName:'');
-        renderKitchenOrders();
-    });
-    setInterval(renderKitchenOrders,10000);
-    setInterval(function(){document.getElementById('kd-time').textContent=new Date().toLocaleTimeString('en-ZA');},1000);
+function showLoading(v) {
+    document.getElementById('kd-loading').style.display = v ? 'flex' : 'none';
 }
 
-function renderKitchenOrders(){
-    var grid=document.getElementById('kd-grid');
-    var orderCards=[];
+function showError(msg) {
+    var el  = document.getElementById('kd-setup-error');
+    var txt = document.getElementById('kd-error-msg');
+    txt.textContent = msg;
+    el.style.display = 'block';
+}
 
-    Object.keys(KD.orders).forEach(function(tableKey){
-        var order=KD.orders[tableKey];
-        if(!order||order.status!=='open')return;
-        var items=(order.items||[]).filter(function(i){
-            if(i.voided||i.status==='ready'||i.status==='served')return false;
-            if(i.status!=='sent')return false;
-            if(KD.sectionId&&i.section!==KD.sectionId)return false;
-            return true;
-        });
-        if(items.length===0)return;
+function clearError() {
+    document.getElementById('kd-setup-error').style.display = 'none';
+}
 
-        var oldestSent=items.reduce(function(oldest,i){
-            var t=new Date(i.sentAt||i.orderedAt).getTime();
-            return t<oldest?t:oldest;
-        },Date.now());
+/* ─────────────────────────────────────────
+   CONNECT — called by setup button
+───────────────────────────────────────── */
+function connectKitchen() {
+    clearError();
 
-        var elapsed=Math.floor((Date.now()-oldestSent)/60000);
-        var section=KD.sections.find(function(s){return s.id===(items[0].section||'');});
-        var prepTime=section?section.prepTime:15;
-        var pct=elapsed/prepTime*100;
-        var timerClass=pct>=100?'red':pct>=75?'orange':'green';
+    var rawAccount = (document.getElementById('kd-account').value || '').trim();
+    var entityId   = (document.getElementById('kd-entity').value  || '').trim();
+    var sectionId  = document.getElementById('kd-section').value  || null;
 
-        orderCards.push({
-            tableKey:tableKey,order:order,items:items,
-            elapsed:elapsed,timerClass:timerClass,prepTime:prepTime
-        });
-    });
+    // Normalise account ID (same logic as POS registration)
+    var accountId = rawAccount.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-    orderCards.sort(function(a,b){return b.elapsed-a.elapsed;});
-
-    document.getElementById('kd-order-count').textContent=orderCards.length+' order'+(orderCards.length!==1?'s':'');
-
-    if(orderCards.length===0){
-        grid.innerHTML='<div class="kd-empty" style="grid-column:1/-1"><i class="fas fa-check-circle"></i>'+
-            '<h2>All Clear!</h2><p>No orders waiting — great work! 👏</p></div>';
+    if (!accountId || !entityId) {
+        showError('Please enter both Account ID and Entity ID.');
         return;
     }
 
-    grid.innerHTML=orderCards.map(function(card){
-        return'<div class="kd-card '+card.timerClass+'">'+
-            '<div class="kd-card-header '+card.timerClass+'">'+
-            '<div><div class="kd-table-num">Table '+(card.order.tableNumber||'?')+'</div>'+
-            '<div class="kd-waiter"><i class="fas fa-user"></i> '+(card.order.waiterName||'Waiter')+'</div></div>'+
-            '<div class="kd-timer '+card.timerClass+'">'+card.elapsed+' min</div></div>'+
-            '<div class="kd-items">'+card.items.map(function(item){
-                return'<div class="kd-item"><div><div class="kd-item-name">'+item.name+'</div>'+
-                    (item.notes?'<div class="kd-item-note">'+item.notes+'</div>':'')+
-                    '</div><div class="kd-item-qty">×1</div></div>';
-            }).join('')+'</div>'+
-            '<button class="kd-done-btn" onclick="markReady(\''+card.tableKey+'\')">'+
-            '<i class="fas fa-check"></i> Order Ready</button></div>';
+    var btn = document.getElementById('kd-connect-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting…';
+    showLoading(true);
+
+    // Verify account exists before saving
+    db.collection('accounts').doc(accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) {
+                showError('Account not found. Please check your Account ID.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plug"></i> Connect Kitchen Display';
+                showLoading(false);
+                return;
+            }
+
+            // Check entity exists
+            var data     = doc.data();
+            var entities = data.entities || [];
+            var entity   = entities.find(function(e) { return e.id === entityId; });
+            if (!entity) {
+                showError('Entity ID not found under this account.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plug"></i> Connect Kitchen Display';
+                showLoading(false);
+                return;
+            }
+
+            // Save and connect
+            KD.accountId = accountId;
+            KD.entityId  = entityId;
+            KD.sectionId = sectionId;
+
+            localStorage.setItem('kd_config', JSON.stringify({
+                accountId: accountId,
+                entityId:  entityId,
+                sectionId: sectionId
+            }));
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plug"></i> Connect Kitchen Display';
+            startKitchenSync();
+        })
+        .catch(function(err) {
+            showError('Connection error: ' + err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plug"></i> Connect Kitchen Display';
+            showLoading(false);
+        });
+}
+
+/* ─────────────────────────────────────────
+   DISCONNECT
+───────────────────────────────────────── */
+function disconnectKitchen() {
+    if (!confirm('Disconnect this kitchen display?')) return;
+    stopSync();
+    localStorage.removeItem('kd_config');
+    KD.accountId = null;
+    KD.entityId  = null;
+    KD.sectionId = null;
+    KD.orders    = {};
+    KD.sections  = [];
+    document.getElementById('kd-account').value = '';
+    document.getElementById('kd-entity').value  = '';
+    document.getElementById('kd-section').innerHTML = '<option value="">All Sections</option>';
+    clearError();
+    showSetup();
+}
+
+/* ─────────────────────────────────────────
+   STOP SYNC — clear all listeners & timers
+───────────────────────────────────────── */
+function stopSync() {
+    if (KD.listener)       { KD.listener(); KD.listener = null; }
+    if (KD.renderInterval) { clearInterval(KD.renderInterval); KD.renderInterval = null; }
+    if (KD.clockInterval)  { clearInterval(KD.clockInterval);  KD.clockInterval  = null; }
+}
+
+/* ─────────────────────────────────────────
+   START KITCHEN SYNC — Firestore listener
+───────────────────────────────────────── */
+function startKitchenSync() {
+    if (!KD.accountId) return;
+    stopSync(); // clear any previous listeners
+
+    KD.listener = db.collection('accounts').doc(KD.accountId)
+        .onSnapshot(function(doc) {
+            showLoading(false);
+
+            if (!doc.exists) {
+                showError('Account data not found.');
+                showSetup();
+                return;
+            }
+
+            var data = doc.data();
+
+            // Pull orders and sections for this entity
+            KD.orders   = ((data.posOrders          || {})[KD.entityId]) || {};
+            KD.sections = ((data.posKitchenSections  || {})[KD.entityId]) || [];
+
+            // Set display title
+            var entityName = '';
+            (data.entities || []).forEach(function(e) {
+                if (e.id === KD.entityId) entityName = e.name;
+            });
+
+            var sectionLabel = '';
+            if (KD.sectionId) {
+                var sec = KD.sections.find(function(s) { return s.id === KD.sectionId; });
+                sectionLabel = sec ? sec.name : '';
+            }
+
+            document.getElementById('kd-title').textContent =
+                (sectionLabel || 'Kitchen') + (entityName ? ' — ' + entityName : '');
+
+            renderSectionTabs();
+            renderKitchenOrders();
+            showMain();
+
+        }, function(err) {
+            console.error('Firestore error:', err);
+            showLoading(false);
+            showError('Lost connection. Retrying…');
+            // Firestore will auto-retry — no manual action needed
+        });
+
+    // Refresh timers on cards every 30 seconds (no new Firestore read needed)
+    KD.renderInterval = setInterval(renderKitchenOrders, 30000);
+
+    // Live clock
+    KD.clockInterval = setInterval(function() {
+        var el = document.getElementById('kd-time');
+        if (el) el.textContent = new Date().toLocaleTimeString('en-ZA');
+    }, 1000);
+}
+
+/* ─────────────────────────────────────────
+   RENDER SECTION TABS
+───────────────────────────────────────── */
+function renderSectionTabs() {
+    var tabs = document.getElementById('kd-tabs');
+    if (!tabs) return;
+
+    // If no sections configured, hide tab bar
+    if (!KD.sections.length) {
+        tabs.style.display = 'none';
+        return;
+    }
+    tabs.style.display = 'flex';
+
+    var html = '<button class="kd-section-tab' + (!KD.sectionId ? ' active' : '') +
+               '" onclick="filterSection(null)">' +
+               '<i class="fas fa-border-all"></i> All</button>';
+
+    KD.sections.forEach(function(s) {
+        html += '<button class="kd-section-tab' + (KD.sectionId === s.id ? ' active' : '') +
+                '" onclick="filterSection(\'' + s.id + '\')">' +
+                '<i class="fas fa-utensils"></i> ' + escHtml(s.name) + '</button>';
+    });
+
+    tabs.innerHTML = html;
+}
+
+/* ─────────────────────────────────────────
+   FILTER SECTION (tab click)
+───────────────────────────────────────── */
+function filterSection(sectionId) {
+    KD.sectionId = sectionId || null;
+    // Update saved config
+    try {
+        var saved = JSON.parse(localStorage.getItem('kd_config') || '{}');
+        saved.sectionId = KD.sectionId;
+        localStorage.setItem('kd_config', JSON.stringify(saved));
+    } catch(e) {}
+    renderSectionTabs();
+    renderKitchenOrders();
+}
+
+/* ─────────────────────────────────────────
+   RENDER KITCHEN ORDER CARDS
+───────────────────────────────────────── */
+function renderKitchenOrders() {
+    var grid = document.getElementById('kd-grid');
+    if (!grid) return;
+
+    var orderCards = [];
+    var now = Date.now();
+
+    Object.keys(KD.orders).forEach(function(tableKey) {
+        var order = KD.orders[tableKey];
+        if (!order || order.status !== 'open') return;
+
+        // Filter items: only 'sent' items, not voided, not already ready/served
+        var items = (order.items || []).filter(function(i) {
+            if (i.voided)                          return false;
+            if (i.status === 'ready')              return false;
+            if (i.status === 'served')             return false;
+            if (i.status !== 'sent')               return false;
+            if (KD.sectionId && i.section !== KD.sectionId) return false;
+            return true;
+        });
+
+        if (items.length === 0) return;
+
+        // Group identical items (same name + same notes)
+        var grouped = groupItems(items);
+
+        // Find oldest sentAt for timer
+        var oldestSent = items.reduce(function(oldest, i) {
+            var t = new Date(i.sentAt || i.orderedAt || now).getTime();
+            return t < oldest ? t : oldest;
+        }, now);
+
+        var elapsedMs  = now - oldestSent;
+        var elapsedMin = Math.floor(elapsedMs / 60000);
+
+        // Determine prep time from section config (default 15 min)
+        var prepTime = 15;
+        if (items[0].section && KD.sections.length) {
+            var sec = KD.sections.find(function(s) { return s.id === items[0].section; });
+            if (sec && sec.prepTime) prepTime = sec.prepTime;
+        }
+
+        var pct        = (elapsedMin / prepTime) * 100;
+        var timerClass = pct >= 100 ? 'red' : pct >= 75 ? 'orange' : 'green';
+
+        orderCards.push({
+            tableKey:   tableKey,
+            order:      order,
+            grouped:    grouped,
+            elapsed:    elapsedMin,
+            timerClass: timerClass,
+            prepTime:   prepTime
+        });
+    });
+
+    // Sort oldest first (highest elapsed at top)
+    orderCards.sort(function(a, b) { return b.elapsed - a.elapsed; });
+
+    // Update order count badge
+    var countEl = document.getElementById('kd-order-count');
+    if (countEl) countEl.textContent = orderCards.length;
+
+    // ── Render ──
+    if (orderCards.length === 0) {
+        grid.innerHTML =
+            '<div class="kd-empty">' +
+            '<i class="fas fa-check-circle"></i>' +
+            '<h2>All Clear!</h2>' +
+            '<p>No orders waiting — great work! 👏</p>' +
+            '</div>';
+        return;
+    }
+
+    grid.innerHTML = orderCards.map(function(card) {
+        var o       = card.order;
+        var tc      = card.timerClass;
+        var typeLabel = o.orderType === 'takeaway' ? 'Takeaway' : 'Dine In';
+        var typeCls   = o.orderType === 'takeaway' ? 'takeaway' : 'dine-in';
+        var timerLabel = card.elapsed + ' min';
+        var prepLabel  = '<small>/ ' + card.prepTime + ' min</small>';
+
+        var itemsHtml = card.grouped.map(function(item) {
+            return '<div class="kd-item">' +
+                   '<div class="kd-item-left">' +
+                   '<div class="kd-item-name">' + escHtml(item.name) + '</div>' +
+                   (item.notes ? '<div class="kd-item-note"><i class="fas fa-pencil-alt" style="font-size:.65rem"></i> ' + escHtml(item.notes) + '</div>' : '') +
+                   '</div>' +
+                   '<div class="kd-item-qty">×' + item.qty + '</div>' +
+                   '</div>';
+        }).join('');
+
+        return '<div class="kd-card ' + tc + '">' +
+
+               // Card Header
+               '<div class="kd-card-header ' + tc + '">' +
+               '<div>' +
+               '<div class="kd-table-num"><i class="fas fa-chair" style="font-size:.85rem;opacity:.7"></i> ' +
+               'Table ' + escHtml(String(o.tableNumber || '?')) + '</div>' +
+               '<span class="kd-order-type ' + typeCls + '">' + typeLabel + '</span>' +
+               '<div class="kd-waiter"><i class="fas fa-user"></i> ' + escHtml(o.waiterName || 'Waiter') + '</div>' +
+               '</div>' +
+               '<div class="kd-timer ' + tc + '">' + timerLabel + prepLabel + '</div>' +
+               '</div>' +
+
+               // Items
+               '<div class="kd-items">' + itemsHtml + '</div>' +
+
+               // Done Button
+               '<button class="kd-done-btn" onclick="markReady(\'' + card.tableKey + '\')" ' +
+               'id="done-' + card.tableKey + '">' +
+               '<i class="fas fa-check"></i> Order Ready</button>' +
+
+               '</div>';
     }).join('');
 }
 
-function markReady(tableKey){
-    var order=KD.orders[tableKey];
-    if(!order)return;
-    (order.items||[]).forEach(function(item){
-        if(item.status==='sent'&&!item.voided){
-            if(!KD.sectionId||item.section===KD.sectionId){
-                item.status='ready';item.readyAt=new Date().toISOString();
-            }
+/* ─────────────────────────────────────────
+   GROUP ITEMS — combine duplicates (qty)
+───────────────────────────────────────── */
+function groupItems(items) {
+    var map = {};
+    items.forEach(function(item) {
+        var key = (item.name || '') + '||' + (item.notes || '');
+        if (map[key]) {
+            map[key].qty += (item.qty || item.quantity || 1);
+        } else {
+            map[key] = {
+                name:  item.name  || 'Unknown',
+                notes: item.notes || '',
+                qty:   item.qty   || item.quantity || 1
+            };
         }
     });
-    var update={};update['posOrders.'+KD.entityId]=KD.orders;
-    update.lastUpdated=firebase.firestore.FieldValue.serverTimestamp();
-    update.lastUpdatedDevice='Kitchen Display';
-    db.collection('accounts').doc(KD.accountId).set(update,{merge:true});
+    return Object.values(map);
+}
+
+/* ─────────────────────────────────────────
+   MARK ORDER READY
+───────────────────────────────────────── */
+function markReady(tableKey) {
+    var order = KD.orders[tableKey];
+    if (!order) return;
+
+    // Disable button to prevent double-tap
+    var btn = document.getElementById('done-' + tableKey);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…'; }
+
+    // Build updated items array (immutable — don't mutate KD.orders directly)
+    var updatedItems = (order.items || []).map(function(item) {
+        if (item.status === 'sent' && !item.voided) {
+            if (!KD.sectionId || item.section === KD.sectionId) {
+                return Object.assign({}, item, {
+                    status:  'ready',
+                    readyAt: new Date().toISOString()
+                });
+            }
+        }
+        return Object.assign({}, item); // return copy
+    });
+
+    // Write only the updated items array for this specific order
+    var update = {};
+    update['posOrders.' + KD.entityId + '.' + tableKey + '.items'] = updatedItems;
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedDevice'] = 'Kitchen Display';
+
+    db.collection('accounts').doc(KD.accountId)
+        .set(update, { merge: true })
+        .then(function() {
+            // Firestore listener will re-render automatically
+        })
+        .catch(function(err) {
+            console.error('markReady error:', err);
+            // Re-enable button on failure
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Order Ready';
+            }
+            alert('Failed to update order. Please try again.');
+        });
+}
+
+/* ─────────────────────────────────────────
+   ESCAPE HTML — prevent XSS
+───────────────────────────────────────── */
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 </script>
 </body>
