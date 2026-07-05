@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StockAI-Pro | AI-Powered Stock Management | South Africa</title>
-<meta name="description" content="AI-powered stock control for restaurants, retail, manufacturing and any stock-holding business in South Africa.">
+<meta name="description" content="AI-powered stock control for restaurants, retail, manufacturing and any stock-holding business in South Africa. Voice counting, auto purchase orders, real-time insights.">
 <meta name="keywords" content="stock management, inventory control, restaurant software, AI stock, South Africa, food cost, POS system">
 <meta name="author" content="StockAI-Pro">
 <meta property="og:title" content="StockAI-Pro — AI-Powered Stock Management">
@@ -15,9 +15,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-/* ================================================
-   ROOT VARIABLES
-================================================ */
 :root {
   --teal-dark: #0d4a5c;
   --teal-mid: #1a8ba8;
@@ -40,25 +37,13 @@
   --radius: 14px;
   --radius-lg: 18px;
 }
-
-/* ================================================
-   RESET & BASE
-================================================ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  font-family: 'Poppins', sans-serif;
-  color: var(--text-dark);
-  background: var(--bg);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
+body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background: var(--bg); line-height: 1.6; overflow-x: hidden; }
 img { max-width: 100%; display: block; }
 a { text-decoration: none; }
 
-/* ================================================
-   SCROLL REVEAL ANIMATIONS
-================================================ */
+/* SCROLL REVEAL */
 .reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s ease; }
 .reveal.active { opacity: 1; transform: translateY(0); }
 .reveal-left { opacity: 0; transform: translateX(-60px); transition: opacity .8s ease, transform .8s ease; }
@@ -68,127 +53,47 @@ a { text-decoration: none; }
 .reveal-scale { opacity: 0; transform: scale(.85); transition: opacity .8s ease, transform .8s ease; }
 .reveal-scale.active { opacity: 1; transform: scale(1); }
 
-/* ================================================
-   HEADER / NAV
-================================================ */
-.header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  background: rgba(13,74,92,.97);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  padding: 10px 0;
-  box-shadow: 0 2px 20px rgba(0,0,0,.15);
-  transition: padding .3s ease, box-shadow .3s ease;
-}
-.header.scrolled { padding: 6px 0; box-shadow: 0 4px 30px rgba(0,0,0,.25); }
-.nav {
-  max-width: 1200px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-}
+/* HEADER */
+.header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(13,74,92,.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 0; box-shadow: 0 2px 20px rgba(0,0,0,.15); transition: padding .3s ease; }
+.header.scrolled { padding: 6px 0; }
+.nav { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
 .logo svg { height: 44px; width: auto; }
 .nav-links { display: flex; align-items: center; gap: 18px; flex-wrap: nowrap; }
-.nav-links a {
-  color: rgba(255,255,255,.85); text-decoration: none;
-  font-weight: 500; font-size: .82rem; transition: color .2s ease;
-  position: relative; white-space: nowrap;
-}
+.nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-weight: 500; font-size: .82rem; transition: color .2s ease; position: relative; white-space: nowrap; }
 .nav-links a:hover { color: #fff; }
-.nav-links a::after {
-  content: ''; position: absolute; bottom: -4px; left: 0;
-  width: 0; height: 2px; background: var(--gold); transition: width .3s ease;
-}
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width .3s ease; }
 .nav-links a:hover::after { width: 100%; }
-.btn-nav {
-  padding: 9px 18px; background: var(--gold); color: #fff !important;
-  border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease;
-  white-space: nowrap;
-}
+.btn-nav { padding: 9px 18px; background: var(--gold); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; }
 .btn-nav:hover { background: var(--gold-dark) !important; transform: translateY(-2px); }
 .btn-nav::after { display: none !important; }
-.btn-login-nav {
-  padding: 9px 18px; background: rgba(255,255,255,.12); color: #fff !important;
-  border-radius: 9px; font-weight: 600; border: 1px solid rgba(255,255,255,.3);
-  transition: background .3s ease; white-space: nowrap;
-}
+.btn-login-nav { padding: 9px 18px; background: rgba(255,255,255,.12); color: #fff !important; border-radius: 9px; font-weight: 600; border: 1px solid rgba(255,255,255,.3); transition: background .3s ease; white-space: nowrap; }
 .btn-login-nav:hover { background: rgba(255,255,255,.22) !important; }
 .btn-login-nav::after { display: none !important; }
-.btn-present-nav {
-  padding: 9px 18px; background: rgba(46,168,113,.9); color: #fff !important;
-  border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease;
-  white-space: nowrap; border: 1px solid rgba(46,168,113,1);
-}
+.btn-present-nav { padding: 9px 18px; background: rgba(46,168,113,.9); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; border: 1px solid rgba(46,168,113,1); }
 .btn-present-nav:hover { background: var(--success) !important; transform: translateY(-2px); }
 .btn-present-nav::after { display: none !important; }
-.menu-toggle {
-  display: none; background: none; border: none;
-  font-size: 1.5rem; color: #fff; cursor: pointer; padding: 4px; flex-shrink: 0;
-}
+.menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: #fff; cursor: pointer; padding: 4px; flex-shrink: 0; }
 
-/* ================================================
-   HERO
-================================================ */
-.hero {
-  padding: 145px 24px 100px;
-  background: linear-gradient(135deg, #071a22 0%, #0d4a5c 35%, #1a8ba8 65%, #0d4a5c 100%);
-  position: relative; overflow: hidden; color: #fff;
-}
-.hero-grid {
-  position: absolute; inset: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(77,189,213,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(77,189,213,.05) 1px, transparent 1px);
-  background-size: 80px 80px;
-  animation: heroGridMove 20s linear infinite;
-}
+/* HERO */
+.hero { padding: 145px 24px 100px; background: linear-gradient(135deg, #071a22 0%, #0d4a5c 35%, #1a8ba8 65%, #0d4a5c 100%); position: relative; overflow: hidden; color: #fff; }
+.hero-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(77,189,213,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(77,189,213,.05) 1px, transparent 1px); background-size: 80px 80px; animation: heroGridMove 20s linear infinite; }
 @keyframes heroGridMove { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
-.hero-particle {
-  position: absolute; border-radius: 50%; pointer-events: none;
-  animation: heroFloat var(--dur, 8s) ease-in-out infinite var(--delay, 0s);
-}
-@keyframes heroFloat {
-  0% { opacity: 0; transform: translateY(80px) scale(0); }
-  20% { opacity: .6; } 80% { opacity: .3; }
-  100% { opacity: 0; transform: translateY(-120px) scale(0); }
-}
-.hero-star {
-  position: absolute; width: 2px;
-  background: linear-gradient(transparent, #f59e0b, transparent);
-  opacity: 0; transform: rotate(35deg);
-  animation: wStar var(--dur, 4s) ease-in infinite var(--delay, 0s);
-}
-@keyframes wStar {
-  0% { opacity: 0; transform: rotate(35deg) translateY(-150px); }
-  20% { opacity: 1; }
-  100% { opacity: 0; transform: rotate(35deg) translateY(400px); }
-}
-.hero-content {
-  max-width: 1200px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
-  align-items: center; position: relative; z-index: 2;
-}
+.hero-particle { position: absolute; border-radius: 50%; pointer-events: none; animation: heroFloat var(--dur, 8s) ease-in-out infinite var(--delay, 0s); }
+@keyframes heroFloat { 0% { opacity: 0; transform: translateY(80px) scale(0); } 20% { opacity: .6; } 80% { opacity: .3; } 100% { opacity: 0; transform: translateY(-120px) scale(0); } }
+.hero-star { position: absolute; width: 2px; background: linear-gradient(transparent, #f59e0b, transparent); opacity: 0; transform: rotate(35deg); animation: wStar var(--dur, 4s) ease-in infinite var(--delay, 0s); }
+@keyframes wStar { 0% { opacity: 0; transform: rotate(35deg) translateY(-150px); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(35deg) translateY(400px); } }
+.hero-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
 .hero-text h1 { font-size: 3.2rem; line-height: 1.1; font-weight: 900; margin-bottom: 18px; color: #fff; }
 .hero-text h1 .highlight { color: var(--gold); display: inline-block; position: relative; }
-.hero-text h1 .highlight::after {
-  content: ''; position: absolute; bottom: 4px; left: 0; right: 0;
-  height: 10px; background: rgba(245,158,11,.22); z-index: -1; border-radius: 6px;
-}
+.hero-text h1 .highlight::after { content: ''; position: absolute; bottom: 4px; left: 0; right: 0; height: 10px; background: rgba(245,158,11,.22); z-index: -1; border-radius: 6px; }
 .hero-tagline { font-size: 1.05rem; color: var(--teal-pale); margin-bottom: 10px; font-weight: 500; }
 .hero-desc { font-size: .95rem; color: rgba(255,255,255,.82); margin-bottom: 28px; max-width: 520px; line-height: 1.75; }
 .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
-.btn-hero {
-  padding: 15px 30px; border-radius: 12px; font-size: .95rem; font-weight: 700;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
-  transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
-  text-decoration: none; font-family: inherit; border: none; white-space: nowrap;
-}
-.btn-hero-primary {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #fff; box-shadow: 0 6px 22px rgba(245,158,11,.4);
-}
+.btn-hero { padding: 15px 30px; border-radius: 12px; font-size: .95rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; text-decoration: none; font-family: inherit; border: none; white-space: nowrap; }
+.btn-hero-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; box-shadow: 0 6px 22px rgba(245,158,11,.4); }
 .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(245,158,11,.5); }
-.btn-hero-secondary {
-  background: rgba(255,255,255,.1); color: #fff; border: 2px solid rgba(255,255,255,.35);
-}
+.btn-hero-secondary { background: rgba(255,255,255,.1); color: #fff; border: 2px solid rgba(255,255,255,.35); }
 .btn-hero-secondary:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.7); }
 .hero-stats { display: flex; gap: 36px; flex-wrap: wrap; align-items: center; }
 .hero-stat { text-align: center; }
@@ -196,65 +101,33 @@ a { text-decoration: none; }
 .hero-stat-label { font-size: .78rem; color: rgba(255,255,255,.7); margin-top: 5px; display: block; }
 .counter { display: inline-block; }
 .hero-visual { position: relative; }
-.hero-badge {
-  position: absolute; padding: 8px 16px; border-radius: 24px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.18);
-  display: flex; align-items: center; gap: 8px;
-  font-size: .82rem; font-weight: 600; background: #fff; z-index: 3; white-space: nowrap;
-}
+.hero-badge { position: absolute; padding: 8px 16px; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.18); display: flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 600; background: #fff; z-index: 3; white-space: nowrap; }
 .hero-badge.badge-ai { top: -20px; right: -10px; color: var(--success); animation: float 3s ease-in-out infinite; }
 .hero-badge.badge-rt { bottom: 60px; left: -25px; color: var(--gold); animation: float 3s ease-in-out infinite 1s; }
 .hero-badge.badge-vc { top: 50%; left: -30px; color: var(--teal-mid); animation: floatMid 3s ease-in-out infinite 2s; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @keyframes floatMid { 0%, 100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 12px)); } }
-.hero-mockup {
-  background: #1a1a2e; border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.4); overflow: hidden; border: 1px solid rgba(255,255,255,.1);
-}
-.hero-mockup-bar {
-  background: linear-gradient(90deg, #0d4a5c, #1a8ba8);
-  padding: 10px 14px; display: flex; align-items: center; gap: 6px;
-}
+.hero-mockup { background: #1a1a2e; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.4); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+.hero-mockup-bar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
 .mockup-dot { width: 8px; height: 8px; border-radius: 50%; }
 .mockup-dot.r { background: #ff5f57; } .mockup-dot.y { background: #ffbd2e; } .mockup-dot.g { background: #28c940; }
-.mockup-url {
-  margin-left: 8px; font-size: .65rem; color: rgba(255,255,255,.6);
-  background: rgba(0,0,0,.2); padding: 3px 10px; border-radius: 10px; flex: 1;
-}
+.mockup-url { margin-left: 8px; font-size: .65rem; color: rgba(255,255,255,.6); background: rgba(0,0,0,.2); padding: 3px 10px; border-radius: 10px; flex: 1; }
 .hero-mockup-body { height: 280px; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #0f1923; }
 .mockup-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .mockup-stat { background: rgba(255,255,255,.05); border-radius: 8px; padding: 10px; }
-.mockup-stat.s1 { border-left: 3px solid var(--teal-mid); }
-.mockup-stat.s2 { border-left: 3px solid var(--gold); }
-.mockup-stat.s3 { border-left: 3px solid var(--success); }
-.mockup-stat.s4 { border-left: 3px solid var(--danger); }
+.mockup-stat.s1 { border-left: 3px solid var(--teal-mid); } .mockup-stat.s2 { border-left: 3px solid var(--gold); } .mockup-stat.s3 { border-left: 3px solid var(--success); } .mockup-stat.s4 { border-left: 3px solid var(--danger); }
 .mockup-stat-label { font-size: .5rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
 .mockup-stat-val { font-size: .88rem; font-weight: 800; color: #fff; margin-top: 2px; }
-.mockup-stat-val.green { color: var(--success); }
-.mockup-stat-val.red { color: var(--danger); }
+.mockup-stat-val.green { color: var(--success); } .mockup-stat-val.red { color: var(--danger); }
 .mockup-chart { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
-.mockup-chart-fill {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 70%;
-  background: linear-gradient(180deg, rgba(26,139,168,.3), transparent);
-  clip-path: polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%);
-}
-.mockup-ai-bar {
-  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-  background: rgba(46,168,113,.1); border: 1px solid rgba(46,168,113,.3);
-  border-radius: 8px; font-size: .68rem; color: rgba(255,255,255,.8);
-}
+.mockup-chart-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 70%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%); }
+.mockup-ai-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(46,168,113,.1); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; font-size: .68rem; color: rgba(255,255,255,.8); }
 .mockup-ai-bar i { color: var(--success); font-size: .75rem; flex-shrink: 0; }
 
-/* ================================================
-   DEMO SECTION
-================================================ */
+/* DEMO */
 .demo-section { padding: 90px 24px; background: linear-gradient(180deg, var(--bg-alt), var(--bg)); overflow: hidden; }
 .demo-container { max-width: 1200px; margin: 0 auto; }
-.demo-browser {
-  background: #1a1a2e; border-radius: 16px; overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1);
-  max-width: 900px; margin: 0 auto;
-}
+.demo-browser { background: #1a1a2e; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); max-width: 900px; margin: 0 auto; }
 .demo-toolbar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
 .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
 .demo-dot.r { background: #ff5f57; } .demo-dot.y { background: #ffbd2e; } .demo-dot.g { background: #28c940; }
@@ -269,12 +142,7 @@ a { text-decoration: none; }
 .demo-stat-label { font-size: .58rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
 .demo-stat-value { font-size: 1.1rem; font-weight: 800; color: #fff; margin-top: 2px; }
 .demo-chart-area { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
-.demo-chart-line {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
-  background: linear-gradient(180deg, rgba(26,139,168,.3), transparent);
-  clip-path: polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%);
-  animation: demoChartGrow 2s ease both;
-}
+.demo-chart-line { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%); animation: demoChartGrow 2s ease both; }
 @keyframes demoChartGrow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); transform-origin: bottom; } }
 .demo-notif-stack { position: absolute; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 5; }
 .demo-notif { padding: 10px 16px; background: rgba(46,168,113,.15); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; color: #fff; font-size: .72rem; font-weight: 600; display: none; align-items: center; gap: 8px; animation: demoNotifSlide .5s ease both; max-width: 260px; }
@@ -288,9 +156,7 @@ a { text-decoration: none; }
 .demo-voice-typed { display: inline; border-right: 2px solid var(--gold); animation: demoBlink .8s step-end infinite; }
 @keyframes demoBlink { 50% { border-color: transparent; } }
 
-/* ================================================
-   SHARED SECTION STYLES
-================================================ */
+/* SHARED */
 section { padding: 90px 24px; position: relative; }
 .container { max-width: 1200px; margin: 0 auto; }
 .section-header { text-align: center; margin-bottom: 54px; }
@@ -298,9 +164,7 @@ section { padding: 90px 24px; position: relative; }
 .section-header h2 { font-size: 2.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; letter-spacing: -.5px; line-height: 1.2; }
 .section-header p { font-size: 1rem; color: var(--text-light); max-width: 600px; margin: 0 auto; line-height: 1.7; }
 
-/* ================================================
-   INDUSTRIES
-================================================ */
+/* INDUSTRIES */
 .industries { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
 .industries-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 16px; }
 .industry-card { background: #fff; border-radius: var(--radius); padding: 28px 16px; text-align: center; box-shadow: var(--shadow); transition: transform .4s ease, box-shadow .4s ease, border-bottom-color .4s ease; border-bottom: 3px solid transparent; cursor: default; }
@@ -309,24 +173,13 @@ section { padding: 90px 24px; position: relative; }
 .industry-card h4 { font-size: .88rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .industry-card p { font-size: .72rem; color: var(--text-light); }
 
-/* ================================================
-   FEATURES — DARK GRADIENT
-================================================ */
-.features {
-  background: linear-gradient(135deg, #071a22 0%, #0d3a4a 40%, #0d4a5c 70%, #0a3040 100%);
-}
+/* FEATURES — DARK */
+.features { background: linear-gradient(135deg, #071a22 0%, #0d3a4a 40%, #0d4a5c 70%, #0a3040 100%); }
 .features .section-header h2 { color: #fff; }
 .features .section-header p { color: rgba(255,255,255,.7); }
 .features .section-tag { background: rgba(255,255,255,.12); color: var(--teal-pale); }
 .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.feature {
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.08);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  padding: 28px; border-radius: var(--radius);
-  transition: transform .4s ease, box-shadow .4s ease, background .4s ease;
-  position: relative; overflow: hidden; display: flex; flex-direction: column;
-}
+.feature { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 28px; border-radius: var(--radius); transition: transform .4s ease, box-shadow .4s ease, background .4s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; }
 .feature::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--teal-light), var(--gold)); transform: scaleX(0); transform-origin: left; transition: transform .4s ease; }
 .feature:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,.3); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); }
 .feature:hover::before { transform: scaleX(1); }
@@ -338,9 +191,7 @@ section { padding: 90px 24px; position: relative; }
 .feature-tag.new { background: rgba(46,168,113,.2); color: #6ee7b7; }
 .feature-tag.coming { background: rgba(77,189,213,.2); color: var(--teal-pale); }
 
-/* ================================================
-   AI SECTION
-================================================ */
+/* AI SECTION */
 .ai-section { background: linear-gradient(135deg, #0d4a5c, #1a8ba8); padding: 90px 24px; color: #fff; }
 .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; }
 .ai-text h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; color: #fff; line-height: 1.2; }
@@ -359,9 +210,7 @@ section { padding: 90px 24px; position: relative; }
 .ai-typing span:nth-child(3) { animation-delay: .4s; }
 @keyframes aiTyping { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
 
-/* ================================================
-   HOW IT WORKS
-================================================ */
+/* HOW IT WORKS */
 .how-it-works { background: var(--bg-alt); }
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px; margin-top: 10px; }
 .step { text-align: center; padding: 24px 16px; }
@@ -370,9 +219,7 @@ section { padding: 90px 24px; position: relative; }
 .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
 .step p { color: var(--text-light); font-size: .88rem; }
 
-/* ================================================
-   QUOTE BUILDER
-================================================ */
+/* QUOTE BUILDER */
 .quote-section { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); padding: 90px 24px; }
 .quote-builder { max-width: 820px; margin: 0 auto; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
 .quote-builder-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 28px 32px; color: #fff; text-align: center; }
@@ -425,9 +272,7 @@ section { padding: 90px 24px; position: relative; }
 .qb-btn-outline { background: transparent; color: var(--text-mid); border: 2px solid var(--border); }
 .qb-btn-outline:hover { border-color: var(--text-mid); }
 
-/* ================================================
-   TESTIMONIALS
-================================================ */
+/* TESTIMONIALS */
 .testimonials { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
 .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
 .testimonial { background: #fff; padding: 30px 28px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; transition: transform .3s ease, box-shadow .3s ease; display: flex; flex-direction: column; }
@@ -441,18 +286,14 @@ section { padding: 90px 24px; position: relative; }
 .testimonial-stars { display: flex; gap: 3px; margin-bottom: 14px; position: relative; z-index: 1; }
 .testimonial-stars i { color: var(--gold); font-size: .85rem; }
 
-/* ================================================
-   CTA
-================================================ */
+/* CTA */
 .cta { background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; text-align: center; padding: 90px 24px; position: relative; overflow: hidden; }
 .cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,.07), transparent 50%); pointer-events: none; }
 .cta h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 14px; position: relative; z-index: 1; line-height: 1.2; }
 .cta p { font-size: 1rem; opacity: .9; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; line-height: 1.7; }
 .cta .btn-hero { position: relative; z-index: 1; }
 
-/* ================================================
-   FAQ
-================================================ */
+/* FAQ */
 .faq { background: var(--bg-alt); }
 .faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
 .faq-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color .3s ease, box-shadow .3s ease; }
@@ -463,9 +304,7 @@ section { padding: 90px 24px; position: relative; }
 .faq-answer { max-height: 0; overflow: hidden; transition: max-height .4s ease, padding .4s ease; padding: 0 22px; color: var(--text-light); font-size: .88rem; line-height: 1.75; }
 .faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
 
-/* ================================================
-   PRESENTATION BOOKING MODAL
-================================================ */
+/* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 24px; }
 .modal-overlay.active { display: flex; }
 .modal { background: #fff; border-radius: var(--radius-lg); max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: modalIn .4s ease; }
@@ -504,9 +343,7 @@ section { padding: 90px 24px; position: relative; }
 .booking-submit { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--success), #1a7a4a); color: #fff; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 6px 20px rgba(46,168,113,.3); }
 .booking-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(46,168,113,.4); }
 
-/* ================================================
-   FOOTER
-================================================ */
+/* FOOTER */
 .footer { background: var(--text-dark); color: #fff; padding: 56px 24px 28px; }
 .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
 .footer-logo { display: inline-block; margin-bottom: 14px; }
@@ -521,11 +358,8 @@ section { padding: 90px 24px; position: relative; }
 .social-links a:hover { background: var(--gold); transform: translateY(-3px); }
 .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); text-align: center; color: rgba(255,255,255,.45); font-size: .78rem; line-height: 1.8; }
 .footer-bottom a { color: var(--gold); text-decoration: none; }
-.footer-bottom a:hover { text-decoration: underline; }
 
-/* ================================================
-   STOCKY BOT
-================================================ */
+/* STOCKY BOT */
 #stocky-container { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; pointer-events: none; height: 120px; }
 #stocky { position: absolute; bottom: 20px; right: 80px; width: 60px; height: 70px; cursor: pointer; pointer-events: all; animation: stockyBounce 2s ease-in-out infinite; transition: right 2s ease; }
 @keyframes stockyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -566,16 +400,16 @@ section { padding: 90px 24px; position: relative; }
 .stocky-faq-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .stocky-faq-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; font-size: .72rem; color: var(--text-dark); cursor: pointer; font-family: inherit; transition: background .2s ease, color .2s ease, border-color .2s ease; }
 .stocky-faq-btn:hover { background: var(--teal-mid); color: #fff; border-color: var(--teal-mid); }
+
+/* TOAST */
 .toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
-.toast { padding: 14px 18px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 500; animation: toastIn .3s ease; min-width: 280px; }
+.toast { padding: 14px 18px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 500; animation: toastIn .3s ease; min-width: 280px; max-width: 380px; }
 @keyframes toastIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .toast.success { background: #d1fae5; color: #065f46; border-left: 3px solid var(--success); }
 .toast.error { background: #fee2e2; color: #991b1b; border-left: 3px solid var(--danger); }
 .toast.info { background: #d4f0f7; color: #0d4a5c; border-left: 3px solid var(--teal-mid); }
 
-/* ================================================
-   RESPONSIVE
-================================================ */
+/* RESPONSIVE */
 @media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 900px) {
   .hero-content { grid-template-columns: 1fr; gap: 40px; }
@@ -615,9 +449,7 @@ section { padding: 90px 24px; position: relative; }
 </head>
 <body>
 
-<!-- ================================================
-     HEADER
-================================================ -->
+<!-- HEADER -->
 <header class="header" id="site-header">
   <nav class="nav">
     <a href="#" class="logo">
@@ -681,9 +513,7 @@ section { padding: 90px 24px; position: relative; }
   </nav>
 </header>
 
-<!-- ================================================
-     HERO
-================================================ -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-particle" style="width:6px;height:6px;background:#f59e0b;top:15%;left:10%;--dur:7s;--delay:0s"></div>
@@ -731,9 +561,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     LIVE DEMO
-================================================ -->
+<!-- LIVE DEMO -->
 <section class="demo-section" id="demo-section">
   <div class="demo-container">
     <div class="section-header reveal"><span class="section-tag">Live Demo</span><h2>See StockAI-Pro In Action</h2><p>Watch the system work in real-time — AI alerts, voice counting, and live stats</p></div>
@@ -758,9 +586,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     INDUSTRIES
-================================================ -->
+<!-- INDUSTRIES -->
 <section class="industries">
   <div class="container">
     <div class="section-header reveal"><span class="section-tag">Who We Serve</span><h2>Built for Any Business That Holds Stock</h2><p>StockAI-Pro works for any business that needs to track, manage, and optimise stock levels.</p></div>
@@ -777,9 +603,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     FEATURES
-================================================ -->
+<!-- FEATURES -->
 <section class="features" id="features">
   <div class="container">
     <div class="section-header reveal"><span class="section-tag">Powerful Features</span><h2>Everything Your Business Needs</h2><p>AI-powered, cloud-based, mobile-ready — built for South African businesses</p></div>
@@ -805,9 +629,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     AI SECTION
-================================================ -->
+<!-- AI SECTION -->
 <section class="ai-section">
   <div class="ai-grid">
     <div class="ai-text reveal-left">
@@ -834,9 +656,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     HOW IT WORKS
-================================================ -->
+<!-- HOW IT WORKS -->
 <section class="how-it-works" id="how">
   <div class="container">
     <div class="section-header reveal"><span class="section-tag">Simple Setup</span><h2>Up & Running in 5 Minutes</h2><p>No technical skills needed. No software to install. Works on any device.</p></div>
@@ -849,9 +669,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     QUOTE BUILDER SECTION
-================================================ -->
+<!-- QUOTE BUILDER -->
 <section class="quote-section" id="quote-section">
   <div class="container">
     <div class="section-header reveal">
@@ -866,64 +684,34 @@ section { padding: 90px 24px; position: relative; }
       </div>
       <div class="quote-builder-body">
         <div class="qb-feature-grid">
-          <!-- LOCKED: Web App BOH -->
           <div class="qb-feature locked" data-feature="web_boh" data-price="799" data-setup-hrs="12">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon"><i class="fas fa-laptop-code"></i></div>
-              <div><div class="qb-feature-name">Web App B.O.H</div><div class="qb-feature-desc">Full back-of-house management — always included</div></div>
-            </div>
-            <div class="qb-feature-right">
-              <span class="qb-locked-badge"><i class="fas fa-lock" style="margin-right:3px"></i> Included</span>
-              <span class="qb-feature-price">R799/mo</span>
-              <div class="qb-toggle"></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-laptop-code"></i></div><div><div class="qb-feature-name">Web App B.O.H</div><div class="qb-feature-desc">Full back-of-house management — always included</div></div></div>
+            <div class="qb-feature-right"><span class="qb-locked-badge"><i class="fas fa-lock" style="margin-right:3px"></i> Included</span><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
           </div>
-          <!-- Mobile App -->
           <div class="qb-feature" data-feature="mobile_app" data-price="349" data-setup-hrs="1" onclick="toggleQBFeature(this)">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon"><i class="fas fa-mobile-alt"></i></div>
-              <div><div class="qb-feature-name">Mobile App</div><div class="qb-feature-desc">Full PWA app — stock counts, approvals, AI chat on mobile</div></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-mobile-alt"></i></div><div><div class="qb-feature-name">Mobile App</div><div class="qb-feature-desc">Full PWA app — stock counts, approvals, AI chat on mobile</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
           </div>
-          <!-- ProcureAI -->
           <div class="qb-feature" data-feature="procure_ai" data-price="399" data-setup-hrs="1" onclick="toggleQBFeature(this)">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon"><i class="fas fa-shopping-basket"></i></div>
-              <div><div class="qb-feature-name">ProcureAI App</div><div class="qb-feature-desc">Chef ordering app — auto-splits to cheapest suppliers</div></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-shopping-basket"></i></div><div><div class="qb-feature-name">ProcureAI App</div><div class="qb-feature-desc">Chef ordering app — auto-splits to cheapest suppliers</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R399/mo</span><div class="qb-toggle"></div></div>
           </div>
-          <!-- POS System -->
           <div class="qb-feature" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleQBFeature(this)">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon"><i class="fas fa-cash-register"></i></div>
-              <div><div class="qb-feature-name">P.O.S System</div><div class="qb-feature-desc">Point of sale with menu builder, table payments & auto deduction</div></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-cash-register"></i></div><div><div class="qb-feature-name">P.O.S System</div><div class="qb-feature-desc">Point of sale with menu builder, table payments & auto deduction</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
           </div>
-          <!-- Menu Master -->
           <div class="qb-feature" data-feature="menu_master" data-price="349" data-setup-hrs="0" onclick="toggleQBFeature(this)">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon"><i class="fas fa-utensils"></i></div>
-              <div><div class="qb-feature-name">Menu Master</div><div class="qb-feature-desc">Menu & recipe costing — ingredient linking & live pricing</div></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-utensils"></i></div><div><div class="qb-feature-name">Menu Master</div><div class="qb-feature-desc">Menu & recipe costing — ingredient linking & live pricing</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
           </div>
-          <!-- FunctionsAI -->
           <div class="qb-feature" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleQBFeature(this)">
-            <div class="qb-feature-left">
-              <div class="qb-feature-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-glass-cheers"></i></div>
-              <div><div class="qb-feature-name">FunctionsAI — Events Manager</div><div class="qb-feature-desc">Full event management — menus, beverages, invoicing & client bookings</div></div>
-            </div>
+            <div class="qb-feature-left"><div class="qb-feature-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-glass-cheers"></i></div><div><div class="qb-feature-name">FunctionsAI — Events Manager</div><div class="qb-feature-desc">Full event management — menus, beverages, invoicing & client bookings</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R449/mo</span><div class="qb-toggle"></div></div>
           </div>
         </div>
 
-        <!-- ADDONS -->
         <div class="qb-addon-section">
           <div class="qb-addon-title"><i class="fas fa-building" style="color:var(--teal-mid);margin-right:6px"></i> Entities & Services</div>
-          <!-- Entities -->
           <div class="qb-addon-row">
             <div class="qb-addon-label"><strong>Number of Entities / Locations</strong><div style="font-size:.75rem;color:var(--text-light)">R599/mo per entity</div></div>
             <div class="qb-addon-control">
@@ -936,12 +724,8 @@ section { padding: 90px 24px; position: relative; }
               <span class="qb-addon-price" id="qb-entity-total">R599.00</span>
             </div>
           </div>
-          <!-- Technician Setup -->
           <div class="qb-addon-row" style="flex-wrap:wrap">
-            <div class="qb-addon-label">
-              <strong>Technician Setup & Configuration</strong>
-              <div style="font-size:.75rem;color:var(--text-light)">R450/hour — automatically calculated from your selected features</div>
-            </div>
+            <div class="qb-addon-label"><strong>Technician Setup & Configuration</strong><div style="font-size:.75rem;color:var(--text-light)">R450/hour — automatically calculated from your selected features</div></div>
             <div class="qb-addon-control" style="flex-direction:column;align-items:flex-end;gap:10px">
               <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
                 <input type="checkbox" id="qb-tech-check" onchange="calcQuote()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
@@ -957,12 +741,8 @@ section { padding: 90px 24px; position: relative; }
               </div>
             </div>
           </div>
-          <!-- Training -->
           <div class="qb-addon-row" style="flex-wrap:wrap">
-            <div class="qb-addon-label">
-              <strong>Staff Training</strong>
-              <div style="font-size:.75rem;color:var(--text-light)">Standard: R1,500 (up to 5 staff) • Additional: R750 per person</div>
-            </div>
+            <div class="qb-addon-label"><strong>Staff Training</strong><div style="font-size:.75rem;color:var(--text-light)">Standard: R1,500 (up to 5 staff) • Additional: R750 per person</div></div>
             <div class="qb-addon-control" style="flex-direction:column;gap:8px;align-items:flex-end">
               <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
                 <input type="checkbox" id="qb-training-check" onchange="calcQuote()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
@@ -977,7 +757,6 @@ section { padding: 90px 24px; position: relative; }
           </div>
         </div>
 
-        <!-- TOTALS -->
         <div class="qb-totals">
           <div class="qb-total-line"><span>Base Platform (features)</span><span class="qb-total-val" id="qt-features">R799.00</span></div>
           <div class="qb-total-line"><span>Entities (<span id="qt-ent-count">1</span> × R599)</span><span class="qb-total-val" id="qt-entities">R599.00</span></div>
@@ -988,7 +767,6 @@ section { padding: 90px 24px; position: relative; }
           <div class="qb-total-vat">All prices include 15% VAT</div>
         </div>
 
-        <!-- CUSTOMER DETAILS FORM -->
         <div class="qb-form">
           <div class="qb-form-title"><i class="fas fa-user-edit" style="color:var(--teal-mid);margin-right:6px"></i> Your Details</div>
           <div class="qb-form-grid">
@@ -1008,9 +786,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     TESTIMONIALS
-================================================ -->
+<!-- TESTIMONIALS -->
 <section class="testimonials">
   <div class="container">
     <div class="section-header reveal"><span class="section-tag">Happy Customers</span><h2>Businesses Love StockAI-Pro</h2><p>Real results from real South African businesses</p></div>
@@ -1022,18 +798,14 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     CTA
-================================================ -->
+<!-- CTA -->
 <section class="cta">
   <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
   <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control.</p>
   <a href="signup.html" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
 </section>
 
-<!-- ================================================
-     FAQ
-================================================ -->
+<!-- FAQ -->
 <section class="faq" id="faq">
   <div class="container">
     <div class="section-header reveal"><span class="section-tag">Questions?</span><h2>Frequently Asked Questions</h2><p>Everything you need to know before getting started</p></div>
@@ -1051,32 +823,16 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </section>
 
-<!-- ================================================
-     FOOTER
-================================================ -->
+<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
       <a href="#" class="footer-logo">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="55">
           <defs>
-            <linearGradient id="fAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-              <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-              <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
-            </linearGradient>
-            <linearGradient id="fStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-              <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
-              <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-            </linearGradient>
-            <linearGradient id="fUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
-              <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-              <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-              <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-              <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
-            </linearGradient>
+            <linearGradient id="fAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/></linearGradient>
+            <linearGradient id="fStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/><stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/></linearGradient>
+            <linearGradient id="fUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
             <filter id="fGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             <filter id="fGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             <filter id="fGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -1136,9 +892,7 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </footer>
 
-<!-- ================================================
-     STOCKY BOT
-================================================ -->
+<!-- STOCKY BOT -->
 <div id="stocky-container">
   <div id="stocky" onclick="openStockyChat()">
     <div class="stocky-body"><div class="stocky-antenna"></div><div class="stocky-head"><div class="stocky-eye left"></div><div class="stocky-eye right"></div><div class="stocky-mouth"></div></div><div class="stocky-arm left"></div><div class="stocky-arm right"></div><div class="stocky-torso"></div><div class="stocky-leg left"></div><div class="stocky-leg right"></div></div>
@@ -1193,109 +947,237 @@ section { padding: 90px 24px; position: relative; }
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- ================================================
-     JAVASCRIPT
+     IMPORTANT: email-templates.js MUST be loaded
+     BEFORE the main script block below
 ================================================ -->
+<script src="email-templates.js"></script>
+
 <script>
 // ============================================================
 // TOAST
 // ============================================================
-function showToast(type,msg){var icons={success:'check-circle',error:'times-circle',info:'info-circle'};var t=document.createElement('div');t.className='toast '+type;t.innerHTML='<i class="fas fa-'+(icons[type]||'info-circle')+'"></i><span>'+msg+'</span>';document.getElementById('toastWrap').appendChild(t);setTimeout(function(){if(t.parentElement)t.remove()},4500)}
+function showToast(type, msg) {
+  var icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i><span>' + msg + '</span>';
+  document.getElementById('toastWrap').appendChild(t);
+  setTimeout(function() { if (t.parentElement) t.remove(); }, 5000);
+}
 
 // ============================================================
 // SCROLL REVEAL
 // ============================================================
-function revealOnScroll(){document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight-80)el.classList.add('active')})}
-window.addEventListener('scroll',revealOnScroll);window.addEventListener('load',revealOnScroll);
+function revealOnScroll() {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+    if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');
+  });
+}
+window.addEventListener('scroll', revealOnScroll);
+window.addEventListener('load', revealOnScroll);
 
 // ============================================================
 // HEADER SCROLL
 // ============================================================
-window.addEventListener('scroll',function(){document.getElementById('site-header').classList.toggle('scrolled',window.scrollY>50)});
+window.addEventListener('scroll', function() {
+  document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 50);
+});
 
 // ============================================================
 // COUNTERS
 // ============================================================
-function animateCounters(){document.querySelectorAll('.counter').forEach(function(c){if(c.dataset.animated)return;if(c.getBoundingClientRect().top>window.innerHeight)return;c.dataset.animated='true';var target=parseInt(c.dataset.target);var current=0;var increment=target/60;var timer=setInterval(function(){current+=increment;if(current>=target){current=target;clearInterval(timer)}c.textContent=Math.floor(current).toLocaleString()},30)})}
-window.addEventListener('scroll',animateCounters);window.addEventListener('load',function(){setTimeout(animateCounters,500)});
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(function(c) {
+    if (c.dataset.animated) return;
+    if (c.getBoundingClientRect().top > window.innerHeight) return;
+    c.dataset.animated = 'true';
+    var target = parseInt(c.dataset.target);
+    var current = 0;
+    var increment = target / 60;
+    var timer = setInterval(function() {
+      current += increment;
+      if (current >= target) { current = target; clearInterval(timer); }
+      c.textContent = Math.floor(current).toLocaleString();
+    }, 30);
+  });
+}
+window.addEventListener('scroll', animateCounters);
+window.addEventListener('load', function() { setTimeout(animateCounters, 500); });
 
 // ============================================================
 // DEMO ANIMATION
 // ============================================================
-function animateDemo(){var ds=document.getElementById('demo-screen');if(!ds||ds.dataset.animated)return;if(ds.getBoundingClientRect().top>window.innerHeight)return;ds.dataset.animated='true';animateValue('demo-stock-val',0,125000,2000,'R','');setTimeout(function(){animateValue('demo-sales-val',0,48320,1500,'R','')},500);setTimeout(function(){animateValue('demo-fc-val',0,27.4,1000,'','%')},1000);setTimeout(function(){animateValue('demo-ai-val',0,3,800,'','')},1500);setTimeout(function(){var n=document.getElementById('demo-notif-1');if(n)n.style.display='flex'},2000);setTimeout(function(){var n=document.getElementById('demo-notif-2');if(n)n.style.display='flex'},3500);setTimeout(function(){var n=document.getElementById('demo-notif-3');if(n)n.style.display='flex'},5000);setTimeout(function(){typeText('demo-typed','"Chicken breast twenty five"',60)},3000)}
-function animateValue(id,start,end,dur,pre,suf){var el=document.getElementById(id);if(!el)return;pre=pre||'';suf=suf||'';var range=end-start;var startTime=null;function step(ts){if(!startTime)startTime=ts;var progress=Math.min((ts-startTime)/dur,1);var cur=start+(range*progress);el.textContent=pre+(end>=1000?Math.floor(cur).toLocaleString():cur.toFixed(end%1!==0?1:0))+suf;if(progress<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
-function typeText(id,text,speed){var el=document.getElementById(id);if(!el)return;var i=0;el.textContent='';function t(){if(i<text.length){el.textContent+=text.charAt(i);i++;setTimeout(t,speed)}}t()}
-window.addEventListener('scroll',animateDemo);
+function animateDemo() {
+  var ds = document.getElementById('demo-screen');
+  if (!ds || ds.dataset.animated) return;
+  if (ds.getBoundingClientRect().top > window.innerHeight) return;
+  ds.dataset.animated = 'true';
+  animateValue('demo-stock-val', 0, 125000, 2000, 'R', '');
+  setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', ''); }, 500);
+  setTimeout(function() { animateValue('demo-fc-val', 0, 27.4, 1000, '', '%'); }, 1000);
+  setTimeout(function() { animateValue('demo-ai-val', 0, 3, 800, '', ''); }, 1500);
+  setTimeout(function() { var n = document.getElementById('demo-notif-1'); if (n) n.style.display = 'flex'; }, 2000);
+  setTimeout(function() { var n = document.getElementById('demo-notif-2'); if (n) n.style.display = 'flex'; }, 3500);
+  setTimeout(function() { var n = document.getElementById('demo-notif-3'); if (n) n.style.display = 'flex'; }, 5000);
+  setTimeout(function() { typeText('demo-typed', '"Chicken breast twenty five"', 60); }, 3000);
+}
+function animateValue(id, start, end, dur, pre, suf) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  pre = pre || ''; suf = suf || '';
+  var range = end - start;
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / dur, 1);
+    var cur = start + (range * progress);
+    el.textContent = pre + (end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0)) + suf;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function typeText(id, text, speed) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var i = 0;
+  el.textContent = '';
+  function t() { if (i < text.length) { el.textContent += text.charAt(i); i++; setTimeout(t, speed); } }
+  t();
+}
+window.addEventListener('scroll', animateDemo);
 
 // ============================================================
 // QUOTE BUILDER
 // ============================================================
-var QBPrices={web_boh:799,mobile_app:349,procure_ai:399,pos_system:799,menu_master:349,functions_ai:449};
-var QBSetupHours={web_boh:12,mobile_app:1,procure_ai:1,pos_system:8,menu_master:0,functions_ai:1};
-var QBFeatureNames={web_boh:'Web App B.O.H',mobile_app:'Mobile App',procure_ai:'ProcureAI App',pos_system:'P.O.S System',menu_master:'Menu Master',functions_ai:'FunctionsAI'};
-var ENTITY_RATE=599;var TECH_RATE=450;var TRAINING_BASE=1500;var TRAINING_EXTRA=750;
+var QBPrices = { web_boh: 799, mobile_app: 349, procure_ai: 399, pos_system: 799, menu_master: 349, functions_ai: 449 };
+var QBSetupHours = { web_boh: 12, mobile_app: 1, procure_ai: 1, pos_system: 8, menu_master: 0, functions_ai: 1 };
+var QBFeatureNames = { web_boh: 'Web App B.O.H', mobile_app: 'Mobile App', procure_ai: 'ProcureAI App', pos_system: 'P.O.S System', menu_master: 'Menu Master', functions_ai: 'FunctionsAI' };
+var ENTITY_RATE = 599;
+var TECH_RATE = 450;
+var TRAINING_BASE = 1500;
+var TRAINING_EXTRA = 750;
 
-function toggleQBFeature(el){if(el.classList.contains('locked'))return;el.classList.toggle('selected');calcQuote()}
-
-function calcQuote(){
-  var featureTotal=QBPrices.web_boh;
-  var selectedFeatures=['web_boh'];
-  var totalSetupHrs=QBSetupHours.web_boh;
-  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(f){
-    var key=f.getAttribute('data-feature');
-    var price=parseInt(f.getAttribute('data-price'));
-    var hrs=parseInt(f.getAttribute('data-setup-hrs'))||0;
-    featureTotal+=price;totalSetupHrs+=hrs;selectedFeatures.push(key)
-  });
-  var entCount=parseInt(document.getElementById('qb-entities').value)||1;
-  var entTotal=entCount*ENTITY_RATE;
-  document.getElementById('qb-entity-total').textContent='R'+entTotal.toLocaleString()+'.00';
-  var techCheck=document.getElementById('qb-tech-check').checked;
-  var techDetails=document.getElementById('qb-tech-details');
-  var techTotal=0;
-  if(techCheck){
-    techDetails.style.display='block';
-    techTotal=totalSetupHrs*TECH_RATE;
-    var breakdownHTML='';
-    selectedFeatures.forEach(function(key){
-      var hrs=QBSetupHours[key]||0;
-      var name=QBFeatureNames[key]||key;
-      if(hrs>0){breakdownHTML+='<div style="display:flex;justify-content:space-between;padding:2px 0"><span>'+name+'</span><span style="font-weight:700">'+hrs+' hr'+(hrs>1?'s':'')+'</span></div>'}
-      else{breakdownHTML+='<div style="display:flex;justify-content:space-between;padding:2px 0;opacity:.5"><span>'+name+'</span><span>Included</span></div>'}
-    });
-    document.getElementById('qb-tech-breakdown').innerHTML=breakdownHTML;
-    document.getElementById('qb-tech-hrs-display').textContent=totalSetupHrs;
-    document.getElementById('qb-tech-total').textContent='R'+techTotal.toLocaleString()+'.00'
-  }else{techDetails.style.display='none'}
-  var trainingCheck=document.getElementById('qb-training-check').checked;
-  var extraStaffWrap=document.getElementById('qb-extra-staff-wrap');
-  var trainingTotal=0;
-  if(trainingCheck){
-    extraStaffWrap.style.display='flex';
-    var extraStaff=parseInt(document.getElementById('qb-extra-staff').value)||0;
-    trainingTotal=TRAINING_BASE+(extraStaff*TRAINING_EXTRA);
-    document.getElementById('qb-training-total').textContent='R'+trainingTotal.toLocaleString()+'.00'
-  }else{extraStaffWrap.style.display='none'}
-  var monthlyTotal=featureTotal+entTotal;
-  var onceOffTotal=techTotal+trainingTotal;
-  document.getElementById('qt-features').textContent='R'+featureTotal.toLocaleString()+'.00';
-  document.getElementById('qt-ent-count').textContent=entCount;
-  document.getElementById('qt-entities').textContent='R'+entTotal.toLocaleString()+'.00';
-  var techRow=document.getElementById('qt-tech-row');
-  if(techCheck&&totalSetupHrs>0){techRow.style.display='flex';document.getElementById('qt-tech-hrs').textContent=totalSetupHrs;document.getElementById('qt-tech').textContent='R'+techTotal.toLocaleString()+'.00'}else{techRow.style.display='none'}
-  var trainRow=document.getElementById('qt-train-row');
-  if(trainingCheck){trainRow.style.display='flex';document.getElementById('qt-training').textContent='R'+trainingTotal.toLocaleString()+'.00'}else{trainRow.style.display='none'}
-  document.getElementById('qt-grand').textContent='R'+monthlyTotal.toLocaleString()+'.00';
-  var onceRow=document.getElementById('qt-onceoff-row');
-  if(onceOffTotal>0){onceRow.style.display='flex';document.getElementById('qt-onceoff').textContent='R'+onceOffTotal.toLocaleString()+'.00'}else{onceRow.style.display='none'}
-  return{features:selectedFeatures,featureTotal:featureTotal,entities:entCount,entityTotal:entTotal,techIncluded:techCheck,techHours:techCheck?totalSetupHrs:0,techTotal:techTotal,trainingIncluded:trainingCheck,extraStaff:trainingCheck?(parseInt(document.getElementById('qb-extra-staff').value)||0):0,trainingTotal:trainingTotal,monthlyTotal:monthlyTotal,onceOffTotal:onceOffTotal}
+function toggleQBFeature(el) {
+  if (el.classList.contains('locked')) return;
+  el.classList.toggle('selected');
+  calcQuote();
 }
-window.addEventListener('load',function(){setTimeout(calcQuote,200)});
 
+function calcQuote() {
+  var featureTotal = QBPrices.web_boh;
+  var selectedFeatures = ['web_boh'];
+  var totalSetupHrs = QBSetupHours.web_boh;
+
+  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(f) {
+    var key = f.getAttribute('data-feature');
+    var price = parseInt(f.getAttribute('data-price'));
+    var hrs = parseInt(f.getAttribute('data-setup-hrs')) || 0;
+    featureTotal += price;
+    totalSetupHrs += hrs;
+    selectedFeatures.push(key);
+  });
+
+  var entCount = parseInt(document.getElementById('qb-entities').value) || 1;
+  var entTotal = entCount * ENTITY_RATE;
+  document.getElementById('qb-entity-total').textContent = 'R' + entTotal.toLocaleString() + '.00';
+
+  var techCheck = document.getElementById('qb-tech-check').checked;
+  var techDetails = document.getElementById('qb-tech-details');
+  var techTotal = 0;
+
+  if (techCheck) {
+    techDetails.style.display = 'block';
+    techTotal = totalSetupHrs * TECH_RATE;
+    var breakdownHTML = '';
+    selectedFeatures.forEach(function(key) {
+      var hrs = QBSetupHours[key] || 0;
+      var name = QBFeatureNames[key] || key;
+      if (hrs > 0) {
+        breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>' + name + '</span><span style="font-weight:700">' + hrs + ' hr' + (hrs > 1 ? 's' : '') + '</span></div>';
+      } else {
+        breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0;opacity:.5"><span>' + name + '</span><span>Included</span></div>';
+      }
+    });
+    document.getElementById('qb-tech-breakdown').innerHTML = breakdownHTML;
+    document.getElementById('qb-tech-hrs-display').textContent = totalSetupHrs;
+    document.getElementById('qb-tech-total').textContent = 'R' + techTotal.toLocaleString() + '.00';
+  } else {
+    techDetails.style.display = 'none';
+  }
+
+  var trainingCheck = document.getElementById('qb-training-check').checked;
+  var extraStaffWrap = document.getElementById('qb-extra-staff-wrap');
+  var trainingTotal = 0;
+
+  if (trainingCheck) {
+    extraStaffWrap.style.display = 'flex';
+    var extraStaff = parseInt(document.getElementById('qb-extra-staff').value) || 0;
+    trainingTotal = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
+    document.getElementById('qb-training-total').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+  } else {
+    extraStaffWrap.style.display = 'none';
+  }
+
+  var monthlyTotal = featureTotal + entTotal;
+  var onceOffTotal = techTotal + trainingTotal;
+
+  document.getElementById('qt-features').textContent = 'R' + featureTotal.toLocaleString() + '.00';
+  document.getElementById('qt-ent-count').textContent = entCount;
+  document.getElementById('qt-entities').textContent = 'R' + entTotal.toLocaleString() + '.00';
+
+  var techRow = document.getElementById('qt-tech-row');
+  if (techCheck && totalSetupHrs > 0) {
+    techRow.style.display = 'flex';
+    document.getElementById('qt-tech-hrs').textContent = totalSetupHrs;
+    document.getElementById('qt-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
+  } else {
+    techRow.style.display = 'none';
+  }
+
+  var trainRow = document.getElementById('qt-train-row');
+  if (trainingCheck) {
+    trainRow.style.display = 'flex';
+    document.getElementById('qt-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+  } else {
+    trainRow.style.display = 'none';
+  }
+
+  document.getElementById('qt-grand').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
+
+  var onceRow = document.getElementById('qt-onceoff-row');
+  if (onceOffTotal > 0) {
+    onceRow.style.display = 'flex';
+    document.getElementById('qt-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
+  } else {
+    onceRow.style.display = 'none';
+  }
+
+  return {
+    features: selectedFeatures,
+    featureTotal: featureTotal,
+    entities: entCount,
+    entityTotal: entTotal,
+    techIncluded: techCheck,
+    techHours: techCheck ? totalSetupHrs : 0,
+    techTotal: techTotal,
+    trainingIncluded: trainingCheck,
+    extraStaff: trainingCheck ? (parseInt(document.getElementById('qb-extra-staff').value) || 0) : 0,
+    trainingTotal: trainingTotal,
+    monthlyTotal: monthlyTotal,
+    onceOffTotal: onceOffTotal
+  };
+}
+
+window.addEventListener('load', function() { setTimeout(calcQuote, 200); });
+
+// ============================================================
+// SUBMIT QUOTE — FIXED VERSION
+// ============================================================
 function submitQuote(action) {
-  var name = document.getElementById('qb-name').value.trim();
-  var phone = document.getElementById('qb-phone').value.trim();
+  var name     = document.getElementById('qb-name').value.trim();
+  var phone    = document.getElementById('qb-phone').value.trim();
   var business = document.getElementById('qb-business').value.trim();
-  var email = document.getElementById('qb-email').value.trim();
+  var email    = document.getElementById('qb-email').value.trim();
 
   if (!name || !phone || !business || !email) {
     showToast('error', 'Please fill in all your details');
@@ -1314,28 +1196,42 @@ function submitQuote(action) {
     return QBFeatureNames[f] || f;
   });
 
+  // Always store for daily analysis
+  storeQuoteForAnalysis(quoteData);
+
   if (action === 'email') {
+    // Verify email templates are loaded
+    console.log('📧 Checking email system...');
+    console.log('📧 sendQuoteEmailToCustomer type:', typeof window.sendQuoteEmailToCustomer);
 
-    // CHECK 1: Is the function available?
-    console.log('📧 sendQuoteEmailToCustomer available?', typeof window.sendQuoteEmailToCustomer);
-
-    if (typeof window.sendQuoteEmailToCustomer === 'function') {
-      window.sendQuoteEmailToCustomer(quoteData)
-        .then(function() {
-          showToast('success', '✅ Quote emailed to ' + email);
-        })
-        .catch(function(err) {
-          console.error('❌ Quote email failed:', err);
-          showToast('error', '❌ Email failed — please try again');
-        });
-    } else {
-      console.error('❌ sendQuoteEmailToCustomer is NOT defined — email-templates.js not loaded!');
-      showToast('error', '❌ Email system not ready — please refresh the page');
+    if (typeof window.sendQuoteEmailToCustomer !== 'function') {
+      console.error('❌ email-templates.js not loaded correctly!');
+      showToast('error', '❌ Email system not ready. Please refresh the page and try again.');
+      return;
     }
 
-    // ALSO send notification to admin
+    showToast('info', '📧 Sending your quote to ' + email + '...');
+
+    // Send to customer
+    window.sendQuoteEmailToCustomer(quoteData)
+      .then(function(res) {
+        if (res && res.ok) {
+          showToast('success', '✅ Quote successfully emailed to ' + email);
+        } else {
+          showToast('error', '⚠️ Email may not have delivered. Please check your Resend domain is verified.');
+          console.warn('⚠️ Email response not OK. Status:', res ? res.status : 'no response');
+        }
+      })
+      .catch(function(err) {
+        console.error('❌ Email error:', err);
+        showToast('error', '❌ Email failed. Please try again or contact us on WhatsApp.');
+      });
+
+    // Send admin notification
     if (typeof window.sendQuoteNotificationToAdmin === 'function') {
-      window.sendQuoteNotificationToAdmin(quoteData);
+      window.sendQuoteNotificationToAdmin(quoteData)
+        .then(function() { console.log('✅ Admin notification sent'); })
+        .catch(function(err) { console.warn('⚠️ Admin notify failed:', err); });
     }
 
   } else if (action === 'print') {
@@ -1343,156 +1239,324 @@ function submitQuote(action) {
   } else if (action === 'download') {
     generateQuotePDF(quoteData, 'download');
   }
-
-  // Always store for daily analysis
-  storeQuoteForAnalysis(quoteData);
 }
 
-function generateQuotePDF(data,action){
-  var w=window.open('','_blank');
-  var html='<!DOCTYPE html><html><head><title>Quote '+data.quoteRef+'</title><style>body{font-family:Arial,sans-serif;color:#0d4a5c;padding:40px;max-width:800px;margin:0 auto}.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #1a8ba8}.q-logo{font-size:1.5rem;font-weight:900;color:#0d4a5c}.q-logo span{color:#1a8ba8}.q-customer{background:#f0f7f9;padding:20px;border-radius:10px;margin-bottom:24px}.q-customer h3{font-size:1rem;font-weight:700;color:#1a8ba8;margin-bottom:10px}.q-customer p{font-size:.88rem;margin:4px 0;color:#2a5f70}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#0d4a5c;color:#fff;padding:12px 16px;text-align:left;font-size:.82rem;font-weight:700}td{padding:10px 16px;border-bottom:1px solid #e4f1f5;font-size:.88rem;color:#2a5f70}tr:nth-child(even) td{background:#f8fcfd}.q-total td{font-weight:900;font-size:1.1rem;color:#0d4a5c;border-top:2px solid #1a8ba8;background:#e4f1f5}.q-footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #c4dde4;font-size:.78rem;color:#8aabb5}@media print{body{padding:20px}}</style></head><body>';
-  html+='<div class="q-header"><div><div class="q-logo">STOCK<span>AI</span>-PRO</div><div style="font-size:.78rem;color:#5a8a96;margin-top:4px">AI-Powered Stock Management — South Africa</div></div><div style="text-align:right;font-size:.85rem;color:#5a8a96"><strong style="color:#0d4a5c;display:block;font-size:1rem">QUOTATION</strong>Ref: '+data.quoteRef+'<br>Date: '+data.quoteDate+'</div></div>';
-  html+='<div class="q-customer"><h3>Customer Details</h3><p><strong>Name:</strong> '+data.customer.name+'</p><p><strong>Business:</strong> '+data.customer.business+'</p><p><strong>Phone:</strong> '+data.customer.phone+'</p><p><strong>Email:</strong> '+data.customer.email+'</p></div>';
-  html+='<table><thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead><tbody>';
-  html+='<tr><td colspan="2" style="background:#0d4a5c;color:#fff;font-weight:700;font-size:.82rem">MONTHLY SUBSCRIPTION</td></tr>';
-  data.featureLabels.forEach(function(f,i){var price=QBPrices[data.features[i]]||0;html+='<tr><td>'+f+'</td><td style="text-align:right">R'+price.toLocaleString()+'.00/mo</td></tr>'});
-  html+='<tr><td>Entities ('+data.entities+' × R599)</td><td style="text-align:right">R'+data.entityTotal.toLocaleString()+'.00/mo</td></tr>';
-  html+='<tr class="q-total"><td>Monthly Total (incl. VAT)</td><td style="text-align:right">R'+data.monthlyTotal.toLocaleString()+'.00</td></tr>';
-  if(data.onceOffTotal>0){
-    html+='<tr><td colspan="2" style="background:#d97706;color:#fff;font-weight:700;font-size:.82rem">ONCE-OFF CHARGES</td></tr>';
-    if(data.techHours>0)html+='<tr><td>Technician Setup ('+data.techHours+' hrs × R450)</td><td style="text-align:right">R'+data.techTotal.toLocaleString()+'.00</td></tr>';
-    if(data.trainingIncluded)html+='<tr><td>Staff Training (5 staff'+(data.extraStaff>0?' + '+data.extraStaff+' additional':'')+')</td><td style="text-align:right">R'+data.trainingTotal.toLocaleString()+'.00</td></tr>';
-    html+='<tr class="q-total"><td>Once-off Total (incl. VAT)</td><td style="text-align:right">R'+data.onceOffTotal.toLocaleString()+'.00</td></tr>'
+// ============================================================
+// STORE QUOTE FOR DAILY ANALYSIS
+// ============================================================
+function storeQuoteForAnalysis(data) {
+  try {
+    var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
+    data.timestamp = new Date().toISOString();
+    quotes.push(data);
+    localStorage.setItem('stockai_quotes', JSON.stringify(quotes));
+    console.log('📊 Quote stored for analysis:', data.quoteRef);
+  } catch(e) {
+    console.warn('⚠️ Could not store quote locally:', e);
   }
-  html+='</tbody></table>';
-  html+='<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;font-size:.82rem;font-weight:700;color:#065f46;margin-bottom:20px">✅ 30-Day Money-Back Guarantee • No Contracts • Cancel Anytime</div>';
-  html+='<div class="q-footer"><p>This quotation is valid for 30 days from the date of issue.</p><p style="margin-top:8px"><strong>StockAI-Pro</strong> • 079 044 0508 • support@stockai-pro.co.za • www.stockai-pro.co.za</p></div>';
-  html+='</body></html>';
-  w.document.write(html);w.document.close();
-  if(action==='print'){setTimeout(function(){w.print()},500)}
 }
 
-function storeQuoteForAnalysis(data){
-  var quotes=JSON.parse(localStorage.getItem('stockai_quotes')||'[]');
-  data.timestamp=new Date().toISOString();quotes.push(data);
-  localStorage.setItem('stockai_quotes',JSON.stringify(quotes));
-  if(typeof window.sendQuoteNotificationToAdmin==='function'){window.sendQuoteNotificationToAdmin(data)}
-  console.log('📊 Quote stored:',data.quoteRef)
+// ============================================================
+// GENERATE QUOTE PDF
+// ============================================================
+function generateQuotePDF(data, action) {
+  var w = window.open('', '_blank');
+  var html = '<!DOCTYPE html><html><head><title>Quote ' + data.quoteRef + '</title>';
+  html += '<style>body{font-family:Arial,sans-serif;color:#0d4a5c;padding:40px;max-width:800px;margin:0 auto}';
+  html += '.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #1a8ba8}';
+  html += '.q-logo{font-size:1.5rem;font-weight:900;color:#0d4a5c}.q-logo span{color:#1a8ba8}';
+  html += '.q-customer{background:#f0f7f9;padding:20px;border-radius:10px;margin-bottom:24px}';
+  html += '.q-customer h3{font-size:1rem;font-weight:700;color:#1a8ba8;margin-bottom:10px}';
+  html += '.q-customer p{font-size:.88rem;margin:4px 0;color:#2a5f70}';
+  html += 'table{width:100%;border-collapse:collapse;margin-bottom:24px}';
+  html += 'th{background:#0d4a5c;color:#fff;padding:12px 16px;text-align:left;font-size:.82rem;font-weight:700}';
+  html += 'td{padding:10px 16px;border-bottom:1px solid #e4f1f5;font-size:.88rem;color:#2a5f70}';
+  html += 'tr:nth-child(even) td{background:#f8fcfd}';
+  html += '.q-total td{font-weight:900;font-size:1.1rem;color:#0d4a5c;border-top:2px solid #1a8ba8;background:#e4f1f5}';
+  html += '.q-footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #c4dde4;font-size:.78rem;color:#8aabb5}';
+  html += '@media print{body{padding:20px}}</style></head><body>';
+
+  html += '<div class="q-header"><div><div class="q-logo">STOCK<span>AI</span>-PRO</div>';
+  html += '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">AI-Powered Stock Management — South Africa</div></div>';
+  html += '<div style="text-align:right;font-size:.85rem;color:#5a8a96"><strong style="color:#0d4a5c;display:block;font-size:1rem">QUOTATION</strong>';
+  html += 'Ref: ' + data.quoteRef + '<br>Date: ' + data.quoteDate + '</div></div>';
+
+  html += '<div class="q-customer"><h3>Customer Details</h3>';
+  html += '<p><strong>Name:</strong> ' + data.customer.name + '</p>';
+  html += '<p><strong>Business:</strong> ' + data.customer.business + '</p>';
+  html += '<p><strong>Phone:</strong> ' + data.customer.phone + '</p>';
+  html += '<p><strong>Email:</strong> ' + data.customer.email + '</p></div>';
+
+  html += '<table><thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead><tbody>';
+  html += '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;font-weight:700;font-size:.82rem">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>';
+  data.featureLabels.forEach(function(f, i) {
+    var price = QBPrices[data.features[i]] || 0;
+    html += '<tr><td>' + f + '</td><td style="text-align:right">R' + price.toLocaleString() + '.00/mo</td></tr>';
+  });
+  html += '<tr><td>Entities (' + data.entities + ' × R599)</td><td style="text-align:right">R' + data.entityTotal.toLocaleString() + '.00/mo</td></tr>';
+  html += '<tr class="q-total"><td>Monthly Total (incl. VAT)</td><td style="text-align:right">R' + data.monthlyTotal.toLocaleString() + '.00</td></tr>';
+
+  if (data.onceOffTotal > 0) {
+    html += '<tr><td colspan="2" style="background:#d97706;color:#fff;font-weight:700;font-size:.82rem">ONCE-OFF CHARGES (incl. VAT)</td></tr>';
+    if (data.techHours > 0) html += '<tr><td>Technician Setup (' + data.techHours + ' hrs × R450)</td><td style="text-align:right">R' + data.techTotal.toLocaleString() + '.00</td></tr>';
+    if (data.trainingIncluded) html += '<tr><td>Staff Training (5 staff' + (data.extraStaff > 0 ? ' + ' + data.extraStaff + ' additional' : '') + ')</td><td style="text-align:right">R' + data.trainingTotal.toLocaleString() + '.00</td></tr>';
+    html += '<tr class="q-total"><td>Once-off Total (incl. VAT)</td><td style="text-align:right">R' + data.onceOffTotal.toLocaleString() + '.00</td></tr>';
+  }
+
+  html += '</tbody></table>';
+  html += '<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;font-size:.82rem;font-weight:700;color:#065f46;margin-bottom:20px">✅ 30-Day Money-Back Guarantee • No Contracts • Cancel Anytime</div>';
+  html += '<div class="q-footer"><p>This quotation is valid for 30 days from the date of issue.</p>';
+  html += '<p style="margin-top:8px"><strong>StockAI-Pro</strong> • 079 044 0508 • support@stockai-pro.co.za • www.stockai-pro.co.za</p></div>';
+  html += '</body></html>';
+
+  w.document.write(html);
+  w.document.close();
+  if (action === 'print') { setTimeout(function() { w.print(); }, 500); }
 }
 
 // ============================================================
 // BOOKING CALENDAR
 // ============================================================
-var calendarDate=new Date();var selectedBookingDate=null;var selectedBookingSlot=null;
-var storedBookings=JSON.parse(localStorage.getItem('stockai_bookings')||'[]');
-function openBookingModal(){document.getElementById('bookingModal').classList.add('active');document.body.style.overflow='hidden';renderCalendar()}
-function closeBookingModal(){document.getElementById('bookingModal').classList.remove('active');document.body.style.overflow=''}
-document.addEventListener('click',function(e){if(e.target.id==='bookingModal')closeBookingModal()});
-function changeMonth(dir){calendarDate.setMonth(calendarDate.getMonth()+dir);renderCalendar()}
-function renderCalendar(){
-  var grid=document.getElementById('cal-grid');
-  var label=document.getElementById('cal-month-label');
-  var year=calendarDate.getFullYear();var month=calendarDate.getMonth();
-  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  label.textContent=months[month]+' '+year;
-  var firstDay=new Date(year,month,1).getDay();
-  var daysInMonth=new Date(year,month+1,0).getDate();
-  var today=new Date();today.setHours(0,0,0,0);
-  var html='';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){html+='<div class="cal-day-header">'+d+'</div>'});
-  for(var i=0;i<firstDay;i++)html+='<div class="cal-day empty"></div>';
-  for(var d=1;d<=daysInMonth;d++){
-    var date=new Date(year,month,d);var dow=date.getDay();
-    var isPast=date<today;var isWeekend=(dow===0||dow===6);
-    var isToday=date.getTime()===today.getTime();
-    var dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    var hasBooking=storedBookings.filter(function(b){return b.date===dateStr}).length>0;
-    var classes='cal-day';
-    if(isPast||isWeekend)classes+=' disabled';
-    if(isToday)classes+=' today';
-    if(selectedBookingDate===dateStr)classes+=' selected';
-    if(hasBooking&&!isPast&&!isWeekend)classes+=' has-booking';
-    if(!isPast&&!isWeekend){html+='<div class="'+classes+'" onclick="selectBookingDate(\''+dateStr+'\')">'+d+'</div>'}
-    else{html+='<div class="'+classes+'">'+d+'</div>'}
-  }
-  grid.innerHTML=html
+var calendarDate = new Date();
+var selectedBookingDate = null;
+var selectedBookingSlot = null;
+var storedBookings = JSON.parse(localStorage.getItem('stockai_bookings') || '[]');
+
+function openBookingModal() {
+  document.getElementById('bookingModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderCalendar();
 }
-function selectBookingDate(dateStr){
-  selectedBookingDate=dateStr;selectedBookingSlot=null;renderCalendar();
-  document.getElementById('time-slot-wrap').style.display='block';
-  document.getElementById('booking-form-wrap').style.display='none';
-  var dateObj=new Date(dateStr+'T00:00:00');
-  document.getElementById('selected-date-label').textContent=dateObj.toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  var container=document.getElementById('time-slots');
-  var slots=[{id:'morning',label:'08:00 — 12:00',display:'Morning Session'},{id:'afternoon',label:'13:00 — 17:00',display:'Afternoon Session'}];
-  var existing=storedBookings.filter(function(b){return b.date===dateStr});
-  var html='';
-  slots.forEach(function(slot){
-    var isBooked=existing.some(function(b){return b.slot===slot.id});
-    if(isBooked){html+='<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>'+slot.display+'<br><small>'+slot.label+'</small><br><small style="color:#c94545">Booked</small></div>'}
-    else{html+='<div class="time-slot" onclick="selectTimeSlot(this,\''+slot.id+'\')"><i class="fas fa-clock" style="margin-right:6px"></i>'+slot.display+'<br><small>'+slot.label+'</small></div>'}
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', function(e) { if (e.target.id === 'bookingModal') closeBookingModal(); });
+
+function changeMonth(dir) {
+  calendarDate.setMonth(calendarDate.getMonth() + dir);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  var grid = document.getElementById('cal-grid');
+  var label = document.getElementById('cal-month-label');
+  var year = calendarDate.getFullYear();
+  var month = calendarDate.getMonth();
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent = months[month] + ' ' + year;
+
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  var html = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) {
+    html += '<div class="cal-day-header">' + d + '</div>';
   });
-  container.innerHTML=html
+
+  for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+
+  for (var d = 1; d <= daysInMonth; d++) {
+    var date = new Date(year, month, d);
+    var dow = date.getDay();
+    var isPast = date < today;
+    var isWeekend = (dow === 0 || dow === 6);
+    var isToday = date.getTime() === today.getTime();
+    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var hasBooking = storedBookings.filter(function(b) { return b.date === dateStr; }).length > 0;
+
+    var classes = 'cal-day';
+    if (isPast || isWeekend) classes += ' disabled';
+    if (isToday) classes += ' today';
+    if (selectedBookingDate === dateStr) classes += ' selected';
+    if (hasBooking && !isPast && !isWeekend) classes += ' has-booking';
+
+    if (!isPast && !isWeekend) {
+      html += '<div class="' + classes + '" onclick="selectBookingDate(\'' + dateStr + '\')">' + d + '</div>';
+    } else {
+      html += '<div class="' + classes + '">' + d + '</div>';
+    }
+  }
+  grid.innerHTML = html;
 }
-function selectTimeSlot(el,slotId){document.querySelectorAll('.time-slot').forEach(function(s){s.classList.remove('selected')});el.classList.add('selected');selectedBookingSlot=slotId;document.getElementById('booking-form-wrap').style.display='block'}
-function submitBooking(){
-  var name=document.getElementById('book-name').value.trim();
-  var phone=document.getElementById('book-phone').value.trim();
-  var business=document.getElementById('book-business').value.trim();
-  var email=document.getElementById('book-email').value.trim();
-  if(!name||!phone||!business||!email){showToast('error','Please fill in all fields');return}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('error','Please enter a valid email');return}
-  if(!selectedBookingDate||!selectedBookingSlot){showToast('error','Please select a date and time slot');return}
-  var existing=storedBookings.filter(function(b){return b.date===selectedBookingDate});
-  if(existing.some(function(b){return b.slot===selectedBookingSlot})){showToast('error','This slot is already booked. Please choose another.');return}
-  var slotLabels={morning:'08:00 — 12:00 (Morning)',afternoon:'13:00 — 17:00 (Afternoon)'};
-  var booking={id:'BK-'+Date.now(),date:selectedBookingDate,slot:selectedBookingSlot,slotLabel:slotLabels[selectedBookingSlot],customer:{name:name,phone:phone,business:business,email:email},timestamp:new Date().toISOString()};
-  storedBookings.push(booking);localStorage.setItem('stockai_bookings',JSON.stringify(storedBookings));
-  if(typeof window.sendBookingEmailToAdmin==='function')window.sendBookingEmailToAdmin(booking);
-  if(typeof window.sendBookingConfirmationToCustomer==='function')window.sendBookingConfirmationToCustomer(booking);
-  showToast('success','✅ Presentation booked for '+selectedBookingDate+' ('+slotLabels[selectedBookingSlot]+')');
-  setTimeout(function(){closeBookingModal();selectedBookingDate=null;selectedBookingSlot=null;document.getElementById('book-name').value='';document.getElementById('book-phone').value='';document.getElementById('book-business').value='';document.getElementById('book-email').value='';document.getElementById('time-slot-wrap').style.display='none';document.getElementById('booking-form-wrap').style.display='none'},1500)
+
+function selectBookingDate(dateStr) {
+  selectedBookingDate = dateStr;
+  selectedBookingSlot = null;
+  renderCalendar();
+  document.getElementById('time-slot-wrap').style.display = 'block';
+  document.getElementById('booking-form-wrap').style.display = 'none';
+
+  var dateObj = new Date(dateStr + 'T00:00:00');
+  document.getElementById('selected-date-label').textContent = dateObj.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  var container = document.getElementById('time-slots');
+  var slots = [
+    { id: 'morning', label: '08:00 — 12:00', display: 'Morning Session' },
+    { id: 'afternoon', label: '13:00 — 17:00', display: 'Afternoon Session' }
+  ];
+  var existing = storedBookings.filter(function(b) { return b.date === dateStr; });
+  var html = '';
+  slots.forEach(function(slot) {
+    var isBooked = existing.some(function(b) { return b.slot === slot.id; });
+    if (isBooked) {
+      html += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small><br><small style="color:#c94545">Booked</small></div>';
+    } else {
+      html += '<div class="time-slot" onclick="selectTimeSlot(this,\'' + slot.id + '\')"><i class="fas fa-clock" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small></div>';
+    }
+  });
+  container.innerHTML = html;
+}
+
+function selectTimeSlot(el, slotId) {
+  document.querySelectorAll('.time-slot').forEach(function(s) { s.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedBookingSlot = slotId;
+  document.getElementById('booking-form-wrap').style.display = 'block';
+}
+
+function submitBooking() {
+  var name     = document.getElementById('book-name').value.trim();
+  var phone    = document.getElementById('book-phone').value.trim();
+  var business = document.getElementById('book-business').value.trim();
+  var email    = document.getElementById('book-email').value.trim();
+
+  if (!name || !phone || !business || !email) { showToast('error', 'Please fill in all fields'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('error', 'Please enter a valid email'); return; }
+  if (!selectedBookingDate || !selectedBookingSlot) { showToast('error', 'Please select a date and time slot'); return; }
+
+  var existing = storedBookings.filter(function(b) { return b.date === selectedBookingDate; });
+  if (existing.some(function(b) { return b.slot === selectedBookingSlot; })) {
+    showToast('error', 'This slot is already booked. Please choose another.');
+    return;
+  }
+
+  var slotLabels = { morning: '08:00 — 12:00 (Morning)', afternoon: '13:00 — 17:00 (Afternoon)' };
+
+  var booking = {
+    id: 'BK-' + Date.now(),
+    date: selectedBookingDate,
+    slot: selectedBookingSlot,
+    slotLabel: slotLabels[selectedBookingSlot],
+    customer: { name: name, phone: phone, business: business, email: email },
+    timestamp: new Date().toISOString()
+  };
+
+  storedBookings.push(booking);
+  localStorage.setItem('stockai_bookings', JSON.stringify(storedBookings));
+
+  if (typeof window.sendBookingEmailToAdmin === 'function') {
+    window.sendBookingEmailToAdmin(booking)
+      .then(function() { console.log('✅ Booking admin email sent'); })
+      .catch(function(err) { console.warn('⚠️ Booking admin email failed:', err); });
+  }
+
+  if (typeof window.sendBookingConfirmationToCustomer === 'function') {
+    window.sendBookingConfirmationToCustomer(booking)
+      .then(function() { console.log('✅ Booking confirmation sent to customer'); })
+      .catch(function(err) { console.warn('⚠️ Booking confirmation failed:', err); });
+  }
+
+  showToast('success', '✅ Presentation booked for ' + selectedBookingDate + ' (' + slotLabels[selectedBookingSlot] + ')');
+
+  setTimeout(function() {
+    closeBookingModal();
+    selectedBookingDate = null;
+    selectedBookingSlot = null;
+    document.getElementById('book-name').value = '';
+    document.getElementById('book-phone').value = '';
+    document.getElementById('book-business').value = '';
+    document.getElementById('book-email').value = '';
+    document.getElementById('time-slot-wrap').style.display = 'none';
+    document.getElementById('booking-form-wrap').style.display = 'none';
+  }, 1500);
 }
 
 // ============================================================
 // STOCKY BOT
 // ============================================================
-var stockyPrompts=['Need Assistance?','Have Questions on What You\'re Seeing?','Want to Know How Much?','Confused? I Can Help!','Need Help? I\'m Here!'];
-var stockyIdx=0;var stockyChatOpen=false;
-setTimeout(function(){showStockyBubble();setInterval(cycleStockyPrompt,15000)},5000);
-function showStockyBubble(){var b=document.getElementById('stocky-bubble');if(b&&!stockyChatOpen){b.classList.add('visible');setTimeout(function(){if(!stockyChatOpen)b.classList.remove('visible')},8000)}}
-function cycleStockyPrompt(){if(stockyChatOpen)return;stockyIdx=(stockyIdx+1)%stockyPrompts.length;var m=document.getElementById('stocky-bubble-msg');if(m)m.textContent=stockyPrompts[stockyIdx];showStockyBubble()}
-function openStockyChat(){stockyChatOpen=true;document.getElementById('stocky-bubble').classList.remove('visible');document.getElementById('stocky-chat').style.display='block'}
-function closeStockyChat(){stockyChatOpen=false;document.getElementById('stocky-chat').style.display='none';setTimeout(showStockyBubble,10000)}
-var stockyAnswers={
-  'what':'🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any business track inventory, reduce costs, and automate ordering!',
-  'cost':'💰 Build Your Own Package:<br><br>• <strong>Web App B.O.H:</strong> R799/mo (always included)<br>• <strong>Mobile App:</strong> R349/mo<br>• <strong>ProcureAI:</strong> R399/mo<br>• <strong>POS System:</strong> R799/mo<br>• <strong>Menu Master:</strong> R349/mo<br>• <strong>FunctionsAI:</strong> R449/mo<br>• <strong>Per Entity:</strong> R599/mo<br><br>Only pay for what you use!',
-  'ai':'🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts stock needs<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Live food cost in real-time',
-  'trial':'🎯 No trial, but we offer a <strong>30-day money-back guarantee</strong>. Not satisfied? Full refund, no questions asked!',
-  'start':'🚀 Getting started is easy:<br><br>1. Build your package on our website<br>2. Select your features<br>3. Pay securely via Paystack<br>4. Start immediately!<br><br>Or <a href="#quote-section" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">get a free quote first!</a>',
-  'functions':'🎉 <strong>FunctionsAI</strong> is our event management system:<br><br>• Create full event sheets<br>• Select menus & beverages<br>• Auto-calculate costs & VAT<br>• Generate professional invoices<br>• Email directly to clients<br><br>Only R449/mo to add on!',
-  'devices':'📱 Works on <strong>any device</strong>:<br><br>• Desktop / Laptop<br>• Tablet (iPad, Android)<br>• Mobile phone<br>• Kitchen display screens<br><br>Install as an app — no app store needed!',
-  'safe':'🔒 Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured'
-};
-function stockyAnswer(key){
-  var answer=stockyAnswers[key]||'I\'m not sure! WhatsApp us on 079 044 0508';
-  var messages=document.getElementById('stocky-messages');
-  var labels={'what':'What is StockAI-Pro?','cost':'How much does it cost?','ai':'How does AI help?','trial':'Is there a trial?','start':'How do I get started?','functions':'What is FunctionsAI?','devices':'What devices?','safe':'Is my data safe?'};
-  var userMsg=document.createElement('div');userMsg.className='stocky-msg user';userMsg.innerHTML='<p>'+(labels[key]||key)+'</p>';messages.appendChild(userMsg);messages.scrollTop=messages.scrollHeight;
-  setTimeout(function(){var botMsg=document.createElement('div');botMsg.className='stocky-msg bot';botMsg.innerHTML='<p>'+answer+'</p><div class="stocky-faq-btns" style="margin-top:8px"><button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'cost\')">Pricing</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'functions\')">FunctionsAI</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button></div>';messages.appendChild(botMsg);messages.scrollTop=messages.scrollHeight},500)
-}
-setInterval(function(){if(stockyChatOpen)return;var s=document.getElementById('stocky');var r=Math.floor(Math.random()*(window.innerWidth-200))+40;if(s)s.style.right=r+'px'},20000);
+var stockyPrompts = ['Need Assistance?', 'Have Questions on What You\'re Seeing?', 'Want to Know How Much?', 'Confused? I Can Help!', 'Need Help? I\'m Here!'];
+var stockyIdx = 0;
+var stockyChatOpen = false;
 
-console.log('✅ StockAI-Pro — index.html Loaded');
-console.log('📋 Quote Builder — Active');
-console.log('📅 Booking System — Active');
-console.log('🤖 Stocky Bot — Active');
-</script>
-<script src="email-templates.js"></script>
-<script src="email-templates.js"></script>
-<script>
-// All your existing JavaScript
-// ...
+setTimeout(function() {
+  showStockyBubble();
+  setInterval(cycleStockyPrompt, 15000);
+}, 5000);
+
+function showStockyBubble() {
+  var b = document.getElementById('stocky-bubble');
+  if (b && !stockyChatOpen) {
+    b.classList.add('visible');
+    setTimeout(function() { if (!stockyChatOpen) b.classList.remove('visible'); }, 8000);
+  }
+}
+function cycleStockyPrompt() {
+  if (stockyChatOpen) return;
+  stockyIdx = (stockyIdx + 1) % stockyPrompts.length;
+  var m = document.getElementById('stocky-bubble-msg');
+  if (m) m.textContent = stockyPrompts[stockyIdx];
+  showStockyBubble();
+}
+function openStockyChat() {
+  stockyChatOpen = true;
+  document.getElementById('stocky-bubble').classList.remove('visible');
+  document.getElementById('stocky-chat').style.display = 'block';
+}
+function closeStockyChat() {
+  stockyChatOpen = false;
+  document.getElementById('stocky-chat').style.display = 'none';
+  setTimeout(showStockyBubble, 10000);
+}
+
+var stockyAnswers = {
+  'what': '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any business track inventory, reduce costs, and automate ordering!',
+  'cost': '💰 Build Your Own Package:<br><br>• <strong>Web App B.O.H:</strong> R799/mo (always included)<br>• <strong>Mobile App:</strong> R349/mo<br>• <strong>ProcureAI:</strong> R399/mo<br>• <strong>POS System:</strong> R799/mo<br>• <strong>Menu Master:</strong> R349/mo<br>• <strong>FunctionsAI:</strong> R449/mo<br>• <strong>Per Entity:</strong> R599/mo<br><br>Only pay for what you use!',
+  'ai': '🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts stock needs<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Live food cost in real-time',
+  'trial': '🎯 No trial, but we offer a <strong>30-day money-back guarantee</strong>. Not satisfied? Full refund, no questions asked!',
+  'start': '🚀 Getting started is easy:<br><br>1. Build your package on our website<br>2. Select your features<br>3. Pay securely via Paystack<br>4. Start immediately!<br><br>Or <a href="#quote-section" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">get a free quote first!</a>',
+  'functions': '🎉 <strong>FunctionsAI</strong> is our event management system:<br><br>• Create full event sheets<br>• Select menus & beverages<br>• Auto-calculate costs & VAT<br>• Generate professional invoices<br>• Email directly to clients<br><br>Only R449/mo to add on!',
+  'devices': '📱 Works on <strong>any device</strong>:<br><br>• Desktop / Laptop<br>• Tablet (iPad, Android)<br>• Mobile phone<br>• Kitchen display screens<br><br>Install as an app — no app store needed!',
+  'safe': '🔒 Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured'
+};
+
+function stockyAnswer(key) {
+  var answer = stockyAnswers[key] || 'I\'m not sure! WhatsApp us on 079 044 0508';
+  var messages = document.getElementById('stocky-messages');
+  var labels = { 'what': 'What is StockAI-Pro?', 'cost': 'How much does it cost?', 'ai': 'How does AI help?', 'trial': 'Is there a trial?', 'start': 'How do I get started?', 'functions': 'What is FunctionsAI?', 'devices': 'What devices?', 'safe': 'Is my data safe?' };
+  var userMsg = document.createElement('div');
+  userMsg.className = 'stocky-msg user';
+  userMsg.innerHTML = '<p>' + (labels[key] || key) + '</p>';
+  messages.appendChild(userMsg);
+  messages.scrollTop = messages.scrollHeight;
+  setTimeout(function() {
+    var botMsg = document.createElement('div');
+    botMsg.className = 'stocky-msg bot';
+    botMsg.innerHTML = '<p>' + answer + '</p><div class="stocky-faq-btns" style="margin-top:8px"><button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'cost\')">Pricing</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'functions\')">FunctionsAI</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button></div>';
+    messages.appendChild(botMsg);
+    messages.scrollTop = messages.scrollHeight;
+  }, 500);
+}
+
+setInterval(function() {
+  if (stockyChatOpen) return;
+  var s = document.getElementById('stocky');
+  var r = Math.floor(Math.random() * (window.innerWidth - 200)) + 40;
+  if (s) s.style.right = r + 'px';
+}, 20000);
+
+// ============================================================
+// CONFIRM EVERYTHING LOADED
+// ============================================================
+window.addEventListener('load', function() {
+  console.log('✅ index.html — Fully Loaded');
+  console.log('📧 email-templates.js status:', typeof window.sendQuoteEmailToCustomer === 'function' ? '✅ Loaded correctly' : '❌ NOT LOADED — check file path');
+  console.log('📋 Quote Builder — Active');
+  console.log('📅 Booking System — Active');
+  console.log('🤖 Stocky Bot — Active');
+});
 </script>
 </body>
 </html>
