@@ -81,8 +81,11 @@ function sendQuoteEmailToCustomer(data) {
     });
 
     var getStartedUrl = 'https://www.stockai-pro.co.za/signup.html?features=' +
-        (data.features || []).join(',') +
-        '&entities=' + (data.entities || 1);
+    (data.features || []).join(',') +
+    '&entities=' + (data.entities || 1) +
+    (data.techIncluded ? '&tech=yes' : '') +
+    (data.trainingIncluded ? '&training=yes' : '') +
+    (data.extraStaff > 0 ? '&extrastaff=' + data.extraStaff : '');
 
     var html =
         '<div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto">' +
