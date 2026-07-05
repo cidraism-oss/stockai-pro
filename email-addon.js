@@ -5,7 +5,7 @@
 // ============================================================
 
 // Your Firebase Function URL — do not change this
-var FIREBASE_EMAIL_URL = 'https://us-central1-stockai-pro-b232e.cloudfunctions.net/sendEmail';
+var FIREBASE_EMAIL_URL = 'https://bold-dust-c51b.cidraism.workers.dev/;
 
 // ============================================================
 // CORE SEND FUNCTION — sends through Firebase proxy
