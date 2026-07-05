@@ -1088,7 +1088,7 @@ function calcQuote() {
 
   if (techCheck) {
     techDetails.style.display = 'block';
-    techTotal = totalSetupHrs * TECH_RATE;
+    techTotal = totalSetupHrs * TECH_RATE * entCount;
     var breakdownHTML = '';
     selectedFeatures.forEach(function(key) {
       var hrs = QBSetupHours[key] || 0;
@@ -1100,7 +1100,7 @@ function calcQuote() {
       }
     });
     document.getElementById('qb-tech-breakdown').innerHTML = breakdownHTML;
-    document.getElementById('qb-tech-hrs-display').textContent = totalSetupHrs;
+    document.getElementById('qb-tech-hrs-display').textContent = totalSetupHrs + ' x ' + entCount + ' entities = ' + (totalSetupHrs * entCount);
     document.getElementById('qb-tech-total').textContent = 'R' + techTotal.toLocaleString() + '.00';
   } else {
     techDetails.style.display = 'none';
