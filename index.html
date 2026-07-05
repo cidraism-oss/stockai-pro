@@ -1291,22 +1291,61 @@ function calcQuote(){
 }
 window.addEventListener('load',function(){setTimeout(calcQuote,200)});
 
-function submitQuote(action){
-  var name=document.getElementById('qb-name').value.trim();
-  var phone=document.getElementById('qb-phone').value.trim();
-  var business=document.getElementById('qb-business').value.trim();
-  var email=document.getElementById('qb-email').value.trim();
-  if(!name||!phone||!business||!email){showToast('error','Please fill in all your details');return}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('error','Please enter a valid email address');return}
-  var quoteData=calcQuote();
-  quoteData.customer={name:name,phone:phone,business:business,email:email};
-  quoteData.quoteRef='QT-'+Date.now();
-  quoteData.quoteDate=new Date().toLocaleDateString('en-ZA');
-  quoteData.featureLabels=quoteData.features.map(function(f){return QBFeatureNames[f]||f});
-  if(action==='email'){if(typeof window.sendQuoteEmailToCustomer==='function'){window.sendQuoteEmailToCustomer(quoteData)}showToast('success','✅ Quote emailed to '+email)}
-  else if(action==='print'){generateQuotePDF(quoteData,'print')}
-  else if(action==='download'){generateQuotePDF(quoteData,'download')}
-  storeQuoteForAnalysis(quoteData)
+function submitQuote(action) {
+  var name = document.getElementById('qb-name').value.trim();
+  var phone = document.getElementById('qb-phone').value.trim();
+  var business = document.getElementById('qb-business').value.trim();
+  var email = document.getElementById('qb-email').value.trim();
+
+  if (!name || !phone || !business || !email) {
+    showToast('error', 'Please fill in all your details');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('error', 'Please enter a valid email address');
+    return;
+  }
+
+  var quoteData = calcQuote();
+  quoteData.customer = { name: name, phone: phone, business: business, email: email };
+  quoteData.quoteRef = 'QT-' + Date.now();
+  quoteData.quoteDate = new Date().toLocaleDateString('en-ZA');
+  quoteData.featureLabels = quoteData.features.map(function(f) {
+    return QBFeatureNames[f] || f;
+  });
+
+  if (action === 'email') {
+
+    // CHECK 1: Is the function available?
+    console.log('📧 sendQuoteEmailToCustomer available?', typeof window.sendQuoteEmailToCustomer);
+
+    if (typeof window.sendQuoteEmailToCustomer === 'function') {
+      window.sendQuoteEmailToCustomer(quoteData)
+        .then(function() {
+          showToast('success', '✅ Quote emailed to ' + email);
+        })
+        .catch(function(err) {
+          console.error('❌ Quote email failed:', err);
+          showToast('error', '❌ Email failed — please try again');
+        });
+    } else {
+      console.error('❌ sendQuoteEmailToCustomer is NOT defined — email-templates.js not loaded!');
+      showToast('error', '❌ Email system not ready — please refresh the page');
+    }
+
+    // ALSO send notification to admin
+    if (typeof window.sendQuoteNotificationToAdmin === 'function') {
+      window.sendQuoteNotificationToAdmin(quoteData);
+    }
+
+  } else if (action === 'print') {
+    generateQuotePDF(quoteData, 'print');
+  } else if (action === 'download') {
+    generateQuotePDF(quoteData, 'download');
+  }
+
+  // Always store for daily analysis
+  storeQuoteForAnalysis(quoteData);
 }
 
 function generateQuotePDF(data,action){
@@ -1450,5 +1489,10 @@ console.log('📅 Booking System — Active');
 console.log('🤖 Stocky Bot — Active');
 </script>
 <script src="email-templates.js"></script>
+<script src="email-templates.js"></script>
+<script>
+// All your existing JavaScript
+// ...
+</script>
 </body>
 </html>
