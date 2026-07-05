@@ -1198,6 +1198,32 @@ window.addEventListener('load', function() {
       sel.value = entities;
     }
   }
+    // Pre-select technician if it was on the quote
+    var tech = params.get('tech');
+    if (tech === 'yes') {
+        var techCheck = document.getElementById('su-tech-check');
+        if (techCheck) {
+            techCheck.checked = true;
+        }
+    }
+
+    // Pre-select training if it was on the quote
+    var training = params.get('training');
+    if (training === 'yes') {
+        var trainCheck = document.getElementById('su-training-check');
+        if (trainCheck) {
+            trainCheck.checked = true;
+        }
+    }
+
+    // Pre-fill extra staff if specified
+    var extrastaff = params.get('extrastaff');
+    if (extrastaff && parseInt(extrastaff) > 0) {
+        var extraInput = document.getElementById('su-extra-staff');
+        if (extraInput) {
+            extraInput.value = extrastaff;
+        }
+    }
 
   // Run calculation
   setTimeout(function() {
