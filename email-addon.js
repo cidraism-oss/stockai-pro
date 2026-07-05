@@ -92,6 +92,7 @@ function sendQuoteEmailToCustomer(data) {
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Business</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.business + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Phone</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.phone + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Email</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.email + '</td></tr>' +
+'<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Address</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (booking.customer.address || '—') + '</td></tr>' +
         '</table>' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
         '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>' +
@@ -114,7 +115,7 @@ function sendQuoteEmailToCustomer(data) {
         '<div style="font-size:.78rem;color:#047857;margin-top:4px">Not satisfied within 30 days? Full refund.</div>' +
         '</div>' +
         '<div style="text-align:center;margin:20px 0">' +
-        '<a href="https://www.stockai-pro.co.za/signup.html" style="display:inline-block;padding:14px 32px;background:#f59e0b;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Get Started Now</a>' +
+        '<a href="https://www.stockai-pro.co.za/signup.html?features=' + (data.features || []).join(',') + '&entities=' + (data.entities || 1) + '" style="display:inline-block;padding:14px 32px;background:#f59e0b;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">🚀 Get Started Now</a>' +
         '</div>' +
         '<p style="font-size:.75rem;color:#8aabb5;text-align:center">This quotation is valid for 30 days.</p>' +
         '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #e4f1f5;text-align:center">' +
@@ -148,6 +149,7 @@ function sendQuoteNotificationToAdmin(data) {
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Name</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (data.customer ? data.customer.name : '—') + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Business</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (data.customer ? data.customer.business : '—') + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Phone</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (data.customer ? data.customer.phone : '—') + '</td></tr>' +
+'<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Address</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (booking.customer.address || '—') + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Email</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (data.customer ? data.customer.email : '—') + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Features</td><td style="padding:8px 12px;font-size:.85rem;color:#0d4a5c;font-weight:600">' + featureList + '</td></tr>' +
         '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Entities</td><td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + (data.entities || 1) + '</td></tr>' +
