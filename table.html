@@ -6,274 +6,718 @@
 <title>Your Bill — StockAI-Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
-:root{--primary:#1a8ba8;--primary-dark:#0d4a5c;--bg:#f0f7f9;--bg-card:#fff;--text:#0d4a5c;--text-light:#5a8a96;--gold:#f59e0b;--success:#2ea871;--danger:#c94545;--border:#c4dde4;--shadow:0 2px 12px rgba(13,74,92,.08)}
+:root{
+    --primary:#1a8ba8;--primary-dark:#0d4a5c;
+    --bg:#f0f7f9;--bg-card:#fff;
+    --text:#0d4a5c;--text-light:#5a8a96;--text-muted:#8aabb5;
+    --gold:#f59e0b;--success:#2ea871;--danger:#c94545;
+    --warning:#d4a017;--border:#c4dde4;
+    --shadow:0 2px 12px rgba(13,74,92,.08);
+    --shadow-lg:0 8px 30px rgba(13,74,92,.15);
+    --r:12px;--rs:8px
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:100px}
-.tb-header{background:linear-gradient(135deg,var(--primary-dark),var(--primary));padding:24px;text-align:center;color:#fff}
+body{font-family:'Poppins',sans-serif;background:var(--bg);
+     color:var(--text);min-height:100vh;padding-bottom:20px}
+
+/* ── HEADER ── */
+.tb-header{
+    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    padding:24px;text-align:center;color:#fff
+}
 .tb-header h1{font-size:1.3rem;font-weight:800;margin-bottom:4px}
 .tb-header p{font-size:.85rem;opacity:.85}
-.tb-table-info{display:flex;justify-content:center;gap:16px;margin-top:12px;font-size:.82rem}
-.tb-table-info span{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:12px}
-.tb-content{max-width:480px;margin:0 auto;padding:16px}
-.tb-card{background:var(--bg-card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
-.tb-card-header{padding:14px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:.88rem;font-weight:700;display:flex;justify-content:space-between;align-items:center}
-.tb-item{display:flex;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);font-size:.88rem}
+.tb-table-info{
+    display:flex;justify-content:center;gap:12px;
+    margin-top:12px;font-size:.82rem;flex-wrap:wrap
+}
+.tb-table-info span{
+    background:rgba(255,255,255,.15);padding:4px 12px;
+    border-radius:12px;display:flex;align-items:center;gap:6px
+}
+
+/* ── CONTENT ── */
+.tb-wrap{max-width:500px;margin:0 auto;padding:16px}
+
+/* ── CARDS ── */
+.tb-card{
+    background:var(--bg-card);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px
+}
+.tb-card-header{
+    padding:14px 18px;background:var(--bg);
+    border-bottom:1px solid var(--border);font-size:.88rem;
+    font-weight:700;display:flex;justify-content:space-between;
+    align-items:center;color:var(--text-light)
+}
+
+/* ── ITEMS ── */
+.tb-item{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding:12px 18px;border-bottom:1px solid var(--border);
+    font-size:.88rem;gap:12px
+}
 .tb-item:last-child{border-bottom:none}
+.tb-item-left{flex:1}
 .tb-item-name{color:var(--text);font-weight:500}
-.tb-item-note{font-size:.72rem;color:var(--gold);font-style:italic}
-.tb-item-price{font-weight:700;color:var(--primary)}
-.tb-total{padding:16px 18px;background:linear-gradient(135deg,rgba(26,139,168,.06),rgba(13,74,92,.03))}
-.tb-total-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.88rem}
-.tb-total-row.grand{font-size:1.2rem;font-weight:900;color:var(--primary);padding:10px 0;border-top:2px solid var(--border);margin-top:8px}
-.tb-gratuity{padding:18px;border-top:1px solid var(--border)}
-.tb-gratuity h4{font-size:.88rem;font-weight:700;margin-bottom:10px}
-.tb-tip-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.tb-tip-btn{padding:10px;border:2px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg-card);font-family:inherit}
-.tb-tip-btn.selected{border-color:var(--primary);background:rgba(26,139,168,.08)}
-.tb-tip-btn strong{display:block;font-size:.95rem;color:var(--text)}
-.tb-tip-btn span{font-size:.7rem;color:var(--text-light)}
-.tb-tip-custom{margin-top:8px;display:flex;gap:8px}
-.tb-tip-custom input{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;color:var(--text);background:var(--bg)}
-.tb-pay-section{position:fixed;bottom:0;left:0;right:0;padding:16px;background:var(--bg-card);border-top:2px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.08)}
-.tb-pay-btns{max-width:480px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tb-pay-btn{padding:16px;border:none;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
-.tb-pay-cash{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff}
-.tb-pay-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
-.tb-status{text-align:center;padding:30px;font-size:.92rem;color:var(--text-light)}
-.tb-paid{text-align:center;padding:40px}
-.tb-paid i{font-size:3rem;color:var(--success);display:block;margin-bottom:16px}
-.tb-paid h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:8px}
-.tb-paid p{font-size:.88rem;color:var(--text-light);margin-bottom:20px}
-.tb-email-section{background:var(--bg);border-radius:10px;padding:18px;margin:16px auto;max-width:400px}
-.tb-email-input{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;margin-bottom:10px}
-.tb-email-btn{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit}
+.tb-item-qty{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+.tb-item-note{font-size:.72rem;color:var(--gold);
+    font-style:italic;margin-top:3px}
+.tb-item-price{font-weight:700;color:var(--primary);white-space:nowrap}
+.tb-item-voided{opacity:.4;text-decoration:line-through}
+
+/* ── TOTALS ── */
+.tb-total{padding:16px 18px}
+.tb-total-row{
+    display:flex;justify-content:space-between;
+    align-items:center;padding:5px 0;font-size:.88rem
+}
+.tb-total-row.grand{
+    font-size:1.2rem;font-weight:900;color:var(--primary);
+    padding:12px 0 4px;border-top:2px solid var(--border);margin-top:8px
+}
+
+/* ── STATUS SCREENS ── */
+.tb-status{
+    text-align:center;padding:50px 24px;color:var(--text-light)
+}
+.tb-status i{font-size:3rem;display:block;margin-bottom:16px}
+.tb-status h2{font-size:1.1rem;font-weight:700;
+    color:var(--text);margin-bottom:8px}
+.tb-status p{font-size:.85rem;line-height:1.6}
+
+/* ── RATING ── */
+.tb-rating{
+    background:var(--bg-card);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:20px;
+    margin:16px auto;max-width:500px;text-align:center
+}
+.tb-rating h4{font-size:.88rem;font-weight:700;
+    margin-bottom:12px;color:var(--text)}
+.tb-stars{display:flex;justify-content:center;gap:10px;margin-bottom:8px}
+.tb-star{font-size:2rem;color:#ddd;cursor:pointer;
+    transition:.2s;-webkit-tap-highlight-color:transparent}
+.tb-star.active{color:var(--gold)}
+
+/* ── TOAST ── */
+.tb-toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--primary-dark);color:#fff;
+    padding:12px 24px;border-radius:24px;font-size:.85rem;
+    font-weight:600;opacity:0;transition:.3s;z-index:999;
+    white-space:nowrap;pointer-events:none;
+    box-shadow:var(--shadow-lg)
+}
+.tb-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.tb-toast.success{background:var(--success)}
+.tb-toast.error{background:var(--danger)}
+.tb-toast.info{background:var(--primary)}
 </style>
 </head>
 <body>
-<div id="tb-loading" class="tb-status"><i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:12px;color:var(--primary)"></i>Loading your bill...</div>
-<div id="tb-content" style="display:none"></div>
+
+<div class="tb-toast" id="tb-toast"></div>
+<div id="tb-app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="/email-templates.js"></script>
 
 <script>
-var firebaseConfig={apiKey:"AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",authDomain:"stockai-pro-b232e.firebaseapp.com",projectId:"stockai-pro-b232e",storageBucket:"stockai-pro-b232e.firebasestorage.app",messagingSenderId:"424200946359",appId:"1:424200946359:web:4c638eccd4e422ccc94332"};
-if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-var db=firebase.firestore();
-var PAYSTACK_KEY='pk_test_96a8fd66211568738d566d5da04cd5b0f1873120';
+/* ─────────────────────────────────────────
+   FIREBASE
+───────────────────────────────────────── */
+var firebaseConfig = {
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
-var TB={accountId:null,entityId:null,tableNum:null,order:null,gratuity:0,listener:null};
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+var TB = {
+    accountId:  null,
+    entityId:   null,
+    entityName: '',
+    tableNum:   null,
+    tableKey:   null,
+    order:      null,
+    rating:     0,
+    listener:   null,
+    waitTimer:  null
+};
 
-// Parse URL params
-var params=new URLSearchParams(window.location.search);
-TB.tableNum=params.get('t');
-TB.entityId=params.get('e');
-TB.accountId=params.get('a');
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+(function init() {
+    var params  = new URLSearchParams(window.location.search);
+    TB.tableNum  = params.get('t');
+    TB.entityId  = params.get('e');
+    TB.accountId = params.get('a');
 
-if(!TB.tableNum||!TB.entityId||!TB.accountId){
-    document.getElementById('tb-loading').innerHTML=
-        '<div style="text-align:center;padding:40px">' +
-        '<i class="fas fa-qrcode" style="font-size:3rem;color:var(--primary);display:block;margin-bottom:16px;opacity:.5"></i>' +
-        '<h2 style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:8px">Scan Your Table QR Code</h2>' +
-        '<p style="font-size:.88rem;color:var(--text-light);margin-bottom:16px">Please scan the QR code on your table to view your bill.</p>' +
-        '<p style="font-size:.78rem;color:var(--text-muted)">If you are seeing this page directly, ask your waiter for assistance.</p>' +
+    if (!TB.tableNum || !TB.entityId || !TB.accountId) {
+        renderInvalid();
+        return;
+    }
+    renderLoading();
+    startSync();
+
+    // Show waiting message if no order after 10s
+    TB.waitTimer = setTimeout(function() {
+        if (!TB.order) renderWaiting();
+    }, 10000);
+})();
+
+/* ─────────────────────────────────────────
+   FIRESTORE SYNC
+───────────────────────────────────────── */
+function startSync() {
+    if (TB.listener) TB.listener();
+    TB.listener = db.collection('accounts').doc(TB.accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+
+            // Resolve entity name
+            TB.entityName = '';
+            (data.entities || []).forEach(function(e) {
+                if (e.id === TB.entityId) TB.entityName = e.name;
+            });
+
+            var orders = (data.posOrders || {})[TB.entityId] || {};
+
+            // Resolve table key
+            if (TB.tableNum === 'takeaway') {
+                TB.tableKey = Object.keys(orders).find(function(k) {
+                    return k.startsWith('takeaway') &&
+                           orders[k].status === 'open';
+                }) || null;
+            } else {
+                TB.tableKey = 'table-' + TB.tableNum;
+            }
+
+            TB.order = TB.tableKey ? (orders[TB.tableKey] || null) : null;
+
+            if (TB.order && TB.waitTimer) {
+                clearTimeout(TB.waitTimer);
+                TB.waitTimer = null;
+            }
+
+            renderBill();
+        }, function(err) {
+            console.error('Sync error:', err);
+            showToast('Connection error. Please refresh.', 'error');
+        });
+}
+
+/* ─────────────────────────────────────────
+   RENDER — LOADING
+───────────────────────────────────────── */
+function renderLoading() {
+    document.getElementById('tb-app').innerHTML =
+        '<div class="tb-status">' +
+        '<i class="fas fa-spinner fa-spin" style="color:var(--primary)"></i>' +
+        '<h2>Loading your bill…</h2>' +
+        '<p>Please wait a moment.</p>' +
         '</div>';
-}else{
-    startTableSync();
-setTimeout(function() {
+}
+
+/* ─────────────────────────────────────────
+   RENDER — INVALID QR
+───────────────────────────────────────── */
+function renderInvalid() {
+    document.getElementById('tb-app').innerHTML =
+        '<div class="tb-status">' +
+        '<i class="fas fa-qrcode" style="color:var(--primary);opacity:.4"></i>' +
+        '<h2>Scan Your Table QR Code</h2>' +
+        '<p>Please scan the QR code on your table to view your bill.<br>' +
+        'If you need help, please ask your waiter.</p>' +
+        '</div>';
+}
+
+/* ─────────────────────────────────────────
+   RENDER — WAITING
+───────────────────────────────────────── */
+function renderWaiting() {
+    document.getElementById('tb-app').innerHTML =
+        '<div class="tb-status">' +
+        '<i class="fas fa-hourglass-half" style="color:var(--gold)"></i>' +
+        '<h2>Getting Your Table Ready</h2>' +
+        '<p>Your waiter will open your table shortly.<br>' +
+        'This page updates automatically — no need to refresh.</p>' +
+        '</div>';
+}
+
+/* ─────────────────────────────────────────
+   RENDER — MAIN BILL
+───────────────────────────────────────── */
+function renderBill() {
+    var app = document.getElementById('tb-app');
+
+    // No active order
     if (!TB.order) {
-        document.getElementById('tb-loading').innerHTML =
-            '<div style="text-align:center;padding:40px">' +
-            '<i class="fas fa-hourglass-half" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:16px"></i>' +
-            '<h2 style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Waiting for Your Order</h2>' +
-            '<p style="font-size:.85rem;color:var(--text-light)">Your waiter will open your table shortly. This page will update automatically.</p>' +
+        app.innerHTML =
+            '<div class="tb-status">' +
+            '<i class="fas fa-receipt" style="opacity:.3;color:var(--primary)"></i>' +
+            '<h2>No Active Order</h2>' +
+            '<p>Your waiter will open your table shortly.<br>' +
+            'This page updates automatically.</p>' +
             '</div>';
-    }
-}, 10000);
-}
-
-function startTableSync(){
-    if(TB.listener)TB.listener();
-    TB.listener=db.collection('accounts').doc(TB.accountId).onSnapshot(function(doc){
-        if(!doc.exists)return;var d=doc.data();
-        var orders=(d.posOrders||{})[TB.entityId]||{};
-        var tableKey=TB.tableNum==='takeaway'?
-            Object.keys(orders).find(function(k){return k.startsWith('takeaway')&&orders[k].status==='open';}):
-            'table-'+TB.tableNum;
-        TB.order=orders[tableKey]||null;
-
-        var entityName='';(d.entities||[]).forEach(function(e){if(e.id===TB.entityId)entityName=e.name;});
-
-        document.getElementById('tb-loading').style.display='none';
-        document.getElementById('tb-content').style.display='block';
-        renderTableBill(entityName);
-    });
-}
-
-function renderTableBill(entityName){
-    var el=document.getElementById('tb-content');
-    if(!TB.order){
-        el.innerHTML='<div class="tb-status"><i class="fas fa-receipt" style="font-size:2rem;display:block;margin-bottom:12px;opacity:.3"></i>'+
-            '<h3 style="color:var(--text);margin-bottom:6px">No Active Order</h3>'+
-            '<p>Your waiter will open your table shortly.</p></div>';
         return;
     }
 
-    if(TB.order.status==='closed'){
-        el.innerHTML='<div class="tb-paid"><i class="fas fa-check-circle"></i>'+
-            '<h2>Thank You!</h2><p>Your bill has been settled. We hope you enjoyed your meal!</p>'+
-            '<div class="tb-email-section"><h4 style="font-size:.88rem;margin-bottom:10px">Want a receipt?</h4>'+
-            '<input type="email" class="tb-email-input" id="receipt-email" placeholder="Enter your email address">'+
-            '<button class="tb-email-btn" onclick="sendReceipt()"><i class="fas fa-envelope"></i> Email My Receipt</button></div></div>';
+    // Order closed / paid
+    if (TB.order.status === 'closed') {
+        renderClosed();
         return;
     }
 
-    var items=(TB.order.items||[]).filter(function(i){return!i.voided;});
-    var subtotal=items.reduce(function(s,i){return s+(i.price||0);},0);
-    var total=subtotal+TB.gratuity-(TB.order.discount||0);
+    // Active order
+    var items    = (TB.order.items || []).filter(function(i) { return !i.voided; });
+    var subtotal = items.reduce(function(s, i) {
+        return s + ((i.price || 0) * (i.qty || 1));
+    }, 0);
+    var discount = TB.order.discount  || 0;
+    var gratuity = TB.order.gratuity  || 0;
+    var total    = subtotal - discount + gratuity;
 
-    var html='<div class="tb-header"><h1>'+entityName+'</h1>'+
-        '<p>Your Bill</p>'+
-        '<div class="tb-table-info"><span><i class="fas fa-utensils"></i> Table '+(TB.order.tableNumber||'')+'</span>'+
-        '<span><i class="fas fa-user"></i> '+(TB.order.pax||1)+' guests</span></div></div>'+
-        '<div class="tb-content">';
+    var html = '';
 
-    html+='<div class="tb-card"><div class="tb-card-header"><span>Items Ordered</span>'+
-        '<span>'+items.length+' items</span></div>';
-    items.forEach(function(item){
-        html+='<div class="tb-item"><div><div class="tb-item-name">'+item.name+'</div>'+
-            (item.notes?'<div class="tb-item-note">'+item.notes+'</div>':'')+
-            '</div><div class="tb-item-price">R'+item.price.toFixed(2)+'</div></div>';
+    // Header
+    html +=
+        '<div class="tb-header">' +
+        '<img src="/logo.svg" alt="StockAI-Pro" ' +
+'style="height:40px;width:auto;margin-bottom:10px;' +
+'filter:brightness(0) invert(1)">' +
+'<img src="/logo.svg" alt="StockAI-Pro" style="height:40px;width:auto;margin-bottom:10px;filter:brightness(0) invert(1)">' +
+'<h1>' + escHtml(TB.entityName || 'Restaurant') + '</h1>'
+        '<p>Your Bill</p>' +
+        '<div class="tb-table-info">' +
+        '<span><i class="fas fa-chair"></i> ' +
+        (TB.order.isTakeaway ? 'Takeaway'
+            : 'Table ' + escHtml(String(TB.order.tableNumber || TB.tableNum))) +
+        '</span>' +
+        '<span><i class="fas fa-users"></i> ' +
+        (TB.order.pax || 1) + ' guest' +
+        ((TB.order.pax || 1) !== 1 ? 's' : '') + '</span>' +
+        (TB.order.waiterName
+            ? '<span><i class="fas fa-user-tie"></i> ' +
+              escHtml(TB.order.waiterName) + '</span>'
+            : '') +
+        '</div></div>';
+
+    html += '<div class="tb-wrap">';
+
+    // ── Payment method notice ──
+    if (TB.order.paymentRequested) {
+        var pm = TB.order.paymentRequested;
+        var pmLabel = pm === 'cash'       ? '💵 Cash'
+                    : pm === 'card'       ? '💳 Card Machine'
+                    : pm === 'promotion'  ? '🎉 Promotion / Complimentary'
+                    : pm === 'discount'   ? '🏷️ Discount Applied'
+                    : pm;
+        html +=
+            '<div style="background:rgba(46,168,113,.1);border:1px solid rgba(46,168,113,.3);' +
+            'border-radius:var(--rs);padding:14px 18px;margin-bottom:16px;' +
+            'display:flex;align-items:center;gap:10px">' +
+            '<i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem"></i>' +
+            '<div>' +
+            '<div style="font-weight:700;font-size:.88rem;color:var(--success)">Payment Requested</div>' +
+            '<div style="font-size:.78rem;color:var(--text-light);margin-top:2px">' +
+            'Method: ' + escHtml(pmLabel) + '<br>' +
+            'Your waiter is on the way.</div>' +
+            '</div></div>';
+    }
+
+    // ── Items ──
+    html +=
+        '<div class="tb-card">' +
+        '<div class="tb-card-header">' +
+        '<span><i class="fas fa-utensils"></i> Items Ordered</span>' +
+        '<span>' + items.length + ' item' + (items.length !== 1 ? 's' : '') + '</span>' +
+        '</div>';
+
+    if (items.length === 0) {
+        html +=
+            '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:.85rem">' +
+            '<i class="fas fa-clock" style="display:block;font-size:1.5rem;' +
+            'margin-bottom:8px;opacity:.3"></i>' +
+            'Your order is being prepared…</div>';
+    } else {
+        items.forEach(function(item) {
+            var qty   = item.qty || 1;
+            var price = (item.price || 0) * qty;
+            html +=
+                '<div class="tb-item">' +
+                '<div class="tb-item-left">' +
+                '<div class="tb-item-name">' + escHtml(item.name || '') + '</div>' +
+                (qty > 1
+                    ? '<div class="tb-item-qty">×' + qty +
+                      ' @ R' + (item.price || 0).toFixed(2) + ' each</div>'
+                    : '') +
+                (item.notes
+                    ? '<div class="tb-item-note">' +
+                      '<i class="fas fa-pencil-alt" style="font-size:.6rem"></i> ' +
+                      escHtml(item.notes) + '</div>'
+                    : '') +
+                '<div style="font-size:.7rem;color:var(--text-muted);margin-top:3px">' +
+                (item.status === 'ready'  ? '✅ Ready'
+                    : item.status === 'sent' ? '👨‍🍳 Being prepared'
+                    : '📝 Ordered') +
+                '</div></div>' +
+                '<div class="tb-item-price">R' + price.toFixed(2) + '</div>' +
+                '</div>';
+        });
+    }
+
+    // Totals
+    html += '<div class="tb-total">';
+    html +=
+        '<div class="tb-total-row">' +
+        '<span>Subtotal</span><strong>R' + subtotal.toFixed(2) + '</strong></div>';
+
+    if (discount > 0) {
+        html +=
+            '<div class="tb-total-row">' +
+            '<span>Discount' +
+            (TB.order.promotionReason
+                ? ' <em style="font-size:.75rem;color:var(--text-muted)">(' +
+                  escHtml(TB.order.promotionReason) + ')</em>'
+                : '') +
+            '</span>' +
+            '<strong style="color:var(--danger)">-R' + discount.toFixed(2) + '</strong></div>';
+    }
+    if (gratuity > 0) {
+        html +=
+            '<div class="tb-total-row">' +
+            '<span>Gratuity</span>' +
+            '<strong style="color:var(--success)">+R' + gratuity.toFixed(2) + '</strong></div>';
+    }
+
+    html +=
+        '<div class="tb-total-row grand">' +
+        '<span>TOTAL</span><strong>R' + total.toFixed(2) + '</strong></div>' +
+        '</div></div>';
+
+    // ── Payment info notice ──
+    html +=
+        '<div style="background:var(--bg-card);border-radius:var(--r);' +
+        'box-shadow:var(--shadow);padding:20px;margin-bottom:16px;text-align:center">' +
+        '<i class="fas fa-concierge-bell" style="font-size:2rem;color:var(--primary);' +
+        'opacity:.6;display:block;margin-bottom:10px"></i>' +
+        '<h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:6px">' +
+        'Ready to Pay?</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);line-height:1.6">' +
+        'Please ask your waiter to process payment.<br>' +
+        'We accept <strong>cash</strong> and <strong>card</strong>.</p>' +
+        '</div>';
+
+    html += '</div>'; // close tb-wrap
+    app.innerHTML = html;
+}
+
+/* ─────────────────────────────────────────
+   RENDER — CLOSED / PAID
+───────────────────────────────────────── */
+function renderClosed() {
+    var app   = document.getElementById('tb-app');
+    var order = TB.order;
+    var items = (order.items || []).filter(function(i) { return !i.voided; });
+    var total = order.total || items.reduce(function(s, i) {
+        return s + ((i.price || 0) * (i.qty || 1));
+    }, 0);
+
+    var methodIcon  = order.paymentMethod === 'cash'      ? '💵'
+                    : order.paymentMethod === 'card'      ? '💳'
+                    : order.paymentMethod === 'promotion' ? '🎉'
+                    : order.paymentMethod === 'discount'  ? '🏷️'
+                    : '✅';
+    var methodLabel = order.paymentMethod === 'cash'      ? 'Cash'
+                    : order.paymentMethod === 'card'      ? 'Card'
+                    : order.paymentMethod === 'promotion' ? 'Promotion / Complimentary'
+                    : order.paymentMethod === 'discount'  ? 'Discount'
+                    : 'Settled';
+
+    var html =
+        '<div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));' +
+        'padding:32px 24px;text-align:center;color:#fff">' +
+        '<i class="fas fa-check-circle" style="font-size:3rem;display:block;margin-bottom:14px"></i>' +
+        '<img src="/logo.svg" alt="StockAI-Pro" ' +
+'style="height:36px;width:auto;margin-bottom:10px;' +
+'filter:brightness(0) invert(1)">' +
+'<img src="/logo.svg" alt="StockAI-Pro" style="height:36px;width:auto;margin-bottom:10px;filter:brightness(0) invert(1)">' +
+'<h1 style="font-size:1.4rem;font-weight:800;margin-bottom:6px">Thank You!</h1>' +
+        '<p style="opacity:.85;font-size:.88rem">Your bill has been settled.</p>' +
+        '<div style="background:rgba(255,255,255,.15);border-radius:10px;' +
+        'padding:10px 20px;margin-top:14px;display:inline-block;font-size:.9rem">' +
+        methodIcon + ' Paid by ' + escHtml(methodLabel) +
+        ' — <strong>R' + total.toFixed(2) + '</strong>' +
+        '</div></div>';
+
+    html += '<div class="tb-wrap">';
+
+    // Receipt summary
+    html +=
+        '<div class="tb-card">' +
+        '<div class="tb-card-header">' +
+        '<span><i class="fas fa-receipt"></i> Your Receipt</span>' +
+        '<span>' + escHtml(TB.entityName) + '</span>' +
+        '</div>';
+
+    items.forEach(function(item) {
+        var qty   = item.qty || 1;
+        var price = (item.price || 0) * qty;
+        html +=
+            '<div class="tb-item">' +
+            '<div class="tb-item-left">' +
+            '<div class="tb-item-name">' + escHtml(item.name || '') + '</div>' +
+            (qty > 1
+                ? '<div class="tb-item-qty">×' + qty + '</div>' : '') +
+            '</div>' +
+            '<div class="tb-item-price">R' + price.toFixed(2) + '</div>' +
+            '</div>';
     });
 
-    html+='<div class="tb-total">'+
-        '<div class="tb-total-row"><span>Subtotal</span><strong>R'+subtotal.toFixed(2)+'</strong></div>'+
-        (TB.order.discount?'<div class="tb-total-row"><span>Discount</span><strong style="color:var(--danger)">-R'+TB.order.discount.toFixed(2)+'</strong></div>':'')+
-        (TB.gratuity>0?'<div class="tb-total-row"><span>Gratuity</span><strong style="color:var(--success)">R'+TB.gratuity.toFixed(2)+'</strong></div>':'')+
-        '<div class="tb-total-row grand"><span>TOTAL</span><strong>R'+total.toFixed(2)+'</strong></div></div>';
+    html += '<div class="tb-total">';
 
-    // Gratuity
-    html+='<div class="tb-gratuity"><h4><i class="fas fa-heart" style="color:var(--danger)"></i> Add a tip for your waiter</h4>'+
-        '<div class="tb-tip-options">'+
-        [10,15,20].map(function(pct){
-            var tipAmt=parseFloat((subtotal*pct/100).toFixed(2));
-            return'<div class="tb-tip-btn'+(TB.gratuity===tipAmt?' selected':'')+'" onclick="setTip('+tipAmt+')">'+
-                '<strong>'+pct+'%</strong><span>R'+tipAmt.toFixed(0)+'</span></div>';
-        }).join('')+
-        '<div class="tb-tip-btn" onclick="showCustomTip()"><strong>Custom</strong><span>Amount</span></div></div>'+
-        '<div class="tb-tip-custom hidden" id="custom-tip"><input type="number" id="tip-amount" placeholder="Enter amount" min="0">'+
-        '<button style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer" '+
-        'onclick="applyCustomTip()">Apply</button></div></div></div>';
+    var subtotal = items.reduce(function(s, i) {
+        return s + ((i.price || 0) * (i.qty || 1));
+    }, 0);
+    var discount = order.discount || 0;
+    var gratuity = order.gratuity || 0;
 
-    html+='</div>';
+    html +=
+        '<div class="tb-total-row">' +
+        '<span>Subtotal</span><strong>R' + subtotal.toFixed(2) + '</strong></div>';
 
-    // Pay buttons
-    html+='<div class="tb-pay-section"><div class="tb-pay-btns">'+
-        '<button class="tb-pay-btn tb-pay-cash" onclick="payCash()"><i class="fas fa-money-bill-wave"></i> Pay Cash</button>'+
-        '<button class="tb-pay-btn tb-pay-card" onclick="payCard()"><i class="fas fa-credit-card"></i> Pay by Card</button></div></div>';
+    if (discount > 0) {
+        html +=
+            '<div class="tb-total-row"><span>Discount</span>' +
+            '<strong style="color:var(--danger)">-R' + discount.toFixed(2) + '</strong></div>';
+    }
+    if (gratuity > 0) {
+        html +=
+            '<div class="tb-total-row"><span>Gratuity</span>' +
+            '<strong style="color:var(--success)">+R' + gratuity.toFixed(2) + '</strong></div>';
+    }
 
-    el.innerHTML=html;
+    html +=
+        '<div class="tb-total-row grand">' +
+        '<span>TOTAL PAID</span><strong>R' + total.toFixed(2) + '</strong></div>' +
+        '</div></div>';
+
+    // Email receipt
+    html +=
+        '<div class="tb-card">' +
+        '<div class="tb-card-header">' +
+        '<span><i class="fas fa-envelope"></i> Email Receipt</span>' +
+        '</div>' +
+        '<div style="padding:16px">' +
+        '<input type="email" id="receipt-email" ' +
+        'style="width:100%;padding:12px;border:1.5px solid var(--border);' +
+        'border-radius:var(--rs);font-size:.9rem;font-family:inherit;' +
+        'color:var(--text);background:var(--bg);margin-bottom:10px" ' +
+        'placeholder="Enter your email address">' +
+        '<button onclick="sendReceipt()" ' +
+        'style="width:100%;padding:13px;background:var(--primary);color:#fff;' +
+        'border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;' +
+        'cursor:pointer;font-family:inherit;display:flex;align-items:center;' +
+        'justify-content:center;gap:8px" id="receipt-btn">' +
+        '<i class="fas fa-paper-plane"></i> Send Receipt</button>' +
+        '</div></div>';
+
+    // Rating
+    html += renderRatingSection();
+
+    html +=
+        '<p style="text-align:center;font-size:.75rem;color:var(--text-muted);' +
+        'margin-top:16px;padding-bottom:24px">Thank you for visiting ' +
+        escHtml(TB.entityName) + '!<br>' +
+        'Powered by StockAI-Pro</p>';
+
+    html += '</div>';
+    app.innerHTML = html;
 }
 
-function setTip(amount){
-    TB.gratuity=amount;
-    renderTableBill('');
-}
-
-function showCustomTip(){
-    document.getElementById('custom-tip').classList.remove('hidden');
-}
-
-function applyCustomTip(){
-    var amt=parseFloat(document.getElementById('tip-amount').value)||0;
-    TB.gratuity=amt;
-    renderTableBill('');
-}
-
-function payCash(){
-    if(!confirm('Pay by cash?\n\nYour waiter will be notified to collect payment at your table.'))return;
-    // Update order with cash payment request
-    TB.order.paymentRequested='cash';TB.order.gratuity=TB.gratuity;
-    var update={};
-    var tableKey='table-'+TB.tableNum;
-    var orders={};orders[tableKey]=TB.order;
-    update['posOrders.'+TB.entityId+'.'+tableKey]=TB.order;
-    update.lastUpdated=firebase.firestore.FieldValue.serverTimestamp();
-    db.collection('accounts').doc(TB.accountId).set(update,{merge:true}).then(function(){
-        document.getElementById('tb-content').innerHTML=
-            '<div class="tb-paid" style="padding-top:60px"><i class="fas fa-hand-holding-usd" style="font-size:3rem;color:var(--gold);display:block;margin-bottom:16px"></i>'+
-            '<h2>Cash Payment Requested</h2><p>Your waiter has been notified and will be with you shortly to collect payment.</p></div>';
-    });
-}
-
-function payCard(){
-    var items=(TB.order.items||[]).filter(function(i){return!i.voided;});
-    var subtotal=items.reduce(function(s,i){return s+(i.price||0);},0);
-    var total=subtotal+TB.gratuity-(TB.order.discount||0);
-
-    var handler=PaystackPop.setup({
-        key:PAYSTACK_KEY,email:'customer@stockai-pro.co.za',amount:Math.round(total*100),currency:'ZAR',
-        ref:'POS-'+Date.now(),
-        metadata:{table:TB.tableNum,entity:TB.entityId},
-        callback:function(response){
-            TB.order.status='closed';TB.order.paymentMethod='card';
-            TB.order.gratuity=TB.gratuity;TB.order.total=total;
-            TB.order.closedAt=new Date().toISOString();TB.order.paystackRef=response.reference;
-            var tableKey='table-'+TB.tableNum;
-            var update={};update['posOrders.'+TB.entityId+'.'+tableKey]=TB.order;
-            update.lastUpdated=firebase.firestore.FieldValue.serverTimestamp();
-            db.collection('accounts').doc(TB.accountId).set(update,{merge:true});
-        },
-        onClose:function(){}
-    });
-    handler.openIframe();
-}
-
-function sendReceipt(){
-    var email=(document.getElementById('receipt-email').value||'').trim();
-    if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Please enter a valid email');return;}
-    var items=(TB.order.items||[]).filter(function(i){return!i.voided;});
-    var total=TB.order.total||items.reduce(function(s,i){return s+(i.price||0);},0);
-
-    var html='<div style="font-family:Poppins,sans-serif;max-width:500px;margin:0 auto">'+
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:24px;text-align:center;border-radius:12px 12px 0 0;color:#fff">'+
-        '<h1 style="font-size:1.2rem;margin:0">Thank You!</h1><p style="font-size:.85rem;opacity:.85;margin-top:4px">Here is your receipt</p></div>'+
-        '<div style="background:#fff;padding:24px;border:1px solid #e4f1f5;border-radius:0 0 12px 12px">'+
-        '<table style="width:100%;border-collapse:collapse">'+
-        items.map(function(i){return'<tr><td style="padding:8px 0;border-bottom:1px solid #e4f1f5">'+i.name+
-            (i.notes?' <em style="color:#f59e0b;font-size:.78rem">'+i.notes+'</em>':'')+
-            '</td><td style="padding:8px 0;text-align:right;font-weight:700;border-bottom:1px solid #e4f1f5">R'+i.price.toFixed(2)+'</td></tr>';}).join('')+
-        '<tr><td style="padding:12px 0;font-weight:900;font-size:1.1rem">TOTAL</td>'+
-        '<td style="padding:12px 0;text-align:right;font-weight:900;font-size:1.1rem;color:#1a8ba8">R'+total.toFixed(2)+'</td></tr></table>'+
-        '<p style="text-align:center;color:#8aabb5;font-size:.78rem;margin-top:16px">Powered by StockAI-Pro</p></div></div>';
-
-    fetch('https://api.resend.com/emails',{method:'POST',headers:{'Authorization':'Bearer re_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT','Content-Type':'application/json'},
-        body:JSON.stringify({from:'StockAI-Pro <noreply@stockai-pro.co.za>',to:[email],subject:'Your Receipt — Thank You!',html:html})
-
-function showFeedbackSection() {
-    return '<div style="margin-top:20px;padding:20px;background:#fff;border-radius:12px;box-shadow:var(--shadow);text-align:center">'+
-        '<h4>Rate Your Experience</h4>'+
-        '<div style="font-size:1.5rem;margin:10px 0;color:var(--gold)">'+
-        '<i class="far fa-star" onclick="submitRating(1)"></i>'+
-        '<i class="far fa-star" onclick="submitRating(2)"></i>'+
-        '<i class="far fa-star" onclick="submitRating(3)"></i>'+
-        '<i class="far fa-star" onclick="submitRating(4)"></i>'+
-        '<i class="far fa-star" onclick="submitRating(5)"></i>'+
-        '</div><p style="font-size:.8rem;color:var(--text-light)">Your feedback helps us improve!</p></div>';
+/* ─────────────────────────────────────────
+   RATING
+───────────────────────────────────────── */
+function renderRatingSection() {
+    return '<div class="tb-rating">' +
+        '<h4><i class="fas fa-star" style="color:var(--gold)"></i> ' +
+        'Rate Your Experience</h4>' +
+        '<div class="tb-stars">' +
+        [1,2,3,4,5].map(function(n) {
+            return '<i class="' + (TB.rating >= n ? 'fas' : 'far') +
+                   ' fa-star tb-star' + (TB.rating >= n ? ' active' : '') +
+                   '" onclick="submitRating(' + n + ')"></i>';
+        }).join('') +
+        '</div>' +
+        (TB.rating > 0
+            ? '<p style="color:var(--success);font-weight:600;font-size:.85rem">' +
+              'Thank you for your ' + TB.rating + '-star rating! ⭐</p>'
+            : '<p style="font-size:.78rem;color:var(--text-muted)">' +
+              'Your feedback helps us improve!</p>') +
+        '</div>';
 }
 
 function submitRating(stars) {
-    // Save rating to Firebase under the order metadata
-    toast('success', 'Thank you for your ' + stars + ' star rating!');
-    // Trigger update to Firestore
+    TB.rating = stars;
+    if (!TB.accountId || !TB.tableKey) return;
+
+    var update = {};
+    update['posOrders.' + TB.entityId + '.' + TB.tableKey + '.rating']  = stars;
+    update['posOrders.' + TB.entityId + '.' + TB.tableKey + '.ratedAt'] = new Date().toISOString();
+    update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+
+    db.collection('accounts').doc(TB.accountId)
+        .set(update, { merge: true })
+        .catch(function(err) { console.warn('Rating error:', err); });
+
+    // Re-render just the rating section
+    var ratingEl = document.querySelector('.tb-rating');
+    if (ratingEl) ratingEl.outerHTML = renderRatingSection();
+    showToast('Thank you for your ' + stars + '-star rating! ⭐', 'success');
 }
-    }).then(function(){
-        document.getElementById('receipt-email').value='';
-        alert('✅ Receipt sent to '+email+'!');
-    }).catch(function(){alert('Failed to send. Please try again.');});
+
+/* ─────────────────────────────────────────
+   SEND RECEIPT EMAIL
+───────────────────────────────────────── */
+function sendReceipt() {
+    var emailInput = document.getElementById('receipt-email');
+    var email      = (emailInput ? emailInput.value : '').trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    var btn = document.getElementById('receipt-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+    }
+
+    var order    = TB.order || {};
+    var items    = (order.items || []).filter(function(i) { return !i.voided; });
+    var subtotal = items.reduce(function(s, i) {
+        return s + ((i.price || 0) * (i.qty || 1));
+    }, 0);
+    var discount = order.discount || 0;
+    var gratuity = order.gratuity || 0;
+    var total    = order.total || (subtotal - discount + gratuity);
+
+    var itemRows = items.map(function(i) {
+        var qty   = i.qty || 1;
+        var price = (i.price || 0) * qty;
+        return '<tr>' +
+               '<td style="padding:8px 0;border-bottom:1px solid #e4f1f5">' +
+               escHtml(i.name) +
+               (qty > 1 ? ' <span style="color:#8aabb5">×' + qty + '</span>' : '') +
+               (i.notes ? '<br><em style="color:#f59e0b;font-size:.78rem">' +
+               escHtml(i.notes) + '</em>' : '') +
+               '</td>' +
+               '<td style="padding:8px 0;text-align:right;font-weight:700;' +
+               'border-bottom:1px solid #e4f1f5">R' + price.toFixed(2) + '</td>' +
+               '</tr>';
+    }).join('');
+
+    var discountRow = discount > 0
+        ? '<tr><td style="padding:6px 0;color:#c94545">Discount</td>' +
+          '<td style="padding:6px 0;text-align:right;color:#c94545">-R' +
+          discount.toFixed(2) + '</td></tr>' : '';
+
+    var gratuityRow = gratuity > 0
+        ? '<tr><td style="padding:6px 0;color:#2ea871">Gratuity</td>' +
+          '<td style="padding:6px 0;text-align:right;color:#2ea871">+R' +
+          gratuity.toFixed(2) + '</td></tr>' : '';
+
+    var html =
+        '<div style="font-family:Poppins,sans-serif;max-width:500px;margin:0 auto">' +
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:28px;' +
+        'text-align:center;border-radius:12px 12px 0 0;color:#fff">' +
+        '<h1 style="font-size:1.3rem;margin:0">Thank You!</h1>' +
+        '<p style="font-size:.85rem;opacity:.8;margin-top:6px">' +
+        'Here is your receipt from ' + escHtml(TB.entityName) + '</p>' +
+        '<p style="font-size:.75rem;opacity:.65;margin-top:4px">' +
+        (TB.order.isTakeaway ? 'Takeaway'
+            : 'Table ' + escHtml(String(TB.tableNum))) +
+        ' · ' + new Date().toLocaleDateString('en-ZA') + '</p>' +
+        '</div>' +
+        '<div style="background:#fff;padding:24px;border:1px solid #e4f1f5;' +
+        'border-radius:0 0 12px 12px">' +
+        '<table style="width:100%;border-collapse:collapse">' +
+        itemRows + discountRow + gratuityRow +
+        '<tr><td style="padding:14px 0 0;font-weight:900;font-size:1rem">TOTAL</td>' +
+        '<td style="padding:14px 0 0;text-align:right;font-weight:900;' +
+        'font-size:1rem;color:#1a8ba8">R' + total.toFixed(2) + '</td></tr>' +
+        '</table>' +
+        '<p style="text-align:center;color:#8aabb5;font-size:.72rem;margin-top:20px">' +
+        'Powered by StockAI-Pro</p>' +
+        '</div></div>';
+
+    fetch('https://api.resend.com/emails', {
+        method:  'POST',
+        headers: {
+            'Authorization': 'Bearer re_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT',
+            'Content-Type':  'application/json'
+        },
+        body: JSON.stringify({
+            from:    'StockAI-Pro <noreply@stockai-pro.co.za>',
+            to:      [email],
+            subject: 'Your Receipt — ' + (TB.entityName || 'Thank You!'),
+            html:    html
+        })
+    })
+    .then(function(res) {
+        if (!res.ok) throw new Error('Failed');
+        if (emailInput) emailInput.value = '';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Receipt';
+        }
+        showToast('Receipt sent to ' + email, 'success');
+    })
+    .catch(function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Receipt';
+        }
+        showToast('Failed to send. Please try again.', 'error');
+    });
+}
+
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+function showToast(msg, type) {
+    var t = document.getElementById('tb-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className   = 'tb-toast ' + (type || '');
+    void t.offsetWidth;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+/* ─────────────────────────────────────────
+   XSS PROTECTION
+───────────────────────────────────────── */
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;')
+        .replace(/'/g,  '&#39;');
 }
 </script>
 </body>
