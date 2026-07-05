@@ -17,10 +17,16 @@ var EMAIL_CONFIG = {
     portalUrl: 'https://www.stockai-pro.co.za/portal.html'
 };
 
+// ============================================================
+// NOTE: fromEmail is set to onboarding@resend.dev for testing
+// Once your domain stockai-pro.co.za is verified in Resend,
+// change fromEmail back to: noreply@stockai-pro.co.za
+// ============================================================
+
 var VAT_RATE = 0.15;
 
 // ============================================================
-// FEATURE MAP — For quote & signup emails
+// FEATURE MAP
 // ============================================================
 var FEATURE_MAP = {
     web_boh:      'Web App B.O.H',
@@ -54,19 +60,25 @@ var SETUP_HOURS = {
 // ============================================================
 function sendEmail(to, subject, html) {
     if (!to || !subject || !html) {
-        console.warn('sendEmail: missing required fields');
-        return Promise.resolve();
+        console.warn('📧 sendEmail: missing required fields');
+        return Promise.resolve({ ok: false, reason: 'missing fields' });
     }
+
     var recipients = Array.isArray(to) ? to : [to];
-    recipients = recipients.filter(function(email) {
-        return email && email.indexOf('@') !== -1;
+    recipients = recipients.filter(function(e) {
+        return e && typeof e === 'string' && e.indexOf('@') !== -1;
     });
+
     if (recipients.length === 0) {
-        console.warn('sendEmail: no valid recipients');
-        return Promise.resolve();
+        console.warn('📧 sendEmail: no valid recipients');
+        return Promise.resolve({ ok: false, reason: 'no valid recipients' });
     }
+
+    console.log('📧 Sending email to:', recipients.join(', '));
+    console.log('📧 Subject:', subject);
+
     return fetch('https://api.resend.com/emails', {
-        method:  'POST',
+        method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + EMAIL_CONFIG.apiKey,
             'Content-Type':  'application/json'
@@ -80,52 +92,53 @@ function sendEmail(to, subject, html) {
     })
     .then(function(res) {
         if (res.ok) {
-            console.log('✅ Email sent to:', recipients.join(', '));
+            console.log('✅ Email sent successfully to:', recipients.join(', '));
         } else {
-            console.warn('⚠️ Email failed:', res.status);
+            res.json().then(function(body) {
+                console.error('❌ Email failed. Status:', res.status, 'Body:', JSON.stringify(body));
+            }).catch(function() {
+                console.error('❌ Email failed. Status:', res.status);
+            });
         }
         return res;
     })
     .catch(function(err) {
-        console.warn('❌ Email error:', err);
+        console.error('❌ Email fetch error:', err.message || err);
+        return { ok: false, reason: err.message };
     });
 }
 
 // ============================================================
-// REUSABLE COMPONENTS
+// REUSABLE EMAIL COMPONENTS
 // ============================================================
 function emailHeader(title, subtitle) {
     return '<div style="font-family:Poppins,Arial,sans-serif;max-width:650px;margin:0 auto">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
-        'padding:32px;text-align:center;border-radius:12px 12px 0 0">' +
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;text-align:center;border-radius:12px 12px 0 0">' +
         '<h1 style="color:#fff;font-size:1.4rem;margin:0;font-weight:800">' + title + '</h1>' +
-        (subtitle ? '<p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:.88rem">' +
-        subtitle + '</p>' : '') +
+        (subtitle ? '<p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:.88rem">' + subtitle + '</p>' : '') +
         '</div>' +
-        '<div style="background:#fff;padding:32px;border:1px solid #e4f1f5;' +
-        'border-top:none;border-radius:0 0 12px 12px">';
+        '<div style="background:#fff;padding:32px;border:1px solid #e4f1f5;border-top:none;border-radius:0 0 12px 12px">';
 }
 
 function emailFooter() {
-    return '<div style="margin-top:32px;padding-top:24px;' +
-        'border-top:1px solid #e4f1f5;text-align:center">' +
-        '<div style="display:flex;justify-content:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">' +
-        '<a href="' + EMAIL_CONFIG.website + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600">🌐 Website</a>' +
-        '<a href="' + EMAIL_CONFIG.whatsapp + '" style="color:#25D366;text-decoration:none;font-size:.82rem;font-weight:600">💬 WhatsApp</a>' +
-        '<a href="mailto:' + EMAIL_CONFIG.support + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600">📧 Support</a>' +
-        '<a href="tel:' + EMAIL_CONFIG.phone + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600">📞 ' + EMAIL_CONFIG.phone + '</a>' +
+    return '<div style="margin-top:32px;padding-top:24px;border-top:1px solid #e4f1f5;text-align:center">' +
+        '<div style="margin-bottom:16px">' +
+        '<a href="' + EMAIL_CONFIG.website + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">🌐 Website</a>' +
+        '<a href="' + EMAIL_CONFIG.whatsapp + '" style="color:#25D366;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">💬 WhatsApp</a>' +
+        '<a href="mailto:' + EMAIL_CONFIG.support + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">📧 Support</a>' +
+        '<a href="tel:' + EMAIL_CONFIG.phone + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">📞 ' + EMAIL_CONFIG.phone + '</a>' +
         '</div>' +
         '<p style="color:#8aabb5;font-size:.75rem;margin:0">© 2025 StockAI-Pro. Built with ❤️ in South Africa.</p>' +
         '</div></div></div>';
 }
 
 function emailInfoBox(rows) {
-    return '<table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;margin:16px 0">' +
+    return '<table style="width:100%;border-collapse:collapse;margin:16px 0">' +
         rows.map(function(row) {
-            return '<tr><td style="padding:8px 12px;color:#5a8a96;font-size:.82rem;font-weight:600;background:#f0f7f9;white-space:nowrap">' +
-                row.label + '</td>' +
-                '<td style="padding:8px 12px;color:#0d4a5c;font-size:.88rem;font-weight:600">' +
-                row.value + '</td></tr>';
+            return '<tr>' +
+                '<td style="padding:8px 12px;color:#5a8a96;font-size:.82rem;font-weight:600;background:#f0f7f9;white-space:nowrap;width:35%">' + row.label + '</td>' +
+                '<td style="padding:8px 12px;color:#0d4a5c;font-size:.88rem;font-weight:600">' + row.value + '</td>' +
+                '</tr>';
         }).join('') +
         '</table>';
 }
@@ -133,24 +146,17 @@ function emailInfoBox(rows) {
 function emailButton(text, url, color) {
     color = color || '#1a8ba8';
     return '<div style="text-align:center;margin:20px 0">' +
-        '<a href="' + url + '" style="display:inline-block;padding:14px 32px;background:' + color + ';' +
-        'color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem">' +
+        '<a href="' + url + '" style="display:inline-block;padding:14px 32px;background:' + color + ';color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem">' +
         text + '</a></div>';
 }
 
-// ============================================================
-// HELPER: FORMAT CURRENCY
-// ============================================================
 function formatR(amount) {
-    return 'R' + Number(amount).toLocaleString('en-ZA', {
+    return 'R' + Number(amount || 0).toLocaleString('en-ZA', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
 
-// ============================================================
-// HELPER: FORMAT DATE
-// ============================================================
 function formatDate(dateStr) {
     if (!dateStr) {
         return new Date().toLocaleDateString('en-ZA', {
@@ -163,18 +169,18 @@ function formatDate(dateStr) {
 }
 
 // ============================================================
-// EMAIL 1 — WELCOME EMAIL (existing)
+// EMAIL 1 — WELCOME EMAIL
 // ============================================================
 function emailWelcome(data) {
     var html = emailHeader('🎉 Welcome to StockAI-Pro!', 'Your AI-powered stock management system is ready') +
         '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.name + '</strong>,</p>' +
         '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro account has been created and is ready to use!</p>' +
         emailInfoBox([
-            { label: 'Login Email',   value: data.email },
-            { label: 'Plan',          value: data.plan },
-            { label: 'Monthly Rate',  value: 'R' + data.price + '/month' },
-            { label: 'First Entity',  value: data.entityName },
-            { label: 'Next Payment',  value: data.nextDue }
+            { label: 'Login Email',  value: data.email },
+            { label: 'Plan',         value: data.plan },
+            { label: 'Monthly Rate', value: 'R' + data.price + '/month' },
+            { label: 'First Entity', value: data.entityName },
+            { label: 'Next Payment', value: data.nextDue }
         ]) +
         emailButton('🚀 Open StockAI-Pro', EMAIL_CONFIG.appUrl, '#1a8ba8') +
         '<div style="background:#f0f7f9;border-radius:10px;padding:18px;margin:20px 0">' +
@@ -191,23 +197,19 @@ function emailWelcome(data) {
 }
 
 // ============================================================
-// EMAIL 2 — NEW USER INVITE (existing)
+// EMAIL 2 — NEW USER INVITE
 // ============================================================
 function emailNewUserInvite(data) {
-    var html = emailHeader('🎉 You\'ve Been Invited to StockAI-Pro!',
-        'Your account has been created by ' + data.invitedBy) +
+    var html = emailHeader('🎉 You\'ve Been Invited to StockAI-Pro!', 'Your account has been created by ' + data.invitedBy) +
         '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">' +
-        '<strong>' + data.invitedBy + '</strong> has added you to StockAI-Pro for ' +
-        '<strong>' + data.entityName + '</strong>.</p>' +
+        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7"><strong>' + data.invitedBy + '</strong> has added you to StockAI-Pro for <strong>' + data.entityName + '</strong>.</p>' +
         emailInfoBox([
             { label: 'Your Name',   value: data.name },
             { label: 'Your Role',   value: data.role },
             { label: 'Entity',      value: data.entityName },
             { label: 'Login Email', value: data.email }
         ]) +
-        '<div style="background:rgba(26,139,168,.08);border-left:3px solid #1a8ba8;' +
-        'padding:16px;border-radius:8px;margin:20px 0">' +
+        '<div style="background:rgba(26,139,168,.08);border-left:3px solid #1a8ba8;padding:16px;border-radius:8px;margin:20px 0">' +
         '<h4 style="color:#0d4a5c;font-size:.92rem;margin-bottom:8px">🔐 Set Up Your Password</h4>' +
         '<p style="color:#5a8a96;font-size:.85rem;margin:0">Click the button below to create your password and access your account.</p>' +
         '</div>' +
@@ -217,7 +219,7 @@ function emailNewUserInvite(data) {
 }
 
 // ============================================================
-// EMAIL 3 — PURCHASE ORDER TO SUPPLIER (existing)
+// EMAIL 3 — PURCHASE ORDER TO SUPPLIER
 // ============================================================
 function emailPurchaseOrder(data) {
     var itemRows = (data.items || []).map(function(item) {
@@ -229,93 +231,47 @@ function emailPurchaseOrder(data) {
             '</tr>';
     }).join('');
 
-    var html = '<div style="font-family:Poppins,Arial,sans-serif;max-width:650px;margin:0 auto">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:28px 32px;border-radius:12px 12px 0 0">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">' +
-        '<div><h1 style="color:#fff;font-size:1.4rem;margin:0;font-weight:800">Purchase Order</h1>' +
-        '<p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:.85rem">StockAI-Pro</p></div>' +
-        '<div style="background:rgba(255,255,255,.15);padding:10px 18px;border-radius:8px;text-align:right">' +
-        '<div style="color:#fff;font-weight:800;font-size:1rem">' + data.poId + '</div>' +
-        '<div style="color:rgba(255,255,255,.7);font-size:.75rem">' + new Date(data.createdAt).toLocaleDateString('en-ZA') + '</div>' +
-        '</div></div></div>' +
-        '<div style="background:#fff;padding:28px 32px;border-radius:0 0 12px 12px;border:1px solid #e4f1f5">' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:6px">Supplier</div>' +
-        '<div style="font-weight:700;color:#0d4a5c;font-size:.92rem">' + data.supplierName + '</div></div>' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:6px">Deliver To</div>' +
-        '<div style="font-weight:700;color:#0d4a5c;font-size:.92rem">' + data.entityName + '</div>' +
-        (data.entityAddress ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">' + data.entityAddress + '</div>' : '') +
-        '</div></div>' +
+    var html = emailHeader('Purchase Order — ' + data.poId, 'From StockAI-Pro on behalf of ' + data.entityName) +
+        emailInfoBox([
+            { label: 'Supplier',    value: data.supplierName },
+            { label: 'Deliver To',  value: data.entityName },
+            { label: 'Order Date',  value: new Date(data.createdAt).toLocaleDateString('en-ZA') },
+            { label: 'Ordered By',  value: data.createdBy || 'Procurement' }
+        ]) +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
         '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:10px;text-align:left;font-size:.75rem;color:#fff;text-transform:uppercase">Item</th>' +
-        '<th style="padding:10px;text-align:center;font-size:.75rem;color:#fff;text-transform:uppercase">Quantity</th>' +
-        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff;text-transform:uppercase">Unit Price</th>' +
-        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff;text-transform:uppercase">Total</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.75rem;color:#fff">Item</th>' +
+        '<th style="padding:10px;text-align:center;font-size:.75rem;color:#fff">Qty</th>' +
+        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff">Unit Price</th>' +
+        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff">Total</th>' +
         '</tr></thead><tbody>' + itemRows + '</tbody>' +
-        '<tfoot><tr style="background:#f0f7f9">' +
-        '<td colspan="3" style="padding:12px 10px;font-weight:700;color:#0d4a5c;text-align:right">EXCL. VAT:</td>' +
-        '<td style="padding:12px 10px;font-weight:700;color:#0d4a5c;text-align:right">R' + (data.total || 0).toFixed(2) + '</td>' +
-        '</tr><tr style="background:#f0f7f9">' +
-        '<td colspan="3" style="padding:4px 10px;color:#5a8a96;text-align:right">VAT (15%):</td>' +
-        '<td style="padding:4px 10px;color:#5a8a96;text-align:right">R' + ((data.total || 0) * VAT_RATE).toFixed(2) + '</td>' +
-        '</tr><tr style="background:#e8f4f7">' +
-        '<td colspan="3" style="padding:12px 10px;font-weight:900;color:#1a8ba8;text-align:right;font-size:1rem">TOTAL INCL. VAT:</td>' +
-        '<td style="padding:12px 10px;font-weight:900;color:#1a8ba8;text-align:right;font-size:1.1rem">R' + ((data.total || 0) * 1.15).toFixed(2) + '</td>' +
-        '</tr></tfoot></table>' +
-        '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:14px 16px;border-radius:8px;margin-bottom:20px">' +
-        '<p style="color:#5a4a17;font-size:.85rem;margin:0"><strong>Order Details:</strong><br>' +
-        'Ordered by: ' + (data.createdBy || 'Procurement') + '<br>' +
-        'Order Date: ' + new Date(data.createdAt).toLocaleDateString('en-ZA') + '<br>' +
-        'Deliver to: ' + data.entityName +
-        (data.entityAddress ? '<br>Address: ' + data.entityAddress : '') + '</p></div>' +
-        '<div style="text-align:center;padding-top:16px;border-top:1px solid #e4f1f5">' +
-        '<p style="color:#8aabb5;font-size:.78rem">Generated by StockAI-Pro • ' +
-        EMAIL_CONFIG.support + ' • ' + EMAIL_CONFIG.phone + '</p></div></div></div>';
+        '<tfoot>' +
+        '<tr style="background:#f0f7f9"><td colspan="3" style="padding:10px;text-align:right;font-weight:700;color:#0d4a5c">Excl. VAT:</td><td style="padding:10px;text-align:right;font-weight:700;color:#0d4a5c">R' + (data.total || 0).toFixed(2) + '</td></tr>' +
+        '<tr style="background:#f0f7f9"><td colspan="3" style="padding:4px 10px;text-align:right;color:#5a8a96">VAT (15%):</td><td style="padding:4px 10px;text-align:right;color:#5a8a96">R' + ((data.total || 0) * VAT_RATE).toFixed(2) + '</td></tr>' +
+        '<tr style="background:#e4f1f5"><td colspan="3" style="padding:12px 10px;text-align:right;font-weight:900;color:#1a8ba8;font-size:1rem">Total incl. VAT:</td><td style="padding:12px 10px;text-align:right;font-weight:900;color:#1a8ba8;font-size:1.1rem">R' + ((data.total || 0) * 1.15).toFixed(2) + '</td></tr>' +
+        '</tfoot></table>' +
+        emailFooter();
 
     return sendEmail(data.supplierEmail, 'Purchase Order ' + data.poId + ' — ' + data.entityName, html);
 }
 
 // ============================================================
-// EMAIL 4 — DAY END REPORT (existing)
+// EMAIL 4 — DAY END REPORT
 // ============================================================
 function emailDayEndReport(data) {
     var fcColor = (data.foodCostPercent || 0) > (data.foodCostTarget || 28) ? '#c94545' : '#2ea871';
 
-    var html = emailHeader('📊 Day End Report — ' + data.entityName,
-        data.date + ' • Submitted by ' + data.submittedBy) +
-        '<h3 style="color:#0d4a5c;font-size:.95rem;margin:0 0 12px">💰 Sales Summary (Excl. VAT)</h3>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px;border-left:3px solid #1a8ba8">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:4px">Total Sales (Excl. VAT)</div>' +
-        '<div style="font-size:1.4rem;font-weight:900;color:#0d4a5c">R' + (data.totalSales || 0).toLocaleString() + '</div></div>' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px;border-left:3px solid ' + fcColor + '">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:4px">Food Cost %</div>' +
-        '<div style="font-size:1.4rem;font-weight:900;color:' + fcColor + '">' + (data.foodCostPercent || 0).toFixed(1) + '%</div></div>' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px;border-left:3px solid #2ea871">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:4px">Cash Sales</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#0d4a5c">R' + (data.cashSales || 0).toLocaleString() + '</div></div>' +
-        '<div style="background:#f0f7f9;border-radius:8px;padding:14px;border-left:3px solid #2b8eb3">' +
-        '<div style="font-size:.68rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:4px">Card Sales</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#0d4a5c">R' + (data.cardSales || 0).toLocaleString() + '</div></div>' +
-        '</div>' +
+    var html = emailHeader('📊 Day End Report — ' + data.entityName, data.date + ' • Submitted by ' + data.submittedBy) +
         emailInfoBox([
-            { label: 'Pax Served',       value: data.pax || '0' },
-            { label: 'Avg Spend/Person', value: 'R' + (data.avgSpend || 0).toFixed(2) },
-            { label: 'Promotions',       value: 'R' + (data.promotions || 0).toFixed(2) },
-            { label: 'Discounts',        value: 'R' + (data.discounts || 0).toFixed(2) },
-            { label: 'Purchases',        value: 'R' + (data.purchases || 0).toFixed(2) },
-            { label: 'Food Cost Target', value: (data.foodCostTarget || 28) + '%' },
-            { label: 'Actual Food Cost', value: '<span style="color:' + fcColor + ';font-weight:700">' + (data.foodCostPercent || 0).toFixed(1) + '%</span>' }
+            { label: 'Total Sales (Excl. VAT)', value: 'R' + (data.totalSales || 0).toLocaleString() },
+            { label: 'Cash Sales',              value: 'R' + (data.cashSales || 0).toLocaleString() },
+            { label: 'Card Sales',              value: 'R' + (data.cardSales || 0).toLocaleString() },
+            { label: 'Pax Served',              value: data.pax || '0' },
+            { label: 'Avg Spend / Person',      value: 'R' + (data.avgSpend || 0).toFixed(2) },
+            { label: 'Purchases',               value: 'R' + (data.purchases || 0).toFixed(2) },
+            { label: 'Food Cost Target',        value: (data.foodCostTarget || 28) + '%' },
+            { label: 'Actual Food Cost',        value: '<span style="color:' + fcColor + ';font-weight:700">' + (data.foodCostPercent || 0).toFixed(1) + '%</span>' }
         ]) +
-        (data.topSellers && data.topSellers.length > 0 ?
-            '<h3 style="color:#0d4a5c;font-size:.95rem;margin:20px 0 12px">🏆 Top Sellers</h3>' +
-            data.topSellers.map(function(s, i) {
-                return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e4f1f5;font-size:.85rem">' +
-                    '<span>' + (i + 1) + '. ' + s.name + '</span><strong>' + s.qty + ' sold</strong></div>';
-            }).join('') : '') +
         emailButton('View Full Report', EMAIL_CONFIG.appUrl, '#1a8ba8') +
         emailFooter();
 
@@ -323,7 +279,7 @@ function emailDayEndReport(data) {
 }
 
 // ============================================================
-// EMAIL 5 — STOCK COUNT SUBMITTED (existing)
+// EMAIL 5 — STOCK COUNT SUBMITTED
 // ============================================================
 function emailStockCountSubmitted(data) {
     var html = emailHeader('📋 Stock Count Submitted', data.entityName + ' — ' + data.date) +
@@ -341,7 +297,7 @@ function emailStockCountSubmitted(data) {
 }
 
 // ============================================================
-// EMAIL 6 — WASTAGE REPORT (existing)
+// EMAIL 6 — WASTAGE REPORT
 // ============================================================
 function emailWastageReport(data) {
     var html = emailHeader('🗑️ Wastage Report', data.entityName + ' — ' + data.date) +
@@ -357,13 +313,13 @@ function emailWastageReport(data) {
 }
 
 // ============================================================
-// EMAIL 7 — PAYMENT REMINDER (existing)
+// EMAIL 7 — PAYMENT REMINDER
 // ============================================================
 function emailPaymentDue(data) {
     var html = emailHeader('💳 Payment Due Today', 'Your StockAI-Pro subscription payment is due') +
         '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.ownerName + '</strong>,</p>' +
         '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro subscription payment is due today.</p>' +
-        '<div style="background:linear-gradient(135deg,rgba(201,69,69,.06),rgba(201,69,69,.02));border:1px solid rgba(201,69,69,.2);border-radius:12px;padding:24px;text-align:center;margin:20px 0">' +
+        '<div style="background:rgba(201,69,69,.06);border:1px solid rgba(201,69,69,.2);border-radius:12px;padding:24px;text-align:center;margin:20px 0">' +
         '<div style="font-size:.78rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:8px">Amount Due Today</div>' +
         '<div style="font-size:2.5rem;font-weight:900;color:#c94545">R' + parseInt(data.amount).toLocaleString() + '</div>' +
         '<div style="font-size:.82rem;color:#5a8a96;margin-top:4px">' + data.plan + ' • Due: ' + data.dueDate + '</div></div>' +
@@ -373,7 +329,7 @@ function emailPaymentDue(data) {
 }
 
 // ============================================================
-// EMAIL 8 — MONTH END REPORT (existing)
+// EMAIL 8 — MONTH END REPORT
 // ============================================================
 function emailMonthEndReport(data) {
     var fcColor = (data.foodCostPercent || 0) > (data.foodCostTarget || 28) ? '#c94545' : '#2ea871';
@@ -394,7 +350,7 @@ function emailMonthEndReport(data) {
 }
 
 // ============================================================
-// EMAIL 9 — LATE DELIVERY NOTIFICATION (existing)
+// EMAIL 9 — LATE DELIVERY NOTIFICATION
 // ============================================================
 function emailLateDelivery(data) {
     var html = emailHeader('⚠️ Late Delivery Alert', data.supplierName + ' — ' + data.entityName) +
@@ -407,14 +363,13 @@ function emailLateDelivery(data) {
             { label: 'Days Overdue', value: data.daysOverdue + ' day(s)' }
         ]) +
         '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:14px 16px;border-radius:8px;margin-top:16px">' +
-        '<p style="color:#5a4a17;font-size:.85rem;margin:0">Please contact ' + data.supplierName +
-        ' immediately to follow up on this delivery.</p></div>' +
+        '<p style="color:#5a4a17;font-size:.85rem;margin:0">Please contact ' + data.supplierName + ' immediately to follow up on this delivery.</p></div>' +
         emailFooter();
     return sendEmail(data.recipients || [], '⚠️ Late Delivery — ' + data.supplierName + ' — ' + data.poId, html);
 }
 
 // ============================================================
-// EMAIL 10 — NEW SIGNUP NOTIFICATION TO ADMIN (existing + updated)
+// EMAIL 10 — NEW SIGNUP NOTIFICATION TO ADMIN
 // ============================================================
 function emailNewSignupNotification(data) {
     var featureList = (data.features || []).map(function(f) {
@@ -422,22 +377,19 @@ function emailNewSignupNotification(data) {
     }).join('<br>');
 
     var html = emailHeader('🚀 New Customer Signed Up!', 'A new customer has joined StockAI-Pro') +
-        '<div style="background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(13,74,92,.04));border-radius:10px;padding:20px;margin-bottom:20px;border:1px solid rgba(245,158,11,.2)">' +
-        '<div style="font-size:2rem;text-align:center;margin-bottom:8px">💰</div>' +
-        '<div style="text-align:center;font-size:1.3rem;font-weight:900;color:#0d4a5c">' + formatR(data.monthlyTotal || data.price || 0) + '<span style="font-size:1rem;opacity:.7">/month</span></div>' +
-        '<div style="text-align:center;font-size:.82rem;color:#5a8a96;margin-top:4px">New recurring revenue</div></div>' +
+        '<div style="background:rgba(245,158,11,.08);border-radius:10px;padding:20px;margin-bottom:20px;border:1px solid rgba(245,158,11,.2);text-align:center">' +
+        '<div style="font-size:2rem;margin-bottom:8px">💰</div>' +
+        '<div style="font-size:1.3rem;font-weight:900;color:#0d4a5c">' + formatR(data.monthlyTotal || data.price || 0) + '<span style="font-size:1rem;opacity:.7">/month</span></div>' +
+        '<div style="font-size:.82rem;color:#5a8a96;margin-top:4px">New recurring revenue</div></div>' +
         emailInfoBox([
-            { label: 'Name',             value: data.name || '—' },
-            { label: 'Email',            value: data.email || '—' },
-            { label: 'Phone',            value: data.phone || '—' },
-            { label: 'Business',         value: data.business || data.companyName || '—' },
-            { label: 'Plan',             value: data.plan || 'Custom Build' },
-            { label: 'Features',         value: featureList || '—' },
-            { label: 'Entities',         value: (data.entities || 1) + ' entity/entities' },
-            { label: 'Monthly Total',    value: formatR(data.monthlyTotal || data.price || 0) + '/mo' },
-            { label: 'Once-off Total',   value: formatR(data.onceOffTotal || 0) },
-            { label: 'Total Charged',    value: formatR((data.monthlyTotal || 0) + (data.onceOffTotal || 0)) },
-            { label: 'Payment Ref',      value: data.ref || data.paymentRef || '—' }
+            { label: 'Name',           value: data.name || '—' },
+            { label: 'Email',          value: data.email || '—' },
+            { label: 'Business',       value: data.business || '—' },
+            { label: 'Features',       value: featureList || '—' },
+            { label: 'Entities',       value: (data.entities || 1) + ' entity/entities' },
+            { label: 'Monthly Total',  value: formatR(data.monthlyTotal || data.price || 0) + '/mo' },
+            { label: 'Once-off Total', value: formatR(data.onceOffTotal || 0) },
+            { label: 'Payment Ref',    value: data.ref || '—' }
         ]) +
         emailFooter();
 
@@ -449,25 +401,30 @@ function emailNewSignupNotification(data) {
 }
 
 // ============================================================
-// *** NEW *** EMAIL 11 — QUOTE TO CUSTOMER
-// Triggered when customer clicks "Email My Quote"
-// on the quote builder on the website
+// EMAIL 11 — QUOTE TO CUSTOMER
+// Called from index.html when customer clicks Email My Quote
 // ============================================================
 window.sendQuoteEmailToCustomer = function(data) {
+    console.log('📧 sendQuoteEmailToCustomer called with:', data);
+
+    if (!data || !data.customer || !data.customer.email) {
+        console.error('❌ sendQuoteEmailToCustomer: no customer email provided');
+        return Promise.resolve({ ok: false });
+    }
 
     var featureRows = '';
     (data.features || []).forEach(function(f, i) {
         var price = FEATURE_PRICES[f] || 0;
-        var name = FEATURE_MAP[f] || (data.featureLabels && data.featureLabels[i]) || f;
-        var isLocked = (f === 'web_boh');
+        var name  = FEATURE_MAP[f] || (data.featureLabels && data.featureLabels[i]) || f;
         featureRows +=
             '<tr>' +
             '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">' +
-            (isLocked ? '🔒 ' : '✅ ') + name +
+            (f === 'web_boh' ? '🔒 ' : '✅ ') + name +
             '</td>' +
             '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' +
             formatR(price) + '/mo' +
-            '</td></tr>';
+            '</td>' +
+            '</tr>';
     });
 
     var entityRow =
@@ -499,23 +456,24 @@ window.sendQuoteEmailToCustomer = function(data) {
 
     var html = emailHeader('📋 Your Custom Quotation', 'Thank you for your interest in StockAI-Pro') +
 
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + (data.customer ? data.customer.name : 'there') + '</strong>,</p>' +
+        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.customer.name + '</strong>,</p>' +
         '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Thank you for using our quote builder! Please find your custom quotation below.</p>' +
 
-        '<div style="background:#f0f7f9;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
-        '<div><span style="font-size:.72rem;color:#5a8a96;display:block">Quote Reference</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteRef || '—') + '</strong></div>' +
-        '<div style="text-align:right"><span style="font-size:.72rem;color:#5a8a96;display:block">Date</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteDate || '—') + '</strong></div>' +
-        '</div>' +
+        '<div style="background:#f0f7f9;padding:14px 18px;border-radius:10px;margin-bottom:20px">' +
+        '<table style="width:100%"><tr>' +
+        '<td><span style="font-size:.72rem;color:#5a8a96;display:block">Quote Reference</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteRef || '—') + '</strong></td>' +
+        '<td style="text-align:right"><span style="font-size:.72rem;color:#5a8a96;display:block">Date</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteDate || '—') + '</strong></td>' +
+        '</tr></table></div>' +
 
         emailInfoBox([
-            { label: 'Name',     value: data.customer ? data.customer.name : '—' },
-            { label: 'Business', value: data.customer ? data.customer.business : '—' },
-            { label: 'Phone',    value: data.customer ? data.customer.phone : '—' },
-            { label: 'Email',    value: data.customer ? data.customer.email : '—' }
+            { label: 'Name',     value: data.customer.name },
+            { label: 'Business', value: data.customer.business },
+            { label: 'Phone',    value: data.customer.phone },
+            { label: 'Email',    value: data.customer.email }
         ]) +
 
         '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-        '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;letter-spacing:.5px;border-radius:8px 8px 0 0">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>' +
+        '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>' +
         featureRows +
         entityRow +
         '<tr style="background:#e4f1f5"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Monthly Total</td>' +
@@ -524,9 +482,8 @@ window.sendQuoteEmailToCustomer = function(data) {
 
         (data.onceOffTotal > 0 ?
             '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-            '<tr><td colspan="2" style="background:#d97706;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;letter-spacing:.5px;border-radius:8px 8px 0 0">ONCE-OFF CHARGES (incl. VAT)</td></tr>' +
-            techRow +
-            trainingRow +
+            '<tr><td colspan="2" style="background:#d97706;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">ONCE-OFF CHARGES (incl. VAT)</td></tr>' +
+            techRow + trainingRow +
             '<tr style="background:#fef3c7"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Once-off Total</td>' +
             '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#d97706;text-align:right">' + formatR(data.onceOffTotal) + '</td></tr>' +
             '</table>'
@@ -537,61 +494,48 @@ window.sendQuoteEmailToCustomer = function(data) {
         '<div style="font-size:.78rem;color:#047857;margin-top:4px">Not satisfied within 30 days? Full refund — no questions asked.</div>' +
         '</div>' +
 
-        emailButton('🚀 Get Started Now',
-            EMAIL_CONFIG.website + '/signup.html?features=' + (data.features || []).join(',') + '&entities=' + (data.entities || 1),
-            '#f59e0b') +
+        emailButton('🚀 Get Started Now', EMAIL_CONFIG.website + '/signup.html?features=' + (data.features || []).join(',') + '&entities=' + (data.entities || 1), '#f59e0b') +
 
         '<p style="font-size:.75rem;color:#8aabb5;text-align:center;margin:0">This quotation is valid for 30 days from the date of issue.</p>' +
 
         emailFooter();
 
     return sendEmail(
-        data.customer ? data.customer.email : '',
+        data.customer.email,
         'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''),
         html
     );
 };
 
 // ============================================================
-// *** NEW *** EMAIL 12 — QUOTE NOTIFICATION TO ADMIN
-// Triggered immediately every time a customer
-// requests a quote on the website
+// EMAIL 12 — QUOTE NOTIFICATION TO ADMIN
+// Called from index.html every time a quote is requested
 // Sent to: cidraism@gmail.com
 // ============================================================
 window.sendQuoteNotificationToAdmin = function(data) {
+    console.log('📧 sendQuoteNotificationToAdmin called');
 
     var featureList = (data.features || []).map(function(f) {
         return '✅ ' + (FEATURE_MAP[f] || f) + ' — ' + formatR(FEATURE_PRICES[f] || 0) + '/mo';
     }).join('<br>');
 
-    var setupBreakdown = '';
-    if (data.techIncluded && data.techHours > 0) {
-        setupBreakdown = (data.features || []).map(function(f) {
-            var hrs = SETUP_HOURS[f] || 0;
-            return (FEATURE_MAP[f] || f) + ': ' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'Included');
-        }).join('<br>');
-    }
-
     var html = emailHeader('📋 New Quote Request', 'A customer has requested a quote on the website') +
 
-        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new quotation has been requested on the StockAI-Pro website. Details below:</p>' +
+        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new quotation has been requested on the StockAI-Pro website:</p>' +
 
         emailInfoBox([
             { label: 'Quote Ref',  value: data.quoteRef || '—' },
             { label: 'Date',       value: data.quoteDate || new Date().toLocaleDateString('en-ZA') },
             { label: 'Name',       value: data.customer ? data.customer.name : '—' },
             { label: 'Business',   value: data.customer ? data.customer.business : '—' },
-            { label: 'Phone',      value: data.customer ? '<a href="tel:' + data.customer.phone + '" style="color:#1a8ba8;font-weight:600">' + data.customer.phone + '</a>' : '—' },
-            { label: 'Email',      value: data.customer ? '<a href="mailto:' + data.customer.email + '" style="color:#1a8ba8">' + data.customer.email + '</a>' : '—' }
-        ]) +
-
-        emailInfoBox([
+            { label: 'Phone',      value: data.customer ? data.customer.phone : '—' },
+            { label: 'Email',      value: data.customer ? data.customer.email : '—' },
             { label: 'Features',   value: featureList || '—' },
-            { label: 'Entities',   value: (data.entities || 1) + ' entity/entities' },
-            { label: 'Technician', value: data.techIncluded ? '✅ ' + data.techHours + ' hours = ' + formatR(data.techTotal || 0) + (setupBreakdown ? '<br><small style="color:#8aabb5">' + setupBreakdown + '</small>' : '') : '❌ Not requested' },
-            { label: 'Training',   value: data.trainingIncluded ? '✅ ' + formatR(data.trainingTotal || 0) + (data.extraStaff > 0 ? ' (' + data.extraStaff + ' extra staff)' : ' (5 staff)') : '❌ Not requested' },
-            { label: 'Monthly Total',  value: '<strong style="color:#1a8ba8;font-size:1rem">' + formatR(data.monthlyTotal || 0) + '/mo</strong>' },
-            { label: 'Once-off Total', value: '<strong style="color:#d97706">' + formatR(data.onceOffTotal || 0) + '</strong>' }
+            { label: 'Entities',   value: (data.entities || 1) + ' entities' },
+            { label: 'Technician', value: data.techIncluded ? '✅ ' + (data.techHours || 0) + ' hrs = ' + formatR(data.techTotal || 0) : '❌ Not requested' },
+            { label: 'Training',   value: data.trainingIncluded ? '✅ ' + formatR(data.trainingTotal || 0) : '❌ Not requested' },
+            { label: 'Monthly',    value: formatR(data.monthlyTotal || 0) + '/mo' },
+            { label: 'Once-off',   value: formatR(data.onceOffTotal || 0) }
         ]) +
 
         emailFooter();
@@ -604,19 +548,21 @@ window.sendQuoteNotificationToAdmin = function(data) {
 };
 
 // ============================================================
-// *** NEW *** EMAIL 13 — BOOKING CONFIRMATION TO CUSTOMER
-// Triggered when a customer books a presentation
+// EMAIL 13 — BOOKING CONFIRMATION TO CUSTOMER
+// Called from index.html when a presentation is booked
 // ============================================================
 window.sendBookingConfirmationToCustomer = function(booking) {
+    console.log('📧 sendBookingConfirmationToCustomer called');
+
     var dateFormatted = formatDate(booking.date);
 
     var html = emailHeader('✅ Presentation Booking Confirmed!', 'We look forward to meeting you') +
 
         '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + booking.customer.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro presentation has been confirmed! We\'re excited to show you what we can do for your business.</p>' +
+        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro presentation has been confirmed!</p>' +
 
         '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:24px;color:#fff;margin:20px 0;text-align:center">' +
-        '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:12px;font-weight:700">📅 Your Booking Details</div>' +
+        '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:12px;font-weight:700">📅 Your Booking</div>' +
         '<div style="font-size:1.2rem;font-weight:800;margin-bottom:6px">' + dateFormatted + '</div>' +
         '<div style="font-size:1rem;font-weight:700;color:#5EEAD4">' + booking.slotLabel + '</div>' +
         '</div>' +
@@ -630,14 +576,8 @@ window.sendBookingConfirmationToCustomer = function(booking) {
         ]) +
 
         '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;padding:14px 18px;margin:20px 0;text-align:center">' +
-        '<div style="font-size:.88rem;font-weight:700;color:#065f46">✅ Your booking is confirmed</div>' +
-        '<div style="font-size:.78rem;color:#047857;margin-top:4px">If you need to reschedule please contact us at least 24 hours in advance.</div>' +
-        '</div>' +
-
-        '<p style="color:#5a8a96;font-size:.85rem;line-height:1.7">Need to reschedule or have questions? Contact us:</p>' +
-        '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">' +
-        '<a href="tel:0790440508" style="display:inline-block;padding:10px 20px;background:#1a8ba8;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem">📞 Call Us</a>' +
-        '<a href="' + EMAIL_CONFIG.whatsapp + '" style="display:inline-block;padding:10px 20px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem">💬 WhatsApp</a>' +
+        '<div style="font-size:.88rem;font-weight:700;color:#065f46">✅ Booking Confirmed</div>' +
+        '<div style="font-size:.78rem;color:#047857;margin-top:4px">Need to reschedule? Contact us at least 24 hours in advance.</div>' +
         '</div>' +
 
         emailFooter();
@@ -650,57 +590,58 @@ window.sendBookingConfirmationToCustomer = function(booking) {
 };
 
 // ============================================================
-// *** NEW *** EMAIL 14 — BOOKING NOTIFICATION TO ADMIN
-// Triggered immediately when a customer books
-// a presentation slot on the website
+// EMAIL 14 — BOOKING NOTIFICATION TO ADMIN
+// Called from index.html when a presentation is booked
 // Sent to: cidraism@gmail.com
 // ============================================================
 window.sendBookingEmailToAdmin = function(booking) {
+    console.log('📧 sendBookingEmailToAdmin called');
+
     var dateFormatted = formatDate(booking.date);
 
     var html = emailHeader('📅 New Presentation Booking!', 'A customer has booked a presentation slot') +
 
-        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new presentation has been booked on the website. Please add this to your calendar!</p>' +
+        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new presentation has been booked. Add this to your calendar!</p>' +
 
         '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:20px;color:#fff;margin-bottom:20px;text-align:center">' +
-        '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:8px;font-weight:700">📅 Booking Details</div>' +
         '<div style="font-size:1.3rem;font-weight:800;margin-bottom:6px">' + dateFormatted + '</div>' +
         '<div style="font-size:1.1rem;font-weight:700;color:#5EEAD4">' + booking.slotLabel + '</div>' +
         '</div>' +
 
         emailInfoBox([
-            { label: 'Booking ID',  value: booking.id },
-            { label: 'Date',        value: dateFormatted },
-            { label: 'Time Slot',   value: booking.slotLabel },
-            { label: 'Name',        value: booking.customer.name },
-            { label: 'Business',    value: booking.customer.business },
-            { label: 'Phone',       value: '<a href="tel:' + booking.customer.phone + '" style="color:#1a8ba8;font-weight:700">' + booking.customer.phone + '</a>' },
-            { label: 'Email',       value: '<a href="mailto:' + booking.customer.email + '" style="color:#1a8ba8">' + booking.customer.email + '</a>' },
-            { label: 'Booked At',   value: new Date(booking.timestamp).toLocaleString('en-ZA') }
+            { label: 'Booking ID', value: booking.id },
+            { label: 'Date',       value: dateFormatted },
+            { label: 'Time Slot',  value: booking.slotLabel },
+            { label: 'Name',       value: booking.customer.name },
+            { label: 'Business',   value: booking.customer.business },
+            { label: 'Phone',      value: booking.customer.phone },
+            { label: 'Email',      value: booking.customer.email },
+            { label: 'Booked At',  value: new Date(booking.timestamp).toLocaleString('en-ZA') }
         ]) +
 
         '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:14px 16px;border-radius:8px;margin-top:16px">' +
-        '<p style="color:#5a4a17;font-size:.85rem;margin:0">📌 <strong>Remember to add this to your calendar!</strong><br>' +
-        dateFormatted + ' &bull; ' + booking.slotLabel + '</p></div>' +
+        '<p style="color:#5a4a17;font-size:.85rem;margin:0">📌 <strong>Add to your calendar:</strong> ' + dateFormatted + ' • ' + booking.slotLabel + '</p></div>' +
 
         emailFooter();
 
     return sendEmail(
         EMAIL_CONFIG.admin,
-        '📅 New Booking: ' + booking.customer.business + ' — ' + dateFormatted + ' ' + booking.slotLabel,
+        '📅 New Booking: ' + booking.customer.business + ' — ' + dateFormatted,
         html
     );
 };
 
 // ============================================================
-// *** NEW *** EMAIL 15 — DAILY QUOTE ANALYSIS TO ADMIN
-// Only sends if there were quotes that day
-// No quotes = no email
+// EMAIL 15 — DAILY QUOTE ANALYSIS TO ADMIN
+// Auto-triggered at 5pm if there were quotes that day
+// No quotes = no email sent
 // Sent to: cidraism@gmail.com
 // ============================================================
 window.sendDailyQuoteAnalysis = function() {
+    console.log('📊 sendDailyQuoteAnalysis called');
+
     var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
-    var today = new Date().toISOString().split('T')[0];
+    var today  = new Date().toISOString().split('T')[0];
 
     var todayQuotes = quotes.filter(function(q) {
         return q.timestamp && q.timestamp.startsWith(today);
@@ -708,7 +649,7 @@ window.sendDailyQuoteAnalysis = function() {
 
     if (todayQuotes.length === 0) {
         console.log('📊 No quotes today — daily analysis email NOT sent');
-        return Promise.resolve();
+        return Promise.resolve({ ok: true, reason: 'no quotes today' });
     }
 
     var totalMonthly = 0;
@@ -724,42 +665,42 @@ window.sendDailyQuoteAnalysis = function() {
             '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.quoteRef || '—') + '</td>' +
             '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.name : '—') + '</td>' +
             '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.business : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? '<a href="tel:' + q.customer.phone + '" style="color:#1a8ba8">' + q.customer.phone + '</a>' : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? '<a href="mailto:' + q.customer.email + '" style="color:#1a8ba8">' + q.customer.email + '</a>' : '—') + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.phone : '—') + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.email : '—') + '</td>' +
             '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;text-align:center;color:#2a5f70">' + (q.entities || 1) + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#1a8ba8;font-weight:700;white-space:nowrap">' + formatR(q.monthlyTotal || 0) + '/mo</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#d97706;font-weight:700;white-space:nowrap">' + formatR(q.onceOffTotal || 0) + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#1a8ba8;font-weight:700">' + formatR(q.monthlyTotal || 0) + '/mo</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#d97706;font-weight:700">' + formatR(q.onceOffTotal || 0) + '</td>' +
             '</tr>';
     }).join('');
 
     var html = emailHeader(
         '📊 Daily Quote Analysis',
-        todayQuotes.length + ' quote' + (todayQuotes.length > 1 ? 's' : '') + ' received today — ' + formatDate()
+        todayQuotes.length + ' quote' + (todayQuotes.length > 1 ? 's' : '') + ' received today'
     ) +
 
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px">' +
-        '<div style="background:#e4f1f5;border-radius:10px;padding:16px;text-align:center;border-left:3px solid #1a8ba8">' +
+        '<div style="background:#e4f1f5;border-radius:10px;padding:16px;text-align:center">' +
         '<div style="font-size:2rem;font-weight:900;color:#1a8ba8">' + todayQuotes.length + '</div>' +
         '<div style="font-size:.72rem;color:#5a8a96;font-weight:600;margin-top:4px">Quotes Today</div></div>' +
-        '<div style="background:#d1fae5;border-radius:10px;padding:16px;text-align:center;border-left:3px solid #2ea871">' +
-        '<div style="font-size:1.3rem;font-weight:900;color:#065f46">' + formatR(totalMonthly) + '</div>' +
+        '<div style="background:#d1fae5;border-radius:10px;padding:16px;text-align:center">' +
+        '<div style="font-size:1.2rem;font-weight:900;color:#065f46">' + formatR(totalMonthly) + '</div>' +
         '<div style="font-size:.72rem;color:#047857;font-weight:600;margin-top:4px">Monthly Value</div></div>' +
-        '<div style="background:#fef3c7;border-radius:10px;padding:16px;text-align:center;border-left:3px solid #d97706">' +
-        '<div style="font-size:1.3rem;font-weight:900;color:#92400e">' + formatR(totalOnceOff) + '</div>' +
+        '<div style="background:#fef3c7;border-radius:10px;padding:16px;text-align:center">' +
+        '<div style="font-size:1.2rem;font-weight:900;color:#92400e">' + formatR(totalOnceOff) + '</div>' +
         '<div style="font-size:.72rem;color:#a16207;font-weight:600;margin-top:4px">Once-off Value</div></div>' +
         '</div>' +
 
         '<div style="overflow-x:auto">' +
-        '<table style="width:100%;border-collapse:collapse;min-width:600px">' +
+        '<table style="width:100%;border-collapse:collapse;min-width:580px">' +
         '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase;white-space:nowrap">Ref</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Name</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Business</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Phone</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Email</th>' +
-        '<th style="padding:10px;text-align:center;font-size:.7rem;color:#fff;text-transform:uppercase">Ent.</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Monthly</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Once-off</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Ref</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Name</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Business</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Phone</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Email</th>' +
+        '<th style="padding:10px;text-align:center;font-size:.7rem;color:#fff">Ent.</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Monthly</th>' +
+        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Once-off</th>' +
         '</tr></thead>' +
         '<tbody>' + tableRows + '</tbody>' +
         '</table></div>' +
@@ -774,16 +715,15 @@ window.sendDailyQuoteAnalysis = function() {
 };
 
 // ============================================================
-// *** NEW *** AUTO DAILY ANALYSIS TRIGGER
-// Checks once per day at 5pm
-// Only sends if quotes exist that day
+// AUTO DAILY ANALYSIS TRIGGER
+// Checks once per day — only sends if quotes exist
 // ============================================================
 window.checkAndSendDailyAnalysis = function() {
     var lastSent = localStorage.getItem('stockai_daily_analysis_sent');
-    var today = new Date().toISOString().split('T')[0];
+    var today    = new Date().toISOString().split('T')[0];
 
     if (lastSent === today) {
-        console.log('📊 Daily analysis already sent today');
+        console.log('📊 Daily analysis already sent today — skipping');
         return;
     }
 
@@ -793,15 +733,16 @@ window.checkAndSendDailyAnalysis = function() {
     });
 
     if (todayQuotes.length > 0) {
-        window.sendDailyQuoteAnalysis();
-        localStorage.setItem('stockai_daily_analysis_sent', today);
-        console.log('📊 Daily analysis triggered for ' + todayQuotes.length + ' quotes');
+        window.sendDailyQuoteAnalysis().then(function() {
+            localStorage.setItem('stockai_daily_analysis_sent', today);
+            console.log('📊 Daily analysis sent and marked for today');
+        });
     } else {
-        console.log('📊 No quotes today — skipping daily analysis');
+        console.log('📊 No quotes today — daily analysis not sent');
     }
 };
 
-// Auto-trigger after 5pm when the page is open
+// Auto check after 5pm
 setTimeout(function() {
     var now = new Date();
     if (now.getHours() >= 17) {
@@ -828,18 +769,14 @@ var PRICING = {
 };
 
 // ============================================================
-// GENERATE INVOICE HTML (existing)
+// GENERATE INVOICE HTML
 // ============================================================
 function generateInvoiceHTML(data) {
-    var entities  = data.entities || [];
-    var baseFee   = PRICING.baseFee;
-    var entityFee = PRICING.entityFee;
-
-    var baseExcl   = parseFloat((baseFee / (1 + PRICING.vatRate)).toFixed(2));
-    var entityExcl = parseFloat((entityFee / (1 + PRICING.vatRate)).toFixed(2));
-
-    var lineItems = '';
-    var subtotal  = 0;
+    var entities   = data.entities || [];
+    var baseExcl   = parseFloat((PRICING.baseFee / (1 + PRICING.vatRate)).toFixed(2));
+    var entityExcl = parseFloat((PRICING.entityFee / (1 + PRICING.vatRate)).toFixed(2));
+    var lineItems  = '';
+    var subtotal   = 0;
 
     lineItems += '<tr>' +
         '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c">StockAI-Pro Platform Fee — Monthly Access</td>' +
@@ -862,58 +799,41 @@ function generateInvoiceHTML(data) {
     var vatAmount = parseFloat((subtotal * PRICING.vatRate).toFixed(2));
     var total     = parseFloat((subtotal + vatAmount).toFixed(2));
 
-    var html = '<div style="font-family:Poppins,Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;border-radius:12px 12px 0 0">' +
-        '<div><h1 style="color:#fff;font-size:1.6rem;font-weight:900;margin:0;letter-spacing:1px">STOCKAI-PRO</h1>' +
-        '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:4px 0 0">Intelligence a click away</p></div>' +
-        '<div style="text-align:right"><div style="background:rgba(255,255,255,.15);padding:12px 20px;border-radius:8px">' +
-        '<div style="color:#fff;font-size:1.4rem;font-weight:900;letter-spacing:2px">TAX INVOICE</div>' +
-        '<div style="color:rgba(255,255,255,.8);font-size:.78rem;margin-top:4px">#' + data.invoiceNumber + '</div>' +
-        '</div></div></div>' +
-        '<div style="padding:32px;border:1px solid #e4f1f5;border-top:none">' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px">' +
-        '<div><div style="font-size:.65rem;color:#8aabb5;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:8px">From</div>' +
-        '<div style="font-size:.92rem;font-weight:700;color:#0d4a5c">' + COMPANY_DETAILS.name + '</div>' +
-        '<div style="font-size:.78rem;color:#5a8a96;margin-top:2px">T/A ' + COMPANY_DETAILS.trading + '</div>' +
-        '<div style="font-size:.78rem;color:#5a8a96;margin-top:6px;line-height:1.6">' + COMPANY_DETAILS.address + '<br>' + COMPANY_DETAILS.phone + '<br>' + COMPANY_DETAILS.email + '</div></div>' +
-        '<div><div style="font-size:.65rem;color:#8aabb5;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:8px">Bill To</div>' +
-        '<div style="font-size:.92rem;font-weight:700;color:#0d4a5c">' + (data.companyName || data.ownerName) + '</div>' +
-        (data.companyAddress ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px;line-height:1.6">' + data.companyAddress + '</div>' : '') +
-        '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">' + (data.ownerEmail || '') + '</div>' +
-        (data.companyVat ? '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">VAT: ' + data.companyVat + '</div>' : '') +
+    return '<div style="font-family:Poppins,Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff">' +
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;border-radius:12px 12px 0 0">' +
+        '<h1 style="color:#fff;font-size:1.6rem;font-weight:900;margin:0">STOCKAI-PRO</h1>' +
+        '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:4px 0 0">Intelligence a click away</p>' +
+        '<div style="background:rgba(255,255,255,.15);padding:8px 16px;border-radius:8px;margin-top:12px;display:inline-block">' +
+        '<div style="color:#fff;font-size:1.2rem;font-weight:900;letter-spacing:2px">TAX INVOICE #' + data.invoiceNumber + '</div>' +
         '</div></div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;padding:14px;background:#f0f7f9;border-radius:8px">' +
-        '<div><div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Invoice Date</div>' +
-        '<div style="font-size:.88rem;font-weight:700;color:#0d4a5c">' + data.invoiceDate + '</div></div>' +
-        '<div><div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Due Date</div>' +
-        '<div style="font-size:.88rem;font-weight:700;color:' + (data.isPaid ? '#2ea871' : '#c94545') + '">' + data.dueDate + '</div></div>' +
-        '<div><div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Status</div>' +
-        '<div style="font-size:.88rem;font-weight:700;color:' + (data.isPaid ? '#2ea871' : '#c94545') + '">' + (data.isPaid ? '✅ PAID' : '⏳ DUE') + '</div></div></div>' +
+        '<div style="padding:32px;border:1px solid #e4f1f5;border-top:none">' +
+        emailInfoBox([
+            { label: 'Invoice Date', value: data.invoiceDate },
+            { label: 'Due Date',     value: data.dueDate },
+            { label: 'Status',       value: data.isPaid ? '✅ PAID' : '⏳ DUE' },
+            { label: 'Bill To',      value: data.companyName || data.ownerName },
+            { label: 'Email',        value: data.ownerEmail || '—' }
+        ]) +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
         '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:12px 16px;text-align:left;font-size:.72rem;color:#fff;text-transform:uppercase;font-weight:600">Description</th>' +
-        '<th style="padding:12px 16px;text-align:center;font-size:.72rem;color:#fff;text-transform:uppercase;font-weight:600">Qty</th>' +
-        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff;text-transform:uppercase;font-weight:600">Unit Price</th>' +
-        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff;text-transform:uppercase;font-weight:600">Amount</th>' +
+        '<th style="padding:12px 16px;text-align:left;font-size:.72rem;color:#fff">Description</th>' +
+        '<th style="padding:12px 16px;text-align:center;font-size:.72rem;color:#fff">Qty</th>' +
+        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff">Unit Price</th>' +
+        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff">Amount</th>' +
         '</tr></thead><tbody>' + lineItems + '</tbody></table>' +
-        '<div style="display:flex;justify-content:flex-end"><div style="width:280px">' +
+        '<div style="display:flex;justify-content:flex-end">' +
+        '<div style="width:260px">' +
         '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96"><span>Subtotal (excl. VAT)</span><strong style="color:#0d4a5c">R' + subtotal.toFixed(2) + '</strong></div>' +
         '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96;border-bottom:1px solid #e4f1f5"><span>VAT (15%)</span><strong style="color:#0d4a5c">R' + vatAmount.toFixed(2) + '</strong></div>' +
         '<div style="display:flex;justify-content:space-between;padding:14px 0;font-size:1.1rem;font-weight:900;color:#1a8ba8"><span>TOTAL (incl. VAT)</span><strong>R' + total.toFixed(2) + '</strong></div>' +
         '</div></div>' +
-        '<div style="margin-top:24px;padding:16px;background:#fff8e1;border-left:3px solid #f59e0b;border-radius:8px;font-size:.82rem;color:#5a4a17">' +
-        '<strong>Payment Methods:</strong><br>• EFT / Bank Transfer<br>• Card Payment via Customer Portal<br>• WhatsApp: ' + COMPANY_DETAILS.phone + '<br><br>' +
-        '<strong>Payment Reference:</strong> ' + data.invoiceNumber + '</div>' +
-        '<div style="margin-top:24px;padding-top:16px;border-top:1px solid #e4f1f5;text-align:center">' +
-        '<p style="font-size:.72rem;color:#8aabb5">' + COMPANY_DETAILS.name + ' T/A ' + COMPANY_DETAILS.trading + '</p>' +
-        '<p style="font-size:.72rem;color:#8aabb5">' + COMPANY_DETAILS.address + '</p>' +
-        '</div></div></div>';
-
-    return html;
+        '<div style="margin-top:20px;padding:16px;background:#fff8e1;border-left:3px solid #f59e0b;border-radius:8px;font-size:.82rem;color:#5a4a17">' +
+        '<strong>Payment Ref:</strong> ' + data.invoiceNumber + '</div>' +
+        '</div></div>';
 }
 
 // ============================================================
-// EMAIL MONTHLY INVOICE (existing)
+// EMAIL MONTHLY INVOICE
 // ============================================================
 function emailMonthlyInvoice(data) {
     var html = generateInvoiceHTML(data);
@@ -925,61 +845,7 @@ function emailMonthlyInvoice(data) {
 }
 
 // ============================================================
-// GENERATE STATEMENT HTML (existing)
-// ============================================================
-function generateStatementHTML(data) {
-    var invoiceRows = (data.invoices || []).map(function(inv) {
-        return '<tr>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.82rem;color:#0d4a5c">' + inv.invoiceNumber + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.82rem;color:#0d4a5c">' + inv.date + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.82rem;color:#0d4a5c">' + inv.dueDate + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.82rem;color:#0d4a5c;text-align:right;font-weight:600">R' + inv.total.toFixed(2) + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;text-align:center">' +
-            '<span style="padding:3px 10px;border-radius:12px;font-size:.68rem;font-weight:600;' +
-            'background:' + (inv.isPaid ? 'rgba(46,168,113,.12)' : 'rgba(201,69,69,.12)') + ';' +
-            'color:' + (inv.isPaid ? '#2ea871' : '#c94545') + '">' +
-            (inv.isPaid ? 'Paid' : 'Outstanding') + '</span></td></tr>';
-    }).join('');
-
-    var totalOutstanding = (data.invoices || []).filter(function(i) { return !i.isPaid; })
-        .reduce(function(s, i) { return s + i.total; }, 0);
-    var totalPaid = (data.invoices || []).filter(function(i) { return i.isPaid; })
-        .reduce(function(s, i) { return s + i.total; }, 0);
-
-    return '<div style="font-family:Poppins,Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:flex-start">' +
-        '<div><h1 style="color:#fff;font-size:1.6rem;font-weight:900;margin:0">STOCKAI-PRO</h1></div>' +
-        '<div style="background:rgba(255,255,255,.15);padding:12px 20px;border-radius:8px;text-align:right">' +
-        '<div style="color:#fff;font-size:1.2rem;font-weight:900;letter-spacing:2px">STATEMENT</div>' +
-        '<div style="color:rgba(255,255,255,.8);font-size:.75rem;margin-top:4px">' + data.dateFrom + ' — ' + data.dateTo + '</div></div></div>' +
-        '<div style="padding:32px;border:1px solid #e4f1f5;border-top:none;border-radius:0 0 12px 12px">' +
-        '<div style="margin-bottom:24px"><div style="font-size:.65rem;color:#8aabb5;text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:6px">Statement For</div>' +
-        '<div style="font-size:1rem;font-weight:700;color:#0d4a5c">' + (data.companyName || data.ownerName) + '</div></div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px">' +
-        '<div style="padding:14px;background:#f0f7f9;border-radius:8px;text-align:center;border-left:3px solid #1a8ba8">' +
-        '<div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Total Invoiced</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#0d4a5c">R' + (totalPaid + totalOutstanding).toFixed(2) + '</div></div>' +
-        '<div style="padding:14px;background:#f0f7f9;border-radius:8px;text-align:center;border-left:3px solid #2ea871">' +
-        '<div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Total Paid</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#2ea871">R' + totalPaid.toFixed(2) + '</div></div>' +
-        '<div style="padding:14px;background:#f0f7f9;border-radius:8px;text-align:center;border-left:3px solid #c94545">' +
-        '<div style="font-size:.62rem;color:#8aabb5;text-transform:uppercase;font-weight:600">Outstanding</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#c94545">R' + totalOutstanding.toFixed(2) + '</div></div></div>' +
-        '<table style="width:100%;border-collapse:collapse">' +
-        '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:10px 14px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Invoice #</th>' +
-        '<th style="padding:10px 14px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Date</th>' +
-        '<th style="padding:10px 14px;text-align:left;font-size:.7rem;color:#fff;text-transform:uppercase">Due Date</th>' +
-        '<th style="padding:10px 14px;text-align:right;font-size:.7rem;color:#fff;text-transform:uppercase">Amount</th>' +
-        '<th style="padding:10px 14px;text-align:center;font-size:.7rem;color:#fff;text-transform:uppercase">Status</th>' +
-        '</tr></thead><tbody>' + invoiceRows + '</tbody></table>' +
-        '<div style="margin-top:24px;padding-top:16px;border-top:1px solid #e4f1f5;text-align:center">' +
-        '<p style="font-size:.72rem;color:#8aabb5">' + COMPANY_DETAILS.name + ' T/A ' + COMPANY_DETAILS.trading + '</p>' +
-        '</div></div></div>';
-}
-
-// ============================================================
-// CONVENIENCE FUNCTIONS (existing)
+// CONVENIENCE FUNCTIONS
 // ============================================================
 function sendDayEndEmails(entityData, accountData, dayEndData) {
     var recipients = [];
@@ -1008,72 +874,55 @@ function sendStockCountEmails(entityData, accountData, countData) {
 }
 
 // ============================================================
-// AUTO INVOICE — Runs on the 26th (existing)
+// AUTO INVOICE — Runs on the 26th
 // ============================================================
 function checkAutoInvoice(accountData) {
     if (!accountData || !accountData.owner) return;
-
     var now   = new Date();
     var day   = now.getDate();
     var month = now.getMonth();
     var year  = now.getFullYear();
-
     if (day !== 26) return;
-
     var invoiceKey = 'invoice_' + year + '_' + month;
     var billing    = accountData.billing || {};
     if (billing.lastInvoiceSent === invoiceKey) return;
-
     var entities       = accountData.entities || [];
     var activeEntities = entities.filter(function(e) { return e.status !== 'inactive'; });
     if (activeEntities.length === 0) return;
-
-    var lastDay = new Date(year, month + 1, 0).getDate();
+    var lastDay       = new Date(year, month + 1, 0).getDate();
     var invoiceNumber = 'INV-' + year + (month + 1 < 10 ? '0' : '') + (month + 1) + '-' +
         (accountData.owner.email || '').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
-
-    var invoiceDate = now.toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' });
-    var dueDate     = new Date(year, month, lastDay).toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' });
-
+    var invoiceDate = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+    var dueDate     = new Date(year, month, lastDay).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
     emailMonthlyInvoice({
-        invoiceNumber:  invoiceNumber,
-        invoiceDate:    invoiceDate,
-        dueDate:        dueDate,
-        ownerName:      accountData.owner.name || 'Customer',
-        ownerEmail:     accountData.owner.email,
-        ownerPhone:     accountData.owner.phone || '',
-        companyName:    accountData.owner.groupName || accountData.owner.name || '',
+        invoiceNumber: invoiceNumber, invoiceDate: invoiceDate, dueDate: dueDate,
+        ownerName: accountData.owner.name || 'Customer', ownerEmail: accountData.owner.email,
+        companyName: accountData.owner.groupName || accountData.owner.name || '',
         companyAddress: accountData.owner.groupAddress || '',
-        companyVat:     accountData.owner.groupVat || '',
-        entities:       activeEntities,
-        isPaid:         false
+        entities: activeEntities, isPaid: false
     });
-
     billing.lastInvoiceSent = invoiceKey;
     return billing;
 }
 
 // ============================================================
-// EVENT FEEDBACK REQUEST (existing)
+// EVENT FEEDBACK REQUEST
 // ============================================================
 function emailEventFeedbackRequest(data) {
     var html = emailHeader('How did we do?', 'We would love your feedback on ' + data.eventName) +
         '<p>Hi ' + data.clientName + ',</p>' +
-        '<p>Thank you for hosting your event with us yesterday. We hope everything was perfect!</p>' +
-        '<p>Could you please take 30 seconds to rate your experience?</p>' +
+        '<p>Thank you for hosting your event with us! We hope everything was perfect.</p>' +
         emailButton('Rate My Event', 'https://www.stockai-pro.co.za/feedback?id=' + data.id, '#ec4899') +
         emailFooter();
     return sendEmail(data.clientEmail, 'Feedback Request: ' + data.eventName, html);
 }
 
 // ============================================================
-// LOG
+// LOG — Confirms file loaded correctly
 // ============================================================
-console.log('✅ StockAI-Pro 2.0 Email Templates loaded');
-console.log('📧 New functions added:');
-console.log('   • sendQuoteEmailToCustomer(data)       — Email 11');
-console.log('   • sendQuoteNotificationToAdmin(data)   — Email 12');
-console.log('   • sendBookingConfirmationToCustomer(b) — Email 13');
-console.log('   • sendBookingEmailToAdmin(booking)     — Email 14');
-console.log('   • sendDailyQuoteAnalysis()             — Email 15');
-console.log('   • checkAndSendDailyAnalysis()          — Auto trigger');
+console.log('✅ email-templates.js loaded successfully');
+console.log('📧 Quote email function ready:', typeof window.sendQuoteEmailToCustomer);
+console.log('📧 Admin notify function ready:', typeof window.sendQuoteNotificationToAdmin);
+console.log('📧 Booking confirm function ready:', typeof window.sendBookingConfirmationToCustomer);
+console.log('📧 Booking admin function ready:', typeof window.sendBookingEmailToAdmin);
+console.log('📧 Daily analysis function ready:', typeof window.sendDailyQuoteAnalysis);
