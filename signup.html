@@ -1082,7 +1082,7 @@ function calcSignup() {
 
   if (techCheck) {
     techDetails.classList.add('visible');
-    techTotal = totalSetupHrs * TECH_RATE;
+    techTotal = totalSetupHrs * TECH_RATE * entCount;
 
     // Build breakdown
     var breakdownHTML = '';
@@ -1096,7 +1096,7 @@ function calcSignup() {
     });
 
     document.getElementById('su-tech-breakdown').innerHTML = breakdownHTML;
-    document.getElementById('su-tech-hrs-display').textContent = totalSetupHrs;
+    document.getElementById('su-tech-hrs-display').textContent = totalSetupHrs + ' x ' + entCount + ' entities = ' + (totalSetupHrs * entCount);
     document.getElementById('su-tech-price').textContent = 'R' + techTotal.toLocaleString() + '.00';
   } else {
     techDetails.classList.remove('visible');
