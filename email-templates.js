@@ -6,7 +6,7 @@
 
 var EMAIL_CONFIG = {
     apiKey:    're_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT',
-    fromEmail: 'noreply@stockai-pro.co.za',
+    fromEmail: 'onboarding@resend.dev',
     fromName:  'StockAI-Pro',
     support:   'support@stockai-pro.co.za',
     admin:     'cidraism@gmail.com',
