@@ -1,928 +1,1557 @@
-// ============================================================
-// StockAI-Pro 2.0 — Email Templates
-// All automated emails sent across all apps
-// Uses Resend API
-// ============================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockAI-Pro | AI-Powered Stock Management | South Africa</title>
+<meta name="description" content="AI-powered stock control for restaurants, retail, manufacturing and any stock-holding business in South Africa. Voice counting, auto purchase orders, real-time insights.">
+<meta name="keywords" content="stock management, inventory control, restaurant software, AI stock, South Africa, food cost, POS system">
+<meta name="author" content="StockAI-Pro">
+<meta property="og:title" content="StockAI-Pro — AI-Powered Stock Management">
+<meta property="og:description" content="South Africa's smartest stock control platform. AI predictions, voice counting, automated orders.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.stockai-pro.co.za">
+<link rel="canonical" href="https://www.stockai-pro.co.za">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="email-templates.js"></script>
+<style>
+:root {
+  --teal-dark: #0d4a5c;
+  --teal-mid: #1a8ba8;
+  --teal-light: #4dbdd5;
+  --teal-pale: #a0e9f8;
+  --bg: #f0f7f9;
+  --bg-alt: #e4f1f5;
+  --white: #fff;
+  --text-dark: #0d4a5c;
+  --text-mid: #2a5f70;
+  --text-light: #5a8a96;
+  --text-muted: #8aabb5;
+  --gold: #f59e0b;
+  --gold-dark: #d97706;
+  --success: #2ea871;
+  --danger: #c94545;
+  --border: #c4dde4;
+  --shadow: 0 4px 20px rgba(13,74,92,.08);
+  --shadow-lg: 0 12px 50px rgba(13,74,92,.15);
+  --radius: 14px;
+  --radius-lg: 18px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background: var(--bg); line-height: 1.6; overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+a { text-decoration: none; }
 
-var EMAIL_CONFIG = {
-    apiKey:    're_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT',
-    fromEmail: 'miguel@stockai-pro.co.za',
-    fromName:  'StockAI-Pro',
-    support:   'support@stockai-pro.co.za',
-    admin:     'cidraism@gmail.com',
-    phone:     '079 044 0508',
-    whatsapp:  'https://wa.me/27790440508',
-    website:   'https://www.stockai-pro.co.za',
-    appUrl:    'https://www.stockai-pro.co.za/hub.html',
-    portalUrl: 'https://www.stockai-pro.co.za/portal.html'
-};
+/* SCROLL REVEAL */
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.reveal-left { opacity: 0; transform: translateX(-60px); transition: opacity .8s ease, transform .8s ease; }
+.reveal-left.active { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(60px); transition: opacity .8s ease, transform .8s ease; }
+.reveal-right.active { opacity: 1; transform: translateX(0); }
+.reveal-scale { opacity: 0; transform: scale(.85); transition: opacity .8s ease, transform .8s ease; }
+.reveal-scale.active { opacity: 1; transform: scale(1); }
+
+/* HEADER */
+.header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(13,74,92,.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 0; box-shadow: 0 2px 20px rgba(0,0,0,.15); transition: padding .3s ease; }
+.header.scrolled { padding: 6px 0; }
+.nav { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+.logo svg { height: 44px; width: auto; }
+.nav-links { display: flex; align-items: center; gap: 18px; flex-wrap: nowrap; }
+.nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-weight: 500; font-size: .82rem; transition: color .2s ease; position: relative; white-space: nowrap; }
+.nav-links a:hover { color: #fff; }
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width .3s ease; }
+.nav-links a:hover::after { width: 100%; }
+.btn-nav { padding: 9px 18px; background: var(--gold); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; }
+.btn-nav:hover { background: var(--gold-dark) !important; transform: translateY(-2px); }
+.btn-nav::after { display: none !important; }
+.btn-login-nav { padding: 9px 18px; background: rgba(255,255,255,.12); color: #fff !important; border-radius: 9px; font-weight: 600; border: 1px solid rgba(255,255,255,.3); transition: background .3s ease; white-space: nowrap; }
+.btn-login-nav:hover { background: rgba(255,255,255,.22) !important; }
+.btn-login-nav::after { display: none !important; }
+.btn-present-nav { padding: 9px 18px; background: rgba(46,168,113,.9); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; border: 1px solid rgba(46,168,113,1); }
+.btn-present-nav:hover { background: var(--success) !important; transform: translateY(-2px); }
+.btn-present-nav::after { display: none !important; }
+.menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: #fff; cursor: pointer; padding: 4px; flex-shrink: 0; }
+
+/* HERO */
+.hero { padding: 145px 24px 100px; background: linear-gradient(135deg, #071a22 0%, #0d4a5c 35%, #1a8ba8 65%, #0d4a5c 100%); position: relative; overflow: hidden; color: #fff; }
+.hero-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(77,189,213,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(77,189,213,.05) 1px, transparent 1px); background-size: 80px 80px; animation: heroGridMove 20s linear infinite; }
+@keyframes heroGridMove { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
+.hero-particle { position: absolute; border-radius: 50%; pointer-events: none; animation: heroFloat var(--dur, 8s) ease-in-out infinite var(--delay, 0s); }
+@keyframes heroFloat { 0% { opacity: 0; transform: translateY(80px) scale(0); } 20% { opacity: .6; } 80% { opacity: .3; } 100% { opacity: 0; transform: translateY(-120px) scale(0); } }
+.hero-star { position: absolute; width: 2px; background: linear-gradient(transparent, #f59e0b, transparent); opacity: 0; transform: rotate(35deg); animation: wStar var(--dur, 4s) ease-in infinite var(--delay, 0s); }
+@keyframes wStar { 0% { opacity: 0; transform: rotate(35deg) translateY(-150px); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(35deg) translateY(400px); } }
+.hero-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
+.hero-text h1 { font-size: 3.2rem; line-height: 1.1; font-weight: 900; margin-bottom: 18px; color: #fff; }
+.hero-text h1 .highlight { color: var(--gold); display: inline-block; position: relative; }
+.hero-text h1 .highlight::after { content: ''; position: absolute; bottom: 4px; left: 0; right: 0; height: 10px; background: rgba(245,158,11,.22); z-index: -1; border-radius: 6px; }
+.hero-tagline { font-size: 1.05rem; color: var(--teal-pale); margin-bottom: 10px; font-weight: 500; }
+.hero-desc { font-size: .95rem; color: rgba(255,255,255,.82); margin-bottom: 28px; max-width: 520px; line-height: 1.75; }
+.hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
+.btn-hero { padding: 15px 30px; border-radius: 12px; font-size: .95rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; text-decoration: none; font-family: inherit; border: none; white-space: nowrap; }
+.btn-hero-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; box-shadow: 0 6px 22px rgba(245,158,11,.4); }
+.btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(245,158,11,.5); }
+.btn-hero-secondary { background: rgba(255,255,255,.1); color: #fff; border: 2px solid rgba(255,255,255,.35); }
+.btn-hero-secondary:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.7); }
+.hero-stats { display: flex; gap: 36px; flex-wrap: wrap; align-items: center; }
+.hero-stat { text-align: center; }
+.hero-stat-value { font-size: 2rem; font-weight: 900; color: var(--gold); display: block; line-height: 1; }
+.hero-stat-label { font-size: .78rem; color: rgba(255,255,255,.7); margin-top: 5px; display: block; }
+.counter { display: inline-block; }
+.hero-visual { position: relative; }
+.hero-badge { position: absolute; padding: 8px 16px; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.18); display: flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 600; background: #fff; z-index: 3; white-space: nowrap; }
+.hero-badge.badge-ai { top: -20px; right: -10px; color: var(--success); animation: float 3s ease-in-out infinite; }
+.hero-badge.badge-rt { bottom: 60px; left: -25px; color: var(--gold); animation: float 3s ease-in-out infinite 1s; }
+.hero-badge.badge-vc { top: 50%; left: -30px; color: var(--teal-mid); animation: floatMid 3s ease-in-out infinite 2s; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes floatMid { 0%, 100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 12px)); } }
+.hero-mockup { background: #1a1a2e; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.4); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+.hero-mockup-bar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
+.mockup-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mockup-dot.r { background: #ff5f57; } .mockup-dot.y { background: #ffbd2e; } .mockup-dot.g { background: #28c940; }
+.mockup-url { margin-left: 8px; font-size: .65rem; color: rgba(255,255,255,.6); background: rgba(0,0,0,.2); padding: 3px 10px; border-radius: 10px; flex: 1; }
+.hero-mockup-body { height: 280px; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #0f1923; }
+.mockup-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mockup-stat { background: rgba(255,255,255,.05); border-radius: 8px; padding: 10px; }
+.mockup-stat.s1 { border-left: 3px solid var(--teal-mid); } .mockup-stat.s2 { border-left: 3px solid var(--gold); } .mockup-stat.s3 { border-left: 3px solid var(--success); } .mockup-stat.s4 { border-left: 3px solid var(--danger); }
+.mockup-stat-label { font-size: .5rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
+.mockup-stat-val { font-size: .88rem; font-weight: 800; color: #fff; margin-top: 2px; }
+.mockup-stat-val.green { color: var(--success); } .mockup-stat-val.red { color: var(--danger); }
+.mockup-chart { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
+.mockup-chart-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 70%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%); }
+.mockup-ai-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(46,168,113,.1); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; font-size: .68rem; color: rgba(255,255,255,.8); }
+.mockup-ai-bar i { color: var(--success); font-size: .75rem; flex-shrink: 0; }
+
+/* DEMO */
+.demo-section { padding: 90px 24px; background: linear-gradient(180deg, var(--bg-alt), var(--bg)); overflow: hidden; }
+.demo-container { max-width: 1200px; margin: 0 auto; }
+.demo-browser { background: #1a1a2e; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); max-width: 900px; margin: 0 auto; }
+.demo-toolbar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
+.demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+.demo-dot.r { background: #ff5f57; } .demo-dot.y { background: #ffbd2e; } .demo-dot.g { background: #28c940; }
+.demo-url { margin-left: 10px; font-size: .72rem; color: rgba(255,255,255,.7); background: rgba(0,0,0,.2); padding: 4px 14px; border-radius: 12px; flex: 1; }
+.demo-screen { height: 400px; position: relative; overflow: hidden; background: #0f1923; display: flex; flex-direction: column; padding: 20px; gap: 12px; }
+.demo-dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.demo-stat-card { background: rgba(255,255,255,.05); border-radius: 8px; padding: 12px; border-left: 3px solid var(--teal-mid); animation: demoFadeIn .6s ease both; }
+.demo-stat-card:nth-child(2) { animation-delay: .2s; border-left-color: var(--gold); }
+.demo-stat-card:nth-child(3) { animation-delay: .4s; border-left-color: var(--success); }
+.demo-stat-card:nth-child(4) { animation-delay: .6s; border-left-color: var(--danger); }
+@keyframes demoFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.demo-stat-label { font-size: .58rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
+.demo-stat-value { font-size: 1.1rem; font-weight: 800; color: #fff; margin-top: 2px; }
+.demo-chart-area { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
+.demo-chart-line { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%); animation: demoChartGrow 2s ease both; }
+@keyframes demoChartGrow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); transform-origin: bottom; } }
+.demo-notif-stack { position: absolute; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 5; }
+.demo-notif { padding: 10px 16px; background: rgba(46,168,113,.15); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; color: #fff; font-size: .72rem; font-weight: 600; display: none; align-items: center; gap: 8px; animation: demoNotifSlide .5s ease both; max-width: 260px; }
+.demo-notif.warn { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.3); }
+.demo-notif.danger { background: rgba(201,69,69,.15); border-color: rgba(201,69,69,.3); }
+@keyframes demoNotifSlide { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.demo-voice-area { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(26,139,168,.1); border: 1px solid rgba(26,139,168,.3); border-radius: 10px; }
+.demo-voice-circle { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: .9rem; flex-shrink: 0; animation: demoPulse 2s ease-in-out infinite; }
+@keyframes demoPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(26,139,168,.4); } 50% { box-shadow: 0 0 0 10px rgba(26,139,168,0); } }
+.demo-voice-text { color: rgba(255,255,255,.8); font-size: .82rem; }
+.demo-voice-typed { display: inline; border-right: 2px solid var(--gold); animation: demoBlink .8s step-end infinite; }
+@keyframes demoBlink { 50% { border-color: transparent; } }
+
+/* SHARED */
+section { padding: 90px 24px; position: relative; }
+.container { max-width: 1200px; margin: 0 auto; }
+.section-header { text-align: center; margin-bottom: 54px; }
+.section-tag { display: inline-block; padding: 6px 18px; background: rgba(26,139,168,.1); color: var(--teal-mid); border-radius: 20px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.section-header h2 { font-size: 2.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; letter-spacing: -.5px; line-height: 1.2; }
+.section-header p { font-size: 1rem; color: var(--text-light); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+/* INDUSTRIES */
+.industries { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
+.industries-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 16px; }
+.industry-card { background: #fff; border-radius: var(--radius); padding: 28px 16px; text-align: center; box-shadow: var(--shadow); transition: transform .4s ease, box-shadow .4s ease, border-bottom-color .4s ease; border-bottom: 3px solid transparent; cursor: default; }
+.industry-card:hover { transform: translateY(-8px); border-bottom-color: var(--teal-mid); box-shadow: var(--shadow-lg); }
+.industry-card i { font-size: 2.2rem; color: var(--teal-mid); margin-bottom: 12px; display: block; }
+.industry-card h4 { font-size: .88rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.industry-card p { font-size: .72rem; color: var(--text-light); }
+
+/* FEATURES — DARK */
+.features { background: linear-gradient(135deg, #071a22 0%, #0d3a4a 40%, #0d4a5c 70%, #0a3040 100%); }
+.features .section-header h2 { color: #fff; }
+.features .section-header p { color: rgba(255,255,255,.7); }
+.features .section-tag { background: rgba(255,255,255,.12); color: var(--teal-pale); }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.feature { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 28px; border-radius: var(--radius); transition: transform .4s ease, box-shadow .4s ease, background .4s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.feature::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--teal-light), var(--gold)); transform: scaleX(0); transform-origin: left; transition: transform .4s ease; }
+.feature:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,.3); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); }
+.feature:hover::before { transform: scaleX(1); }
+.feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--teal-light), var(--teal-mid)); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem; margin-bottom: 16px; flex-shrink: 0; box-shadow: 0 4px 15px rgba(26,139,168,.3); }
+.feature h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
+.feature p { color: rgba(255,255,255,.7); font-size: .88rem; line-height: 1.65; flex: 1; }
+.feature-tag { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: .68rem; font-weight: 700; margin-top: 12px; align-self: flex-start; }
+.feature-tag.ai { background: rgba(245,158,11,.2); color: #fcd34d; }
+.feature-tag.new { background: rgba(46,168,113,.2); color: #6ee7b7; }
+.feature-tag.coming { background: rgba(77,189,213,.2); color: var(--teal-pale); }
+
+/* AI SECTION */
+.ai-section { background: linear-gradient(135deg, #0d4a5c, #1a8ba8); padding: 90px 24px; color: #fff; }
+.ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; }
+.ai-text h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; color: #fff; line-height: 1.2; }
+.ai-text p { font-size: .95rem; color: rgba(255,255,255,.85); margin-bottom: 22px; line-height: 1.75; }
+.ai-feature-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.ai-feature-list li { display: flex; align-items: flex-start; gap: 12px; font-size: .92rem; color: rgba(255,255,255,.9); line-height: 1.5; }
+.ai-feature-list li i { color: var(--gold); font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+.ai-chat-demo { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; }
+.ai-chat-label { color: rgba(255,255,255,.6); font-size: .75rem; font-weight: 600; margin-bottom: 14px; }
+.ai-bubble { padding: 12px 16px; border-radius: 14px; font-size: .85rem; max-width: 88%; line-height: 1.55; margin-bottom: 10px; }
+.ai-bubble.bot { background: rgba(255,255,255,.12); color: #fff; border-bottom-left-radius: 4px; }
+.ai-bubble.user { background: var(--gold); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+.ai-typing { display: flex; gap: 4px; padding: 12px 16px; background: rgba(255,255,255,.1); border-radius: 14px; width: fit-content; border-bottom-left-radius: 4px; }
+.ai-typing span { width: 8px; height: 8px; background: rgba(255,255,255,.5); border-radius: 50%; animation: aiTyping 1.4s infinite; }
+.ai-typing span:nth-child(2) { animation-delay: .2s; }
+.ai-typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes aiTyping { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+/* HOW IT WORKS */
+.how-it-works { background: var(--bg-alt); }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px; margin-top: 10px; }
+.step { text-align: center; padding: 24px 16px; }
+.step-num { width: 64px; height: 64px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 18px; box-shadow: 0 8px 20px rgba(26,139,168,.3); transition: transform .3s ease; }
+.step:hover .step-num { transform: scale(1.1) rotate(5deg); }
+.step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
+.step p { color: var(--text-light); font-size: .88rem; }
+
+/* QUOTE BUILDER */
+.quote-section { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); padding: 90px 24px; }
+.quote-builder { max-width: 820px; margin: 0 auto; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
+.quote-builder-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 28px 32px; color: #fff; text-align: center; }
+.quote-builder-header h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+.quote-builder-header p { font-size: .88rem; opacity: .85; }
+.quote-builder-body { padding: 32px; }
+.qb-feature-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.qb-feature { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-radius: 12px; border: 2px solid var(--border); transition: border-color .3s ease, background .3s ease; cursor: pointer; user-select: none; }
+.qb-feature:hover { border-color: var(--teal-light); }
+.qb-feature.selected { border-color: var(--teal-mid); background: rgba(26,139,168,.04); }
+.qb-feature.locked { border-color: var(--success); background: rgba(46,168,113,.06); cursor: default; }
+.qb-feature-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+.qb-feature-icon { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem; flex-shrink: 0; }
+.qb-feature-name { font-size: .95rem; font-weight: 700; color: var(--text-dark); }
+.qb-feature-desc { font-size: .75rem; color: var(--text-light); margin-top: 2px; }
+.qb-feature-right { text-align: right; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.qb-feature-price { font-size: 1.05rem; font-weight: 800; color: var(--text-dark); white-space: nowrap; }
+.qb-toggle { width: 44px; height: 24px; border-radius: 12px; background: var(--border); position: relative; transition: background .3s ease; flex-shrink: 0; }
+.qb-toggle::after { content: ''; width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform .3s ease; box-shadow: 0 2px 4px rgba(0,0,0,.15); }
+.qb-feature.selected .qb-toggle, .qb-feature.locked .qb-toggle { background: var(--teal-mid); }
+.qb-feature.selected .qb-toggle::after, .qb-feature.locked .qb-toggle::after { transform: translateX(20px); }
+.qb-feature.locked .qb-toggle { background: var(--success); }
+.qb-locked-badge { font-size: .6rem; font-weight: 700; color: var(--success); background: rgba(46,168,113,.1); padding: 2px 8px; border-radius: 8px; text-transform: uppercase; letter-spacing: .5px; }
+.qb-addon-section { padding: 20px 0; border-top: 1px solid var(--border); margin-top: 10px; }
+.qb-addon-title { font-size: .92rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
+.qb-addon-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f7f9; gap: 12px; flex-wrap: wrap; }
+.qb-addon-row:last-child { border-bottom: none; }
+.qb-addon-label { font-size: .88rem; color: var(--text-mid); flex: 1; }
+.qb-addon-control { display: flex; align-items: center; gap: 8px; }
+.qb-addon-control select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: .88rem; font-weight: 600; color: var(--text-dark); background: #fff; cursor: pointer; width: 100px; }
+.qb-addon-price { font-weight: 700; font-size: .92rem; color: var(--text-dark); min-width: 80px; text-align: right; }
+.qb-totals { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); border-radius: 14px; padding: 24px; color: #fff; margin-top: 24px; }
+.qb-total-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: .88rem; opacity: .85; }
+.qb-total-line.grand { font-size: 1.3rem; font-weight: 900; opacity: 1; padding-top: 14px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,.2); }
+.qb-total-line.grand .qb-total-val { color: var(--gold); }
+.qb-total-vat { font-size: .72rem; opacity: .6; text-align: right; margin-top: 4px; }
+.qb-form { margin-top: 28px; }
+.qb-form-title { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; }
+.qb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.qb-field { display: flex; flex-direction: column; gap: 4px; }
+.qb-field label { font-size: .78rem; font-weight: 600; color: var(--text-mid); }
+.qb-field input { padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; color: var(--text-dark); transition: border-color .3s ease; }
+.qb-field input:focus { outline: none; border-color: var(--teal-mid); }
+.qb-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.qb-btn { padding: 14px 28px; border-radius: 10px; font-family: inherit; font-size: .92rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: none; transition: transform .3s ease, box-shadow .3s ease; }
+.qb-btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; box-shadow: 0 6px 20px rgba(245,158,11,.3); }
+.qb-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,158,11,.4); }
+.qb-btn-secondary { background: #fff; color: var(--teal-mid); border: 2px solid var(--teal-mid); }
+.qb-btn-secondary:hover { background: var(--teal-mid); color: #fff; }
+.qb-btn-outline { background: transparent; color: var(--text-mid); border: 2px solid var(--border); }
+.qb-btn-outline:hover { border-color: var(--text-mid); }
+
+/* TESTIMONIALS */
+.testimonials { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.testimonial { background: #fff; padding: 30px 28px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; transition: transform .3s ease, box-shadow .3s ease; display: flex; flex-direction: column; }
+.testimonial:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+.testimonial::before { content: '"'; position: absolute; top: 10px; left: 20px; font-size: 4.5rem; color: var(--teal-pale); font-family: Georgia, serif; line-height: 1; }
+.testimonial p { color: var(--text-mid); font-size: .92rem; line-height: 1.65; margin-bottom: 20px; position: relative; z-index: 1; flex: 1; }
+.testimonial-author { display: flex; align-items: center; gap: 12px; }
+.testimonial-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+.testimonial-info strong { display: block; color: var(--text-dark); font-size: .88rem; }
+.testimonial-info span { color: var(--text-light); font-size: .75rem; }
+.testimonial-stars { display: flex; gap: 3px; margin-bottom: 14px; position: relative; z-index: 1; }
+.testimonial-stars i { color: var(--gold); font-size: .85rem; }
+
+/* CTA */
+.cta { background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; text-align: center; padding: 90px 24px; position: relative; overflow: hidden; }
+.cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,.07), transparent 50%); pointer-events: none; }
+.cta h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 14px; position: relative; z-index: 1; line-height: 1.2; }
+.cta p { font-size: 1rem; opacity: .9; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; line-height: 1.7; }
+.cta .btn-hero { position: relative; z-index: 1; }
+
+/* FAQ */
+.faq { background: var(--bg-alt); }
+.faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.faq-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color .3s ease, box-shadow .3s ease; }
+.faq-item:hover { border-color: var(--teal-mid); box-shadow: var(--shadow); }
+.faq-question { padding: 18px 22px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-dark); font-size: .95rem; gap: 12px; user-select: none; }
+.faq-question i { transition: transform .35s ease; color: var(--teal-mid); flex-shrink: 0; }
+.faq-item.open .faq-question i { transform: rotate(180deg); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height .4s ease, padding .4s ease; padding: 0 22px; color: var(--text-light); font-size: .88rem; line-height: 1.75; }
+.faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: var(--radius-lg); max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: modalIn .4s ease; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 24px 28px; color: #fff; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.modal-header h3 { font-size: 1.2rem; font-weight: 800; }
+.modal-close { background: rgba(255,255,255,.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background .2s ease; }
+.modal-close:hover { background: rgba(255,255,255,.35); }
+.modal-body { padding: 28px; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-header h4 { font-size: 1rem; font-weight: 700; color: var(--text-dark); }
+.cal-nav { background: none; border: 2px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--text-mid); font-family: inherit; transition: .2s; }
+.cal-nav:hover { border-color: var(--teal-mid); color: var(--teal-mid); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 24px; }
+.cal-day-header { text-align: center; font-size: .7rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; padding: 6px 0; }
+.cal-day { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: .82rem; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease; color: var(--text-mid); }
+.cal-day:hover { background: var(--bg-alt); }
+.cal-day.today { background: rgba(26,139,168,.1); color: var(--teal-mid); }
+.cal-day.selected { background: var(--teal-mid); color: #fff; }
+.cal-day.disabled { color: var(--border); cursor: not-allowed; background: none; pointer-events: none; }
+.cal-day.empty { pointer-events: none; }
+.cal-day.has-booking { position: relative; }
+.cal-day.has-booking::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--danger); position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
+.time-slots-title { font-size: .92rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.time-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.time-slot { padding: 14px 16px; border: 2px solid var(--border); border-radius: 10px; text-align: center; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--text-mid); transition: .3s; user-select: none; }
+.time-slot:hover { border-color: var(--teal-mid); color: var(--teal-mid); }
+.time-slot.selected { background: var(--teal-mid); border-color: var(--teal-mid); color: #fff; }
+.time-slot.booked { background: #fef2f2; border-color: #fecaca; color: #bbb; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
+.booking-form-title { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; margin-top: 10px; }
+.booking-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.booking-field { display: flex; flex-direction: column; gap: 4px; }
+.booking-field label { font-size: .78rem; font-weight: 600; color: var(--text-mid); }
+.booking-field input { padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; color: var(--text-dark); transition: border-color .3s ease; }
+.booking-field input:focus { outline: none; border-color: var(--teal-mid); }
+.booking-submit { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--success), #1a7a4a); color: #fff; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 6px 20px rgba(46,168,113,.3); }
+.booking-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(46,168,113,.4); }
+
+/* FOOTER */
+.footer { background: var(--text-dark); color: #fff; padding: 56px 24px 28px; }
+.footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+.footer-logo { display: inline-block; margin-bottom: 14px; }
+.footer-logo svg { height: 55px; width: auto; }
+.footer-brand p { color: rgba(255,255,255,.7); font-size: .88rem; line-height: 1.7; margin-top: 10px; }
+.footer h4 { font-size: .88rem; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .5px; }
+.footer ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer ul li a { color: rgba(255,255,255,.65); text-decoration: none; font-size: .85rem; transition: color .2s ease; }
+.footer ul li a:hover { color: var(--gold); }
+.social-links { display: flex; gap: 10px; margin-top: 16px; }
+.social-links a { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: .85rem; transition: background .3s ease, transform .3s ease; }
+.social-links a:hover { background: var(--gold); transform: translateY(-3px); }
+.footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); text-align: center; color: rgba(255,255,255,.45); font-size: .78rem; line-height: 1.8; }
+.footer-bottom a { color: var(--gold); text-decoration: none; }
+
+/* STOCKY BOT */
+#stocky-container { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; pointer-events: none; height: 120px; }
+#stocky { position: absolute; bottom: 20px; right: 80px; width: 60px; height: 70px; cursor: pointer; pointer-events: all; animation: stockyBounce 2s ease-in-out infinite; transition: right 2s ease; }
+@keyframes stockyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.stocky-body { position: relative; width: 60px; height: 70px; }
+.stocky-head { width: 46px; height: 40px; background: linear-gradient(180deg, #1a8ba8, #0d4a5c); border-radius: 12px 12px 8px 8px; position: absolute; top: 0; left: 7px; border: 2px solid #4dbdd5; }
+.stocky-eye { width: 10px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 10px; animation: stockyBlink 4s ease-in-out infinite; }
+.stocky-eye.left { left: 8px; } .stocky-eye.right { right: 8px; }
+.stocky-eye::after { content: ''; width: 5px; height: 5px; background: #0d4a5c; border-radius: 50%; position: absolute; top: 3px; left: 3px; }
+@keyframes stockyBlink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.1); } }
+.stocky-mouth { width: 14px; height: 6px; border: 2px solid #4dbdd5; border-top: none; border-radius: 0 0 8px 8px; position: absolute; bottom: 8px; left: 14px; }
+.stocky-antenna { width: 3px; height: 12px; background: #4dbdd5; position: absolute; top: -10px; left: 20px; border-radius: 2px; }
+.stocky-antenna::after { content: ''; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; position: absolute; top: -6px; left: -2.5px; animation: stockyGlow 2s ease-in-out infinite; }
+@keyframes stockyGlow { 0%, 100% { box-shadow: 0 0 4px var(--gold); } 50% { box-shadow: 0 0 12px var(--gold); } }
+.stocky-torso { width: 40px; height: 22px; background: linear-gradient(180deg, #0d4a5c, #071a22); border-radius: 6px; position: absolute; top: 42px; left: 10px; border: 2px solid #1a8ba8; }
+.stocky-arm { width: 8px; height: 20px; background: #1a8ba8; border-radius: 4px; position: absolute; top: 44px; }
+.stocky-arm.left { left: 0; animation: stockyWave 3s ease-in-out infinite; transform-origin: top center; }
+.stocky-arm.right { right: 0; }
+@keyframes stockyWave { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-20deg); } 90% { transform: rotate(10deg); } }
+.stocky-leg { width: 10px; height: 10px; background: #0d4a5c; border-radius: 0 0 4px 4px; position: absolute; top: 62px; border: 1px solid #1a8ba8; }
+.stocky-leg.left { left: 14px; } .stocky-leg.right { right: 14px; }
+#stocky-bubble { position: absolute; bottom: 95px; right: 0; background: #fff; border-radius: 14px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.15); min-width: 220px; max-width: 260px; pointer-events: all; cursor: pointer; opacity: 0; transform: scale(.8) translateY(10px); transition: all .4s cubic-bezier(.68,-.55,.27,1.55); border: 2px solid var(--teal-mid); }
+#stocky-bubble.visible { opacity: 1; transform: scale(1) translateY(0); }
+#stocky-bubble::after { content: ''; position: absolute; bottom: -10px; right: 30px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #fff; }
+#stocky-bubble::before { content: ''; position: absolute; bottom: -13px; right: 28px; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 12px solid var(--teal-mid); }
+.stocky-bubble-text { font-size: .82rem; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.stocky-bubble-text i { color: var(--teal-mid); font-size: 1rem; }
+#stocky-chat { position: fixed; bottom: 100px; right: 20px; width: 340px; max-height: 450px; background: #fff; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.2); z-index: 9001; overflow: hidden; display: none; border: 2px solid var(--teal-mid); animation: stockyChatIn .4s ease; }
+@keyframes stockyChatIn { from { opacity: 0; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.stocky-chat-header { background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); padding: 14px 18px; display: flex; align-items: center; gap: 10px; color: #fff; }
+.stocky-chat-avatar { width: 36px; height: 36px; background: rgba(255,255,255,.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.stocky-chat-header h4 { font-size: .88rem; font-weight: 700; flex: 1; }
+.stocky-chat-close { background: rgba(255,255,255,.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
+.stocky-chat-close:hover { background: rgba(255,255,255,.35); }
+.stocky-chat-messages { height: 280px; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+.stocky-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: .82rem; line-height: 1.5; }
+.stocky-msg.bot { align-self: flex-start; background: #fff; color: var(--text-dark); border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.stocky-msg.user { align-self: flex-end; background: var(--teal-mid); color: #fff; border-bottom-right-radius: 4px; }
+.stocky-faq-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.stocky-faq-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; font-size: .72rem; color: var(--text-dark); cursor: pointer; font-family: inherit; transition: background .2s ease, color .2s ease, border-color .2s ease; }
+.stocky-faq-btn:hover { background: var(--teal-mid); color: #fff; border-color: var(--teal-mid); }
+
+/* TOAST */
+.toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 14px 18px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 500; animation: toastIn .3s ease; min-width: 280px; max-width: 380px; }
+@keyframes toastIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { background: #d1fae5; color: #065f46; border-left: 3px solid var(--success); }
+.toast.error { background: #fee2e2; color: #991b1b; border-left: 3px solid var(--danger); }
+.toast.info { background: #d4f0f7; color: #0d4a5c; border-left: 3px solid var(--teal-mid); }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) {
+  .hero-content { grid-template-columns: 1fr; gap: 40px; }
+  .hero-text h1 { font-size: 2.2rem; }
+  .hero-visual { display: none; }
+  .ai-grid { grid-template-columns: 1fr; gap: 40px; }
+  .demo-dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .section-header h2 { font-size: 1.9rem; }
+  .cta h2 { font-size: 2rem; }
+  .menu-toggle { display: block; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--teal-dark); flex-direction: column; padding: 20px 24px; gap: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: .95rem; }
+  #stocky-chat { width: 300px; right: 10px; }
+  .qb-form-grid { grid-template-columns: 1fr; }
+  .booking-form-grid { grid-template-columns: 1fr; }
+  .modal { max-width: 95%; }
+  .logo svg { height: 36px; }
+}
+@media (max-width: 600px) {
+  .hero-text h1 { font-size: 1.85rem; }
+  .hero-stats { gap: 22px; }
+  .hero-buttons { flex-direction: column; }
+  .btn-hero { justify-content: center; }
+  .section-header h2 { font-size: 1.65rem; }
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .cta h2 { font-size: 1.7rem; }
+  #stocky-chat { width: calc(100vw - 20px); right: 10px; }
+  .demo-dash-stats { grid-template-columns: 1fr 1fr; }
+  .time-slots { grid-template-columns: 1fr; }
+  .qb-feature { flex-direction: column; align-items: stretch; gap: 12px; }
+  .qb-feature-right { justify-content: space-between; }
+  .logo svg { height: 32px; }
+  .footer-logo svg { height: 45px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" id="site-header">
+  <nav class="nav">
+    <a href="#" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="44">
+        <defs>
+          <linearGradient id="hAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+            <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
+          </linearGradient>
+          <linearGradient id="hStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+            <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+          </linearGradient>
+          <linearGradient id="hUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
+            <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
+            <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
+            <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
+            <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
+          </linearGradient>
+          <filter id="hGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="hGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="hGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g transform="translate(225,22)">
+          <circle cx="55" cy="52" r="48" fill="#14B8A6" opacity="0.08" filter="url(#hGlowLarge)"/>
+          <g opacity="0.5"><polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#0D9488" stroke-width="1.5"/><polygon points="55,16 85,31 55,46 25,31" fill="#0D9488" opacity="0.14"/></g>
+          <g filter="url(#hGlowSoft)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#2DD4BF" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#14B8A6" opacity="0.22"/><polygon points="55,56 80,43 80,68 55,81" fill="#0D9488" opacity="0.16"/><polygon points="55,56 30,43 30,68 55,81" fill="#14B8A6" opacity="0.10"/></g>
+          <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/><circle cx="55" cy="56" r="7" fill="none" stroke="#2DD4BF" stroke-width="1.5" opacity="0.7"/><circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#hGlowMed)" opacity="0.95"/>
+          <line x1="55" y1="49" x2="55" y2="22" stroke="#2DD4BF" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/><circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#hGlowSoft)"/>
+          <line x1="62" y1="53" x2="88" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="90" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#hGlowSoft)"/>
+          <line x1="48" y1="53" x2="22" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="20" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#hGlowSoft)"/>
+          <line x1="48" y1="63" x2="25" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="23" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#hGlowSoft)"/>
+          <line x1="62" y1="63" x2="85" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="87" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#hGlowSoft)"/>
+          <g filter="url(#hGlowMed)"><circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/><circle cx="75" cy="24" r="0.9" fill="#2DD4BF" opacity="0.55"/><circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/><circle cx="20" cy="56" r="0.9" fill="#2DD4BF" opacity="0.45"/><circle cx="55" cy="91" r="1" fill="#14B8A6" opacity="0.35"/></g>
+          <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#hUnderlineGrad)" opacity="0.55" filter="url(#hGlowSoft)"/>
+        </g>
+        <g>
+          <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
+            <tspan fill="url(#hStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#hAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#2DD4BF" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
+          </text>
+          <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#hUnderlineGrad)" filter="url(#hGlowMed)" opacity="0.85"/>
+          <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
+        </g>
+      </svg>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#demo-section">Live Demo</a>
+      <a href="#how">How It Works</a>
+      <a href="#quote-section">Pricing</a>
+      <a href="#quote-section">Get a Quote</a>
+      <a href="#faq">FAQ</a>
+      <a href="javascript:void(0)" onclick="openBookingModal()" class="btn-present-nav"><i class="fas fa-calendar-check"></i> Book Presentation</a>
+      <a href="hub.html" class="btn-login-nav"><i class="fas fa-user"></i> Login</a>
+      <a href="signup.html" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
+    </div>
+    <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-particle" style="width:6px;height:6px;background:#f59e0b;top:15%;left:10%;--dur:7s;--delay:0s"></div>
+  <div class="hero-particle" style="width:4px;height:4px;background:#4dbdd5;top:25%;right:15%;--dur:9s;--delay:1s"></div>
+  <div class="hero-particle" style="width:8px;height:8px;background:#f59e0b;bottom:20%;left:20%;--dur:6s;--delay:2s"></div>
+  <div class="hero-particle" style="width:5px;height:5px;background:#fff;top:50%;right:25%;--dur:8s;--delay:.5s"></div>
+  <div class="hero-particle" style="width:3px;height:3px;background:#4dbdd5;bottom:35%;left:35%;--dur:10s;--delay:3s"></div>
+  <div class="hero-star" style="height:80px;top:10%;left:15%;--dur:4s;--delay:0s"></div>
+  <div class="hero-star" style="height:60px;top:30%;left:55%;--dur:3.5s;--delay:1.5s"></div>
+  <div class="hero-star" style="height:100px;top:50%;left:80%;--dur:5s;--delay:3s"></div>
+  <div class="hero-star" style="height:70px;top:20%;left:70%;--dur:4.5s;--delay:2s"></div>
+  <div class="hero-content">
+    <div class="hero-text reveal-left">
+      <p class="hero-tagline">South Africa's smartest stock control platform</p>
+      <h1>The <span class="highlight">AI-Powered</span> Stock Management System for Every Business</h1>
+      <p class="hero-desc">Restaurants, retail, manufacturers — if you hold stock, StockAI-Pro saves you money. AI predictions, voice counting, automated purchase orders, live food cost tracking, event management, client invoicing, and real-time insights from anywhere.</p>
+      <div class="hero-buttons">
+        <a href="signup.html" class="btn-hero btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
+        <a href="#demo-section" class="btn-hero btn-hero-secondary"><i class="fas fa-play-circle"></i> See It In Action</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="20">0</span>%</span><span class="hero-stat-label">Cost Reduction</span></div>
+        <div class="hero-stat"><span class="hero-stat-value">R<span class="counter" data-target="3200">0</span></span><span class="hero-stat-label">Avg Monthly Savings</span></div>
+        <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="5">0</span> min</span><span class="hero-stat-label">To Set Up</span></div>
+      </div>
+    </div>
+    <div class="hero-visual reveal-right">
+      <div class="hero-badge badge-ai"><i class="fas fa-check-circle"></i> AI Active</div>
+      <div class="hero-badge badge-rt"><i class="fas fa-bolt"></i> Real-time</div>
+      <div class="hero-badge badge-vc"><i class="fas fa-microphone"></i> Voice Control</div>
+      <div class="hero-mockup">
+        <div class="hero-mockup-bar"><div class="mockup-dot r"></div><div class="mockup-dot y"></div><div class="mockup-dot g"></div><div class="mockup-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div></div>
+        <div class="hero-mockup-body">
+          <div class="mockup-stats">
+            <div class="mockup-stat s1"><div class="mockup-stat-label">Stock Value</div><div class="mockup-stat-val">R125K</div></div>
+            <div class="mockup-stat s2"><div class="mockup-stat-label">Sales</div><div class="mockup-stat-val">R48K</div></div>
+            <div class="mockup-stat s3"><div class="mockup-stat-label">Food Cost</div><div class="mockup-stat-val green">27.4%</div></div>
+            <div class="mockup-stat s4"><div class="mockup-stat-label">Wastage</div><div class="mockup-stat-val red">R890</div></div>
+          </div>
+          <div class="mockup-chart"><div class="mockup-chart-fill"></div></div>
+          <div class="mockup-ai-bar"><i class="fas fa-robot"></i><span>AI: 3 items need reordering — PO generated automatically</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="demo-section" id="demo-section">
+  <div class="demo-container">
+    <div class="section-header reveal"><span class="section-tag">Live Demo</span><h2>See StockAI-Pro In Action</h2><p>Watch the system work in real-time — AI alerts, voice counting, and live stats</p></div>
+    <div class="demo-browser reveal-scale">
+      <div class="demo-toolbar"><div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div><div class="demo-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div></div>
+      <div class="demo-screen" id="demo-screen">
+        <div class="demo-dash-stats">
+          <div class="demo-stat-card"><div class="demo-stat-label">Stock Value</div><div class="demo-stat-value" id="demo-stock-val">R0</div></div>
+          <div class="demo-stat-card"><div class="demo-stat-label">Daily Sales</div><div class="demo-stat-value" id="demo-sales-val">R0</div></div>
+          <div class="demo-stat-card"><div class="demo-stat-label">Food Cost</div><div class="demo-stat-value" id="demo-fc-val" style="color:var(--success)">0%</div></div>
+          <div class="demo-stat-card"><div class="demo-stat-label">AI Orders</div><div class="demo-stat-value" id="demo-ai-val" style="color:var(--gold)">0</div></div>
+        </div>
+        <div class="demo-chart-area"><div class="demo-chart-line"></div></div>
+        <div class="demo-notif-stack">
+          <div class="demo-notif" id="demo-notif-1"><i class="fas fa-check-circle" style="color:var(--success)"></i>Stock count completed — 45 items</div>
+          <div class="demo-notif warn" id="demo-notif-2"><i class="fas fa-robot" style="color:var(--gold)"></i>AI generated 3 purchase orders</div>
+          <div class="demo-notif danger" id="demo-notif-3"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>Low stock: Chicken Breast — 2kg</div>
+        </div>
+        <div class="demo-voice-area"><div class="demo-voice-circle"><i class="fas fa-microphone"></i></div><div class="demo-voice-text"><span class="demo-voice-typed" id="demo-typed"></span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section class="industries">
+  <div class="container">
+    <div class="section-header reveal"><span class="section-tag">Who We Serve</span><h2>Built for Any Business That Holds Stock</h2><p>StockAI-Pro works for any business that needs to track, manage, and optimise stock levels.</p></div>
+    <div class="industries-grid">
+      <div class="industry-card reveal"><i class="fas fa-utensils"></i><h4>Restaurants & Bars</h4><p>Full food cost control & AI reorders</p></div>
+      <div class="industry-card reveal"><i class="fas fa-hotel"></i><h4>Hotels & Resorts</h4><p>Multi-entity management across outlets</p></div>
+      <div class="industry-card reveal"><i class="fas fa-shopping-basket"></i><h4>Retail Stores</h4><p>Real-time stock levels & supplier management</p></div>
+      <div class="industry-card reveal"><i class="fas fa-store"></i><h4>Supermarkets</h4><p>High-volume tracking with AI forecasting</p></div>
+      <div class="industry-card reveal"><i class="fas fa-industry"></i><h4>Manufacturers</h4><p>Raw material tracking & supplier orders</p></div>
+      <div class="industry-card reveal"><i class="fas fa-coffee"></i><h4>Cafés & Bakeries</h4><p>Daily stock takes & ingredient costing</p></div>
+      <div class="industry-card reveal"><i class="fas fa-pills"></i><h4>Pharmacies</h4><p>Expiry tracking & reorder automation</p></div>
+      <div class="industry-card reveal"><i class="fas fa-warehouse"></i><h4>Warehouses</h4><p>Location-based stock & full audit trails</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header reveal"><span class="section-tag">Powerful Features</span><h2>Everything Your Business Needs</h2><p>AI-powered, cloud-based, mobile-ready — built for South African businesses</p></div>
+    <div class="features-grid">
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI Stock Predictions</h3><p>Machine learning analyses your history to predict exactly what stock you need before you run out.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-microphone"></i></div><h3>Voice Stock Counting</h3><p>Walk through your store and speak your counts. "Chicken breast twenty five" — done. 70% faster than manual.</p><span class="feature-tag ai">🎤 Voice AI</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Auto Purchase Orders</h3><p>When stock hits reorder level, AI generates POs and emails them directly to suppliers. Just approve and go.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Live Food Cost</h3><p>Real-time food cost: (Opening + Purchases - Closing) / Sales. Always know exactly where you stand.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-utensils"></i></div><h3>Menu & Recipe Costing</h3><p>Link ingredients to recipes. Prices pulled automatically from your latest invoices. Know the cost of every dish.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-clipboard-check"></i></div><h3>GRV System</h3><p>Full Goods Received Voucher process. Costs only update when invoices are captured. Complete control.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-cash-register"></i></div><h3>POS Integration</h3><p>Build your POS selling screen right from the web app. Link menu items for automatic stock deduction on every sale.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h3>Mobile App (PWA)</h3><p>Full mobile app installable on any phone. Stock counts, purchase approvals, AI chat — all on mobile.</p></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-shopping-basket"></i></div><h3>Procurement App</h3><p>Chefs place orders from their phone. Auto-splits to cheapest suppliers. Emailed automatically.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-exchange-alt"></i></div><h3>Internal Transfers</h3><p>Transfer stock between locations with full acceptance workflow. Every transfer tracked with audit trail.</p></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-users"></i></div><h3>Custom Roles & Permissions</h3><p>Create custom roles with specific permissions. Invite users via email. Full access control.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-glass-cheers"></i></div><h3>FunctionsAI — Events Manager</h3><p>Full function & event management. Book clients, select menus and beverages, auto-calculate costs, generate invoices with signature lines.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div><h3>Client Invoicing</h3><p>Create professional tax invoices for external clients. Auto-calculates VAT, marks paid invoices, adds revenue to daily sales automatically.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-calendar-check"></i></div><h3>Guided Month End</h3><p>Two-step month end process. Complete GRVs first, then closing stock take. Auto-calculates food cost and resets for new month.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-tv"></i></div><h3>POS Menu Builder</h3><p>Build your front-of-house selling screen. Create color-coded departments, add selling buttons linked to menu items for auto stock deduction.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Miglatron — AI Guide</h3><p>Personal AI assistant in the web app. Guides new users through every tab, answers questions, stores unknown queries for weekly improvement.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>6 Languages</h3><p>English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Your whole team can work in their language.</p><span class="feature-tag new">✨ New</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section class="ai-section">
+  <div class="ai-grid">
+    <div class="ai-text reveal-left">
+      <span class="section-tag" style="background:rgba(255,255,255,.15);color:var(--gold)">Artificial Intelligence</span>
+      <h2>AI Is At The Core of Everything</h2>
+      <p>StockAI-Pro isn't just stock management with AI added on. Artificial Intelligence is built into every feature, every decision, and every recommendation.</p>
+      <ul class="ai-feature-list">
+        <li><i class="fas fa-check-circle"></i><span><strong>Smart Reorder Points</strong> — AI adjusts reorder levels based on usage patterns and supplier lead times</span></li>
+        <li><i class="fas fa-check-circle"></i><span><strong>Cheapest Supplier Matching</strong> — Auto-splits orders to suppliers with the best prices per item</span></li>
+        <li><i class="fas fa-check-circle"></i><span><strong>Voice Recognition</strong> — Count stock by speaking naturally in South African accents</span></li>
+        <li><i class="fas fa-check-circle"></i><span><strong>Live Food Cost</strong> — Real-time calculation keeps you informed every minute</span></li>
+        <li><i class="fas fa-check-circle"></i><span><strong>AI Assistant</strong> — Ask questions about your stock in plain English</span></li>
+        <li><i class="fas fa-check-circle"></i><span><strong>Predictive Ordering</strong> — AI generates purchase orders before you even think about it</span></li>
+      </ul>
+    </div>
+    <div class="ai-chat-demo reveal-right">
+      <div class="ai-chat-label">💬 AI Assistant — Live Demo</div>
+      <div class="ai-bubble user">What items are running low?</div>
+      <div class="ai-bubble bot">🔴 <strong>3 items need attention:</strong><br>• Beef Fillet — 2kg left<br>• Olive Oil — 1L left<br>• Fresh Salmon — OUT OF STOCK<br><br>Shall I generate purchase orders?</div>
+      <div class="ai-bubble user">Yes, send to cheapest suppliers</div>
+      <div class="ai-bubble bot">✅ <strong>3 POs generated & emailed:</strong><br>• SA Meat → Beef (R249/kg)<br>• Cape Olive → Oil (R89/L)<br>• Ocean Fresh → Salmon (R299/kg)<br><br>Split to cheapest suppliers automatically!</div>
+      <div class="ai-typing"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how">
+  <div class="container">
+    <div class="section-header reveal"><span class="section-tag">Simple Setup</span><h2>Up & Running in 5 Minutes</h2><p>No technical skills needed. No software to install. Works on any device.</p></div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">1</div><h3>Sign Up Online</h3><p>Build your base platform and create your account instantly.</p></div>
+      <div class="step reveal"><div class="step-num">2</div><h3>Add Your Suppliers</h3><p>Add suppliers and download blank price lists for them to complete.</p></div>
+      <div class="step reveal"><div class="step-num">3</div><h3>Add Your Stock</h3><p>Create items, link to suppliers, set par levels.</p></div>
+      <div class="step reveal"><div class="step-num">4</div><h3>AI Takes Over</h3><p>AI learns your patterns from day one. Predictions, alerts, and savings begin immediately.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE BUILDER -->
+<section class="quote-section" id="quote-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">No Obligation</span>
+      <h2>Build Your Package & Get a Quote</h2>
+      <p>Select the features you need, see your price instantly, and request a formal quote — no commitment required.</p>
+    </div>
+    <div class="quote-builder reveal">
+      <div class="quote-builder-header">
+        <h3><i class="fas fa-tools" style="margin-right:8px"></i> Build Your Base Platform</h3>
+        <p>Toggle on the features you need. Web App B.O.H is always included.</p>
+      </div>
+      <div class="quote-builder-body">
+        <div class="qb-feature-grid">
+          <div class="qb-feature locked" data-feature="web_boh" data-price="799" data-setup-hrs="12">
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-laptop-code"></i></div><div><div class="qb-feature-name">Web App B.O.H</div><div class="qb-feature-desc">Full back-of-house management — always included</div></div></div>
+            <div class="qb-feature-right"><span class="qb-locked-badge"><i class="fas fa-lock" style="margin-right:3px"></i> Included</span><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
+          </div>
+          <div class="qb-feature" data-feature="mobile_app" data-price="349" data-setup-hrs="1" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-mobile-alt"></i></div><div><div class="qb-feature-name">Mobile App</div><div class="qb-feature-desc">Full PWA app — stock counts, approvals, AI chat on mobile</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
+          </div>
+          <div class="qb-feature" data-feature="procure_ai" data-price="399" data-setup-hrs="1" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-shopping-basket"></i></div><div><div class="qb-feature-name">ProcureAI App</div><div class="qb-feature-desc">Chef ordering app — auto-splits to cheapest suppliers</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R399/mo</span><div class="qb-toggle"></div></div>
+          </div>
+          <div class="qb-feature" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-cash-register"></i></div><div><div class="qb-feature-name">P.O.S System</div><div class="qb-feature-desc">Point of sale with menu builder, table payments & auto deduction</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
+          </div>
+          <div class="qb-feature" data-feature="menu_master" data-price="349" data-setup-hrs="0" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-utensils"></i></div><div><div class="qb-feature-name">Menu Master</div><div class="qb-feature-desc">Menu & recipe costing — ingredient linking & live pricing</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
+          </div>
+          <div class="qb-feature" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-glass-cheers"></i></div><div><div class="qb-feature-name">FunctionsAI — Events Manager</div><div class="qb-feature-desc">Full event management — menus, beverages, invoicing & client bookings</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R449/mo</span><div class="qb-toggle"></div></div>
+          </div>
+        </div>
+
+        <div class="qb-addon-section">
+          <div class="qb-addon-title"><i class="fas fa-building" style="color:var(--teal-mid);margin-right:6px"></i> Entities & Services</div>
+          <div class="qb-addon-row">
+            <div class="qb-addon-label"><strong>Number of Entities / Locations</strong><div style="font-size:.75rem;color:var(--text-light)">R599/mo per entity</div></div>
+            <div class="qb-addon-control">
+              <select id="qb-entities" onchange="calcQuote()">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+              <span class="qb-addon-price" id="qb-entity-total">R599.00</span>
+            </div>
+          </div>
+          <div class="qb-addon-row" style="flex-wrap:wrap">
+            <div class="qb-addon-label"><strong>Technician Setup & Configuration</strong><div style="font-size:.75rem;color:var(--text-light)">R450/hour — automatically calculated from your selected features</div></div>
+            <div class="qb-addon-control" style="flex-direction:column;align-items:flex-end;gap:10px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
+                <input type="checkbox" id="qb-tech-check" onchange="calcQuote()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
+                Include technician setup
+              </label>
+              <div id="qb-tech-details" style="display:none;background:var(--bg);border-radius:10px;padding:14px 16px;width:100%;max-width:360px;border:1px solid var(--border)">
+                <div style="font-size:.78rem;font-weight:700;color:var(--text-dark);margin-bottom:10px"><i class="fas fa-clock" style="color:var(--teal-mid);margin-right:4px"></i> Setup Hours Per Feature</div>
+                <div id="qb-tech-breakdown" style="font-size:.78rem;color:var(--text-mid);line-height:2"></div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:8px;border-top:2px solid var(--border);font-weight:700;font-size:.9rem;color:var(--text-dark)">
+                  <span>Total: <span id="qb-tech-hrs-display">12</span> hours @ R450/hr</span>
+                  <span id="qb-tech-total" style="color:var(--teal-mid)">R5,400.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="qb-addon-row" style="flex-wrap:wrap">
+            <div class="qb-addon-label"><strong>Staff Training</strong><div style="font-size:.75rem;color:var(--text-light)">Standard: R1,500 (up to 5 staff) • Additional: R750 per person</div></div>
+            <div class="qb-addon-control" style="flex-direction:column;gap:8px;align-items:flex-end">
+              <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
+                <input type="checkbox" id="qb-training-check" onchange="calcQuote()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
+                Include training (R1,500)
+              </label>
+              <div id="qb-extra-staff-wrap" style="display:none;align-items:center;gap:8px">
+                <span style="font-size:.82rem;color:var(--text-light)">Additional staff:</span>
+                <input type="number" id="qb-extra-staff" value="0" min="0" max="50" onchange="calcQuote()" oninput="calcQuote()" style="width:70px;padding:8px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.88rem">
+                <span class="qb-addon-price" id="qb-training-total">R1,500.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qb-totals">
+          <div class="qb-total-line"><span>Base Platform (features)</span><span class="qb-total-val" id="qt-features">R799.00</span></div>
+          <div class="qb-total-line"><span>Entities (<span id="qt-ent-count">1</span> × R599)</span><span class="qb-total-val" id="qt-entities">R599.00</span></div>
+          <div class="qb-total-line" id="qt-tech-row" style="display:none"><span>Technician Setup (<span id="qt-tech-hrs">0</span> hrs × R450)</span><span class="qb-total-val" id="qt-tech">R0.00</span></div>
+          <div class="qb-total-line" id="qt-train-row" style="display:none"><span>Staff Training</span><span class="qb-total-val" id="qt-training">R0.00</span></div>
+          <div class="qb-total-line grand"><span>Monthly Total</span><span class="qb-total-val" id="qt-grand">R1,398.00</span></div>
+          <div class="qb-total-line" id="qt-onceoff-row" style="display:none"><span>Once-off Total (setup + training)</span><span class="qb-total-val" id="qt-onceoff" style="color:#fff">R0.00</span></div>
+          <div class="qb-total-vat">All prices include 15% VAT</div>
+        </div>
+
+        <div class="qb-form">
+          <div class="qb-form-title"><i class="fas fa-user-edit" style="color:var(--teal-mid);margin-right:6px"></i> Your Details</div>
+          <div class="qb-form-grid">
+            <div class="qb-field"><label>Full Name *</label><input type="text" id="qb-name" placeholder="John Smith" required></div>
+            <div class="qb-field"><label>Contact Number *</label><input type="tel" id="qb-phone" placeholder="079 044 0508" required></div>
+            <div class="qb-field"><label>Business / Entity Name *</label><input type="text" id="qb-business" placeholder="The Boma Restaurant" required></div>
+            <div class="qb-field"><label>Email Address *</label><input type="email" id="qb-email" placeholder="you@business.co.za" required></div>
+          </div>
+          <div class="qb-actions">
+            <button class="qb-btn qb-btn-primary" onclick="submitQuote('email')"><i class="fas fa-envelope"></i> Email My Quote</button>
+            <button class="qb-btn qb-btn-secondary" onclick="submitQuote('print')"><i class="fas fa-print"></i> Print Quote</button>
+            <button class="qb-btn qb-btn-outline" onclick="submitQuote('download')"><i class="fas fa-download"></i> Download PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-header reveal"><span class="section-tag">Happy Customers</span><h2>Businesses Love StockAI-Pro</h2><p>Real results from real South African businesses</p></div>
+    <div class="testimonials-grid">
+      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>StockAI-Pro cut our food cost from 34% to 27% in just 2 months. The AI reorder feature alone saves us thousands every month.</p><div class="testimonial-author"><div class="testimonial-avatar">JM</div><div class="testimonial-info"><strong>James Mahlangu</strong><span>Owner, The Boma Restaurant</span></div></div></div>
+      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>The voice stock count is a game-changer. What used to take 3 hours now takes 45 minutes. My whole team loves it.</p><div class="testimonial-author"><div class="testimonial-avatar">SP</div><div class="testimonial-info"><strong>Sarah Pretorius</strong><span>GM, Vine & Olive Bistro</span></div></div></div>
+      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>The live food cost feature means I know exactly where we stand every single day. No more month-end surprises. FunctionsAI for our events is incredible.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Hospitality Group</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
+  <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control.</p>
+  <a href="signup.html" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-header reveal"><span class="section-tag">Questions?</span><h2>Frequently Asked Questions</h2><p>Everything you need to know before getting started</p></div>
+    <div class="faq-list">
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs entirely in your browser. The mobile app installs directly — no app store needed.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is it only for restaurants?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Not at all! StockAI-Pro works for any business that holds stock — restaurants, retail, manufacturers, pharmacies, warehouses.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the live food cost work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Food cost is calculated in real-time: (Opening Stock + Purchases - Closing Stock) / Sales. All values excluding VAT.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I manage events and functions?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! FunctionsAI lets you create full event sheets with client details, menu selection, beverage packages, auto-pricing, and professional invoices with signature lines.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I control who sees what?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! Create custom roles with specific permissions. Each user only sees the apps and pages you assign.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. Bank-level encryption, daily backups, POPIA compliant. Data stored securely in Google Firebase.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee included.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What languages does it support?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">StockAI-Pro supports 6 languages: English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Switch languages with one click.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I choose which features I pay for?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! With our "Build Your Base" model, you only pay for the features you select. Web App B.O.H is always included, and you can add Mobile App, ProcureAI, POS, Menu Master and FunctionsAI as needed.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="footer-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="55">
+          <defs>
+            <linearGradient id="fAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/></linearGradient>
+            <linearGradient id="fStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/><stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/></linearGradient>
+            <linearGradient id="fUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
+            <filter id="fGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g transform="translate(225,22)">
+            <circle cx="55" cy="52" r="48" fill="#5EEAD4" opacity="0.06" filter="url(#fGlowLarge)"/>
+            <g opacity="0.5"><polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#2DD4BF" stroke-width="1.5"/><polygon points="55,16 85,31 55,46 25,31" fill="#2DD4BF" opacity="0.14"/></g>
+            <g filter="url(#fGlowSoft)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/><polygon points="55,56 80,43 80,68 55,81" fill="#14B8A6" opacity="0.16"/><polygon points="55,56 30,43 30,68 55,81" fill="#2DD4BF" opacity="0.10"/></g>
+            <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/><circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/><circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#fGlowMed)" opacity="0.95"/>
+            <line x1="55" y1="49" x2="55" y2="22" stroke="#5EEAD4" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/><circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#fGlowSoft)"/>
+            <line x1="62" y1="53" x2="88" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="90" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#fGlowSoft)"/>
+            <line x1="48" y1="53" x2="22" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="20" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#fGlowSoft)"/>
+            <line x1="48" y1="63" x2="25" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="23" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#fGlowSoft)"/>
+            <line x1="62" y1="63" x2="85" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="87" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#fGlowSoft)"/>
+            <g filter="url(#fGlowMed)"><circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/><circle cx="75" cy="24" r="0.9" fill="#5EEAD4" opacity="0.55"/><circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/><circle cx="20" cy="56" r="0.9" fill="#5EEAD4" opacity="0.45"/><circle cx="55" cy="91" r="1" fill="#2DD4BF" opacity="0.35"/></g>
+            <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#fUnderlineGrad)" opacity="0.55" filter="url(#fGlowSoft)"/>
+          </g>
+          <g>
+            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
+              <tspan fill="url(#fStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#fAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
+            </text>
+            <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#fUnderlineGrad)" filter="url(#fGlowMed)" opacity="0.85"/>
+            <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
+          </g>
+        </svg>
+      </a>
+      <p>South Africa's smartest AI-powered stock management system. Built for restaurants, retail, manufacturing, and any business that holds stock.</p>
+      <div class="social-links">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://wa.me/27790440508" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+    <div><h4>Product</h4><ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#quote-section">Pricing</a></li>
+      <li><a href="#quote-section">Get a Quote</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul></div>
+    <div><h4>Company</h4><ul>
+      <li><a href="https://wa.me/27790440508">Contact Us</a></li>
+      <li><a href="hub.html">Customer Login</a></li>
+      <li><a href="hub.html">Mobile App</a></li>
+      <li><a href="javascript:void(0)" onclick="openBookingModal()">Book Presentation</a></li>
+    </ul></div>
+    <div><h4>Legal</h4><ul>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">POPIA Compliance</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 StockAI-Pro. All rights reserved. Built with ❤️ in South Africa.</p>
+    <p style="margin-top:6px"><strong>Contact:</strong> 079 044 0508 &bull; support@stockai-pro.co.za &bull; <a href="https://www.stockai-pro.co.za">stockai-pro.co.za</a></p>
+  </div>
+</footer>
+
+<!-- STOCKY BOT -->
+<div id="stocky-container">
+  <div id="stocky" onclick="openStockyChat()">
+    <div class="stocky-body"><div class="stocky-antenna"></div><div class="stocky-head"><div class="stocky-eye left"></div><div class="stocky-eye right"></div><div class="stocky-mouth"></div></div><div class="stocky-arm left"></div><div class="stocky-arm right"></div><div class="stocky-torso"></div><div class="stocky-leg left"></div><div class="stocky-leg right"></div></div>
+  </div>
+  <div id="stocky-bubble" onclick="openStockyChat()"><div class="stocky-bubble-text"><i class="fas fa-comment-dots"></i><span id="stocky-bubble-msg">Need Assistance?</span></div></div>
+</div>
+<div id="stocky-chat">
+  <div class="stocky-chat-header"><div class="stocky-chat-avatar"><i class="fas fa-robot"></i></div><h4>Stocky — AI Assistant</h4><button class="stocky-chat-close" onclick="closeStockyChat()"><i class="fas fa-times"></i></button></div>
+  <div class="stocky-chat-messages" id="stocky-messages">
+    <div class="stocky-msg bot"><p>👋 Hey! I'm Stocky. What would you like to know about StockAI-Pro?</p>
+      <div class="stocky-faq-btns">
+        <button class="stocky-faq-btn" onclick="stockyAnswer('what')">What is StockAI-Pro?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('cost')">How much does it cost?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('ai')">How does AI help?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('trial')">Is there a trial?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('start')">How do I start?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('functions')">What is FunctionsAI?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('devices')">What devices?</button>
+        <button class="stocky-faq-btn" onclick="stockyAnswer('safe')">Is my data safe?</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="fas fa-calendar-check" style="margin-right:8px"></i> Book a Presentation</h3><button class="modal-close" onclick="closeBookingModal()"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <p style="font-size:.88rem;color:var(--text-light);margin-bottom:20px">Select a date and time slot. Presentations are available <strong>Monday–Friday</strong> in <strong>4-hour blocks</strong>.</p>
+      <div class="cal-header"><button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button><h4 id="cal-month-label">January 2025</h4><button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div id="time-slot-wrap" style="display:none">
+        <div class="time-slots-title"><i class="fas fa-clock" style="color:var(--teal-mid);margin-right:6px"></i> Available Time Slots — <span id="selected-date-label"></span></div>
+        <div class="time-slots" id="time-slots"></div>
+      </div>
+      <div id="booking-form-wrap" style="display:none">
+        <div class="booking-form-title"><i class="fas fa-user-edit" style="color:var(--teal-mid);margin-right:6px"></i> Your Details</div>
+        <div class="booking-form-grid">
+          <div class="booking-field"><label>Full Name *</label><input type="text" id="book-name" placeholder="John Smith"></div>
+          <div class="booking-field"><label>Contact Number *</label><input type="tel" id="book-phone" placeholder="079 044 0508"></div>
+          <div class="booking-field"><label>Business / Entity Name *</label><input type="text" id="book-business" placeholder="The Boma Restaurant"></div>
+          <div class="booking-field"><label>Email Address *</label><input type="email" id="book-email" placeholder="you@business.co.za"></div>
+        </div>
+        <button class="booking-submit" onclick="submitBooking()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(type, msg) {
+  var icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i><span>' + msg + '</span>';
+  document.getElementById('toastWrap').appendChild(t);
+  setTimeout(function() { if (t.parentElement) t.remove(); }, 5000);
+}
 
 // ============================================================
-// NOTE: fromEmail is set to onboarding@resend.dev for testing
-// Once your domain stockai-pro.co.za is verified in Resend,
-// change fromEmail back to: noreply@stockai-pro.co.za
+// SCROLL REVEAL
 // ============================================================
-
-var VAT_RATE = 0.15;
-
-// ============================================================
-// FEATURE MAP
-// ============================================================
-var FEATURE_MAP = {
-    web_boh:      'Web App B.O.H',
-    mobile_app:   'Mobile App',
-    procure_ai:   'ProcureAI App',
-    pos_system:   'P.O.S System',
-    menu_master:  'Menu Master',
-    functions_ai: 'FunctionsAI'
-};
-
-var FEATURE_PRICES = {
-    web_boh:      799,
-    mobile_app:   349,
-    procure_ai:   399,
-    pos_system:   799,
-    menu_master:  349,
-    functions_ai: 449
-};
-
-var SETUP_HOURS = {
-    web_boh:      12,
-    mobile_app:   1,
-    procure_ai:   1,
-    pos_system:   8,
-    menu_master:  0,
-    functions_ai: 1
-};
+function revealOnScroll() {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+    if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');
+  });
+}
+window.addEventListener('scroll', revealOnScroll);
+window.addEventListener('load', revealOnScroll);
 
 // ============================================================
-// MASTER SEND FUNCTION
+// HEADER SCROLL
 // ============================================================
-function sendEmail(to, subject, html) {
-    if (!to || !subject || !html) {
-        console.warn('📧 sendEmail: missing required fields');
-        return Promise.resolve({ ok: false, reason: 'missing fields' });
-    }
+window.addEventListener('scroll', function() {
+  document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 50);
+});
 
-    var recipients = Array.isArray(to) ? to : [to];
-    recipients = recipients.filter(function(e) {
-        return e && typeof e === 'string' && e.indexOf('@') !== -1;
+// ============================================================
+// COUNTERS
+// ============================================================
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(function(c) {
+    if (c.dataset.animated) return;
+    if (c.getBoundingClientRect().top > window.innerHeight) return;
+    c.dataset.animated = 'true';
+    var target = parseInt(c.dataset.target);
+    var current = 0;
+    var increment = target / 60;
+    var timer = setInterval(function() {
+      current += increment;
+      if (current >= target) { current = target; clearInterval(timer); }
+      c.textContent = Math.floor(current).toLocaleString();
+    }, 30);
+  });
+}
+window.addEventListener('scroll', animateCounters);
+window.addEventListener('load', function() { setTimeout(animateCounters, 500); });
+
+// ============================================================
+// DEMO ANIMATION
+// ============================================================
+function animateDemo() {
+  var ds = document.getElementById('demo-screen');
+  if (!ds || ds.dataset.animated) return;
+  if (ds.getBoundingClientRect().top > window.innerHeight) return;
+  ds.dataset.animated = 'true';
+  animateValue('demo-stock-val', 0, 125000, 2000, 'R', '');
+  setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', ''); }, 500);
+  setTimeout(function() { animateValue('demo-fc-val', 0, 27.4, 1000, '', '%'); }, 1000);
+  setTimeout(function() { animateValue('demo-ai-val', 0, 3, 800, '', ''); }, 1500);
+  setTimeout(function() { var n = document.getElementById('demo-notif-1'); if (n) n.style.display = 'flex'; }, 2000);
+  setTimeout(function() { var n = document.getElementById('demo-notif-2'); if (n) n.style.display = 'flex'; }, 3500);
+  setTimeout(function() { var n = document.getElementById('demo-notif-3'); if (n) n.style.display = 'flex'; }, 5000);
+  setTimeout(function() { typeText('demo-typed', '"Chicken breast twenty five"', 60); }, 3000);
+}
+function animateValue(id, start, end, dur, pre, suf) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  pre = pre || ''; suf = suf || '';
+  var range = end - start;
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / dur, 1);
+    var cur = start + (range * progress);
+    el.textContent = pre + (end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0)) + suf;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function typeText(id, text, speed) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var i = 0;
+  el.textContent = '';
+  function t() { if (i < text.length) { el.textContent += text.charAt(i); i++; setTimeout(t, speed); } }
+  t();
+}
+window.addEventListener('scroll', animateDemo);
+
+// ============================================================
+// QUOTE BUILDER
+// ============================================================
+var QBPrices = { web_boh: 799, mobile_app: 349, procure_ai: 399, pos_system: 799, menu_master: 349, functions_ai: 449 };
+var QBSetupHours = { web_boh: 12, mobile_app: 1, procure_ai: 1, pos_system: 8, menu_master: 0, functions_ai: 1 };
+var QBFeatureNames = { web_boh: 'Web App B.O.H', mobile_app: 'Mobile App', procure_ai: 'ProcureAI App', pos_system: 'P.O.S System', menu_master: 'Menu Master', functions_ai: 'FunctionsAI' };
+var ENTITY_RATE = 599;
+var TECH_RATE = 450;
+var TRAINING_BASE = 1500;
+var TRAINING_EXTRA = 750;
+
+function toggleQBFeature(el) {
+  if (el.classList.contains('locked')) return;
+  el.classList.toggle('selected');
+  calcQuote();
+}
+
+function calcQuote() {
+  var featureTotal = QBPrices.web_boh;
+  var selectedFeatures = ['web_boh'];
+  var totalSetupHrs = QBSetupHours.web_boh;
+
+  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(f) {
+    var key = f.getAttribute('data-feature');
+    var price = parseInt(f.getAttribute('data-price'));
+    var hrs = parseInt(f.getAttribute('data-setup-hrs')) || 0;
+    featureTotal += price;
+    totalSetupHrs += hrs;
+    selectedFeatures.push(key);
+  });
+
+  var entCount = parseInt(document.getElementById('qb-entities').value) || 1;
+  var entTotal = entCount * ENTITY_RATE;
+  document.getElementById('qb-entity-total').textContent = 'R' + entTotal.toLocaleString() + '.00';
+
+  var techCheck = document.getElementById('qb-tech-check').checked;
+  var techDetails = document.getElementById('qb-tech-details');
+  var techTotal = 0;
+
+  if (techCheck) {
+    techDetails.style.display = 'block';
+    techTotal = totalSetupHrs * TECH_RATE;
+    var breakdownHTML = '';
+    selectedFeatures.forEach(function(key) {
+      var hrs = QBSetupHours[key] || 0;
+      var name = QBFeatureNames[key] || key;
+      if (hrs > 0) {
+        breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>' + name + '</span><span style="font-weight:700">' + hrs + ' hr' + (hrs > 1 ? 's' : '') + '</span></div>';
+      } else {
+        breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0;opacity:.5"><span>' + name + '</span><span>Included</span></div>';
+      }
     });
+    document.getElementById('qb-tech-breakdown').innerHTML = breakdownHTML;
+    document.getElementById('qb-tech-hrs-display').textContent = totalSetupHrs;
+    document.getElementById('qb-tech-total').textContent = 'R' + techTotal.toLocaleString() + '.00';
+  } else {
+    techDetails.style.display = 'none';
+  }
 
-    if (recipients.length === 0) {
-        console.warn('📧 sendEmail: no valid recipients');
-        return Promise.resolve({ ok: false, reason: 'no valid recipients' });
+  var trainingCheck = document.getElementById('qb-training-check').checked;
+  var extraStaffWrap = document.getElementById('qb-extra-staff-wrap');
+  var trainingTotal = 0;
+
+  if (trainingCheck) {
+    extraStaffWrap.style.display = 'flex';
+    var extraStaff = parseInt(document.getElementById('qb-extra-staff').value) || 0;
+    trainingTotal = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
+    document.getElementById('qb-training-total').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+  } else {
+    extraStaffWrap.style.display = 'none';
+  }
+
+  var monthlyTotal = featureTotal + entTotal;
+  var onceOffTotal = techTotal + trainingTotal;
+
+  document.getElementById('qt-features').textContent = 'R' + featureTotal.toLocaleString() + '.00';
+  document.getElementById('qt-ent-count').textContent = entCount;
+  document.getElementById('qt-entities').textContent = 'R' + entTotal.toLocaleString() + '.00';
+
+  var techRow = document.getElementById('qt-tech-row');
+  if (techCheck && totalSetupHrs > 0) {
+    techRow.style.display = 'flex';
+    document.getElementById('qt-tech-hrs').textContent = totalSetupHrs;
+    document.getElementById('qt-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
+  } else {
+    techRow.style.display = 'none';
+  }
+
+  var trainRow = document.getElementById('qt-train-row');
+  if (trainingCheck) {
+    trainRow.style.display = 'flex';
+    document.getElementById('qt-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+  } else {
+    trainRow.style.display = 'none';
+  }
+
+  document.getElementById('qt-grand').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
+
+  var onceRow = document.getElementById('qt-onceoff-row');
+  if (onceOffTotal > 0) {
+    onceRow.style.display = 'flex';
+    document.getElementById('qt-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
+  } else {
+    onceRow.style.display = 'none';
+  }
+
+  return {
+    features: selectedFeatures,
+    featureTotal: featureTotal,
+    entities: entCount,
+    entityTotal: entTotal,
+    techIncluded: techCheck,
+    techHours: techCheck ? totalSetupHrs : 0,
+    techTotal: techTotal,
+    trainingIncluded: trainingCheck,
+    extraStaff: trainingCheck ? (parseInt(document.getElementById('qb-extra-staff').value) || 0) : 0,
+    trainingTotal: trainingTotal,
+    monthlyTotal: monthlyTotal,
+    onceOffTotal: onceOffTotal
+  };
+}
+
+window.addEventListener('load', function() { setTimeout(calcQuote, 200); });
+
+// ============================================================
+// SUBMIT QUOTE — FIXED VERSION
+// ============================================================
+function submitQuote(action) {
+  var name     = document.getElementById('qb-name').value.trim();
+  var phone    = document.getElementById('qb-phone').value.trim();
+  var business = document.getElementById('qb-business').value.trim();
+  var email    = document.getElementById('qb-email').value.trim();
+
+  if (!name || !phone || !business || !email) {
+    showToast('error', 'Please fill in all your details');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('error', 'Please enter a valid email address');
+    return;
+  }
+
+  var quoteData = calcQuote();
+  quoteData.customer = { name: name, phone: phone, business: business, email: email };
+  quoteData.quoteRef = 'QT-' + Date.now();
+  quoteData.quoteDate = new Date().toLocaleDateString('en-ZA');
+  quoteData.featureLabels = quoteData.features.map(function(f) {
+    return QBFeatureNames[f] || f;
+  });
+
+  // Always store for daily analysis
+  storeQuoteForAnalysis(quoteData);
+
+  if (action === 'email') {
+    // Verify email templates are loaded
+    console.log('📧 Checking email system...');
+    console.log('📧 sendQuoteEmailToCustomer type:', typeof window.sendQuoteEmailToCustomer);
+
+    if (typeof window.sendQuoteEmailToCustomer !== 'function') {
+      console.error('❌ email-templates.js not loaded correctly!');
+      showToast('error', '❌ Email system not ready. Please refresh the page and try again.');
+      return;
     }
 
-    console.log('📧 Sending email to:', recipients.join(', '));
-    console.log('📧 Subject:', subject);
+    showToast('info', '📧 Sending your quote to ' + email + '...');
 
-    return fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + EMAIL_CONFIG.apiKey,
-            'Content-Type':  'application/json'
-        },
-        body: JSON.stringify({
-            from:    EMAIL_CONFIG.fromName + ' <' + EMAIL_CONFIG.fromEmail + '>',
-            to:      recipients,
-            subject: subject,
-            html:    html
-        })
-    })
-    .then(function(res) {
-        if (res.ok) {
-            console.log('✅ Email sent successfully to:', recipients.join(', '));
+    // Send to customer
+    window.sendQuoteEmailToCustomer(quoteData)
+      .then(function(res) {
+        if (res && res.ok) {
+          showToast('success', '✅ Quote successfully emailed to ' + email);
         } else {
-            res.json().then(function(body) {
-                console.error('❌ Email failed. Status:', res.status, 'Body:', JSON.stringify(body));
-            }).catch(function() {
-                console.error('❌ Email failed. Status:', res.status);
-            });
+          showToast('error', '⚠️ Email may not have delivered. Please check your Resend domain is verified.');
+          console.warn('⚠️ Email response not OK. Status:', res ? res.status : 'no response');
         }
-        return res;
-    })
-    .catch(function(err) {
-        console.error('❌ Email fetch error:', err.message || err);
-        return { ok: false, reason: err.message };
-    });
-}
+      })
+      .catch(function(err) {
+        console.error('❌ Email error:', err);
+        showToast('error', '❌ Email failed. Please try again or contact us on WhatsApp.');
+      });
 
-// ============================================================
-// REUSABLE EMAIL COMPONENTS
-// ============================================================
-function emailHeader(title, subtitle) {
-    return '<div style="font-family:Poppins,Arial,sans-serif;max-width:650px;margin:0 auto">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;text-align:center;border-radius:12px 12px 0 0">' +
-        '<h1 style="color:#fff;font-size:1.4rem;margin:0;font-weight:800">' + title + '</h1>' +
-        (subtitle ? '<p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:.88rem">' + subtitle + '</p>' : '') +
-        '</div>' +
-        '<div style="background:#fff;padding:32px;border:1px solid #e4f1f5;border-top:none;border-radius:0 0 12px 12px">';
-}
-
-function emailFooter() {
-    return '<div style="margin-top:32px;padding-top:24px;border-top:1px solid #e4f1f5;text-align:center">' +
-        '<div style="margin-bottom:16px">' +
-        '<a href="' + EMAIL_CONFIG.website + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">🌐 Website</a>' +
-        '<a href="' + EMAIL_CONFIG.whatsapp + '" style="color:#25D366;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">💬 WhatsApp</a>' +
-        '<a href="mailto:' + EMAIL_CONFIG.support + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">📧 Support</a>' +
-        '<a href="tel:' + EMAIL_CONFIG.phone + '" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;font-weight:600;margin:0 8px">📞 ' + EMAIL_CONFIG.phone + '</a>' +
-        '</div>' +
-        '<p style="color:#8aabb5;font-size:.75rem;margin:0">© 2025 StockAI-Pro. Built with ❤️ in South Africa.</p>' +
-        '</div></div></div>';
-}
-
-function emailInfoBox(rows) {
-    return '<table style="width:100%;border-collapse:collapse;margin:16px 0">' +
-        rows.map(function(row) {
-            return '<tr>' +
-                '<td style="padding:8px 12px;color:#5a8a96;font-size:.82rem;font-weight:600;background:#f0f7f9;white-space:nowrap;width:35%">' + row.label + '</td>' +
-                '<td style="padding:8px 12px;color:#0d4a5c;font-size:.88rem;font-weight:600">' + row.value + '</td>' +
-                '</tr>';
-        }).join('') +
-        '</table>';
-}
-
-function emailButton(text, url, color) {
-    color = color || '#1a8ba8';
-    return '<div style="text-align:center;margin:20px 0">' +
-        '<a href="' + url + '" style="display:inline-block;padding:14px 32px;background:' + color + ';color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem">' +
-        text + '</a></div>';
-}
-
-function formatR(amount) {
-    return 'R' + Number(amount || 0).toLocaleString('en-ZA', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) {
-        return new Date().toLocaleDateString('en-ZA', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-    }
-    return new Date(dateStr).toLocaleDateString('en-ZA', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-}
-
-// ============================================================
-// EMAIL 1 — WELCOME EMAIL
-// ============================================================
-function emailWelcome(data) {
-    var html = emailHeader('🎉 Welcome to StockAI-Pro!', 'Your AI-powered stock management system is ready') +
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro account has been created and is ready to use!</p>' +
-        emailInfoBox([
-            { label: 'Login Email',  value: data.email },
-            { label: 'Plan',         value: data.plan },
-            { label: 'Monthly Rate', value: 'R' + data.price + '/month' },
-            { label: 'First Entity', value: data.entityName },
-            { label: 'Next Payment', value: data.nextDue }
-        ]) +
-        emailButton('🚀 Open StockAI-Pro', EMAIL_CONFIG.appUrl, '#1a8ba8') +
-        '<div style="background:#f0f7f9;border-radius:10px;padding:18px;margin:20px 0">' +
-        '<h4 style="color:#0d4a5c;font-size:.88rem;margin-bottom:10px">✅ Getting Started:</h4>' +
-        '<ol style="color:#5a8a96;font-size:.85rem;line-height:1.8;padding-left:18px;margin:0">' +
-        '<li>Log in with your email address</li>' +
-        '<li>Add your suppliers first</li>' +
-        '<li>Create your stock items and link suppliers</li>' +
-        '<li>Set up your menu items</li>' +
-        '<li>Run your first stock count using voice!</li>' +
-        '</ol></div>' +
-        emailFooter();
-    return sendEmail(data.email, '🎉 Welcome to StockAI-Pro — Your Account is Ready!', html);
-}
-
-// ============================================================
-// EMAIL 2 — NEW USER INVITE
-// ============================================================
-function emailNewUserInvite(data) {
-    var html = emailHeader('🎉 You\'ve Been Invited to StockAI-Pro!', 'Your account has been created by ' + data.invitedBy) +
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7"><strong>' + data.invitedBy + '</strong> has added you to StockAI-Pro for <strong>' + data.entityName + '</strong>.</p>' +
-        emailInfoBox([
-            { label: 'Your Name',   value: data.name },
-            { label: 'Your Role',   value: data.role },
-            { label: 'Entity',      value: data.entityName },
-            { label: 'Login Email', value: data.email }
-        ]) +
-        '<div style="background:rgba(26,139,168,.08);border-left:3px solid #1a8ba8;padding:16px;border-radius:8px;margin:20px 0">' +
-        '<h4 style="color:#0d4a5c;font-size:.92rem;margin-bottom:8px">🔐 Set Up Your Password</h4>' +
-        '<p style="color:#5a8a96;font-size:.85rem;margin:0">Click the button below to create your password and access your account.</p>' +
-        '</div>' +
-        emailButton('🚀 Set Up My Account', data.inviteLink || EMAIL_CONFIG.appUrl, '#2ea871') +
-        emailFooter();
-    return sendEmail(data.email, '🎉 You\'ve been invited to StockAI-Pro — ' + data.entityName, html);
-}
-
-// ============================================================
-// EMAIL 3 — PURCHASE ORDER TO SUPPLIER
-// ============================================================
-function emailPurchaseOrder(data) {
-    var itemRows = (data.items || []).map(function(item) {
-        return '<tr style="border-bottom:1px solid #e4f1f5">' +
-            '<td style="padding:10px;color:#0d4a5c;font-size:.85rem">' + item.name + '</td>' +
-            '<td style="padding:10px;text-align:center;color:#0d4a5c;font-size:.85rem">' + item.qty + ' ' + item.unit + '</td>' +
-            '<td style="padding:10px;text-align:right;color:#0d4a5c;font-size:.85rem">R' + (item.cost || 0).toFixed(2) + '</td>' +
-            '<td style="padding:10px;text-align:right;font-weight:700;color:#0d4a5c;font-size:.85rem">R' + (item.total || 0).toFixed(2) + '</td>' +
-            '</tr>';
-    }).join('');
-
-    var html = emailHeader('Purchase Order — ' + data.poId, 'From StockAI-Pro on behalf of ' + data.entityName) +
-        emailInfoBox([
-            { label: 'Supplier',    value: data.supplierName },
-            { label: 'Deliver To',  value: data.entityName },
-            { label: 'Order Date',  value: new Date(data.createdAt).toLocaleDateString('en-ZA') },
-            { label: 'Ordered By',  value: data.createdBy || 'Procurement' }
-        ]) +
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
-        '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:10px;text-align:left;font-size:.75rem;color:#fff">Item</th>' +
-        '<th style="padding:10px;text-align:center;font-size:.75rem;color:#fff">Qty</th>' +
-        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff">Unit Price</th>' +
-        '<th style="padding:10px;text-align:right;font-size:.75rem;color:#fff">Total</th>' +
-        '</tr></thead><tbody>' + itemRows + '</tbody>' +
-        '<tfoot>' +
-        '<tr style="background:#f0f7f9"><td colspan="3" style="padding:10px;text-align:right;font-weight:700;color:#0d4a5c">Excl. VAT:</td><td style="padding:10px;text-align:right;font-weight:700;color:#0d4a5c">R' + (data.total || 0).toFixed(2) + '</td></tr>' +
-        '<tr style="background:#f0f7f9"><td colspan="3" style="padding:4px 10px;text-align:right;color:#5a8a96">VAT (15%):</td><td style="padding:4px 10px;text-align:right;color:#5a8a96">R' + ((data.total || 0) * VAT_RATE).toFixed(2) + '</td></tr>' +
-        '<tr style="background:#e4f1f5"><td colspan="3" style="padding:12px 10px;text-align:right;font-weight:900;color:#1a8ba8;font-size:1rem">Total incl. VAT:</td><td style="padding:12px 10px;text-align:right;font-weight:900;color:#1a8ba8;font-size:1.1rem">R' + ((data.total || 0) * 1.15).toFixed(2) + '</td></tr>' +
-        '</tfoot></table>' +
-        emailFooter();
-
-    return sendEmail(data.supplierEmail, 'Purchase Order ' + data.poId + ' — ' + data.entityName, html);
-}
-
-// ============================================================
-// EMAIL 4 — DAY END REPORT
-// ============================================================
-function emailDayEndReport(data) {
-    var fcColor = (data.foodCostPercent || 0) > (data.foodCostTarget || 28) ? '#c94545' : '#2ea871';
-
-    var html = emailHeader('📊 Day End Report — ' + data.entityName, data.date + ' • Submitted by ' + data.submittedBy) +
-        emailInfoBox([
-            { label: 'Total Sales (Excl. VAT)', value: 'R' + (data.totalSales || 0).toLocaleString() },
-            { label: 'Cash Sales',              value: 'R' + (data.cashSales || 0).toLocaleString() },
-            { label: 'Card Sales',              value: 'R' + (data.cardSales || 0).toLocaleString() },
-            { label: 'Pax Served',              value: data.pax || '0' },
-            { label: 'Avg Spend / Person',      value: 'R' + (data.avgSpend || 0).toFixed(2) },
-            { label: 'Purchases',               value: 'R' + (data.purchases || 0).toFixed(2) },
-            { label: 'Food Cost Target',        value: (data.foodCostTarget || 28) + '%' },
-            { label: 'Actual Food Cost',        value: '<span style="color:' + fcColor + ';font-weight:700">' + (data.foodCostPercent || 0).toFixed(1) + '%</span>' }
-        ]) +
-        emailButton('View Full Report', EMAIL_CONFIG.appUrl, '#1a8ba8') +
-        emailFooter();
-
-    return sendEmail(data.recipients || [], '📊 Day End Report — ' + data.entityName + ' — ' + data.date, html);
-}
-
-// ============================================================
-// EMAIL 5 — STOCK COUNT SUBMITTED
-// ============================================================
-function emailStockCountSubmitted(data) {
-    var html = emailHeader('📋 Stock Count Submitted', data.entityName + ' — ' + data.date) +
-        '<p style="color:#5a8a96;line-height:1.7">A stock count has been submitted for <strong>' + data.entityName + '</strong>.</p>' +
-        emailInfoBox([
-            { label: 'Submitted By',        value: data.submittedBy },
-            { label: 'Date',                value: data.date },
-            { label: 'Total Items',         value: data.totalItems + ' items counted' },
-            { label: 'Items with Variance', value: data.varianceItems + ' items' },
-            { label: 'Closing Stock Value', value: 'R' + (data.closingValue || 0).toFixed(2) }
-        ]) +
-        emailButton('View Full Count', EMAIL_CONFIG.appUrl, '#1a8ba8') +
-        emailFooter();
-    return sendEmail(data.recipients || [], '📋 Stock Count — ' + data.entityName + ' — ' + data.date, html);
-}
-
-// ============================================================
-// EMAIL 6 — WASTAGE REPORT
-// ============================================================
-function emailWastageReport(data) {
-    var html = emailHeader('🗑️ Wastage Report', data.entityName + ' — ' + data.date) +
-        emailInfoBox([
-            { label: 'Date',          value: data.date },
-            { label: 'Submitted By',  value: data.submittedBy },
-            { label: 'Total Wastage', value: '<span style="color:#c94545;font-weight:700">R' + (data.totalValue || 0).toFixed(2) + '</span>' },
-            { label: 'Items Wasted',  value: (data.items || []).length + ' items' }
-        ]) +
-        emailButton('View Full Report', EMAIL_CONFIG.appUrl, '#1a8ba8') +
-        emailFooter();
-    return sendEmail(data.recipients || [], '🗑️ Wastage Report — ' + data.entityName + ' — ' + data.date, html);
-}
-
-// ============================================================
-// EMAIL 7 — PAYMENT REMINDER
-// ============================================================
-function emailPaymentDue(data) {
-    var html = emailHeader('💳 Payment Due Today', 'Your StockAI-Pro subscription payment is due') +
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.ownerName + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro subscription payment is due today.</p>' +
-        '<div style="background:rgba(201,69,69,.06);border:1px solid rgba(201,69,69,.2);border-radius:12px;padding:24px;text-align:center;margin:20px 0">' +
-        '<div style="font-size:.78rem;color:#5a8a96;font-weight:700;text-transform:uppercase;margin-bottom:8px">Amount Due Today</div>' +
-        '<div style="font-size:2.5rem;font-weight:900;color:#c94545">R' + parseInt(data.amount).toLocaleString() + '</div>' +
-        '<div style="font-size:.82rem;color:#5a8a96;margin-top:4px">' + data.plan + ' • Due: ' + data.dueDate + '</div></div>' +
-        emailButton('Pay Now via Portal', EMAIL_CONFIG.portalUrl, '#c94545') +
-        emailFooter();
-    return sendEmail(data.ownerEmail, '💳 Payment Due Today — StockAI-Pro Subscription', html);
-}
-
-// ============================================================
-// EMAIL 8 — MONTH END REPORT
-// ============================================================
-function emailMonthEndReport(data) {
-    var fcColor = (data.foodCostPercent || 0) > (data.foodCostTarget || 28) ? '#c94545' : '#2ea871';
-    var html = emailHeader('📅 Month End Report — ' + data.entityName, data.month + ' ' + data.year) +
-        emailInfoBox([
-            { label: 'Month',            value: data.month + ' ' + data.year },
-            { label: 'Opening Stock',    value: 'R' + (data.openingStock || 0).toFixed(2) },
-            { label: 'Total Purchases',  value: 'R' + (data.totalPurchases || 0).toFixed(2) },
-            { label: 'Closing Stock',    value: 'R' + (data.closingStock || 0).toFixed(2) },
-            { label: 'Total Sales',      value: 'R' + (data.totalSales || 0).toFixed(2) },
-            { label: 'Total Wastage',    value: 'R' + (data.totalWastage || 0).toFixed(2) },
-            { label: 'Food Cost %',      value: '<span style="color:' + fcColor + ';font-weight:700">' + (data.foodCostPercent || 0).toFixed(1) + '%</span>' },
-            { label: 'Food Cost Target', value: (data.foodCostTarget || 28) + '%' }
-        ]) +
-        emailButton('View Full Report', EMAIL_CONFIG.appUrl, '#1a8ba8') +
-        emailFooter();
-    return sendEmail(data.recipients || [], '📅 Month End Report — ' + data.entityName + ' — ' + data.month + ' ' + data.year, html);
-}
-
-// ============================================================
-// EMAIL 9 — LATE DELIVERY NOTIFICATION
-// ============================================================
-function emailLateDelivery(data) {
-    var html = emailHeader('⚠️ Late Delivery Alert', data.supplierName + ' — ' + data.entityName) +
-        '<p style="color:#0d4a5c;font-size:1rem">A delivery from <strong>' + data.supplierName + '</strong> is overdue.</p>' +
-        emailInfoBox([
-            { label: 'Supplier',     value: data.supplierName },
-            { label: 'PO Number',    value: data.poId },
-            { label: 'Order Date',   value: data.orderDate },
-            { label: 'Expected',     value: data.expectedDate },
-            { label: 'Days Overdue', value: data.daysOverdue + ' day(s)' }
-        ]) +
-        '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:14px 16px;border-radius:8px;margin-top:16px">' +
-        '<p style="color:#5a4a17;font-size:.85rem;margin:0">Please contact ' + data.supplierName + ' immediately to follow up on this delivery.</p></div>' +
-        emailFooter();
-    return sendEmail(data.recipients || [], '⚠️ Late Delivery — ' + data.supplierName + ' — ' + data.poId, html);
-}
-
-// ============================================================
-// EMAIL 10 — NEW SIGNUP NOTIFICATION TO ADMIN
-// ============================================================
-function emailNewSignupNotification(data) {
-    var featureList = (data.features || []).map(function(f) {
-        return '✅ ' + (FEATURE_MAP[f] || f) + ' — ' + formatR(FEATURE_PRICES[f] || 0) + '/mo';
-    }).join('<br>');
-
-    var html = emailHeader('🚀 New Customer Signed Up!', 'A new customer has joined StockAI-Pro') +
-        '<div style="background:rgba(245,158,11,.08);border-radius:10px;padding:20px;margin-bottom:20px;border:1px solid rgba(245,158,11,.2);text-align:center">' +
-        '<div style="font-size:2rem;margin-bottom:8px">💰</div>' +
-        '<div style="font-size:1.3rem;font-weight:900;color:#0d4a5c">' + formatR(data.monthlyTotal || data.price || 0) + '<span style="font-size:1rem;opacity:.7">/month</span></div>' +
-        '<div style="font-size:.82rem;color:#5a8a96;margin-top:4px">New recurring revenue</div></div>' +
-        emailInfoBox([
-            { label: 'Name',           value: data.name || '—' },
-            { label: 'Email',          value: data.email || '—' },
-            { label: 'Business',       value: data.business || '—' },
-            { label: 'Features',       value: featureList || '—' },
-            { label: 'Entities',       value: (data.entities || 1) + ' entity/entities' },
-            { label: 'Monthly Total',  value: formatR(data.monthlyTotal || data.price || 0) + '/mo' },
-            { label: 'Once-off Total', value: formatR(data.onceOffTotal || 0) },
-            { label: 'Payment Ref',    value: data.ref || '—' }
-        ]) +
-        emailFooter();
-
-    return sendEmail(
-        EMAIL_CONFIG.admin,
-        '🚀 New Signup: ' + (data.name || data.email || 'Unknown') + ' — ' + formatR(data.monthlyTotal || data.price || 0) + '/mo',
-        html
-    );
-}
-
-// ============================================================
-// EMAIL 11 — QUOTE TO CUSTOMER
-// Called from index.html when customer clicks Email My Quote
-// ============================================================
-window.sendQuoteEmailToCustomer = function(data) {
-    console.log('📧 sendQuoteEmailToCustomer called with:', data);
-
-    if (!data || !data.customer || !data.customer.email) {
-        console.error('❌ sendQuoteEmailToCustomer: no customer email provided');
-        return Promise.resolve({ ok: false });
+    // Send admin notification
+    if (typeof window.sendQuoteNotificationToAdmin === 'function') {
+      window.sendQuoteNotificationToAdmin(quoteData)
+        .then(function() { console.log('✅ Admin notification sent'); })
+        .catch(function(err) { console.warn('⚠️ Admin notify failed:', err); });
     }
 
-    var featureRows = '';
-    (data.features || []).forEach(function(f, i) {
-        var price = FEATURE_PRICES[f] || 0;
-        var name  = FEATURE_MAP[f] || (data.featureLabels && data.featureLabels[i]) || f;
-        featureRows +=
-            '<tr>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">' +
-            (f === 'web_boh' ? '🔒 ' : '✅ ') + name +
-            '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' +
-            formatR(price) + '/mo' +
-            '</td>' +
-            '</tr>';
-    });
-
-    var entityRow =
-        '<tr>' +
-        '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">📦 Entities (' + (data.entities || 1) + ' × R599/mo)</td>' +
-        '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' + formatR(data.entityTotal || 0) + '/mo</td>' +
-        '</tr>';
-
-    var techRow = '';
-    if (data.techIncluded && data.techHours > 0) {
-        techRow =
-            '<tr>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">🔧 Technician Setup (' + data.techHours + ' hrs × R450)</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' + formatR(data.techTotal || 0) + '</td>' +
-            '</tr>';
-    }
-
-    var trainingRow = '';
-    if (data.trainingIncluded) {
-        var trainLabel = '📚 Staff Training (5 staff';
-        if (data.extraStaff > 0) trainLabel += ' + ' + data.extraStaff + ' additional';
-        trainLabel += ')';
-        trainingRow =
-            '<tr>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">' + trainLabel + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' + formatR(data.trainingTotal || 0) + '</td>' +
-            '</tr>';
-    }
-
-    var html = emailHeader('📋 Your Custom Quotation', 'Thank you for your interest in StockAI-Pro') +
-
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.customer.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Thank you for using our quote builder! Please find your custom quotation below.</p>' +
-
-        '<div style="background:#f0f7f9;padding:14px 18px;border-radius:10px;margin-bottom:20px">' +
-        '<table style="width:100%"><tr>' +
-        '<td><span style="font-size:.72rem;color:#5a8a96;display:block">Quote Reference</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteRef || '—') + '</strong></td>' +
-        '<td style="text-align:right"><span style="font-size:.72rem;color:#5a8a96;display:block">Date</span><strong style="font-size:.95rem;color:#0d4a5c">' + (data.quoteDate || '—') + '</strong></td>' +
-        '</tr></table></div>' +
-
-        emailInfoBox([
-            { label: 'Name',     value: data.customer.name },
-            { label: 'Business', value: data.customer.business },
-            { label: 'Phone',    value: data.customer.phone },
-            { label: 'Email',    value: data.customer.email }
-        ]) +
-
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-        '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>' +
-        featureRows +
-        entityRow +
-        '<tr style="background:#e4f1f5"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Monthly Total</td>' +
-        '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#1a8ba8;text-align:right">' + formatR(data.monthlyTotal || 0) + '/mo</td></tr>' +
-        '</table>' +
-
-        (data.onceOffTotal > 0 ?
-            '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-            '<tr><td colspan="2" style="background:#d97706;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">ONCE-OFF CHARGES (incl. VAT)</td></tr>' +
-            techRow + trainingRow +
-            '<tr style="background:#fef3c7"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Once-off Total</td>' +
-            '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#d97706;text-align:right">' + formatR(data.onceOffTotal) + '</td></tr>' +
-            '</table>'
-        : '') +
-
-        '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;padding:14px 18px;margin-bottom:20px;text-align:center">' +
-        '<div style="font-size:.88rem;font-weight:700;color:#065f46">✅ 30-Day Money-Back Guarantee</div>' +
-        '<div style="font-size:.78rem;color:#047857;margin-top:4px">Not satisfied within 30 days? Full refund — no questions asked.</div>' +
-        '</div>' +
-
-        emailButton('🚀 Get Started Now', EMAIL_CONFIG.website + '/signup.html?features=' + (data.features || []).join(',') + '&entities=' + (data.entities || 1), '#f59e0b') +
-
-        '<p style="font-size:.75rem;color:#8aabb5;text-align:center;margin:0">This quotation is valid for 30 days from the date of issue.</p>' +
-
-        emailFooter();
-
-    return sendEmail(
-        data.customer.email,
-        'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''),
-        html
-    );
-};
+  } else if (action === 'print') {
+    generateQuotePDF(quoteData, 'print');
+  } else if (action === 'download') {
+    generateQuotePDF(quoteData, 'download');
+  }
+}
 
 // ============================================================
-// EMAIL 12 — QUOTE NOTIFICATION TO ADMIN
-// Called from index.html every time a quote is requested
-// Sent to: cidraism@gmail.com
+// STORE QUOTE FOR DAILY ANALYSIS
 // ============================================================
-window.sendQuoteNotificationToAdmin = function(data) {
-    console.log('📧 sendQuoteNotificationToAdmin called');
-
-    var featureList = (data.features || []).map(function(f) {
-        return '✅ ' + (FEATURE_MAP[f] || f) + ' — ' + formatR(FEATURE_PRICES[f] || 0) + '/mo';
-    }).join('<br>');
-
-    var html = emailHeader('📋 New Quote Request', 'A customer has requested a quote on the website') +
-
-        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new quotation has been requested on the StockAI-Pro website:</p>' +
-
-        emailInfoBox([
-            { label: 'Quote Ref',  value: data.quoteRef || '—' },
-            { label: 'Date',       value: data.quoteDate || new Date().toLocaleDateString('en-ZA') },
-            { label: 'Name',       value: data.customer ? data.customer.name : '—' },
-            { label: 'Business',   value: data.customer ? data.customer.business : '—' },
-            { label: 'Phone',      value: data.customer ? data.customer.phone : '—' },
-            { label: 'Email',      value: data.customer ? data.customer.email : '—' },
-            { label: 'Features',   value: featureList || '—' },
-            { label: 'Entities',   value: (data.entities || 1) + ' entities' },
-            { label: 'Technician', value: data.techIncluded ? '✅ ' + (data.techHours || 0) + ' hrs = ' + formatR(data.techTotal || 0) : '❌ Not requested' },
-            { label: 'Training',   value: data.trainingIncluded ? '✅ ' + formatR(data.trainingTotal || 0) : '❌ Not requested' },
-            { label: 'Monthly',    value: formatR(data.monthlyTotal || 0) + '/mo' },
-            { label: 'Once-off',   value: formatR(data.onceOffTotal || 0) }
-        ]) +
-
-        emailFooter();
-
-    return sendEmail(
-        EMAIL_CONFIG.admin,
-        '📋 New Quote: ' + (data.customer ? data.customer.business : 'Unknown') + ' — ' + formatR(data.monthlyTotal || 0) + '/mo',
-        html
-    );
-};
-
-// ============================================================
-// EMAIL 13 — BOOKING CONFIRMATION TO CUSTOMER
-// Called from index.html when a presentation is booked
-// ============================================================
-window.sendBookingConfirmationToCustomer = function(booking) {
-    console.log('📧 sendBookingConfirmationToCustomer called');
-
-    var dateFormatted = formatDate(booking.date);
-
-    var html = emailHeader('✅ Presentation Booking Confirmed!', 'We look forward to meeting you') +
-
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + booking.customer.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">Your StockAI-Pro presentation has been confirmed!</p>' +
-
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:24px;color:#fff;margin:20px 0;text-align:center">' +
-        '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:12px;font-weight:700">📅 Your Booking</div>' +
-        '<div style="font-size:1.2rem;font-weight:800;margin-bottom:6px">' + dateFormatted + '</div>' +
-        '<div style="font-size:1rem;font-weight:700;color:#5EEAD4">' + booking.slotLabel + '</div>' +
-        '</div>' +
-
-        emailInfoBox([
-            { label: 'Booking ID', value: booking.id },
-            { label: 'Name',       value: booking.customer.name },
-            { label: 'Business',   value: booking.customer.business },
-            { label: 'Phone',      value: booking.customer.phone },
-            { label: 'Email',      value: booking.customer.email }
-        ]) +
-
-        '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;padding:14px 18px;margin:20px 0;text-align:center">' +
-        '<div style="font-size:.88rem;font-weight:700;color:#065f46">✅ Booking Confirmed</div>' +
-        '<div style="font-size:.78rem;color:#047857;margin-top:4px">Need to reschedule? Contact us at least 24 hours in advance.</div>' +
-        '</div>' +
-
-        emailFooter();
-
-    return sendEmail(
-        booking.customer.email,
-        '✅ Presentation Confirmed — ' + dateFormatted + ' — StockAI-Pro',
-        html
-    );
-};
-
-// ============================================================
-// EMAIL 14 — BOOKING NOTIFICATION TO ADMIN
-// Called from index.html when a presentation is booked
-// Sent to: cidraism@gmail.com
-// ============================================================
-window.sendBookingEmailToAdmin = function(booking) {
-    console.log('📧 sendBookingEmailToAdmin called');
-
-    var dateFormatted = formatDate(booking.date);
-
-    var html = emailHeader('📅 New Presentation Booking!', 'A customer has booked a presentation slot') +
-
-        '<p style="color:#5a8a96;line-height:1.7;margin-bottom:20px">A new presentation has been booked. Add this to your calendar!</p>' +
-
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;padding:20px;color:#fff;margin-bottom:20px;text-align:center">' +
-        '<div style="font-size:1.3rem;font-weight:800;margin-bottom:6px">' + dateFormatted + '</div>' +
-        '<div style="font-size:1.1rem;font-weight:700;color:#5EEAD4">' + booking.slotLabel + '</div>' +
-        '</div>' +
-
-        emailInfoBox([
-            { label: 'Booking ID', value: booking.id },
-            { label: 'Date',       value: dateFormatted },
-            { label: 'Time Slot',  value: booking.slotLabel },
-            { label: 'Name',       value: booking.customer.name },
-            { label: 'Business',   value: booking.customer.business },
-            { label: 'Phone',      value: booking.customer.phone },
-            { label: 'Email',      value: booking.customer.email },
-            { label: 'Booked At',  value: new Date(booking.timestamp).toLocaleString('en-ZA') }
-        ]) +
-
-        '<div style="background:#fff8e1;border-left:3px solid #f59e0b;padding:14px 16px;border-radius:8px;margin-top:16px">' +
-        '<p style="color:#5a4a17;font-size:.85rem;margin:0">📌 <strong>Add to your calendar:</strong> ' + dateFormatted + ' • ' + booking.slotLabel + '</p></div>' +
-
-        emailFooter();
-
-    return sendEmail(
-        EMAIL_CONFIG.admin,
-        '📅 New Booking: ' + booking.customer.business + ' — ' + dateFormatted,
-        html
-    );
-};
-
-// ============================================================
-// EMAIL 15 — DAILY QUOTE ANALYSIS TO ADMIN
-// Auto-triggered at 5pm if there were quotes that day
-// No quotes = no email sent
-// Sent to: cidraism@gmail.com
-// ============================================================
-window.sendDailyQuoteAnalysis = function() {
-    console.log('📊 sendDailyQuoteAnalysis called');
-
+function storeQuoteForAnalysis(data) {
+  try {
     var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
-    var today  = new Date().toISOString().split('T')[0];
-
-    var todayQuotes = quotes.filter(function(q) {
-        return q.timestamp && q.timestamp.startsWith(today);
-    });
-
-    if (todayQuotes.length === 0) {
-        console.log('📊 No quotes today — daily analysis email NOT sent');
-        return Promise.resolve({ ok: true, reason: 'no quotes today' });
-    }
-
-    var totalMonthly = 0;
-    var totalOnceOff = 0;
-    todayQuotes.forEach(function(q) {
-        totalMonthly += (q.monthlyTotal || 0);
-        totalOnceOff += (q.onceOffTotal || 0);
-    });
-
-    var tableRows = todayQuotes.map(function(q, i) {
-        var bg = i % 2 === 0 ? '#f8fcfd' : '#fff';
-        return '<tr style="background:' + bg + '">' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.quoteRef || '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.name : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.business : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.phone : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#2a5f70">' + (q.customer ? q.customer.email : '—') + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;text-align:center;color:#2a5f70">' + (q.entities || 1) + '</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#1a8ba8;font-weight:700">' + formatR(q.monthlyTotal || 0) + '/mo</td>' +
-            '<td style="padding:8px 10px;border-bottom:1px solid #e4f1f5;font-size:.75rem;color:#d97706;font-weight:700">' + formatR(q.onceOffTotal || 0) + '</td>' +
-            '</tr>';
-    }).join('');
-
-    var html = emailHeader(
-        '📊 Daily Quote Analysis',
-        todayQuotes.length + ' quote' + (todayQuotes.length > 1 ? 's' : '') + ' received today'
-    ) +
-
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px">' +
-        '<div style="background:#e4f1f5;border-radius:10px;padding:16px;text-align:center">' +
-        '<div style="font-size:2rem;font-weight:900;color:#1a8ba8">' + todayQuotes.length + '</div>' +
-        '<div style="font-size:.72rem;color:#5a8a96;font-weight:600;margin-top:4px">Quotes Today</div></div>' +
-        '<div style="background:#d1fae5;border-radius:10px;padding:16px;text-align:center">' +
-        '<div style="font-size:1.2rem;font-weight:900;color:#065f46">' + formatR(totalMonthly) + '</div>' +
-        '<div style="font-size:.72rem;color:#047857;font-weight:600;margin-top:4px">Monthly Value</div></div>' +
-        '<div style="background:#fef3c7;border-radius:10px;padding:16px;text-align:center">' +
-        '<div style="font-size:1.2rem;font-weight:900;color:#92400e">' + formatR(totalOnceOff) + '</div>' +
-        '<div style="font-size:.72rem;color:#a16207;font-weight:600;margin-top:4px">Once-off Value</div></div>' +
-        '</div>' +
-
-        '<div style="overflow-x:auto">' +
-        '<table style="width:100%;border-collapse:collapse;min-width:580px">' +
-        '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Ref</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Name</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Business</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Phone</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Email</th>' +
-        '<th style="padding:10px;text-align:center;font-size:.7rem;color:#fff">Ent.</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Monthly</th>' +
-        '<th style="padding:10px;text-align:left;font-size:.7rem;color:#fff">Once-off</th>' +
-        '</tr></thead>' +
-        '<tbody>' + tableRows + '</tbody>' +
-        '</table></div>' +
-
-        emailFooter();
-
-    return sendEmail(
-        EMAIL_CONFIG.admin,
-        '📊 Daily Quotes: ' + todayQuotes.length + ' quote' + (todayQuotes.length > 1 ? 's' : '') + ' — ' + formatR(totalMonthly) + '/mo potential',
-        html
-    );
-};
+    data.timestamp = new Date().toISOString();
+    quotes.push(data);
+    localStorage.setItem('stockai_quotes', JSON.stringify(quotes));
+    console.log('📊 Quote stored for analysis:', data.quoteRef);
+  } catch(e) {
+    console.warn('⚠️ Could not store quote locally:', e);
+  }
+}
 
 // ============================================================
-// AUTO DAILY ANALYSIS TRIGGER
-// Checks once per day — only sends if quotes exist
+// GENERATE QUOTE PDF
 // ============================================================
-window.checkAndSendDailyAnalysis = function() {
-    var lastSent = localStorage.getItem('stockai_daily_analysis_sent');
-    var today    = new Date().toISOString().split('T')[0];
+function generateQuotePDF(data, action) {
+  var w = window.open('', '_blank');
+  var html = '<!DOCTYPE html><html><head><title>Quote ' + data.quoteRef + '</title>';
+  html += '<style>body{font-family:Arial,sans-serif;color:#0d4a5c;padding:40px;max-width:800px;margin:0 auto}';
+  html += '.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #1a8ba8}';
+  html += '.q-logo{font-size:1.5rem;font-weight:900;color:#0d4a5c}.q-logo span{color:#1a8ba8}';
+  html += '.q-customer{background:#f0f7f9;padding:20px;border-radius:10px;margin-bottom:24px}';
+  html += '.q-customer h3{font-size:1rem;font-weight:700;color:#1a8ba8;margin-bottom:10px}';
+  html += '.q-customer p{font-size:.88rem;margin:4px 0;color:#2a5f70}';
+  html += 'table{width:100%;border-collapse:collapse;margin-bottom:24px}';
+  html += 'th{background:#0d4a5c;color:#fff;padding:12px 16px;text-align:left;font-size:.82rem;font-weight:700}';
+  html += 'td{padding:10px 16px;border-bottom:1px solid #e4f1f5;font-size:.88rem;color:#2a5f70}';
+  html += 'tr:nth-child(even) td{background:#f8fcfd}';
+  html += '.q-total td{font-weight:900;font-size:1.1rem;color:#0d4a5c;border-top:2px solid #1a8ba8;background:#e4f1f5}';
+  html += '.q-footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #c4dde4;font-size:.78rem;color:#8aabb5}';
+  html += '@media print{body{padding:20px}}</style></head><body>';
 
-    if (lastSent === today) {
-        console.log('📊 Daily analysis already sent today — skipping');
-        return;
-    }
+  html += '<div class="q-header"><div><div class="q-logo">STOCK<span>AI</span>-PRO</div>';
+  html += '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">AI-Powered Stock Management — South Africa</div></div>';
+  html += '<div style="text-align:right;font-size:.85rem;color:#5a8a96"><strong style="color:#0d4a5c;display:block;font-size:1rem">QUOTATION</strong>';
+  html += 'Ref: ' + data.quoteRef + '<br>Date: ' + data.quoteDate + '</div></div>';
 
-    var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
-    var todayQuotes = quotes.filter(function(q) {
-        return q.timestamp && q.timestamp.startsWith(today);
-    });
+  html += '<div class="q-customer"><h3>Customer Details</h3>';
+  html += '<p><strong>Name:</strong> ' + data.customer.name + '</p>';
+  html += '<p><strong>Business:</strong> ' + data.customer.business + '</p>';
+  html += '<p><strong>Phone:</strong> ' + data.customer.phone + '</p>';
+  html += '<p><strong>Email:</strong> ' + data.customer.email + '</p></div>';
 
-    if (todayQuotes.length > 0) {
-        window.sendDailyQuoteAnalysis().then(function() {
-            localStorage.setItem('stockai_daily_analysis_sent', today);
-            console.log('📊 Daily analysis sent and marked for today');
-        });
+  html += '<table><thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead><tbody>';
+  html += '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;font-weight:700;font-size:.82rem">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>';
+  data.featureLabels.forEach(function(f, i) {
+    var price = QBPrices[data.features[i]] || 0;
+    html += '<tr><td>' + f + '</td><td style="text-align:right">R' + price.toLocaleString() + '.00/mo</td></tr>';
+  });
+  html += '<tr><td>Entities (' + data.entities + ' × R599)</td><td style="text-align:right">R' + data.entityTotal.toLocaleString() + '.00/mo</td></tr>';
+  html += '<tr class="q-total"><td>Monthly Total (incl. VAT)</td><td style="text-align:right">R' + data.monthlyTotal.toLocaleString() + '.00</td></tr>';
+
+  if (data.onceOffTotal > 0) {
+    html += '<tr><td colspan="2" style="background:#d97706;color:#fff;font-weight:700;font-size:.82rem">ONCE-OFF CHARGES (incl. VAT)</td></tr>';
+    if (data.techHours > 0) html += '<tr><td>Technician Setup (' + data.techHours + ' hrs × R450)</td><td style="text-align:right">R' + data.techTotal.toLocaleString() + '.00</td></tr>';
+    if (data.trainingIncluded) html += '<tr><td>Staff Training (5 staff' + (data.extraStaff > 0 ? ' + ' + data.extraStaff + ' additional' : '') + ')</td><td style="text-align:right">R' + data.trainingTotal.toLocaleString() + '.00</td></tr>';
+    html += '<tr class="q-total"><td>Once-off Total (incl. VAT)</td><td style="text-align:right">R' + data.onceOffTotal.toLocaleString() + '.00</td></tr>';
+  }
+
+  html += '</tbody></table>';
+  html += '<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;font-size:.82rem;font-weight:700;color:#065f46;margin-bottom:20px">✅ 30-Day Money-Back Guarantee • No Contracts • Cancel Anytime</div>';
+  html += '<div class="q-footer"><p>This quotation is valid for 30 days from the date of issue.</p>';
+  html += '<p style="margin-top:8px"><strong>StockAI-Pro</strong> • 079 044 0508 • support@stockai-pro.co.za • www.stockai-pro.co.za</p></div>';
+  html += '</body></html>';
+
+  w.document.write(html);
+  w.document.close();
+  if (action === 'print') { setTimeout(function() { w.print(); }, 500); }
+}
+
+// ============================================================
+// BOOKING CALENDAR
+// ============================================================
+var calendarDate = new Date();
+var selectedBookingDate = null;
+var selectedBookingSlot = null;
+var storedBookings = JSON.parse(localStorage.getItem('stockai_bookings') || '[]');
+
+function openBookingModal() {
+  document.getElementById('bookingModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderCalendar();
+}
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', function(e) { if (e.target.id === 'bookingModal') closeBookingModal(); });
+
+function changeMonth(dir) {
+  calendarDate.setMonth(calendarDate.getMonth() + dir);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  var grid = document.getElementById('cal-grid');
+  var label = document.getElementById('cal-month-label');
+  var year = calendarDate.getFullYear();
+  var month = calendarDate.getMonth();
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent = months[month] + ' ' + year;
+
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  var html = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) {
+    html += '<div class="cal-day-header">' + d + '</div>';
+  });
+
+  for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+
+  for (var d = 1; d <= daysInMonth; d++) {
+    var date = new Date(year, month, d);
+    var dow = date.getDay();
+    var isPast = date < today;
+    var isWeekend = (dow === 0 || dow === 6);
+    var isToday = date.getTime() === today.getTime();
+    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var hasBooking = storedBookings.filter(function(b) { return b.date === dateStr; }).length > 0;
+
+    var classes = 'cal-day';
+    if (isPast || isWeekend) classes += ' disabled';
+    if (isToday) classes += ' today';
+    if (selectedBookingDate === dateStr) classes += ' selected';
+    if (hasBooking && !isPast && !isWeekend) classes += ' has-booking';
+
+    if (!isPast && !isWeekend) {
+      html += '<div class="' + classes + '" onclick="selectBookingDate(\'' + dateStr + '\')">' + d + '</div>';
     } else {
-        console.log('📊 No quotes today — daily analysis not sent');
+      html += '<div class="' + classes + '">' + d + '</div>';
     }
-};
+  }
+  grid.innerHTML = html;
+}
 
-// Auto check after 5pm
-setTimeout(function() {
-    var now = new Date();
-    if (now.getHours() >= 17) {
-        window.checkAndSendDailyAnalysis();
+function selectBookingDate(dateStr) {
+  selectedBookingDate = dateStr;
+  selectedBookingSlot = null;
+  renderCalendar();
+  document.getElementById('time-slot-wrap').style.display = 'block';
+  document.getElementById('booking-form-wrap').style.display = 'none';
+
+  var dateObj = new Date(dateStr + 'T00:00:00');
+  document.getElementById('selected-date-label').textContent = dateObj.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  var container = document.getElementById('time-slots');
+  var slots = [
+    { id: 'morning', label: '08:00 — 12:00', display: 'Morning Session' },
+    { id: 'afternoon', label: '13:00 — 17:00', display: 'Afternoon Session' }
+  ];
+  var existing = storedBookings.filter(function(b) { return b.date === dateStr; });
+  var html = '';
+  slots.forEach(function(slot) {
+    var isBooked = existing.some(function(b) { return b.slot === slot.id; });
+    if (isBooked) {
+      html += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small><br><small style="color:#c94545">Booked</small></div>';
+    } else {
+      html += '<div class="time-slot" onclick="selectTimeSlot(this,\'' + slot.id + '\')"><i class="fas fa-clock" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small></div>';
     }
+  });
+  container.innerHTML = html;
+}
+
+function selectTimeSlot(el, slotId) {
+  document.querySelectorAll('.time-slot').forEach(function(s) { s.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedBookingSlot = slotId;
+  document.getElementById('booking-form-wrap').style.display = 'block';
+}
+
+function submitBooking() {
+  var name     = document.getElementById('book-name').value.trim();
+  var phone    = document.getElementById('book-phone').value.trim();
+  var business = document.getElementById('book-business').value.trim();
+  var email    = document.getElementById('book-email').value.trim();
+
+  if (!name || !phone || !business || !email) { showToast('error', 'Please fill in all fields'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('error', 'Please enter a valid email'); return; }
+  if (!selectedBookingDate || !selectedBookingSlot) { showToast('error', 'Please select a date and time slot'); return; }
+
+  var existing = storedBookings.filter(function(b) { return b.date === selectedBookingDate; });
+  if (existing.some(function(b) { return b.slot === selectedBookingSlot; })) {
+    showToast('error', 'This slot is already booked. Please choose another.');
+    return;
+  }
+
+  var slotLabels = { morning: '08:00 — 12:00 (Morning)', afternoon: '13:00 — 17:00 (Afternoon)' };
+
+  var booking = {
+    id: 'BK-' + Date.now(),
+    date: selectedBookingDate,
+    slot: selectedBookingSlot,
+    slotLabel: slotLabels[selectedBookingSlot],
+    customer: { name: name, phone: phone, business: business, email: email },
+    timestamp: new Date().toISOString()
+  };
+
+  storedBookings.push(booking);
+  localStorage.setItem('stockai_bookings', JSON.stringify(storedBookings));
+
+  if (typeof window.sendBookingEmailToAdmin === 'function') {
+    window.sendBookingEmailToAdmin(booking)
+      .then(function() { console.log('✅ Booking admin email sent'); })
+      .catch(function(err) { console.warn('⚠️ Booking admin email failed:', err); });
+  }
+
+  if (typeof window.sendBookingConfirmationToCustomer === 'function') {
+    window.sendBookingConfirmationToCustomer(booking)
+      .then(function() { console.log('✅ Booking confirmation sent to customer'); })
+      .catch(function(err) { console.warn('⚠️ Booking confirmation failed:', err); });
+  }
+
+  showToast('success', '✅ Presentation booked for ' + selectedBookingDate + ' (' + slotLabels[selectedBookingSlot] + ')');
+
+  setTimeout(function() {
+    closeBookingModal();
+    selectedBookingDate = null;
+    selectedBookingSlot = null;
+    document.getElementById('book-name').value = '';
+    document.getElementById('book-phone').value = '';
+    document.getElementById('book-business').value = '';
+    document.getElementById('book-email').value = '';
+    document.getElementById('time-slot-wrap').style.display = 'none';
+    document.getElementById('booking-form-wrap').style.display = 'none';
+  }, 1500);
+}
+
+// ============================================================
+// STOCKY BOT
+// ============================================================
+var stockyPrompts = ['Need Assistance?', 'Have Questions on What You\'re Seeing?', 'Want to Know How Much?', 'Confused? I Can Help!', 'Need Help? I\'m Here!'];
+var stockyIdx = 0;
+var stockyChatOpen = false;
+
+setTimeout(function() {
+  showStockyBubble();
+  setInterval(cycleStockyPrompt, 15000);
 }, 5000);
 
-// ============================================================
-// COMPANY DETAILS — For invoices
-// ============================================================
-var COMPANY_DETAILS = {
-    name:    'HollowAqua Pty Ltd',
-    trading: 'StockAI-Pro',
-    phone:   '+2779-044-0508',
-    email:   'Billing@stockai-pro.co.za',
-    address: '16 Loddon Road, Mulbarton, 2059, Johannesburg South, Gauteng, South Africa',
-    website: 'www.stockai-pro.co.za'
+function showStockyBubble() {
+  var b = document.getElementById('stocky-bubble');
+  if (b && !stockyChatOpen) {
+    b.classList.add('visible');
+    setTimeout(function() { if (!stockyChatOpen) b.classList.remove('visible'); }, 8000);
+  }
+}
+function cycleStockyPrompt() {
+  if (stockyChatOpen) return;
+  stockyIdx = (stockyIdx + 1) % stockyPrompts.length;
+  var m = document.getElementById('stocky-bubble-msg');
+  if (m) m.textContent = stockyPrompts[stockyIdx];
+  showStockyBubble();
+}
+function openStockyChat() {
+  stockyChatOpen = true;
+  document.getElementById('stocky-bubble').classList.remove('visible');
+  document.getElementById('stocky-chat').style.display = 'block';
+}
+function closeStockyChat() {
+  stockyChatOpen = false;
+  document.getElementById('stocky-chat').style.display = 'none';
+  setTimeout(showStockyBubble, 10000);
+}
+
+var stockyAnswers = {
+  'what': '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any business track inventory, reduce costs, and automate ordering!',
+  'cost': '💰 Build Your Own Package:<br><br>• <strong>Web App B.O.H:</strong> R799/mo (always included)<br>• <strong>Mobile App:</strong> R349/mo<br>• <strong>ProcureAI:</strong> R399/mo<br>• <strong>POS System:</strong> R799/mo<br>• <strong>Menu Master:</strong> R349/mo<br>• <strong>FunctionsAI:</strong> R449/mo<br>• <strong>Per Entity:</strong> R599/mo<br><br>Only pay for what you use!',
+  'ai': '🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts stock needs<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Live food cost in real-time',
+  'trial': '🎯 No trial, but we offer a <strong>30-day money-back guarantee</strong>. Not satisfied? Full refund, no questions asked!',
+  'start': '🚀 Getting started is easy:<br><br>1. Build your package on our website<br>2. Select your features<br>3. Pay securely via Paystack<br>4. Start immediately!<br><br>Or <a href="#quote-section" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">get a free quote first!</a>',
+  'functions': '🎉 <strong>FunctionsAI</strong> is our event management system:<br><br>• Create full event sheets<br>• Select menus & beverages<br>• Auto-calculate costs & VAT<br>• Generate professional invoices<br>• Email directly to clients<br><br>Only R449/mo to add on!',
+  'devices': '📱 Works on <strong>any device</strong>:<br><br>• Desktop / Laptop<br>• Tablet (iPad, Android)<br>• Mobile phone<br>• Kitchen display screens<br><br>Install as an app — no app store needed!',
+  'safe': '🔒 Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured'
 };
 
-var PRICING = {
-    baseFee:   799,
-    entityFee: 599,
-    vatRate:   0.15
-};
-
-// ============================================================
-// GENERATE INVOICE HTML
-// ============================================================
-function generateInvoiceHTML(data) {
-    var entities   = data.entities || [];
-    var baseExcl   = parseFloat((PRICING.baseFee / (1 + PRICING.vatRate)).toFixed(2));
-    var entityExcl = parseFloat((PRICING.entityFee / (1 + PRICING.vatRate)).toFixed(2));
-    var lineItems  = '';
-    var subtotal   = 0;
-
-    lineItems += '<tr>' +
-        '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c">StockAI-Pro Platform Fee — Monthly Access</td>' +
-        '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:center">1</td>' +
-        '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right">R' + baseExcl.toFixed(2) + '</td>' +
-        '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:600">R' + baseExcl.toFixed(2) + '</td>' +
-        '</tr>';
-    subtotal += baseExcl;
-
-    entities.forEach(function(ent) {
-        lineItems += '<tr>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c">Entity Fee — ' + ent.name + '</td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:center">1</td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right">R' + entityExcl.toFixed(2) + '</td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:600">R' + entityExcl.toFixed(2) + '</td>' +
-            '</tr>';
-        subtotal += entityExcl;
-    });
-
-    var vatAmount = parseFloat((subtotal * PRICING.vatRate).toFixed(2));
-    var total     = parseFloat((subtotal + vatAmount).toFixed(2));
-
-    return '<div style="font-family:Poppins,Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;border-radius:12px 12px 0 0">' +
-        '<h1 style="color:#fff;font-size:1.6rem;font-weight:900;margin:0">STOCKAI-PRO</h1>' +
-        '<p style="color:rgba(255,255,255,.7);font-size:.78rem;margin:4px 0 0">Intelligence a click away</p>' +
-        '<div style="background:rgba(255,255,255,.15);padding:8px 16px;border-radius:8px;margin-top:12px;display:inline-block">' +
-        '<div style="color:#fff;font-size:1.2rem;font-weight:900;letter-spacing:2px">TAX INVOICE #' + data.invoiceNumber + '</div>' +
-        '</div></div>' +
-        '<div style="padding:32px;border:1px solid #e4f1f5;border-top:none">' +
-        emailInfoBox([
-            { label: 'Invoice Date', value: data.invoiceDate },
-            { label: 'Due Date',     value: data.dueDate },
-            { label: 'Status',       value: data.isPaid ? '✅ PAID' : '⏳ DUE' },
-            { label: 'Bill To',      value: data.companyName || data.ownerName },
-            { label: 'Email',        value: data.ownerEmail || '—' }
-        ]) +
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
-        '<thead><tr style="background:#0d4a5c">' +
-        '<th style="padding:12px 16px;text-align:left;font-size:.72rem;color:#fff">Description</th>' +
-        '<th style="padding:12px 16px;text-align:center;font-size:.72rem;color:#fff">Qty</th>' +
-        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff">Unit Price</th>' +
-        '<th style="padding:12px 16px;text-align:right;font-size:.72rem;color:#fff">Amount</th>' +
-        '</tr></thead><tbody>' + lineItems + '</tbody></table>' +
-        '<div style="display:flex;justify-content:flex-end">' +
-        '<div style="width:260px">' +
-        '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96"><span>Subtotal (excl. VAT)</span><strong style="color:#0d4a5c">R' + subtotal.toFixed(2) + '</strong></div>' +
-        '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;color:#5a8a96;border-bottom:1px solid #e4f1f5"><span>VAT (15%)</span><strong style="color:#0d4a5c">R' + vatAmount.toFixed(2) + '</strong></div>' +
-        '<div style="display:flex;justify-content:space-between;padding:14px 0;font-size:1.1rem;font-weight:900;color:#1a8ba8"><span>TOTAL (incl. VAT)</span><strong>R' + total.toFixed(2) + '</strong></div>' +
-        '</div></div>' +
-        '<div style="margin-top:20px;padding:16px;background:#fff8e1;border-left:3px solid #f59e0b;border-radius:8px;font-size:.82rem;color:#5a4a17">' +
-        '<strong>Payment Ref:</strong> ' + data.invoiceNumber + '</div>' +
-        '</div></div>';
+function stockyAnswer(key) {
+  var answer = stockyAnswers[key] || 'I\'m not sure! WhatsApp us on 079 044 0508';
+  var messages = document.getElementById('stocky-messages');
+  var labels = { 'what': 'What is StockAI-Pro?', 'cost': 'How much does it cost?', 'ai': 'How does AI help?', 'trial': 'Is there a trial?', 'start': 'How do I get started?', 'functions': 'What is FunctionsAI?', 'devices': 'What devices?', 'safe': 'Is my data safe?' };
+  var userMsg = document.createElement('div');
+  userMsg.className = 'stocky-msg user';
+  userMsg.innerHTML = '<p>' + (labels[key] || key) + '</p>';
+  messages.appendChild(userMsg);
+  messages.scrollTop = messages.scrollHeight;
+  setTimeout(function() {
+    var botMsg = document.createElement('div');
+    botMsg.className = 'stocky-msg bot';
+    botMsg.innerHTML = '<p>' + answer + '</p><div class="stocky-faq-btns" style="margin-top:8px"><button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'cost\')">Pricing</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'functions\')">FunctionsAI</button><button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button></div>';
+    messages.appendChild(botMsg);
+    messages.scrollTop = messages.scrollHeight;
+  }, 500);
 }
 
-// ============================================================
-// EMAIL MONTHLY INVOICE
-// ============================================================
-function emailMonthlyInvoice(data) {
-    var html = generateInvoiceHTML(data);
-    return sendEmail(
-        data.ownerEmail,
-        '📄 StockAI-Pro Tax Invoice #' + data.invoiceNumber + ' — Due ' + data.dueDate,
-        html
-    );
-}
+setInterval(function() {
+  if (stockyChatOpen) return;
+  var s = document.getElementById('stocky');
+  var r = Math.floor(Math.random() * (window.innerWidth - 200)) + 40;
+  if (s) s.style.right = r + 'px';
+}, 20000);
 
 // ============================================================
-// CONVENIENCE FUNCTIONS
+// CONFIRM EVERYTHING LOADED
 // ============================================================
-function sendDayEndEmails(entityData, accountData, dayEndData) {
-    var recipients = [];
-    if (accountData.owner && accountData.owner.email) recipients.push(accountData.owner.email);
-    var users = (accountData.users || {})[entityData.id] || [];
-    users.forEach(function(u) {
-        if (u.email && (u.role === 'General Manager' || u.role === 'Area Manager')) {
-            if (recipients.indexOf(u.email) === -1) recipients.push(u.email);
-        }
-    });
-    if (recipients.length === 0) return Promise.resolve();
-    return emailDayEndReport(Object.assign({}, dayEndData, { entityName: entityData.name, recipients: recipients }));
-}
-
-function sendStockCountEmails(entityData, accountData, countData) {
-    var recipients = [];
-    if (accountData.owner && accountData.owner.email) recipients.push(accountData.owner.email);
-    var users = (accountData.users || {})[entityData.id] || [];
-    users.forEach(function(u) {
-        if (u.email && (u.role === 'General Manager' || u.role === 'Area Manager' || u.role === 'Operations Manager')) {
-            if (recipients.indexOf(u.email) === -1) recipients.push(u.email);
-        }
-    });
-    if (recipients.length === 0) return Promise.resolve();
-    return emailStockCountSubmitted(Object.assign({}, countData, { entityName: entityData.name, recipients: recipients }));
-}
-
-// ============================================================
-// AUTO INVOICE — Runs on the 26th
-// ============================================================
-function checkAutoInvoice(accountData) {
-    if (!accountData || !accountData.owner) return;
-    var now   = new Date();
-    var day   = now.getDate();
-    var month = now.getMonth();
-    var year  = now.getFullYear();
-    if (day !== 26) return;
-    var invoiceKey = 'invoice_' + year + '_' + month;
-    var billing    = accountData.billing || {};
-    if (billing.lastInvoiceSent === invoiceKey) return;
-    var entities       = accountData.entities || [];
-    var activeEntities = entities.filter(function(e) { return e.status !== 'inactive'; });
-    if (activeEntities.length === 0) return;
-    var lastDay       = new Date(year, month + 1, 0).getDate();
-    var invoiceNumber = 'INV-' + year + (month + 1 < 10 ? '0' : '') + (month + 1) + '-' +
-        (accountData.owner.email || '').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
-    var invoiceDate = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
-    var dueDate     = new Date(year, month, lastDay).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
-    emailMonthlyInvoice({
-        invoiceNumber: invoiceNumber, invoiceDate: invoiceDate, dueDate: dueDate,
-        ownerName: accountData.owner.name || 'Customer', ownerEmail: accountData.owner.email,
-        companyName: accountData.owner.groupName || accountData.owner.name || '',
-        companyAddress: accountData.owner.groupAddress || '',
-        entities: activeEntities, isPaid: false
-    });
-    billing.lastInvoiceSent = invoiceKey;
-    return billing;
-}
-
-// ============================================================
-// EVENT FEEDBACK REQUEST
-// ============================================================
-function emailEventFeedbackRequest(data) {
-    var html = emailHeader('How did we do?', 'We would love your feedback on ' + data.eventName) +
-        '<p>Hi ' + data.clientName + ',</p>' +
-        '<p>Thank you for hosting your event with us! We hope everything was perfect.</p>' +
-        emailButton('Rate My Event', 'https://www.stockai-pro.co.za/feedback?id=' + data.id, '#ec4899') +
-        emailFooter();
-    return sendEmail(data.clientEmail, 'Feedback Request: ' + data.eventName, html);
-}
-
-// ============================================================
-// LOG — Confirms file loaded correctly
-// ============================================================
-console.log('✅ email-templates.js loaded successfully');
-console.log('📧 Quote email function ready:', typeof window.sendQuoteEmailToCustomer);
-console.log('📧 Admin notify function ready:', typeof window.sendQuoteNotificationToAdmin);
-console.log('📧 Booking confirm function ready:', typeof window.sendBookingConfirmationToCustomer);
-console.log('📧 Booking admin function ready:', typeof window.sendBookingEmailToAdmin);
-console.log('📧 Daily analysis function ready:', typeof window.sendDailyQuoteAnalysis);
+window.addEventListener('load', function() {
+  console.log('✅ index.html — Fully Loaded');
+  console.log('📧 email-templates.js status:', typeof window.sendQuoteEmailToCustomer === 'function' ? '✅ Loaded correctly' : '❌ NOT LOADED — check file path');
+  console.log('📋 Quote Builder — Active');
+  console.log('📅 Booking System — Active');
+  console.log('🤖 Stocky Bot — Active');
+});
+</script>
+</body>
+</html>
