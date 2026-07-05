@@ -6,6 +6,7 @@
 <title>StockAI-Pro — Owner Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="feature-access.css">
 
 <!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -41,9 +42,9 @@ var auth = firebase.auth();
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
 .hidden{display:none!important}
 
+/* ── HEADER ── */
 .portal-header{background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.15)}
-.portal-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:1.2rem;font-weight:900;letter-spacing:1px}
-.portal-logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.portal-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
 .header-user{display:flex;align-items:center;gap:12px}
 .header-user-name{color:rgba(255,255,255,.9);font-size:.88rem;font-weight:600}
 .header-user-role{color:rgba(255,255,255,.6);font-size:.75rem}
@@ -53,6 +54,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-header.app{background:var(--gold);color:#fff}
 .btn-header.app:hover{background:var(--gold-dark)}
 
+/* ── LOGIN ── */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d4a5c 0%,#1a8ba8 50%,#0d4a5c 100%);padding:40px 20px;position:fixed;inset:0;z-index:9999}
 .login-card{background:#fff;border-radius:24px;padding:48px;width:440px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
 .login-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;margin:0 auto 20px;box-shadow:0 8px 24px rgba(26,139,168,.3)}
@@ -69,6 +71,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,139,168,.4)}
 .btn-forgot{background:none;border:none;color:var(--teal-mid);font-size:.82rem;cursor:pointer;font-family:inherit;margin-top:12px;text-decoration:underline;width:100%}
 
+/* ── PORTAL BODY ── */
 .portal-body{max-width:1200px;margin:0 auto;padding:28px 24px}
 .portal-welcome{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:14px}
 .portal-welcome-text h1{font-size:1.8rem;font-weight:800;color:var(--text-dark)}
@@ -76,6 +79,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .portal-welcome-text p{font-size:.88rem;color:var(--text-light);margin-top:4px}
 .portal-actions{display:flex;gap:10px;flex-wrap:wrap}
 
+/* ── BUTTONS ── */
 .btn-portal{padding:10px 20px;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit;transition:.3s;border:none}
 .btn-portal.primary{background:var(--teal-mid);color:#fff}
 .btn-portal.primary:hover{background:var(--teal-dark);transform:translateY(-2px)}
@@ -89,6 +93,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .btn-portal.danger:hover{background:#a83232}
 .btn-portal.small{padding:7px 14px;font-size:.80rem}
 
+/* ── STATS ── */
 .portal-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
 .portal-stat{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--teal-mid);transition:.3s}
 .portal-stat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
@@ -99,12 +104,14 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .portal-stat.red{border-left-color:var(--danger)}
 .portal-stat.blue{border-left-color:var(--info)}
 
+/* ── SECTIONS ── */
 .portal-section{background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;position:relative}
 .portal-section::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:4px;background:var(--teal-mid);border-radius:0 4px 4px 0}
 .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-left:12px}
 .section-title h3{font-size:1.05rem;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:8px}
 .section-title h3 i{color:var(--teal-mid)}
 
+/* ── ENTITY CARDS ── */
 .entity-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
 .entity-card{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius);padding:22px;transition:.3s;position:relative;overflow:hidden}
 .entity-card:hover{border-color:var(--teal-mid);box-shadow:var(--shadow)}
@@ -125,6 +132,8 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .section-tag{padding:3px 8px;background:rgba(26,139,168,.08);color:var(--teal-mid);border-radius:6px;font-size:.68rem;font-weight:600}
 .entity-card-footer{display:flex;gap:8px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--border-light)}
 .entity-card-footer button{flex:1;min-width:80px}
+
+/* ── BANNERS ── */
 .inactive-banner{background:linear-gradient(135deg,rgba(201,69,69,.08),rgba(201,69,69,.04));border:1px solid rgba(201,69,69,.2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .inactive-banner i{color:var(--danger);font-size:1.1rem;flex-shrink:0}
 .inactive-banner-text{flex:1}
@@ -135,6 +144,36 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .active-banner-text strong{display:block;font-size:.85rem;color:var(--success);margin-bottom:2px}
 .active-banner-text span{font-size:.75rem;color:var(--text-mid)}
 
+/* ── FEATURE PANEL (inside entity card modal) ── */
+.feature-panel{background:#0f4d62;border-radius:14px;padding:22px;margin-top:20px;border:1px solid #1a5a6e}
+.feature-panel-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.feature-panel-title h4{font-size:.95rem;font-weight:700;color:#e0f4f8;display:flex;align-items:center;gap:8px}
+.feature-panel-title h4 i{color:#4dbdd5}
+.feature-panel-subtitle{font-size:.78rem;color:#7bb8c8}
+.feature-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0d3d4f;border-radius:10px;border:1px solid #1a5a6e;transition:.3s}
+.feature-row.always-on{border-color:#2ea871}
+.feature-row-left{display:flex;align-items:center;gap:10px}
+.feature-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0}
+.feature-icon.teal{background:linear-gradient(135deg,#1a8ba8,#0d4a5c)}
+.feature-icon.green{background:linear-gradient(135deg,#2ea871,#1a7a4a)}
+.feature-icon.gold{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.feature-name{font-size:.88rem;font-weight:700;color:#e0f4f8}
+.feature-price{font-size:.72rem;color:#7bb8c8}
+.feature-row-right{display:flex;align-items:center;gap:10px}
+.feature-status{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:8px}
+.feature-status.always{background:rgba(46,168,113,.15);color:#2ea871}
+.feature-status.active{background:rgba(46,168,113,.15);color:#2ea871}
+.feature-status.inactive{background:rgba(201,69,69,.15);color:#c94545}
+.feature-btn{padding:8px 16px;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s ease}
+.feature-btn.disable{background:rgba(201,69,69,.2);color:#c94545;border:1px solid rgba(201,69,69,.3)}
+.feature-btn.enable{background:rgba(46,168,113,.2);color:#2ea871;border:1px solid rgba(46,168,113,.3)}
+.feature-total-bar{background:#0b3344;border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:16px}
+.feature-total-label{font-size:.85rem;color:#a8d8e8;font-weight:600}
+.feature-total-label i{margin-right:6px;color:#4dbdd5}
+.feature-total-amount{font-size:1.2rem;font-weight:900;color:#f59e0b}
+.feature-save-msg{display:none;margin-top:12px;padding:10px 14px;background:rgba(46,168,113,.15);border:1px solid rgba(46,168,113,.3);border-radius:8px;font-size:.82rem;color:#2ea871;font-weight:600;text-align:center}
+
+/* ── PLAN CARDS ── */
 .plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
 .plan-card{padding:18px;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:.3s;position:relative}
 .plan-card:hover{border-color:var(--teal-mid);background:var(--bg)}
@@ -147,6 +186,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .plan-card .plan-features li{list-style:none;display:flex;align-items:center;gap:5px}
 .plan-card .plan-features li::before{content:'✓';color:var(--success);font-weight:700}
 
+/* ── BILLING TABLE ── */
 .billing-table{width:100%;border-collapse:collapse}
 .billing-table th{padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;color:var(--text-mid);background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 .billing-table td{padding:11px 14px;font-size:.85rem;color:var(--text-dark);border-bottom:1px solid var(--border-light)}
@@ -156,11 +196,13 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .badge.pending{background:rgba(212,160,23,.12);color:var(--warning)}
 .badge.overdue{background:rgba(201,69,69,.12);color:var(--danger)}
 
+/* ── PROFILE ── */
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .profile-field{display:flex;flex-direction:column;gap:4px}
 .profile-field label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .profile-field span{font-size:.9rem;color:var(--text-dark);font-weight:600;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border-light)}
 
+/* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:#fff;border-radius:var(--radius);width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modIn .3s ease}
 @keyframes modIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -171,6 +213,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .modal-body{padding:22px 24px}
 .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
 
+/* ── FORMS ── */
 .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
 .form-field{display:flex;flex-direction:column;gap:5px}
 .form-field.full{grid-column:1/-1}
@@ -178,25 +221,36 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 .form-field input,.form-field select,.form-field textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dark);font-size:.9rem;font-family:inherit}
 .form-field input:focus,.form-field select:focus{outline:none;border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(26,139,168,.1)}
 
+/* ── SECTIONS GRID ── */
 .sections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
 .section-check{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;transition:.2s}
 .section-check:hover{border-color:var(--teal-mid)}
 .section-check input{accent-color:var(--teal-mid);width:15px;height:15px}
 .section-check span{font-size:.82rem;color:var(--text-dark)}
 
+/* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:48px 24px}
 .empty-state i{font-size:3rem;color:var(--border);margin-bottom:16px;display:block}
 .empty-state h3{font-size:1.1rem;color:var(--text-mid);margin-bottom:8px}
 .empty-state p{font-size:.85rem;color:var(--text-light);max-width:400px;margin:0 auto 20px}
 
+/* ── TOASTS ── */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px}
 .toast{background:#fff;padding:12px 18px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;min-width:280px;animation:tIn .3s ease;border-left:4px solid var(--teal-mid)}
 @keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-.toast.success{border-left-color:var(--success)}.toast.error{border-left-color:var(--danger)}.toast.info{border-left-color:var(--info)}.toast.warning{border-left-color:var(--warning)}
-.toast i{font-size:1rem}.toast.success i{color:var(--success)}.toast.error i{color:var(--danger)}.toast.info i{color:var(--info)}.toast.warning i{color:var(--warning)}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.info{border-left-color:var(--info)}
+.toast.warning{border-left-color:var(--warning)}
+.toast i{font-size:1rem}
+.toast.success i{color:var(--success)}
+.toast.error i{color:var(--danger)}
+.toast.info i{color:var(--info)}
+.toast.warning i{color:var(--warning)}
 .toast span{flex:1;font-size:.88rem;color:var(--text-dark)}
 .toast button{background:none;border:none;color:var(--text-muted);cursor:pointer}
 
+/* ── RESPONSIVE ── */
 @media(max-width:768px){
     .portal-welcome{flex-direction:column}
     .portal-actions{width:100%}
@@ -214,90 +268,180 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 </style>
 </head>
 <body>
+
 <!-- ============ LOGIN SCREEN ============ -->
 <div id="login-screen" class="login-screen">
 <div class="login-card">
-<div class="login-logo"><i class="fas fa-chart-line"></i></div>
-<h2>STOCKAI-PRO</h2>
-<p class="sub">Owner Portal</p>
-<p class="sub2"><i class="fas fa-shield-alt"></i> Manage your entities, billing & account</p>
-<form id="login-form" onsubmit="portalLogin(event)">
-    <div class="login-field">
-        <label>Email Address</label>
-        <input type="email" id="login-email" placeholder="owner@email.com" required>
+    <div class="login-logo"><i class="fas fa-chart-line"></i></div>
+    <h2>STOCKAI-PRO</h2>
+    <p class="sub">Owner Portal</p>
+    <p class="sub2"><i class="fas fa-shield-alt"></i> Manage your entities, billing & account</p>
+    <form id="login-form" onsubmit="portalLogin(event)">
+        <div class="login-field">
+            <label>Email Address</label>
+            <input type="email" id="login-email" placeholder="owner@email.com" required>
+        </div>
+        <div class="login-field">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password" required>
+        </div>
+        <div class="login-error" id="login-error"></div>
+        <div class="login-loading" id="login-loading"><i class="fas fa-spinner fa-spin"></i> Signing in...</div>
+        <button type="submit" class="btn-login">Log In to Portal</button>
+        <button type="button" class="btn-forgot" onclick="portalForgotPassword()">Forgot Password?</button>
+    </form>
+    <a href="hub.html" style="display:block;text-align:center;margin-top:14px;padding:12px;background:transparent;color:var(--teal-mid);font-size:.85rem;font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:var(--radius-sm);transition:.3s">
+        <i class="fas fa-arrow-left"></i> Back to Hub
+    </a>
+    <div style="margin-top:20px;font-size:.78rem;color:var(--text-light)">
+        <p>Need an account? Contact your administrator.</p>
+        <p style="margin-top:6px">
+            <a href="app.html" style="color:var(--teal-mid);text-decoration:none;font-weight:600">
+                <i class="fas fa-arrow-left"></i> Back to App
+            </a>
+        </p>
     </div>
-    <div class="login-field">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="Enter your password" required>
-    </div>
-    <div class="login-error" id="login-error"></div>
-    <div class="login-loading" id="login-loading"><i class="fas fa-spinner fa-spin"></i> Signing in...</div>
-    <button type="submit" class="btn-login">Log In to Portal</button>
-    <button type="button" class="btn-forgot" onclick="portalForgotPassword()">Forgot Password?</button>
-</form>
-<a href="hub.html" style="display:block;text-align:center;margin-top:14px;padding:12px;background:transparent;color:var(--teal-mid);font-size:.85rem;font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:var(--radius-sm);transition:.3s"><i class="fas fa-arrow-left"></i> Back to Hub</a>
-<div style="margin-top:20px;font-size:.78rem;color:var(--text-light)">
-    <p>Need an account? Contact your administrator.</p>
-    <p style="margin-top:6px"><a href="app.html" style="color:var(--teal-mid);text-decoration:none;font-weight:600"><i class="fas fa-arrow-left"></i> Back to App</a></p>
-</div>
 </div>
 </div>
 
 <!-- ============ PORTAL DASHBOARD ============ -->
 <div id="portal-dashboard" class="hidden">
 
-<!-- HEADER -->
-<header class="portal-header">
-    <a class="portal-logo" href="#">
-        <div class="portal-logo-icon"><i class="fas fa-chart-line"></i></div>
-        STOCKAI-PRO <span style="font-size:.7rem;font-weight:400;opacity:.7;margin-left:4px">Portal</span>
-    </a>
-    <div class="header-user">
-        <div style="text-align:right;margin-right:10px">
-            <div class="header-user-name" id="header-owner-name">Owner</div>
-            <div class="header-user-role" id="header-group-name">Group</div>
+    <!-- HEADER -->
+    <header class="portal-header">
+        <a class="portal-logo" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="38">
+                <defs>
+                    <linearGradient id="cpAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+                        <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
+                        <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
+                    </linearGradient>
+                    <linearGradient id="cpStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+                        <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
+                        <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
+                    </linearGradient>
+                    <linearGradient id="cpUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
+                        <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
+                        <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
+                        <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
+                        <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
+                    </linearGradient>
+                    <filter id="cpGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="cpGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="cpGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <g transform="translate(225,22)">
+                    <circle cx="55" cy="52" r="48" fill="#5EEAD4" opacity="0.06" filter="url(#cpGlowLarge)"/>
+                    <g opacity="0.5">
+                        <polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#2DD4BF" stroke-width="1.5"/>
+                        <polygon points="55,16 85,31 55,46 25,31" fill="#2DD4BF" opacity="0.14"/>
+                    </g>
+                    <g filter="url(#cpGlowSoft)">
+                        <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/>
+                        <polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/>
+                        <polygon points="55,56 80,43 80,68 55,81" fill="#14B8A6" opacity="0.16"/>
+                        <polygon points="55,56 30,43 30,68 55,81" fill="#2DD4BF" opacity="0.10"/>
+                    </g>
+                    <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/>
+                    <circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/>
+                    <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#cpGlowMed)" opacity="0.95"/>
+                    <line x1="55" y1="49" x2="55" y2="22" stroke="#5EEAD4" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/>
+                    <circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#cpGlowSoft)"/>
+                    <line x1="62" y1="53" x2="88" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
+                    <circle cx="90" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#cpGlowSoft)"/>
+                    <line x1="48" y1="53" x2="22" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
+                    <circle cx="20" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#cpGlowSoft)"/>
+                    <line x1="48" y1="63" x2="25" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/>
+                    <circle cx="23" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#cpGlowSoft)"/>
+                    <line x1="62" y1="63" x2="85" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/>
+                    <circle cx="87" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#cpGlowSoft)"/>
+                    <g filter="url(#cpGlowMed)">
+                        <circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/>
+                        <circle cx="75" cy="24" r="0.9" fill="#5EEAD4" opacity="0.55"/>
+                        <circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/>
+                        <circle cx="20" cy="56" r="0.9" fill="#5EEAD4" opacity="0.45"/>
+                        <circle cx="55" cy="91" r="1" fill="#2DD4BF" opacity="0.35"/>
+                    </g>
+                    <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#cpUnderlineGrad)" opacity="0.55" filter="url(#cpGlowSoft)"/>
+                </g>
+                <g>
+                    <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs"
+                        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
+                        <tspan fill="url(#cpStockGrad)" font-weight="900">Stock</tspan>
+                        <tspan fill="url(#cpAiGrad)" font-weight="900">AI</tspan>
+                        <tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
+                    </text>
+                    <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#cpUnderlineGrad)" filter="url(#cpGlowMed)" opacity="0.85"/>
+                    <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+                        font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">
+                        INTELLIGENCE A CLICK AWAY
+                    </text>
+                </g>
+            </svg>
+        </a>
+        <div class="header-user">
+            <div style="text-align:right;margin-right:10px">
+                <div class="header-user-name" id="header-owner-name">Owner</div>
+                <div class="header-user-role" id="header-group-name">Group</div>
+            </div>
+            <button class="btn-header app" onclick="openWebApp()"><i class="fas fa-external-link-alt"></i> Open App</button>
+            <button class="btn-header logout" onclick="portalLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
-        <button class="btn-header app" onclick="openWebApp()"><i class="fas fa-external-link-alt"></i> Open App</button>
-        <button class="btn-header logout" onclick="portalLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </header>
+
+    <!-- BODY -->
+    <div class="portal-body">
+
+        <!-- WELCOME -->
+        <div class="portal-welcome">
+            <div class="portal-welcome-text">
+                <h1>Welcome, <span id="welcome-name">Owner</span></h1>
+                <p id="welcome-group">Manage your entities, billing, and account settings</p>
+            </div>
+            <div class="portal-actions">
+                <button class="btn-portal primary" onclick="showCreateEntityModal()">
+                    <i class="fas fa-plus-circle"></i> Add New Entity
+                </button>
+                <button class="btn-portal outline" onclick="showProfileSection()">
+                    <i class="fas fa-user-cog"></i> My Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="portal-stats" id="portal-stats"></div>
+
+        <!-- ENTITIES SECTION -->
+        <div class="portal-section" id="entities-section">
+            <div class="section-title">
+                <h3><i class="fas fa-building"></i> Your Entities</h3>
+                <button class="btn-portal primary small" onclick="showCreateEntityModal()">
+                    <i class="fas fa-plus"></i> Add Entity
+                </button>
+            </div>
+            <div class="entity-cards" id="entity-cards-container"></div>
+        </div>
+
+        <!-- BILLING SECTION -->
+        <div class="portal-section" id="billing-section">
+            <div class="section-title">
+                <h3><i class="fas fa-file-invoice-dollar"></i> Billing & Invoices</h3>
+                <div style="display:flex;gap:8px">
+                    <button class="btn-portal outline small" onclick="viewPortalStatement()">
+                        <i class="fas fa-file-alt"></i> Statement
+                    </button>
+                    <button class="btn-portal outline small" onclick="viewPortalInvoice()">
+                        <i class="fas fa-file-invoice"></i> Invoice
+                    </button>
+                </div>
+            </div>
+            <div id="billing-content"></div>
+        </div>
+
     </div>
-</header>
-
-<!-- BODY -->
-<div class="portal-body">
-
-    <!-- WELCOME -->
-    <div class="portal-welcome">
-        <div class="portal-welcome-text">
-            <h1>Welcome, <span id="welcome-name">Owner</span></h1>
-            <p id="welcome-group">Manage your entities, billing, and account settings</p>
-        </div>
-        <div class="portal-actions">
-            <button class="btn-portal primary" onclick="showCreateEntityModal()"><i class="fas fa-plus-circle"></i> Add New Entity</button>
-            <button class="btn-portal outline" onclick="showProfileSection()"><i class="fas fa-user-cog"></i> My Profile</button>
-        </div>
-    </div>
-
-    <!-- STATS -->
-    <div class="portal-stats" id="portal-stats"></div>
-
-    <!-- ENTITIES SECTION -->
-    <div class="portal-section" id="entities-section">
-        <div class="section-title">
-            <h3><i class="fas fa-building"></i> Your Entities</h3>
-            <button class="btn-portal primary small" onclick="showCreateEntityModal()"><i class="fas fa-plus"></i> Add Entity</button>
-        </div>
-        <div class="entity-cards" id="entity-cards-container"></div>
-    </div>
-
-    <!-- BILLING SECTION -->
-    <div class="portal-section" id="billing-section">
-        <div class="section-title">
-            <h3><i class="fas fa-file-invoice-dollar"></i> Billing & Invoices</h3>
-        </div>
-        <div id="billing-content"></div>
-    </div>
-
-</div>
 </div>
 
 <!-- MODAL CONTAINER -->
@@ -307,11 +451,16 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 <div id="toast-wrap" class="toast-wrap"></div>
 
 <!-- WHATSAPP BUTTON -->
-<button onclick="openWhatsApp()" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;background:linear-gradient(135deg,#25d366,#128c7e);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.4);z-index:9000;border:none;transition:.3s">
+<button onclick="openWhatsApp()"
+    style="position:fixed;bottom:24px;left:24px;width:60px;height:60px;background:linear-gradient(135deg,#25d366,#128c7e);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.4);z-index:9000;border:none;transition:.3s"
+    title="WhatsApp Support">
     <i class="fab fa-whatsapp"></i>
 </button>
+
 <script>
-// ============ PORTAL STATE ============
+// ============================================================
+// PORTAL STATE
+// ============================================================
 var P = {
     user: null,
     owner: null,
@@ -321,7 +470,7 @@ var P = {
     accountData: null
 };
 
-// Master account check
+// ── Master account check ──
 function isMasterPortal() {
     return P.user && P.user.email &&
         P.user.email.toLowerCase() === 'cidraism@gmail.com';
@@ -331,23 +480,75 @@ function getPortalMaxEntities() {
     if (isMasterPortal()) return 9999;
     var plan = (P.billing || {}).planName || 'Premium';
     if (plan.includes('Exclusive')) return 9999;
-    if (plan.includes('Plus'))      return 5;
+    if (plan.includes('Plus')) return 5;
     return 1;
 }
+
+// ── Plan Data ──
 var PLAN_DATA = {
-    starter: { name: 'Starter', price: 499, features: ['1 entity', '3 users', 'Basic features', 'Email support'] },
-    professional: { name: 'Professional', price: 899, features: ['Up to 3 entities', 'Unlimited users', 'AI features', 'WhatsApp support'] },
-    enterprise: { name: 'Enterprise', price: 1499, features: ['Unlimited entities', 'Global View', 'POS + Accounting', 'Phone support'] }
+    starter:      { name: 'Starter',      price: 499,  features: ['1 entity', '3 users', 'Basic features', 'Email support'] },
+    professional: { name: 'Professional', price: 899,  features: ['Up to 3 entities', 'Unlimited users', 'AI features', 'WhatsApp support'] },
+    enterprise:   { name: 'Enterprise',   price: 1499, features: ['Unlimited entities', 'Global View', 'POS + Accounting', 'Phone support'] }
 };
 
 var selectedPlan = 'professional';
 
-// ============ LOGIN ============
+// ── Feature Pricing ──
+var FEATURE_PRICES = {
+    web_boh:      799,
+    mobile_app:   349,
+    procure_ai:   399,
+    pos_system:   799,
+    menu_master:  349,
+    functions_ai: 449
+};
+
+var FEATURE_NAMES = {
+    web_boh:      'Web App B.O.H',
+    mobile_app:   'Mobile App',
+    procure_ai:   'ProcureAI App',
+    pos_system:   'P.O.S System',
+    menu_master:  'Menu Master',
+    functions_ai: 'FunctionsAI'
+};
+
+// ============================================================
+// BILLING — PRICING MODEL
+// ============================================================
+var PORTAL_PRICING = {
+    baseFee:   799,
+    entityFee: 599,
+    vatRate:   0.15
+};
+
+function calcPortalBilling() {
+    var activeEntities = P.entities.filter(function(e) {
+        return e.status !== 'inactive';
+    });
+    var base      = PORTAL_PRICING.baseFee;
+    var entities  = activeEntities.length * PORTAL_PRICING.entityFee;
+    var totalIncl = base + entities;
+    var totalExcl = parseFloat((totalIncl / (1 + PORTAL_PRICING.vatRate)).toFixed(2));
+    var vat       = parseFloat((totalIncl - totalExcl).toFixed(2));
+    return {
+        activeCount: activeEntities.length,
+        baseFee:     base,
+        entityTotal: entities,
+        totalIncl:   totalIncl,
+        totalExcl:   totalExcl,
+        vat:         vat,
+        entities:    activeEntities
+    };
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
 function portalLogin(e) {
     if (e) e.preventDefault();
-    var email = document.getElementById('login-email').value.trim();
-    var password = document.getElementById('login-password').value;
-    var errorDiv = document.getElementById('login-error');
+    var email      = document.getElementById('login-email').value.trim();
+    var password   = document.getElementById('login-password').value;
+    var errorDiv   = document.getElementById('login-error');
     var loadingDiv = document.getElementById('login-loading');
 
     if (errorDiv) errorDiv.style.display = 'none';
@@ -361,7 +562,8 @@ function portalLogin(e) {
                     var found = null;
                     snapshot.forEach(function(doc) {
                         var data = doc.data();
-                        if (data.owner && data.owner.email && data.owner.email.toLowerCase() === email.toLowerCase()) {
+                        if (data.owner && data.owner.email &&
+                            data.owner.email.toLowerCase() === email.toLowerCase()) {
                             found = { id: doc.id, data: data };
                         }
                     });
@@ -370,26 +572,26 @@ function portalLogin(e) {
         })
         .then(function(result) {
             if (loadingDiv) loadingDiv.style.display = 'none';
-
             if (!result) {
                 showLoginError('No owner account found for this email. Contact your administrator.');
                 auth.signOut();
                 return;
             }
 
-            P.accountId = result.id;
+            P.accountId  = result.id;
             P.accountData = result.data;
-            P.owner = result.data.owner || {};
-            P.entities = result.data.entities || [];
-            P.billing = result.data.billing || null;
-            P.user = {
+            P.owner      = result.data.owner || {};
+            P.entities   = result.data.entities || [];
+            P.billing    = result.data.billing || null;
+            P.user       = {
                 email: email,
-                name: P.owner.name || 'Owner',
-                uid: auth.currentUser ? auth.currentUser.uid : ''
+                name:  P.owner.name || 'Owner',
+                uid:   auth.currentUser ? auth.currentUser.uid : ''
             };
 
             if (result.data.accountStatus === 'suspended') {
-                showLoginError('Your account has been suspended. Reason: ' + (result.data.suspendedReason || 'Contact support.'));
+                showLoginError('Your account has been suspended. Reason: ' +
+                    (result.data.suspendedReason || 'Contact support.'));
                 auth.signOut();
                 return;
             }
@@ -403,11 +605,11 @@ function portalLogin(e) {
         .catch(function(error) {
             if (loadingDiv) loadingDiv.style.display = 'none';
             var message = 'Login failed. Please try again.';
-            if (error.code === 'auth/user-not-found') message = 'Email address not found.';
-            if (error.code === 'auth/wrong-password') message = 'Incorrect password.';
-            if (error.code === 'auth/invalid-email') message = 'Invalid email address.';
-            if (error.code === 'auth/invalid-credential') message = 'Invalid email or password.';
-            if (error.code === 'auth/too-many-requests') message = 'Too many attempts. Try again later.';
+            if (error.code === 'auth/user-not-found')      message = 'Email address not found.';
+            if (error.code === 'auth/wrong-password')       message = 'Incorrect password.';
+            if (error.code === 'auth/invalid-email')        message = 'Invalid email address.';
+            if (error.code === 'auth/invalid-credential')   message = 'Invalid email or password.';
+            if (error.code === 'auth/too-many-requests')    message = 'Too many attempts. Try again later.';
             showLoginError(message);
         });
 }
@@ -428,7 +630,8 @@ function portalForgotPassword() {
 function portalLogout() {
     stopPortalSync();
     auth.signOut().then(function() {
-        P.user = null; P.owner = null; P.entities = []; P.accountId = null; P.accountData = null;
+        P.user = null; P.owner = null; P.entities = [];
+        P.accountId = null; P.accountData = null;
         document.getElementById('portal-dashboard').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
         showToast('info', 'Logged out successfully');
@@ -438,7 +641,9 @@ function portalLogout() {
     });
 }
 
-// ============ REAL-TIME SYNC ============
+// ============================================================
+// REAL-TIME SYNC
+// ============================================================
 var portalSyncListener = null;
 
 function startPortalSync() {
@@ -447,11 +652,11 @@ function startPortalSync() {
     portalSyncListener = db.collection('accounts').doc(P.accountId)
         .onSnapshot(function(doc) {
             if (!doc.exists) return;
-            var data = doc.data();
+            var data     = doc.data();
             P.accountData = data;
-            P.owner = data.owner || {};
-            P.entities = data.entities || [];
-            P.billing = data.billing || null;
+            P.owner      = data.owner || {};
+            P.entities   = data.entities || [];
+            P.billing    = data.billing || null;
             renderPortal();
         }, function(err) {
             console.warn('Portal sync error:', err);
@@ -465,17 +670,24 @@ function stopPortalSync() {
     }
 }
 
-// ============ SAVE TO FIREBASE ============
+// ============================================================
+// SAVE TO FIREBASE
+// ============================================================
 function savePortalData(updateObj) {
     if (!P.accountId) return;
-    updateObj.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+    updateObj.lastUpdated   = firebase.firestore.FieldValue.serverTimestamp();
     updateObj.lastUpdatedBy = P.user ? P.user.name : 'Portal';
     db.collection('accounts').doc(P.accountId).update(updateObj)
         .then(function() { console.log('☁️ Portal saved'); })
-        .catch(function(err) { console.warn('Portal save error:', err); showToast('error', 'Save failed: ' + err.message); });
+        .catch(function(err) {
+            console.warn('Portal save error:', err);
+            showToast('error', 'Save failed: ' + err.message);
+        });
 }
 
-// ============ RENDER PORTAL ============
+// ============================================================
+// RENDER PORTAL
+// ============================================================
 function renderPortal() {
     renderHeader();
     renderStats();
@@ -484,12 +696,12 @@ function renderPortal() {
 }
 
 function renderHeader() {
-    var nameEl = document.getElementById('header-owner-name');
-    var groupEl = document.getElementById('header-group-name');
+    var nameEl      = document.getElementById('header-owner-name');
+    var groupEl     = document.getElementById('header-group-name');
     var welcomeName = document.getElementById('welcome-name');
     var welcomeGroup = document.getElementById('welcome-group');
-    if (nameEl) nameEl.textContent = P.owner.name || 'Owner';
-    if (groupEl) groupEl.textContent = P.owner.groupName || 'Owner Portal';
+    if (nameEl)      nameEl.textContent  = P.owner.name || 'Owner';
+    if (groupEl)     groupEl.textContent = P.owner.groupName || 'Owner Portal';
     if (welcomeName) welcomeName.textContent = P.owner.name || 'Owner';
     if (welcomeGroup) welcomeGroup.textContent = P.owner.groupName ?
         P.owner.groupName + ' — ' + P.entities.length + ' entit' + (P.entities.length === 1 ? 'y' : 'ies') :
@@ -499,18 +711,21 @@ function renderHeader() {
 function renderStats() {
     var container = document.getElementById('portal-stats');
     if (!container) return;
-    var activeCount = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; }).length;
+    var activeCount   = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; }).length;
     var inactiveCount = P.entities.length - activeCount;
-    var planPrices = { starter: 499, professional: 899, enterprise: 1499 };
-    var monthlyTotal = 0;
+    var planPrices    = { starter: 499, professional: 899, enterprise: 1499 };
+    var monthlyTotal  = 0;
+
     P.entities.forEach(function(ent) {
         if (ent.status !== 'inactive' && ent.paymentStatus !== 'unpaid') {
             monthlyTotal += planPrices[ent.plan] || 899;
         }
     });
+
     var billingStatus = P.billing ? P.billing.status : 'current';
-    var statusColor = billingStatus === 'current' ? 'green' : billingStatus === 'due_soon' ? 'gold' : 'red';
-    var statusText = billingStatus === 'current' ? 'Current' : billingStatus === 'due_soon' ? 'Due Soon' : 'Overdue';
+    var statusColor   = billingStatus === 'current' ? 'green' : billingStatus === 'due_soon' ? 'gold' : 'red';
+    var statusText    = billingStatus === 'current' ? 'Current' : billingStatus === 'due_soon' ? 'Due Soon' : 'Overdue';
+
     container.innerHTML =
         '<div class="portal-stat"><small>Total Entities</small><strong>' + P.entities.length + '</strong></div>' +
         '<div class="portal-stat green"><small>Active</small><strong>' + activeCount + '</strong></div>' +
@@ -519,6 +734,9 @@ function renderStats() {
         '<div class="portal-stat ' + statusColor + '"><small>Billing Status</small><strong>' + statusText + '</strong></div>';
 }
 
+// ============================================================
+// ENTITY CARDS
+// ============================================================
 function renderEntityCards() {
     var container = document.getElementById('entity-cards-container');
     if (!container) return;
@@ -529,55 +747,58 @@ function renderEntityCards() {
                 '<i class="fas fa-building"></i>' +
                 '<h3>No Entities Yet</h3>' +
                 '<p>Create your first entity to get started.</p>' +
-                '<button class="btn-portal primary" onclick="showCreateEntityModal()"><i class="fas fa-plus-circle"></i> Create First Entity</button>' +
+                '<button class="btn-portal primary" onclick="showCreateEntityModal()">' +
+                    '<i class="fas fa-plus-circle"></i> Create First Entity' +
+                '</button>' +
             '</div>';
         return;
     }
 
     var planPrices = { starter: 499, professional: 899, enterprise: 1499 };
-    var planNames = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
+    var planNames  = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
 
     container.innerHTML = P.entities.map(function(ent, idx) {
-        var isActive = ent.status !== 'inactive' && ent.paymentStatus !== 'unpaid';
-        var planName = planNames[ent.plan] || 'Professional';
+        var isActive  = ent.status !== 'inactive' && ent.paymentStatus !== 'unpaid';
+        var planName  = planNames[ent.plan] || 'Professional';
         var planPrice = planPrices[ent.plan] || 899;
         var cardClass = isActive ? 'active' : 'inactive';
-        var statusBanner = '';
 
-        if (isActive) {
-            statusBanner =
-                '<div class="active-banner">' +
-                    '<i class="fas fa-check-circle"></i>' +
-                    '<div class="active-banner-text">' +
-                        '<strong>Active — ' + planName + ' Plan</strong>' +
-                        '<span>R' + planPrice.toLocaleString() + '/month</span>' +
-                    '</div>' +
-                '</div>';
-        } else {
-            statusBanner =
-                '<div class="inactive-banner">' +
-                    '<i class="fas fa-exclamation-circle"></i>' +
-                    '<div class="inactive-banner-text">' +
-                        '<strong>Inactive — Payment Required</strong>' +
-                        '<span>This entity needs to be activated before it can be used.</span>' +
-                    '</div>' +
-                '</div>';
-        }
+        // ── Status Banner ──
+        var statusBanner = isActive
+            ? '<div class="active-banner">' +
+                '<i class="fas fa-check-circle"></i>' +
+                '<div class="active-banner-text">' +
+                    '<strong>Active — ' + planName + ' Plan</strong>' +
+                    '<span>R' + planPrice.toLocaleString() + '/month</span>' +
+                '</div>' +
+              '</div>'
+            : '<div class="inactive-banner">' +
+                '<i class="fas fa-exclamation-circle"></i>' +
+                '<div class="inactive-banner-text">' +
+                    '<strong>Inactive — Payment Required</strong>' +
+                    '<span>This entity needs to be activated before it can be used.</span>' +
+                '</div>' +
+              '</div>';
 
+        // ── Section Tags ──
         var sectionsHtml = (ent.sections || []).map(function(s) {
             return '<span class="section-tag">' + s + '</span>';
         }).join('');
 
-        var footerButtons = '';
-        if (isActive) {
-            footerButtons =
-                '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>' +
-                '<button class="btn-portal outline small" onclick="showChangePlanModal(' + idx + ')"><i class="fas fa-exchange-alt"></i> Change Plan</button>';
-        } else {
-            footerButtons =
-                '<button class="btn-portal success small" onclick="showActivateModal(' + idx + ')"><i class="fas fa-bolt"></i> Activate & Pay</button>' +
-                '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>';
-        }
+        // ── Feature Summary (show active features if any) ──
+        var entFeatures    = ent.features || ['web_boh'];
+        var featureSummary = entFeatures.map(function(f) {
+            return '<span style="padding:2px 8px;background:rgba(77,189,213,.12);color:var(--teal-mid);border-radius:6px;font-size:.68rem;font-weight:600">' +
+                (FEATURE_NAMES[f] || f) + '</span>';
+        }).join('');
+
+        // ── Footer Buttons ──
+        var footerButtons = isActive
+            ? '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>' +
+              '<button class="btn-portal outline small" onclick="showChangePlanModal(' + idx + ')"><i class="fas fa-exchange-alt"></i> Plan</button>' +
+              '<button class="btn-portal primary small" onclick="showManageFeaturesModal(' + idx + ')"><i class="fas fa-puzzle-piece"></i> Features</button>'
+            : '<button class="btn-portal success small" onclick="showActivateModal(' + idx + ')"><i class="fas fa-bolt"></i> Activate</button>' +
+              '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>';
 
         return '<div class="entity-card ' + cardClass + '">' +
             '<div class="entity-card-header">' +
@@ -586,7 +807,12 @@ function renderEntityCards() {
                     '<div class="entity-card-name">' + (ent.name || 'Unnamed Entity') + '</div>' +
                     '<div class="entity-card-contact">' + (ent.contact || '') + '</div>' +
                 '</div>' +
-                '<div style="margin-left:auto"><span class="status-pill ' + (isActive ? 'active' : 'inactive') + '"><i class="fas fa-' + (isActive ? 'check-circle' : 'ban') + '"></i> ' + (isActive ? 'Active' : 'Inactive') + '</span></div>' +
+                '<div style="margin-left:auto">' +
+                    '<span class="status-pill ' + (isActive ? 'active' : 'inactive') + '">' +
+                        '<i class="fas fa-' + (isActive ? 'check-circle' : 'ban') + '"></i> ' +
+                        (isActive ? 'Active' : 'Inactive') +
+                    '</span>' +
+                '</div>' +
             '</div>' +
             statusBanner +
             '<div class="entity-details-grid">' +
@@ -598,50 +824,276 @@ function renderEntityCards() {
                 '<div class="entity-detail"><span class="entity-detail-label">Address</span><span class="entity-detail-value">' + (ent.address || '—') + '</span></div>' +
             '</div>' +
             (sectionsHtml ? '<div style="margin-bottom:10px"><span style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:6px">STOCK SECTIONS</span><div class="entity-sections">' + sectionsHtml + '</div></div>' : '') +
+            (isActive ? '<div style="margin-bottom:10px"><span style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:6px">ACTIVE FEATURES</span><div style="display:flex;flex-wrap:wrap;gap:4px">' + featureSummary + '</div></div>' : '') +
             '<div class="entity-card-footer">' + footerButtons + '</div>' +
         '</div>';
     }).join('');
 }
 
 // ============================================================
-// BILLING — NEW PRICING MODEL
+// MANAGE FEATURES MODAL
 // ============================================================
-var PORTAL_PRICING = {
-    baseFee:   799,    // incl. VAT
-    entityFee: 599,    // incl. VAT per entity
-    vatRate:   0.15
-};
+function showManageFeaturesModal(idx) {
+    var ent = P.entities[idx];
+    if (!ent) return;
 
-function calcPortalBilling() {
-    var activeEntities = P.entities.filter(function(e) {
-        return e.status !== 'inactive';
-    });
-    var base       = PORTAL_PRICING.baseFee;
-    var entities   = activeEntities.length * PORTAL_PRICING.entityFee;
-    var totalIncl  = base + entities;
-    var totalExcl  = parseFloat((totalIncl / (1 + PORTAL_PRICING.vatRate)).toFixed(2));
-    var vat        = parseFloat((totalIncl - totalExcl).toFixed(2));
+    // Ensure web_boh is always in features
+    var entFeatures = ent.features ? ent.features.slice() : ['web_boh'];
+    if (entFeatures.indexOf('web_boh') === -1) entFeatures.unshift('web_boh');
 
-    return {
-        activeCount: activeEntities.length,
-        baseFee:     base,
-        entityTotal: entities,
-        totalIncl:   totalIncl,
-        totalExcl:   totalExcl,
-        vat:         vat,
-        entities:    activeEntities
-    };
+    // Calculate current monthly total for this entity
+    function calcFeatureTotal(features) {
+        var total = 0;
+        features.forEach(function(f) { total += (FEATURE_PRICES[f] || 0); });
+        return total;
+    }
+
+    // Build feature rows HTML
+    function buildFeatureRowsHTML(features) {
+        var optionalFeatures = [
+            { key: 'mobile_app',   icon: 'fa-mobile-alt',    iconClass: 'teal', price: 349 },
+            { key: 'procure_ai',   icon: 'fa-shopping-basket',iconClass: 'teal', price: 399 },
+            { key: 'pos_system',   icon: 'fa-cash-register',  iconClass: 'teal', price: 799 },
+            { key: 'menu_master',  icon: 'fa-utensils',       iconClass: 'teal', price: 349 },
+            { key: 'functions_ai', icon: 'fa-glass-cheers',   iconClass: 'gold', price: 449 }
+        ];
+
+        return optionalFeatures.map(function(f) {
+            var isActive = features.indexOf(f.key) !== -1;
+            return '<div class="feature-row" id="fm-row-' + f.key + '" style="border-color:' + (isActive ? '#2ea871' : '#1a5a6e') + ';opacity:' + (isActive ? '1' : '0.75') + '">' +
+                '<div class="feature-row-left">' +
+                    '<div class="feature-icon ' + f.iconClass + '"><i class="fas ' + f.icon + '"></i></div>' +
+                    '<div>' +
+                        '<div class="feature-name">' + FEATURE_NAMES[f.key] + '</div>' +
+                        '<div class="feature-price">R' + f.price + '/mo</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="feature-row-right">' +
+                    '<span class="feature-status ' + (isActive ? 'active' : 'inactive') + '" id="fm-status-' + f.key + '">' +
+                        (isActive ? 'ACTIVE' : 'INACTIVE') +
+                    '</span>' +
+                    '<button class="feature-btn ' + (isActive ? 'disable' : 'enable') + '" id="fm-btn-' + f.key + '" ' +
+                        'onclick="toggleEntityFeature(' + idx + ',\'' + f.key + '\')">' +
+                        (isActive ? '🔒 Disable' : '✅ Enable') +
+                    '</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    var total = calcFeatureTotal(entFeatures);
+
+    document.getElementById('modal-container').innerHTML =
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:620px">' +
+        '<div class="modal-header" style="background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+            '<h2 style="color:#fff"><i class="fas fa-puzzle-piece"></i> Manage Features — ' + ent.name + '</h2>' +
+            '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+            '<div class="feature-panel">' +
+                '<div class="feature-panel-title">' +
+                    '<h4><i class="fas fa-puzzle-piece"></i> Site Features</h4>' +
+                    '<span class="feature-panel-subtitle">Changes take effect immediately</span>' +
+                '</div>' +
+                '<!-- Always On Row -->' +
+                '<div class="feature-row always-on" style="margin-bottom:10px">' +
+                    '<div class="feature-row-left">' +
+                        '<div class="feature-icon green"><i class="fas fa-laptop-code"></i></div>' +
+                        '<div>' +
+                            '<div class="feature-name">Web App B.O.H</div>' +
+                            '<div class="feature-price">Always included</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="feature-row-right">' +
+                        '<span class="feature-status always">ALWAYS ON</span>' +
+                        '<span style="font-size:.88rem;font-weight:700;color:#e0f4f8">R799/mo</span>' +
+                    '</div>' +
+                '</div>' +
+                '<!-- Optional Features -->' +
+                '<div id="fm-feature-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+                    buildFeatureRowsHTML(entFeatures) +
+                '</div>' +
+                '<!-- Monthly Total -->' +
+                '<div class="feature-total-bar">' +
+                    '<div class="feature-total-label"><i class="fas fa-receipt"></i> Monthly Feature Total (this entity)</div>' +
+                    '<div class="feature-total-amount" id="fm-monthly-total">R' + total.toLocaleString() + '/mo</div>' +
+                '</div>' +
+                '<!-- Save Message -->' +
+                '<div class="feature-save-msg" id="fm-save-msg">' +
+                    '<i class="fas fa-check-circle" style="margin-right:6px"></i> Feature access updated successfully' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
+            '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>' +
+        '</div>' +
+        '</div></div>';
 }
 
+// ── Toggle a feature on/off for a specific entity ──
+function toggleEntityFeature(idx, featureKey) {
+    var ent = P.entities[idx];
+    if (!ent) return;
+
+    if (featureKey === 'web_boh') {
+        showToast('warning', 'Web App B.O.H cannot be removed — it is always included.');
+        return;
+    }
+
+    var currentFeatures = ent.features ? ent.features.slice() : ['web_boh'];
+    if (currentFeatures.indexOf('web_boh') === -1) currentFeatures.unshift('web_boh');
+
+    var isActive    = currentFeatures.indexOf(featureKey) !== -1;
+    var featureName = FEATURE_NAMES[featureKey] || featureKey;
+    var action      = isActive ? 'DISABLE' : 'ENABLE';
+
+    var confirmed = confirm(
+        action + ' ' + featureName + ' for ' + ent.name + '?\n\n' +
+        (isActive
+            ? '⚠️ This entity will LOSE access to ' + featureName + ' immediately.'
+            : '✅ This entity will GAIN access to ' + featureName + ' immediately.') +
+        '\n\nProceed?'
+    );
+    if (!confirmed) return;
+
+    // Update features array
+    var updatedFeatures = currentFeatures.slice();
+    var pos = updatedFeatures.indexOf(featureKey);
+    if (isActive) {
+        updatedFeatures.splice(pos, 1);
+    } else {
+        updatedFeatures.push(featureKey);
+    }
+
+    // Save back to entity
+    P.entities[idx].features = updatedFeatures;
+    savePortalData({ entities: P.entities });
+
+    // Update button/status in the modal without closing it
+    var statusEl = document.getElementById('fm-status-' + featureKey);
+    var btnEl    = document.getElementById('fm-btn-' + featureKey);
+    var rowEl    = document.getElementById('fm-row-' + featureKey);
+    var nowActive = updatedFeatures.indexOf(featureKey) !== -1;
+
+    if (statusEl) {
+        statusEl.textContent  = nowActive ? 'ACTIVE' : 'INACTIVE';
+        statusEl.className    = 'feature-status ' + (nowActive ? 'active' : 'inactive');
+    }
+    if (btnEl) {
+        btnEl.textContent  = nowActive ? '🔒 Disable' : '✅ Enable';
+        btnEl.className    = 'feature-btn ' + (nowActive ? 'disable' : 'enable');
+    }
+    if (rowEl) {
+        rowEl.style.borderColor = nowActive ? '#2ea871' : '#1a5a6e';
+        rowEl.style.opacity     = nowActive ? '1' : '0.75';
+    }
+
+    // Update monthly total
+    var newTotal  = 0;
+    updatedFeatures.forEach(function(f) { newTotal += (FEATURE_PRICES[f] || 0); });
+    var totalEl   = document.getElementById('fm-monthly-total');
+    if (totalEl)  totalEl.textContent = 'R' + newTotal.toLocaleString() + '/mo';
+
+    // Show save message
+    var saveMsg = document.getElementById('fm-save-msg');
+    if (saveMsg) {
+        saveMsg.style.display = 'block';
+        setTimeout(function() { saveMsg.style.display = 'none'; }, 3000);
+    }
+
+    showToast('success', (nowActive ? '✅ ' : '🔒 ') + featureName + ' ' + (nowActive ? 'enabled' : 'disabled') + ' for ' + ent.name);
+}
+
+// ============================================================
+// BILLING RENDER
+// ============================================================
+function renderBilling() {
+    var container = document.getElementById('billing-content');
+    if (!container) return;
+
+    var planPrices    = { starter: 499, professional: 899, enterprise: 1499 };
+    var planNames     = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
+    var nextDue       = P.billing ? P.billing.nextDueDate : '—';
+    var lastPayment   = P.billing && P.billing.lastPaymentDate
+        ? new Date(P.billing.lastPaymentDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })
+        : '—';
+    var billingStatus = P.billing ? P.billing.status : 'current';
+    var activeEntities = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; });
+    var monthlyTotal  = 0;
+    var breakdownHtml = '';
+
+    activeEntities.forEach(function(ent) {
+        var price = planPrices[ent.plan] || 899;
+        var plan  = planNames[ent.plan] || 'Professional';
+        monthlyTotal += price;
+        breakdownHtml += '<tr><td><strong>' + ent.name + '</strong></td><td>' + plan +
+            '</td><td>R' + price.toLocaleString() + '</td><td><span class="badge paid">Active</span></td></tr>';
+    });
+
+    P.entities.filter(function(e) { return e.status === 'inactive' || e.paymentStatus === 'unpaid'; }).forEach(function(ent) {
+        breakdownHtml += '<tr><td style="opacity:.6"><strong>' + ent.name +
+            '</strong></td><td style="opacity:.6">—</td><td style="opacity:.6">R0</td>' +
+            '<td><span class="badge pending">Inactive</span></td></tr>';
+    });
+
+    var statusBadge = billingStatus === 'current'
+        ? '<span class="badge paid">Current</span>'
+        : billingStatus === 'due_soon'
+        ? '<span class="badge pending">Due Soon</span>'
+        : '<span class="badge overdue">Overdue</span>';
+
+    container.innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">' +
+            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
+                '<span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Monthly Total</span>' +
+                '<strong style="font-size:1.3rem;color:var(--text-dark)">R' + monthlyTotal.toLocaleString() + '</strong>' +
+            '</div>' +
+            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
+                '<span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Next Due Date</span>' +
+                '<strong style="font-size:1rem;color:var(--text-dark)">' + nextDue + '</strong>' +
+            '</div>' +
+            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
+                '<span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Status</span>' +
+                '<div style="margin-top:4px">' + statusBadge + '</div>' +
+            '</div>' +
+        '</div>' +
+        (monthlyTotal > 0
+            ? '<div style="margin-bottom:16px">' +
+                '<button class="btn-portal gold" onclick="showPaymentModal()">' +
+                    '<i class="fas fa-credit-card"></i> Make Payment — R' + monthlyTotal.toLocaleString() +
+                '</button>' +
+              '</div>'
+            : '') +
+        '<table class="billing-table">' +
+            '<thead><tr><th>Entity</th><th>Plan</th><th>Amount</th><th>Status</th></tr></thead>' +
+            '<tbody>' + breakdownHtml +
+            '<tr style="font-weight:700;border-top:2px solid var(--teal-mid)">' +
+                '<td>Total</td><td></td><td>R' + monthlyTotal.toLocaleString() + '</td><td></td>' +
+            '</tr>' +
+            '</tbody>' +
+        '</table>' +
+        '<div style="margin-top:16px;font-size:.78rem;color:var(--text-light)">' +
+            '<p><i class="fas fa-info-circle"></i> Last payment: ' + lastPayment + '</p>' +
+            '<p style="margin-top:4px">Need help? WhatsApp: ' +
+                '<a href="https://wa.me/27790440508" target="_blank" style="color:var(--teal-mid);text-decoration:none;font-weight:600">079 044 0508</a>' +
+            '</p>' +
+        '</div>';
+}
+
+// ============================================================
+// VIEW INVOICE / STATEMENT
+// ============================================================
 function viewPortalInvoice() {
     var billing = calcPortalBilling();
     var now     = new Date();
-    var invNum  = 'INV-' + now.getFullYear() + (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1);
+    var invNum  = 'INV-' + now.getFullYear() +
+        (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1);
 
     var html = generateInvoiceHTML({
         invoiceNumber:  invNum,
-        invoiceDate:    now.toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' }),
-        dueDate:        new Date(now.getFullYear(), now.getMonth() + 1, 0).toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' }),
+        invoiceDate:    now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }),
+        dueDate:        new Date(now.getFullYear(), now.getMonth() + 1, 0)
+                            .toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }),
         ownerName:      P.owner ? P.owner.name : 'Customer',
         ownerEmail:     P.owner ? P.owner.email : '',
         ownerPhone:     P.owner ? P.owner.phone : '',
@@ -652,20 +1104,23 @@ function viewPortalInvoice() {
         isPaid:         false
     });
 
-    // Open in new window for print
     var w = window.open('', '_blank');
-    w.document.write('<html><head><title>Invoice ' + invNum + '</title>' +
+    w.document.write(
+        '<html><head><title>Invoice ' + invNum + '</title>' +
         '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
-        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style></head><body>' +
+        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style>' +
+        '</head><body>' +
         '<div style="max-width:700px;margin:0 auto">' + html + '</div>' +
-        '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Invoice</button></div>' +
-        '</body></html>');
+        '<div style="text-align:center;margin-top:20px">' +
+            '<button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Invoice</button>' +
+        '</div>' +
+        '</body></html>'
+    );
     w.document.close();
 }
 
 function viewPortalStatement() {
     showToast('info', '📄 Opening statement...');
-    // Generate statement with all invoices
     var w = window.open('', '_blank');
     var stmtHtml = generateStatementHTML({
         ownerName:      P.owner ? P.owner.name : 'Customer',
@@ -677,63 +1132,28 @@ function viewPortalStatement() {
         dateTo:         new Date().toLocaleDateString('en-ZA'),
         invoices:       (P.billing ? P.billing.invoiceHistory : null) || []
     });
-    w.document.write('<html><head><title>Statement</title>' +
+    w.document.write(
+        '<html><head><title>Statement</title>' +
         '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">' +
-        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style></head><body>' +
+        '<style>body{margin:0;padding:20px;background:#f0f7f9}@media print{body{background:#fff;padding:0}}</style>' +
+        '</head><body>' +
         '<div style="max-width:700px;margin:0 auto">' + stmtHtml + '</div>' +
-        '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Statement</button></div>' +
-        '</body></html>');
+        '<div style="text-align:center;margin-top:20px">' +
+            '<button onclick="window.print()" style="padding:12px 28px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Poppins">Print Statement</button>' +
+        '</div>' +
+        '</body></html>'
+    );
     w.document.close();
 }
-function renderBilling() {
-    var container = document.getElementById('billing-content');
-    if (!container) return;
 
-    var planPrices = { starter: 499, professional: 899, enterprise: 1499 };
-    var planNames = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
-    var nextDue = P.billing ? P.billing.nextDueDate : '—';
-    var lastPayment = P.billing && P.billing.lastPaymentDate ?
-        new Date(P.billing.lastPaymentDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
-    var billingStatus = P.billing ? P.billing.status : 'current';
-    var activeEntities = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; });
-    var monthlyTotal = 0;
-    var breakdownHtml = '';
-
-    activeEntities.forEach(function(ent) {
-        var price = planPrices[ent.plan] || 899;
-        var plan = planNames[ent.plan] || 'Professional';
-        monthlyTotal += price;
-        breakdownHtml += '<tr><td><strong>' + ent.name + '</strong></td><td>' + plan + '</td><td>R' + price.toLocaleString() + '</td><td><span class="badge paid">Active</span></td></tr>';
-    });
-
-    P.entities.filter(function(e) { return e.status === 'inactive' || e.paymentStatus === 'unpaid'; }).forEach(function(ent) {
-        breakdownHtml += '<tr><td style="opacity:.6"><strong>' + ent.name + '</strong></td><td style="opacity:.6">—</td><td style="opacity:.6">R0</td><td><span class="badge pending">Inactive</span></td></tr>';
-    });
-
-    var statusBadge = billingStatus === 'current' ? '<span class="badge paid">Current</span>' :
-                      billingStatus === 'due_soon' ? '<span class="badge pending">Due Soon</span>' :
-                      '<span class="badge overdue">Overdue</span>';
-
-    container.innerHTML =
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">' +
-            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center"><span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Monthly Total</span><strong style="font-size:1.3rem;color:var(--text-dark)">R' + monthlyTotal.toLocaleString() + '</strong></div>' +
-            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center"><span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Next Due Date</span><strong style="font-size:1rem;color:var(--text-dark)">' + nextDue + '</strong></div>' +
-            '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center"><span style="font-size:.72rem;color:var(--text-muted);display:block;text-transform:uppercase;font-weight:600">Status</span><div style="margin-top:4px">' + statusBadge + '</div></div>' +
-        '</div>' +
-        (monthlyTotal > 0 ? '<div style="margin-bottom:16px"><button class="btn-portal gold" onclick="showPaymentModal()"><i class="fas fa-credit-card"></i> Make Payment — R' + monthlyTotal.toLocaleString() + '</button></div>' : '') +
-        '<table class="billing-table"><thead><tr><th>Entity</th><th>Plan</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
-        breakdownHtml +
-        '<tr style="font-weight:700;border-top:2px solid var(--teal-mid)"><td>Total</td><td></td><td>R' + monthlyTotal.toLocaleString() + '</td><td></td></tr>' +
-        '</tbody></table>' +
-        '<div style="margin-top:16px;font-size:.78rem;color:var(--text-light)"><p><i class="fas fa-info-circle"></i> Last payment: ' + lastPayment + '</p><p style="margin-top:4px">Need help? WhatsApp: <a href="https://wa.me/27790440508" target="_blank" style="color:var(--teal-mid);text-decoration:none;font-weight:600">079 044 0508</a></p></div>';
-}
-</script>
-<script>
-// ============ CREATE NEW ENTITY ============
+// ============================================================
+// CREATE NEW ENTITY
+// ============================================================
 function showCreateEntityModal() {
-    var allSections = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar','Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
+    var allSections  = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar','Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
+    var defaultOn    = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'];
     var sectionChecks = allSections.map(function(s) {
-        var checked = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'].includes(s) ? 'checked' : '';
+        var checked = defaultOn.indexOf(s) !== -1 ? 'checked' : '';
         return '<label class="section-check"><input type="checkbox" value="' + s + '" ' + checked + '><span>' + s + '</span></label>';
     }).join('');
 
@@ -744,12 +1164,25 @@ function showCreateEntityModal() {
             '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
         '</div>' +
         '<div class="modal-body">' +
-            '<div style="background:rgba(26,139,168,.08);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:.82rem;color:var(--text-mid);border-left:3px solid var(--teal-mid)"><i class="fas fa-info-circle" style="color:var(--teal-mid)"></i> This entity will be created as <strong>inactive</strong>. Activate it by selecting a plan and making payment.</div>' +
+            '<div style="background:rgba(26,139,168,.08);padding:14px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:.82rem;color:var(--text-mid);border-left:3px solid var(--teal-mid)">' +
+                '<i class="fas fa-info-circle" style="color:var(--teal-mid)"></i> This entity will be created as <strong>inactive</strong>. Activate it by selecting a plan and making payment.' +
+            '</div>' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Entity Information</h4>' +
-            '<div class="form-row"><div class="form-field"><label>Entity Name *</label><input type="text" id="ne-name" placeholder="e.g. The Main Restaurant"></div><div class="form-field"><label>Contact Person *</label><input type="text" id="ne-contact" placeholder="e.g. Manager name" value="' + (P.owner ? P.owner.name : '') + '"></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ne-phone" placeholder="+27 11 555 0000"></div><div class="form-field"><label>Email</label><input type="email" id="ne-email" placeholder="entity@email.com"></div></div>' +
-            '<div class="form-row"><div class="form-field full"><label>Address</label><textarea id="ne-address" rows="2" placeholder="Physical address..." style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%"></textarea></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ne-vat" placeholder="e.g. 4123456789"></div><div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ne-foodcost" value="28" min="1" max="100" step="0.1"></div></div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Entity Name *</label><input type="text" id="ne-name" placeholder="e.g. The Main Restaurant"></div>' +
+                '<div class="form-field"><label>Contact Person *</label><input type="text" id="ne-contact" placeholder="e.g. Manager name" value="' + (P.owner ? P.owner.name : '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Phone</label><input type="tel" id="ne-phone" placeholder="+27 11 555 0000"></div>' +
+                '<div class="form-field"><label>Email</label><input type="email" id="ne-email" placeholder="entity@email.com"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field full"><label>Address</label><textarea id="ne-address" rows="2" placeholder="Physical address..." style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%"></textarea></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>VAT Number</label><input type="text" id="ne-vat" placeholder="e.g. 4123456789"></div>' +
+                '<div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ne-foodcost" value="28" min="1" max="100" step="0.1"></div>' +
+            '</div>' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-warehouse" style="color:var(--teal-mid)"></i> Stock Sheet Sections</h4>' +
             '<div class="sections-grid">' + sectionChecks + '</div>' +
         '</div>' +
@@ -761,12 +1194,11 @@ function showCreateEntityModal() {
 }
 
 function processCreateEntity() {
-    var name = document.getElementById('ne-name').value.trim();
+    var name    = document.getElementById('ne-name').value.trim();
     var contact = document.getElementById('ne-contact').value.trim();
-    if (!name) { showToast('error', 'Please enter an entity name'); return; }
+    if (!name)    { showToast('error', 'Please enter an entity name'); return; }
     if (!contact) { showToast('error', 'Please enter a contact person'); return; }
 
-    // Check entity limit (bypass for master)
     if (!isMasterPortal()) {
         var maxEnts = getPortalMaxEntities();
         if (P.entities.length >= maxEnts) {
@@ -778,47 +1210,53 @@ function processCreateEntity() {
     }
 
     var sections = [];
-    document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) { sections.push(cb.value); });
+    document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) {
+        sections.push(cb.value);
+    });
     if (sections.length === 0) { showToast('error', 'Select at least one stock section'); return; }
 
     var newEntity = {
-        id: 'ENT-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        name: name,
-        contact: contact,
-        phone: document.getElementById('ne-phone').value.trim(),
-        email: document.getElementById('ne-email').value.trim(),
-        address: document.getElementById('ne-address').value.trim(),
-        vat: document.getElementById('ne-vat').value.trim(),
+        id:             'ENT-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        name:           name,
+        contact:        contact,
+        phone:          document.getElementById('ne-phone').value.trim(),
+        email:          document.getElementById('ne-email').value.trim(),
+        address:        document.getElementById('ne-address').value.trim(),
+        vat:            document.getElementById('ne-vat').value.trim(),
         foodCostTarget: parseFloat(document.getElementById('ne-foodcost').value) || 28,
-        sections: sections,
-        plan: 'professional',
-        status: 'inactive',
-        paymentStatus: 'unpaid',
-        createdDate: new Date().toISOString(),
-        createdBy: P.user ? P.user.name : 'Portal'
+        sections:       sections,
+        features:       ['web_boh'],
+        plan:           'professional',
+        status:         'inactive',
+        paymentStatus:  'unpaid',
+        createdDate:    new Date().toISOString(),
+        createdBy:      P.user ? P.user.name : 'Portal'
     };
 
     var updatedEntities = P.entities.slice();
     updatedEntities.push(newEntity);
 
     var accountData = P.accountData || {};
-    var inventory = accountData.inventory || {}; inventory[newEntity.id] = [];
-    var purchases = accountData.purchases || {}; purchases[newEntity.id] = [];
-    var wastage = accountData.wastage || {}; wastage[newEntity.id] = [];
-    var suppliers = accountData.suppliers || {}; suppliers[newEntity.id] = [];
-    var users = accountData.users || {}; users[newEntity.id] = [{ id: 'usr-' + newEntity.id + '-1', name: contact, role: 'General Manager' }];
-    var activities = accountData.activities || {}; activities[newEntity.id] = [];
-    var pendingPOs = accountData.pendingPOs || {}; pendingPOs[newEntity.id] = [];
-    var userLogs = accountData.userLogs || {};
+    var inventory   = accountData.inventory   || {}; inventory[newEntity.id]   = [];
+    var purchases   = accountData.purchases   || {}; purchases[newEntity.id]   = [];
+    var wastage     = accountData.wastage     || {}; wastage[newEntity.id]     = [];
+    var suppliers   = accountData.suppliers   || {}; suppliers[newEntity.id]   = [];
+    var users       = accountData.users       || {}; users[newEntity.id]       = [{ id: 'usr-' + newEntity.id + '-1', name: contact, role: 'General Manager' }];
+    var activities  = accountData.activities  || {}; activities[newEntity.id]  = [];
+    var pendingPOs  = accountData.pendingPOs  || {}; pendingPOs[newEntity.id]  = [];
+    var userLogs    = accountData.userLogs    || {};
     userLogs[newEntity.id] = [{
-        user: P.user ? P.user.name : 'Portal', role: 'Owner',
-        action: 'Entity Created', details: 'New entity "' + name + '" created via Portal (inactive)',
-        date: new Date().toLocaleDateString('en-ZA'), time: new Date().toLocaleTimeString('en-ZA')
+        user:    P.user ? P.user.name : 'Portal',
+        role:    'Owner',
+        action:  'Entity Created',
+        details: 'New entity "' + name + '" created via Portal (inactive)',
+        date:    new Date().toLocaleDateString('en-ZA'),
+        time:    new Date().toLocaleTimeString('en-ZA')
     }];
-    var cashups = accountData.cashups || {}; cashups[newEntity.id] = {};
+    var cashups   = accountData.cashups   || {}; cashups[newEntity.id]   = {};
     var menuItems = accountData.menuItems || {}; menuItems[newEntity.id] = [];
-    var invoices = accountData.invoices || {}; invoices[newEntity.id] = [];
-    var dayEnds = accountData.dayEnds || {}; dayEnds[newEntity.id] = {};
+    var invoices  = accountData.invoices  || {}; invoices[newEntity.id]  = [];
+    var dayEnds   = accountData.dayEnds   || {}; dayEnds[newEntity.id]   = {};
 
     var owner = P.owner || {};
     owner.entityCount = String(updatedEntities.length);
@@ -827,26 +1265,28 @@ function processCreateEntity() {
 
     savePortalData({
         entities: updatedEntities, inventory: inventory, purchases: purchases,
-        wastage: wastage, suppliers: suppliers, users: users, activities: activities,
+        wastage:  wastage, suppliers: suppliers, users: users, activities: activities,
         pendingPOs: pendingPOs, userLogs: userLogs, cashups: cashups,
         menuItems: menuItems, invoices: invoices, dayEnds: dayEnds, owner: owner
     });
 
     closeModal();
     P.entities = updatedEntities;
-    P.owner = owner;
+    P.owner    = owner;
     renderPortal();
     showToast('success', '✅ Entity "' + name + '" created! Activate it by selecting a plan and making payment.');
 }
 
-// ============ EDIT ENTITY ============
+// ============================================================
+// EDIT ENTITY
+// ============================================================
 function showEditEntityModal(idx) {
     var ent = P.entities[idx];
     if (!ent) return;
 
-    var allSections = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar','Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
+    var allSections   = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar','Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
     var sectionChecks = allSections.map(function(s) {
-        var checked = (ent.sections || []).includes(s) ? 'checked' : '';
+        var checked = (ent.sections || []).indexOf(s) !== -1 ? 'checked' : '';
         return '<label class="section-check"><input type="checkbox" value="' + s + '" ' + checked + '><span>' + s + '</span></label>';
     }).join('');
 
@@ -858,10 +1298,21 @@ function showEditEntityModal(idx) {
         '</div>' +
         '<div class="modal-body">' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Entity Information</h4>' +
-            '<div class="form-row"><div class="form-field"><label>Entity Name *</label><input type="text" id="ee-name" value="' + (ent.name || '') + '"></div><div class="form-field"><label>Contact Person *</label><input type="text" id="ee-contact" value="' + (ent.contact || '') + '"></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ee-phone" value="' + (ent.phone || '') + '"></div><div class="form-field"><label>Email</label><input type="email" id="ee-email" value="' + (ent.email || '') + '"></div></div>' +
-            '<div class="form-row"><div class="form-field full"><label>Address</label><textarea id="ee-address" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (ent.address || '') + '</textarea></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>VAT Number</label><input type="text" id="ee-vat" value="' + (ent.vat || '') + '"></div><div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ee-foodcost" value="' + (ent.foodCostTarget || 28) + '" min="1" max="100" step="0.1"></div></div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Entity Name *</label><input type="text" id="ee-name" value="' + (ent.name || '') + '"></div>' +
+                '<div class="form-field"><label>Contact Person *</label><input type="text" id="ee-contact" value="' + (ent.contact || '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Phone</label><input type="tel" id="ee-phone" value="' + (ent.phone || '') + '"></div>' +
+                '<div class="form-field"><label>Email</label><input type="email" id="ee-email" value="' + (ent.email || '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field full"><label>Address</label><textarea id="ee-address" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (ent.address || '') + '</textarea></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>VAT Number</label><input type="text" id="ee-vat" value="' + (ent.vat || '') + '"></div>' +
+                '<div class="form-field"><label>Desired Food Cost %</label><input type="number" id="ee-foodcost" value="' + (ent.foodCostTarget || 28) + '" min="1" max="100" step="0.1"></div>' +
+            '</div>' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-warehouse" style="color:var(--teal-mid)"></i> Stock Sheet Sections</h4>' +
             '<div class="sections-grid">' + sectionChecks + '</div>' +
         '</div>' +
@@ -873,22 +1324,24 @@ function showEditEntityModal(idx) {
 }
 
 function processSaveEntity(idx) {
-    var name = document.getElementById('ee-name').value.trim();
+    var name    = document.getElementById('ee-name').value.trim();
     var contact = document.getElementById('ee-contact').value.trim();
-    if (!name) { showToast('error', 'Entity name is required'); return; }
+    if (!name)    { showToast('error', 'Entity name is required'); return; }
     if (!contact) { showToast('error', 'Contact person is required'); return; }
     var sections = [];
-    document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) { sections.push(cb.value); });
+    document.querySelectorAll('#modal-container .sections-grid input:checked').forEach(function(cb) {
+        sections.push(cb.value);
+    });
     if (sections.length === 0) { showToast('error', 'Select at least one section'); return; }
 
-    P.entities[idx].name = name;
-    P.entities[idx].contact = contact;
-    P.entities[idx].phone = document.getElementById('ee-phone').value.trim();
-    P.entities[idx].email = document.getElementById('ee-email').value.trim();
-    P.entities[idx].address = document.getElementById('ee-address').value.trim();
-    P.entities[idx].vat = document.getElementById('ee-vat').value.trim();
+    P.entities[idx].name           = name;
+    P.entities[idx].contact        = contact;
+    P.entities[idx].phone          = document.getElementById('ee-phone').value.trim();
+    P.entities[idx].email          = document.getElementById('ee-email').value.trim();
+    P.entities[idx].address        = document.getElementById('ee-address').value.trim();
+    P.entities[idx].vat            = document.getElementById('ee-vat').value.trim();
     P.entities[idx].foodCostTarget = parseFloat(document.getElementById('ee-foodcost').value) || 28;
-    P.entities[idx].sections = sections;
+    P.entities[idx].sections       = sections;
 
     savePortalData({ entities: P.entities });
     closeModal();
@@ -896,17 +1349,20 @@ function processSaveEntity(idx) {
     showToast('success', '✅ Entity "' + name + '" updated! Changes will appear in the web app and mobile app.');
 }
 
-// ============ ACTIVATE ENTITY ============
+// ============================================================
+// ACTIVATE ENTITY
+// ============================================================
 function showActivateModal(idx) {
     var ent = P.entities[idx];
     if (!ent) return;
 
     var planCards = Object.keys(PLAN_DATA).map(function(key) {
-        var plan = PLAN_DATA[key];
+        var plan       = PLAN_DATA[key];
         var isSelected = key === 'professional';
-        var isPopular = key === 'professional';
+        var isPopular  = key === 'professional';
         var featuresHtml = plan.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
-        return '<div class="plan-card ' + (isSelected ? 'selected' : '') + (isPopular ? ' popular' : '') + '" onclick="selectPlan(this,\'' + key + '\')" data-plan="' + key + '">' +
+        return '<div class="plan-card ' + (isSelected ? 'selected' : '') + (isPopular ? ' popular' : '') + '" ' +
+            'onclick="selectPlan(this,\'' + key + '\')" data-plan="' + key + '">' +
             '<h4>' + plan.name + '</h4>' +
             '<div class="plan-price">R' + plan.price + '</div>' +
             '<div class="plan-per">per month</div>' +
@@ -923,7 +1379,9 @@ function showActivateModal(idx) {
         '<div class="modal-body">' +
             '<p style="text-align:center;color:var(--text-mid);margin-bottom:18px">Select a plan to activate your entity</p>' +
             '<div class="plan-cards">' + planCards + '</div>' +
-            '<div style="background:rgba(245,158,11,.08);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:#5a4a17"><strong>👑 Founding Member?</strong> First 20 customers get 50% off for life! Contact us to apply your discount.</div>' +
+            '<div style="background:rgba(245,158,11,.08);border:1px solid var(--gold);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:#5a4a17">' +
+                '<strong>👑 Founding Member?</strong> First 20 customers get 50% off for life! Contact us to apply your discount.' +
+            '</div>' +
         '</div>' +
         '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
@@ -941,7 +1399,7 @@ function selectPlan(el, plan) {
 }
 
 function processActivateEntity(idx) {
-    var ent = P.entities[idx];
+    var ent  = P.entities[idx];
     if (!ent) return;
     var plan = PLAN_DATA[selectedPlan];
     if (!plan) return;
@@ -958,28 +1416,29 @@ function processActivateEntity(idx) {
         '3. WhatsApp: 079 044 0508\n\n' +
         'Click OK to simulate payment (for testing)'
     );
-
     if (!confirmed) return;
 
-    P.entities[idx].status = 'active';
-    P.entities[idx].paymentStatus = 'paid';
-    P.entities[idx].plan = selectedPlan;
-    P.entities[idx].activatedDate = new Date().toISOString();
+    P.entities[idx].status              = 'active';
+    P.entities[idx].paymentStatus       = 'paid';
+    P.entities[idx].plan                = selectedPlan;
+    P.entities[idx].activatedDate       = new Date().toISOString();
     P.entities[idx].activatedPaymentRef = paymentRef;
+    if (!P.entities[idx].features) P.entities[idx].features = ['web_boh'];
 
     if (!P.billing) {
         P.billing = { billingDay: 1, lastPaymentDate: new Date().toISOString(), nextDueDate: getNextBillingDate(), status: 'current', dismissedToday: null };
     } else {
         P.billing.lastPaymentDate = new Date().toISOString();
-        P.billing.status = 'current';
+        P.billing.status          = 'current';
     }
 
     savePortalData({
         entities: P.entities,
-        billing: P.billing,
+        billing:  P.billing,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'entity_activated', date: new Date().toISOString(),
-            by: P.user ? P.user.name : 'Portal',
+            action: 'entity_activated',
+            date:   new Date().toISOString(),
+            by:     P.user ? P.user.name : 'Portal',
             reason: ent.name + ' activated — ' + plan.name + ' plan — Ref: ' + paymentRef
         })
     });
@@ -994,19 +1453,24 @@ function getNextBillingDate() {
     return new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().split('T')[0];
 }
 
-// ============ CHANGE PLAN ============
+// ============================================================
+// CHANGE PLAN
+// ============================================================
 function showChangePlanModal(idx) {
-    var ent = P.entities[idx];
+    var ent         = P.entities[idx];
     if (!ent) return;
     var currentPlan = ent.plan || 'professional';
 
     var planCards = Object.keys(PLAN_DATA).map(function(key) {
-        var plan = PLAN_DATA[key];
+        var plan      = PLAN_DATA[key];
         var isCurrent = key === currentPlan;
         var isPopular = key === 'professional';
         var featuresHtml = plan.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
-        return '<div class="plan-card ' + (isCurrent ? 'selected' : '') + (isPopular ? ' popular' : '') + '" onclick="selectPlan(this,\'' + key + '\')" data-plan="' + key + '">' +
-            '<h4>' + plan.name + (isCurrent ? ' <span style="font-size:.65rem;background:var(--teal-mid);color:#fff;padding:2px 8px;border-radius:8px">CURRENT</span>' : '') + '</h4>' +
+        return '<div class="plan-card ' + (isCurrent ? 'selected' : '') + (isPopular ? ' popular' : '') + '" ' +
+            'onclick="selectPlan(this,\'' + key + '\')" data-plan="' + key + '">' +
+            '<h4>' + plan.name + (isCurrent
+                ? ' <span style="font-size:.65rem;background:var(--teal-mid);color:#fff;padding:2px 8px;border-radius:8px">CURRENT</span>'
+                : '') + '</h4>' +
             '<div class="plan-price">R' + plan.price + '</div>' +
             '<div class="plan-per">per month</div>' +
             '<ul class="plan-features">' + featuresHtml + '</ul>' +
@@ -1020,9 +1484,13 @@ function showChangePlanModal(idx) {
             '<button class="modal-close" onclick="closeModal()" style="color:#fff"><i class="fas fa-times"></i></button>' +
         '</div>' +
         '<div class="modal-body">' +
-            '<p style="text-align:center;color:var(--text-mid);margin-bottom:18px">Current plan: <strong>' + (PLAN_DATA[currentPlan] ? PLAN_DATA[currentPlan].name : 'Professional') + '</strong></p>' +
+            '<p style="text-align:center;color:var(--text-mid);margin-bottom:18px">Current plan: <strong>' +
+                (PLAN_DATA[currentPlan] ? PLAN_DATA[currentPlan].name : 'Professional') +
+            '</strong></p>' +
             '<div class="plan-cards">' + planCards + '</div>' +
-            '<div style="background:rgba(43,142,179,.08);border:1px solid var(--info);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:var(--text-mid)"><i class="fas fa-info-circle" style="color:var(--info)"></i> Plan changes take effect from the next billing cycle.</div>' +
+            '<div style="background:rgba(43,142,179,.08);border:1px solid var(--info);border-radius:var(--radius-sm);padding:12px;margin-top:14px;font-size:.78rem;color:var(--text-mid)">' +
+                '<i class="fas fa-info-circle" style="color:var(--info)"></i> Plan changes take effect from the next billing cycle.' +
+            '</div>' +
         '</div>' +
         '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
@@ -1034,18 +1502,23 @@ function showChangePlanModal(idx) {
 }
 
 function processChangePlan(idx) {
-    var ent = P.entities[idx];
+    var ent     = P.entities[idx];
     if (!ent) return;
     var oldPlan = ent.plan || 'professional';
     var newPlan = selectedPlan;
-    if (oldPlan === newPlan) { showToast('info', 'You are already on the ' + PLAN_DATA[newPlan].name + ' plan'); closeModal(); return; }
+    if (oldPlan === newPlan) {
+        showToast('info', 'You are already on the ' + PLAN_DATA[newPlan].name + ' plan');
+        closeModal();
+        return;
+    }
 
     P.entities[idx].plan = newPlan;
     savePortalData({
         entities: P.entities,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'plan_changed', date: new Date().toISOString(),
-            by: P.user ? P.user.name : 'Portal',
+            action: 'plan_changed',
+            date:   new Date().toISOString(),
+            by:     P.user ? P.user.name : 'Portal',
             reason: ent.name + ': ' + PLAN_DATA[oldPlan].name + ' → ' + PLAN_DATA[newPlan].name
         })
     });
@@ -1055,19 +1528,25 @@ function processChangePlan(idx) {
     showToast('success', '✅ Plan changed to ' + PLAN_DATA[newPlan].name + ' for ' + ent.name);
 }
 
-// ============ PAYMENT MODAL ============
+// ============================================================
+// PAYMENT MODAL
+// ============================================================
 function showPaymentModal() {
-    var planPrices = { starter: 499, professional: 899, enterprise: 1499 };
-    var planNames = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
+    var planPrices     = { starter: 499, professional: 899, enterprise: 1499 };
+    var planNames      = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
     var activeEntities = P.entities.filter(function(e) { return e.status !== 'inactive' && e.paymentStatus !== 'unpaid'; });
-    var monthlyTotal = 0;
-    var breakdownHtml = '';
+    var monthlyTotal   = 0;
+    var breakdownHtml  = '';
 
     activeEntities.forEach(function(ent) {
         var price = planPrices[ent.plan] || 899;
-        var plan = planNames[ent.plan] || 'Professional';
+        var plan  = planNames[ent.plan] || 'Professional';
         monthlyTotal += price;
-        breakdownHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:.85rem"><span>' + ent.name + ' <small style="color:var(--text-light)">(' + plan + ')</small></span><strong>R' + price.toLocaleString() + '</strong></div>';
+        breakdownHtml +=
+            '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:.85rem">' +
+                '<span>' + ent.name + ' <small style="color:var(--text-light)">(' + plan + ')</small></span>' +
+                '<strong>R' + price.toLocaleString() + '</strong>' +
+            '</div>';
     });
 
     var paymentRef = 'PAY-' + Date.now().toString(36).toUpperCase();
@@ -1081,9 +1560,13 @@ function showPaymentModal() {
         '<div class="modal-body">' +
             '<div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">' +
                 breakdownHtml +
-                '<div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:8px;border-top:2px solid var(--teal-mid);font-size:1.05rem;font-weight:700;color:var(--teal-mid)"><span>Total Due</span><strong>R' + monthlyTotal.toLocaleString() + '</strong></div>' +
+                '<div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:8px;border-top:2px solid var(--teal-mid);font-size:1.05rem;font-weight:700;color:var(--teal-mid)">' +
+                    '<span>Total Due</span><strong>R' + monthlyTotal.toLocaleString() + '</strong>' +
+                '</div>' +
             '</div>' +
-            '<div style="text-align:center;margin-bottom:16px"><p style="font-size:.85rem;color:var(--text-mid);margin-bottom:8px">Reference: <strong style="color:var(--teal-mid)">' + paymentRef + '</strong></p></div>' +
+            '<div style="text-align:center;margin-bottom:16px">' +
+                '<p style="font-size:.85rem;color:var(--text-mid);margin-bottom:8px">Reference: <strong style="color:var(--teal-mid)">' + paymentRef + '</strong></p>' +
+            '</div>' +
             '<div style="background:rgba(26,139,168,.08);border-radius:var(--radius-sm);padding:14px;font-size:.82rem;color:var(--text-mid)">' +
                 '<strong style="color:var(--text-dark)">Payment Methods:</strong><br><br>' +
                 '💳 <strong>Card Payment</strong> — Coming soon (Paystack)<br>' +
@@ -1094,7 +1577,9 @@ function showPaymentModal() {
         '</div>' +
         '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Pay Later</button>' +
-            '<button class="btn-portal success" onclick="processPayment(' + monthlyTotal + ',\'' + paymentRef + '\')"><i class="fas fa-check-circle"></i> Confirm Payment — R' + monthlyTotal.toLocaleString() + '</button>' +
+            '<button class="btn-portal success" onclick="processPayment(' + monthlyTotal + ',\'' + paymentRef + '\')">' +
+                '<i class="fas fa-check-circle"></i> Confirm Payment — R' + monthlyTotal.toLocaleString() +
+            '</button>' +
         '</div>' +
         '</div></div>';
 }
@@ -1104,15 +1589,16 @@ function processPayment(amount, ref) {
         P.billing = { billingDay: 1, lastPaymentDate: null, nextDueDate: getNextBillingDate(), status: 'current', dismissedToday: null };
     }
     P.billing.lastPaymentDate = new Date().toISOString();
-    P.billing.nextDueDate = getNextBillingDate();
-    P.billing.status = 'current';
-    P.billing.dismissedToday = null;
+    P.billing.nextDueDate     = getNextBillingDate();
+    P.billing.status          = 'current';
+    P.billing.dismissedToday  = null;
 
     savePortalData({
         billing: P.billing,
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'payment_made', date: new Date().toISOString(),
-            by: P.user ? P.user.name : 'Portal',
+            action: 'payment_made',
+            date:   new Date().toISOString(),
+            by:     P.user ? P.user.name : 'Portal',
             reason: 'Payment R' + amount.toLocaleString() + ' — Ref: ' + ref
         })
     });
@@ -1122,7 +1608,9 @@ function processPayment(amount, ref) {
     showToast('success', '✅ Payment of R' + amount.toLocaleString() + ' confirmed! Next due: ' + P.billing.nextDueDate);
 }
 
-// ============ PROFILE POPUP ============
+// ============================================================
+// PROFILE
+// ============================================================
 function showProfileSection() {
     var o = P.owner || {};
     document.getElementById('modal-container').innerHTML =
@@ -1146,7 +1634,9 @@ function showProfileSection() {
                 '<div class="profile-field"><label>Business Type</label><span>' + (o.bizType || '—') + '</span></div>' +
                 '<div class="profile-field"><label>Number of Entities</label><span>' + P.entities.length + '</span></div>' +
             '</div>' +
-            (o.groupAddress ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>' : '') +
+            (o.groupAddress
+                ? '<div class="profile-grid" style="margin-top:10px"><div class="profile-field" style="grid-column:1/-1"><label>Head Office Address</label><span>' + o.groupAddress + '</span></div></div>'
+                : '') +
         '</div>' +
         '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>' +
@@ -1155,7 +1645,6 @@ function showProfileSection() {
         '</div></div>';
 }
 
-// ============ EDIT PROFILE ============
 function showEditProfileModal() {
     var o = P.owner || {};
     document.getElementById('modal-container').innerHTML =
@@ -1166,12 +1655,32 @@ function showEditProfileModal() {
         '</div>' +
         '<div class="modal-body">' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-user" style="color:var(--teal-mid)"></i> Owner Information</h4>' +
-            '<div class="form-row"><div class="form-field"><label>Full Name *</label><input type="text" id="ep-name" value="' + (o.name || '') + '"></div><div class="form-field"><label>Email</label><input type="email" id="ep-email" value="' + (o.email || '') + '" disabled style="opacity:.6"></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>Phone</label><input type="tel" id="ep-phone" value="' + (o.phone || '') + '"></div><div class="form-field"><label>ID Number</label><input type="text" id="ep-id" value="' + (o.idNumber || '') + '"></div></div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Full Name *</label><input type="text" id="ep-name" value="' + (o.name || '') + '"></div>' +
+                '<div class="form-field"><label>Email</label><input type="email" id="ep-email" value="' + (o.email || '') + '" disabled style="opacity:.6"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Phone</label><input type="tel" id="ep-phone" value="' + (o.phone || '') + '"></div>' +
+                '<div class="form-field"><label>ID Number</label><input type="text" id="ep-id" value="' + (o.idNumber || '') + '"></div>' +
+            '</div>' +
             '<h4 style="font-size:.92rem;color:var(--text-dark);margin:20px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--teal-mid)"><i class="fas fa-building" style="color:var(--teal-mid)"></i> Group Information</h4>' +
-            '<div class="form-row"><div class="form-field"><label>Group / Company Name</label><input type="text" id="ep-group" value="' + (o.groupName || '') + '"></div><div class="form-field"><label>Group VAT</label><input type="text" id="ep-groupvat" value="' + (o.groupVat || '') + '"></div></div>' +
-            '<div class="form-row"><div class="form-field full"><label>Head Office Address</label><textarea id="ep-groupaddr" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (o.groupAddress || '') + '</textarea></div></div>' +
-            '<div class="form-row"><div class="form-field"><label>Business Type</label><select id="ep-biztype"><option' + (o.bizType === 'Restaurant Group' ? ' selected' : '') + '>Restaurant Group</option><option' + (o.bizType === 'Hotel Group' ? ' selected' : '') + '>Hotel Group</option><option' + (o.bizType === 'Catering Company' ? ' selected' : '') + '>Catering Company</option><option' + (o.bizType === 'Mixed Hospitality' ? ' selected' : '') + '>Mixed Hospitality</option><option' + (o.bizType === 'Other' ? ' selected' : '') + '>Other</option></select></div></div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Group / Company Name</label><input type="text" id="ep-group" value="' + (o.groupName || '') + '"></div>' +
+                '<div class="form-field"><label>Group VAT</label><input type="text" id="ep-groupvat" value="' + (o.groupVat || '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field full"><label>Head Office Address</label><textarea id="ep-groupaddr" rows="2" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.9rem;color:var(--text-dark);resize:vertical;width:100%">' + (o.groupAddress || '') + '</textarea></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+                '<div class="form-field"><label>Business Type</label>' +
+                '<select id="ep-biztype">' +
+                    '<option' + (o.bizType === 'Restaurant Group'   ? ' selected' : '') + '>Restaurant Group</option>' +
+                    '<option' + (o.bizType === 'Hotel Group'        ? ' selected' : '') + '>Hotel Group</option>' +
+                    '<option' + (o.bizType === 'Catering Company'   ? ' selected' : '') + '>Catering Company</option>' +
+                    '<option' + (o.bizType === 'Mixed Hospitality'  ? ' selected' : '') + '>Mixed Hospitality</option>' +
+                    '<option' + (o.bizType === 'Other'              ? ' selected' : '') + '>Other</option>' +
+                '</select></div>' +
+            '</div>' +
         '</div>' +
         '<div class="modal-footer" style="background:var(--bg);border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>' +
@@ -1183,54 +1692,57 @@ function showEditProfileModal() {
 function processSaveProfile() {
     var name = document.getElementById('ep-name').value.trim();
     if (!name) { showToast('error', 'Name is required'); return; }
-    P.owner.name = name;
-    P.owner.phone = document.getElementById('ep-phone').value.trim();
-    P.owner.idNumber = document.getElementById('ep-id').value.trim();
-    P.owner.groupName = document.getElementById('ep-group').value.trim();
-    P.owner.groupVat = document.getElementById('ep-groupvat').value.trim();
+    P.owner.name         = name;
+    P.owner.phone        = document.getElementById('ep-phone').value.trim();
+    P.owner.idNumber     = document.getElementById('ep-id').value.trim();
+    P.owner.groupName    = document.getElementById('ep-group').value.trim();
+    P.owner.groupVat     = document.getElementById('ep-groupvat').value.trim();
     P.owner.groupAddress = document.getElementById('ep-groupaddr').value.trim();
-    P.owner.bizType = document.getElementById('ep-biztype').value;
+    P.owner.bizType      = document.getElementById('ep-biztype').value;
     savePortalData({ owner: P.owner });
     closeModal();
     renderPortal();
     showToast('success', '✅ Profile updated! Changes will reflect across all platforms.');
 }
-</script>
-<script>
-// ============ UTILITY FUNCTIONS ============
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
 function closeModal() {
     document.getElementById('modal-container').innerHTML = '';
 }
 
 function showToast(type, msg) {
-    var ic = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+    var icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-triangle', info: 'info-circle' };
     var t = document.createElement('div');
     t.className = 'toast ' + type;
-    t.innerHTML = '<i class="fas fa-' + ic[type] + '"></i><span>' + msg + '</span><button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+    t.innerHTML =
+        '<i class="fas fa-' + icons[type] + '"></i>' +
+        '<span>' + msg + '</span>' +
+        '<button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
     document.getElementById('toast-wrap').appendChild(t);
     setTimeout(function() {
-        t.style.opacity = '0';
+        t.style.opacity   = '0';
         t.style.transform = 'translateX(100%)';
-        setTimeout(function() { t.remove(); }, 300);
+        t.style.transition = 'all .3s ease';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
     }, 4000);
 }
 
 function openWebApp() {
     var currentUrl = window.location.href;
-    var appUrl = '';
-    if (currentUrl.includes('/portal.html')) {
-        appUrl = currentUrl.replace('portal.html', 'app/app.html');
-    } else {
-        appUrl = window.location.origin + '/app/app.html';
-    }
+    var appUrl     = currentUrl.includes('/portal.html')
+        ? currentUrl.replace('portal.html', 'app/app.html')
+        : window.location.origin + '/app/app.html';
     window.open(appUrl, '_blank');
 }
 
 function openWhatsApp() {
-    var ownerName = P.owner ? P.owner.name : 'Customer';
-    var ownerEmail = P.owner ? P.owner.email : '';
+    var ownerName   = P.owner ? P.owner.name : 'Customer';
+    var ownerEmail  = P.owner ? P.owner.email : '';
     var entityCount = P.entities ? P.entities.length : 0;
-    var message = '🆘 *StockAI-Pro Portal Support*\n\n' +
+    var message =
+        '🆘 *StockAI-Pro Portal Support*\n\n' +
         '👤 ' + ownerName + '\n' +
         '📧 ' + ownerEmail + '\n' +
         '🏢 ' + entityCount + ' entities\n' +
@@ -1239,12 +1751,13 @@ function openWhatsApp() {
     window.open('https://wa.me/27790440508?text=' + encodeURIComponent(message), '_blank');
 }
 
-// ============ AUTO SIGN-OUT ON LOAD ============
+// ============================================================
+// SECURITY & SESSION
+// ============================================================
 auth.signOut().catch(function() {});
 
-// ============ SESSION TIMEOUT (30 MINUTES) ============
 var portalLastActivity = Date.now();
-var PORTAL_TIMEOUT = 30 * 60 * 1000;
+var PORTAL_TIMEOUT     = 30 * 60 * 1000;
 
 ['click', 'keypress', 'mousemove', 'scroll', 'touchstart'].forEach(function(evt) {
     document.addEventListener(evt, function() {
@@ -1254,16 +1767,16 @@ var PORTAL_TIMEOUT = 30 * 60 * 1000;
 
 setInterval(function() {
     if (!P.user) return;
-    var elapsed = Date.now() - portalLastActivity;
-    if (elapsed >= PORTAL_TIMEOUT) {
+    if (Date.now() - portalLastActivity >= PORTAL_TIMEOUT) {
         showToast('warning', '⏰ Session expired due to inactivity');
         setTimeout(function() { portalLogout(); }, 1500);
     }
 }, 30000);
 
-// ============ SECURITY ============
 document.addEventListener('contextmenu', function(e) {
-    if (e.target.closest('.portal-stat') || e.target.closest('.billing-table') || e.target.closest('.entity-details-grid')) {
+    if (e.target.closest('.portal-stat') ||
+        e.target.closest('.billing-table') ||
+        e.target.closest('.entity-details-grid')) {
         e.preventDefault();
         showToast('warning', '🔒 Right-click disabled on sensitive data');
         return false;
@@ -1273,6 +1786,7 @@ document.addEventListener('contextmenu', function(e) {
 console.log('✅ StockAI-Pro Portal fully loaded');
 console.log('🔥 Firebase connected');
 console.log('🔒 Security active');
+console.log('🧩 Feature management ready');
 </script>
 </body>
 </html>
