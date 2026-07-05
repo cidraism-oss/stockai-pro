@@ -172,7 +172,12 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
 <!-- LOGIN -->
 <div class="pos-login" id="pos-login">
 <div class="pos-login-card">
-<div class="pos-login-logo"><i class="fas fa-cash-register"></i></div>
+<div class="pos-login-logo" 
+     style="background:none;width:auto;height:auto">
+    <img src="/logo.svg" 
+         alt="StockAI-Pro" 
+         style="height:60px;width:auto">
+</div>
 <h2>StockAI-Pro POS</h2>
 <p class="sub">Point of Sale System</p>
 <form onsubmit="posLogin(event)">
@@ -190,7 +195,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);fon
 <div class="pos-app hidden" id="pos-app">
 <header class="pos-header">
 <a href="hub.html" style="color:#fff;font-size:.85rem;text-decoration:none;display:flex;align-items:center;gap:4px;margin-right:4px"><i class="fas fa-th"></i></a>
-<i class="fas fa-cash-register"></i>
+<img src="/logo.svg" alt="StockAI-Pro" style="height:28px;width:auto;filter:brightness(0) invert(1)">
 <div class="pos-header-info">
 <span id="pos-waiter-name">Waiter</span>
 <small id="pos-entity-name">Entity</small>
@@ -1060,45 +1065,2125 @@ function submitWaiterCashup(){
     });
 }
 
-// ============================================================
-// TOAST
-// ============================================================
-function posToast(type,msg){
-    var icons={success:'check-circle',error:'times-circle',info:'info-circle',warning:'exclamation-triangle'};
-    var t=document.createElement('div');t.className='pos-toast '+type;
-    t.innerHTML='<i class="fas fa-'+(icons[type]||'info-circle')+'"></i><span>'+msg+'</span>';
-    document.getElementById('pos-toast-wrap').appendChild(t);
-    setTimeout(function(){if(t.parentElement)t.remove();},3000);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d4a5c">
+<title>StockAI-Pro POS</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{
+    --primary:#1a8ba8;--primary-dark:#0d4a5c;
+    --bg:#f0f7f9;--bg-card:#fff;
+    --text:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
+    --gold:#f59e0b;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;
+    --border:#c4dde4;--shadow:0 2px 12px rgba(13,74,92,.08);--shadow-lg:0 8px 30px rgba(13,74,92,.15);
+    --r:12px;--rs:8px
+}
+@media(prefers-color-scheme:dark){
+    :root{
+        --bg:#0a1a1f;--bg-card:#0f2a33;
+        --text:#e0f0f4;--text-mid:#a0c8d4;--text-light:#6a9aaa;--text-muted:#4a7a8a;
+        --border:#1a3a44;--shadow:0 2px 12px rgba(0,0,0,.3)
+    }
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);font-size:14px;
+     user-select:none;-webkit-user-select:none}
+.hidden{display:none!important}
+button{font-family:inherit}
+
+/* ── LOGIN ── */
+.pos-login{position:fixed;inset:0;background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
+.pos-login-card{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.pos-login-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    border-radius:14px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1.6rem;margin:0 auto 14px}
+.pos-login-card h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.pos-login-card .sub{font-size:.82rem;color:var(--text-light);margin-bottom:24px}
+.pos-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--rs);
+    font-size:.95rem;font-family:inherit;color:var(--text);margin-bottom:12px;background:var(--bg);
+    transition:.2s}
+.pos-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,139,168,.15)}
+.pos-btn{width:100%;padding:14px;border:none;border-radius:var(--rs);font-size:1rem;font-weight:700;
+    cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;transition:.2s}
+.pos-btn:disabled{opacity:.6;cursor:not-allowed}
+.pos-install-btn{margin-top:16px;padding:13px;background:linear-gradient(135deg,#f59e0b,#d97706);
+    color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;
+    font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+
+/* ── APP SHELL ── */
+.pos-app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+.pos-header{height:50px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;color:#fff;
+    font-size:.88rem;font-weight:700}
+.pos-header-info{flex:1;display:flex;flex-direction:column}
+.pos-header-info small{font-size:.65rem;color:rgba(255,255,255,.7);font-weight:400}
+.pos-header-btn{padding:6px 12px;background:rgba(255,255,255,.15);border:none;border-radius:var(--rs);
+    color:#fff;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;
+    display:flex;align-items:center;gap:4px}
+.pos-header-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── DASHBOARD ── */
+.waiter-dash{flex:1;overflow-y:auto;padding:16px}
+.dash-welcome{background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);
+    margin-bottom:16px;display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)}
+.dash-avatar{width:50px;height:50px;border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;font-weight:700;
+    flex-shrink:0}
+.dash-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.dash-stat{background:var(--bg-card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);
+    text-align:center;border-left:3px solid var(--primary)}
+.dash-stat small{font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600;
+    display:block;margin-bottom:4px}
+.dash-stat strong{font-size:1.4rem;font-weight:800;color:var(--text)}
+.dash-stat.gold{border-left-color:var(--gold)}
+.dash-stat.green{border-left-color:var(--success)}
+.dash-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.dash-action{background:var(--bg-card);border-radius:var(--r);padding:24px 16px;box-shadow:var(--shadow);
+    text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent}
+.dash-action:active{transform:scale(.97);border-color:var(--primary)}
+.dash-action i{font-size:2rem;display:block;margin-bottom:10px}
+.dash-action h3{font-size:.95rem;font-weight:700;color:var(--text)}
+.dash-action p{font-size:.75rem;color:var(--text-light);margin-top:4px}
+
+/* ── ORDER SCREEN ── */
+.order-screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:80}
+.order-header{height:50px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    display:flex;align-items:center;padding:0 12px;gap:10px;color:#fff;flex-shrink:0}
+.order-header h3{font-size:.92rem;font-weight:700;flex:1}
+.order-body{flex:1;display:flex;overflow:hidden}
+.order-menu{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.order-tabs{display:flex;overflow-x:auto;flex-shrink:0;padding:8px;gap:6px;
+    background:var(--bg-card);border-bottom:1px solid var(--border)}
+.order-tabs::-webkit-scrollbar{display:none}
+.order-tab{padding:8px 16px;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;
+    white-space:nowrap;color:#fff;border:none;font-family:inherit;flex-shrink:0;opacity:.7;transition:.2s}
+.order-tab.active{opacity:1;transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.order-items-grid{flex:1;overflow-y:auto;padding:8px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:8px;align-content:start}
+.order-items-grid::-webkit-scrollbar{display:none}
+.order-item-card{background:var(--bg-card);border-radius:var(--rs);padding:12px;box-shadow:var(--shadow);
+    cursor:pointer;transition:.2s;border:2px solid transparent;position:relative;text-align:center}
+.order-item-card:active{transform:scale(.95);border-color:var(--primary)}
+.order-item-card.out-of-stock{opacity:.4;pointer-events:none}
+.item-name{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.2}
+.item-price{font-size:.95rem;font-weight:800;color:var(--primary)}
+.item-portions{font-size:.65rem;color:var(--text-muted);margin-top:4px}
+.item-special{position:absolute;top:4px;right:4px;background:var(--gold);color:#fff;
+    padding:2px 6px;border-radius:4px;font-size:.55rem;font-weight:700}
+.item-oos{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.85);border-radius:var(--rs);font-size:.75rem;font-weight:700;
+    color:var(--danger)}
+
+/* ── ORDER BILL PANEL ── */
+.order-bill{width:280px;display:flex;flex-direction:column;background:var(--bg-card);flex-shrink:0}
+.bill-header{padding:12px;background:var(--bg);border-bottom:1px solid var(--border);
+    font-size:.82rem;font-weight:700;color:var(--text);display:flex;justify-content:space-between;align-items:center}
+.bill-items{flex:1;overflow-y:auto;padding:8px}
+.bill-items::-webkit-scrollbar{display:none}
+.bill-item{display:flex;align-items:flex-start;gap:8px;padding:8px;background:var(--bg);
+    border-radius:var(--rs);margin-bottom:6px;font-size:.82rem;position:relative;transition:.2s}
+.bill-item.sent{opacity:.7;border-left:3px solid var(--success)}
+.bill-item.ready{border-left:3px solid var(--gold)}
+.bill-item-info{flex:1}
+.bill-item-name{font-weight:600;color:var(--text)}
+.bill-item-meta{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+.bill-item-note{font-size:.7rem;color:var(--gold);font-style:italic;margin-top:2px}
+.bill-item-price{font-weight:700;color:var(--primary);white-space:nowrap;font-size:.85rem}
+.bill-item-actions{display:flex;gap:4px;margin-top:5px}
+.bill-item-btn{padding:3px 8px;border:none;border-radius:4px;font-size:.65rem;font-weight:600;
+    cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:3px}
+.bill-item-btn.void{background:rgba(201,69,69,.12);color:var(--danger)}
+.bill-item-btn.transfer{background:rgba(43,142,179,.12);color:var(--info)}
+.bill-total-area{padding:12px;border-top:2px solid var(--border);background:var(--bg-card)}
+.bill-total-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem;color:var(--text)}
+.bill-total-row.total{font-size:1.1rem;font-weight:800;color:var(--primary);
+    padding:8px 0;border-top:1px solid var(--border);margin-top:4px}
+.bill-action-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.bill-send-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--success),#1a7a4a);
+    color:#fff;border:none;border-radius:var(--rs);font-size:.92rem;font-weight:700;cursor:pointer;
+    font-family:inherit;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;
+    grid-column:1/-1;transition:.2s}
+.bill-send-btn:disabled{opacity:.5;cursor:not-allowed}
+.bill-pay-btn{padding:11px;border:none;border-radius:var(--rs);font-size:.82rem;font-weight:700;
+    cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;
+    gap:6px;transition:.2s}
+.bill-pay-cash{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff}
+.bill-pay-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
+.bill-pay-discount{background:rgba(212,160,23,.15);color:var(--warning);
+    border:1.5px solid var(--warning);grid-column:1/-1;padding:10px}
+
+/* ── MODALS (shared) ── */
+.notes-modal{position:fixed;inset:0;background:rgba(13,74,92,.7);z-index:150;
+    display:flex;align-items:center;justify-content:center;padding:20px}
+.notes-modal-card{background:var(--bg-card);border-radius:16px;width:100%;max-width:400px;
+    padding:24px;box-shadow:var(--shadow-lg)}
+.notes-modal-card h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px}
+.notes-textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--rs);
+    font-size:.88rem;font-family:inherit;color:var(--text);min-height:80px;resize:vertical;background:var(--bg)}
+.notes-textarea:focus{outline:none;border-color:var(--primary)}
+.notes-subcats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.notes-subcat{padding:6px 14px;border-radius:16px;font-size:.78rem;font-weight:600;cursor:pointer;
+    border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-light);transition:.2s}
+.notes-subcat.selected{background:var(--primary);border-color:var(--primary);color:#fff}
+.notes-actions{display:flex;gap:8px;margin-top:14px}
+.notes-actions button{flex:1;padding:12px;border:none;border-radius:var(--rs);font-size:.88rem;
+    font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+
+/* ── MANAGER PIN ── */
+.pin-modal{position:fixed;inset:0;background:rgba(13,74,92,.8);z-index:200;
+    display:flex;align-items:center;justify-content:center;padding:20px}
+.pin-card{background:var(--bg-card);border-radius:16px;width:100%;max-width:360px;
+    padding:28px;box-shadow:var(--shadow-lg);text-align:center}
+.pin-card h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.pin-card p{font-size:.82rem;color:var(--text-light);margin-bottom:20px}
+.pin-input{width:100%;padding:16px;text-align:center;font-size:2rem;letter-spacing:12px;
+    border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;color:var(--text);
+    background:var(--bg)}
+.pin-input:focus{outline:none;border-color:var(--primary)}
+.pin-attempts{font-size:.75rem;color:var(--danger);margin-top:8px;min-height:18px}
+
+/* ── VOID / TRANSFER ── */
+.void-reasons{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.void-reason{padding:12px 16px;background:var(--bg);border-radius:var(--rs);cursor:pointer;
+    font-size:.88rem;color:var(--text);font-weight:500;border:1.5px solid var(--border);
+    transition:.2s;text-align:left}
+.void-reason:hover{border-color:var(--danger);background:rgba(201,69,69,.05)}
+.transfer-tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.transfer-table{padding:14px;background:var(--bg);border-radius:var(--rs);text-align:center;
+    cursor:pointer;border:1.5px solid var(--border);font-weight:700;font-size:1rem;
+    color:var(--text);transition:.2s}
+.transfer-table:hover{border-color:var(--primary);background:rgba(26,139,168,.05)}
+.transfer-table.occupied{border-color:var(--gold);background:rgba(245,158,11,.05)}
+
+/* ── CASHUP ── */
+.cashup-screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:80}
+.cashup-content{flex:1;overflow-y:auto;padding:16px;max-width:500px;margin:0 auto;width:100%}
+.cashup-card{background:var(--bg-card);border-radius:var(--r);padding:20px;
+    box-shadow:var(--shadow);margin-bottom:12px}
+.cashup-row{display:flex;justify-content:space-between;padding:8px 0;
+    border-bottom:1px solid var(--border);font-size:.88rem}
+.cashup-row:last-child{border-bottom:none}
+.cashup-row span{color:var(--text-light)}
+.cashup-row strong{color:var(--text)}
+.cashup-total{font-size:1.2rem;font-weight:900;padding:14px 0 4px;
+    display:flex;justify-content:space-between;border-top:2px solid var(--border);margin-top:8px}
+
+/* ── OPEN TABLES GRID ── */
+.open-tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+.open-table-card{background:var(--bg-card);border-radius:var(--r);padding:16px;
+    box-shadow:var(--shadow);text-align:center;cursor:pointer;transition:.2s;border:2px solid var(--border)}
+.open-table-card:active{transform:scale(.97)}
+.open-table-card.occupied{border-color:var(--gold);background:rgba(245,158,11,.03)}
+.open-table-card .table-num{font-size:1.5rem;font-weight:900;color:var(--text)}
+.open-table-card .table-info{font-size:.72rem;color:var(--text-light);margin-top:4px}
+.open-table-card .table-total{font-size:.88rem;font-weight:700;color:var(--primary);margin-top:6px}
+.open-table-card .table-alert{font-size:.68rem;color:var(--success);margin-top:3px;font-weight:600}
+
+/* ── TOAST ── */
+.pos-toast-wrap{position:fixed;top:60px;right:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.pos-toast{padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:500;
+    animation:slideIn .3s ease;min-width:260px;max-width:320px}
+@keyframes slideIn{from{transform:translateX(120px);opacity:0}to{transform:translateX(0);opacity:1}}
+.pos-toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
+.pos-toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
+.pos-toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--info)}
+.pos-toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--warning)}
+
+/* ── DISCOUNT MODAL ── */
+.discount-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.discount-btn{padding:14px;border:2px solid var(--border);border-radius:var(--rs);
+    text-align:center;cursor:pointer;font-family:inherit;background:var(--bg-card);
+    font-weight:700;font-size:.9rem;color:var(--text);transition:.2s}
+.discount-btn:hover{border-color:var(--warning);background:rgba(212,160,23,.08)}
+.discount-btn.selected{border-color:var(--warning);background:rgba(212,160,23,.12);color:var(--warning)}
+
+/* ── QR CODE ── */
+.qr-display{text-align:center;padding:20px}
+.qr-display img{border-radius:var(--rs);box-shadow:var(--shadow)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+    .order-body{flex-direction:column}
+    .order-bill{width:100%;height:45%;border-top:1px solid var(--border);border-right:none}
+    .order-menu{height:55%}
+    .order-items-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+    .dash-actions{grid-template-columns:1fr}
+    .dash-stats{grid-template-columns:1fr 1fr 1fr}
+}
+@media(min-width:1024px){
+    .order-items-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+    .order-bill{width:320px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN
+════════════════════════════════════════════ -->
+<div class="pos-login" id="pos-login">
+    <div class="pos-login-card">
+        <div class="pos-login-logo" style="background:none;width:auto;height:auto">
+    <img src="/logo.svg" alt="StockAI-Pro" style="height:60px;width:auto">
+</div>
+        <h2>StockAI-Pro POS</h2>
+        <p class="sub">Point of Sale System</p>
+        <form onsubmit="posLogin(event)">
+            <input type="email" class="pos-input" id="pos-email"
+                   placeholder="Email address" autocomplete="email" required>
+            <input type="password" class="pos-input" id="pos-password"
+                   placeholder="Password" autocomplete="current-password" required>
+            <button type="submit" class="pos-btn" id="pos-login-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        <a href="#" onclick="posForgotPw();return false"
+           style="color:var(--primary);font-size:.82rem;display:block;margin-top:12px;text-decoration:none">
+            <i class="fas fa-key"></i> Forgot password?
+        </a>
+        <button class="pos-install-btn" onclick="showPosInstallGuide()">
+            <i class="fas fa-mobile-alt"></i> Install POS on Tablet
+        </button>
+        <p style="font-size:.72rem;color:var(--text-muted);margin-top:6px">
+            Tap for installation instructions
+        </p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div class="pos-app hidden" id="pos-app">
+    <header class="pos-header">
+        <a href="hub.html"
+           style="color:#fff;font-size:.85rem;text-decoration:none;display:flex;align-items:center;gap:4px;margin-right:4px"
+           title="Back to Hub"><i class="fas fa-th"></i></a>
+        <img src="/logo.svg" 
+     alt="StockAI-Pro" 
+     style="height:28px;width:auto;filter:brightness(0) invert(1)">
+<div class="pos-header-info">
+            <span id="pos-waiter-name">Waiter</span>
+            <small id="pos-entity-name">Entity</small>
+        </div>
+        <div id="pos-shift-time" style="font-size:.72rem;color:rgba(255,255,255,.7)">00:00:00</div>
+        <button class="pos-header-btn" onclick="showWaiterCashup()">
+            <i class="fas fa-calculator"></i> Cash Up
+        </button>
+        <button class="pos-header-btn" onclick="posLogout()" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </header>
+    <div class="waiter-dash" id="waiter-dash"></div>
+</div>
+
+<!-- Toast Container -->
+<div class="pos-toast-wrap" id="pos-toast-wrap"></div>
+
+<!-- ══════════════════════════════════════════
+     FIREBASE
+════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════
+   FIREBASE INIT
+═══════════════════════════════════════════ */
+var firebaseConfig = {
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db   = firebase.firestore();
+
+/* ═══════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════ */
+var POS = {
+    user:           null,
+    accountId:      null,
+    entityId:       null,
+    entityName:     null,
+    entity:         null,
+    accountData:    null,
+    inventory:      [],
+    menuTabs:       [],
+    menuItems:      [],
+    kitchenSections:[],
+    tables:         [],
+    happyHour:      { active: false },
+    orders:         {},
+    currentTable:   null,
+    currentOrder:   [],
+    clockInTime:    null,
+    syncListener:   null,
+    shiftTimer:     null,
+    stockSaveTimer: null,
+    _activeOrderTab:null,
+    _pinCallback:   null,
+    _pinAttempts:   0,
+    _pendingCashup: null
+};
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(function() {
+    auth.onAuthStateChanged(function(u) {
+        if (u) {
+            findPosAccount(u.email, function(found) {
+                if (found) {
+                    document.getElementById('pos-login').classList.add('hidden');
+                    enterPOS();
+                } else {
+                    document.getElementById('pos-login').classList.remove('hidden');
+                }
+            });
+        } else {
+            document.getElementById('pos-login').classList.remove('hidden');
+        }
+    });
+});
+
+function posLogin(e) {
+    e.preventDefault();
+    var email = (document.getElementById('pos-email').value    || '').trim().toLowerCase();
+    var pw    = (document.getElementById('pos-password').value || '').trim();
+    if (!email || !pw) { posToast('error', 'Enter email and password'); return; }
+
+    var btn = document.getElementById('pos-login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+
+    auth.signInWithEmailAndPassword(email, pw)
+        .then(function() {
+            return findPosAccount(email, function(found) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                if (found) {
+                    document.getElementById('pos-login').classList.add('hidden');
+                    enterPOS();
+                } else {
+                    posToast('error', 'No POS account found for this email.');
+                    auth.signOut();
+                }
+            });
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            var msg = err.code === 'auth/invalid-credential' ||
+                      err.code === 'auth/wrong-password'
+                    ? 'Incorrect email or password'
+                    : err.message;
+            posToast('error', msg);
+        });
 }
 
-// ============================================================
-// INSTALL GUIDE
-// ============================================================
-function showPosInstallGuide(){
-    var ua=navigator.userAgent||'';
-    var isIOS=/iPad|iPhone|iPod/.test(ua);
-    var steps=isIOS?
-        '<p>1. Open this page in <strong>Safari</strong></p>'+
-        '<p>2. Tap the <strong>Share ⬆️</strong> button</p>'+
-        '<p>3. Tap <strong>"Add to Home Screen"</strong></p>'+
-        '<p>4. Tap <strong>"Add"</strong></p>':
-        '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>'+
-        '<p>2. Tap <strong>"Add to Home screen"</strong></p>'+
-        '<p>3. Tap <strong>"Add"</strong></p>';
+function findPosAccount(email, cb) {
+    // Try cached accountId first (avoids full collection scan on re-login)
+    var cachedId = localStorage.getItem('pos_account_id');
+    if (cachedId) {
+        db.collection('accounts').doc(cachedId).get()
+            .then(function(doc) {
+                if (doc.exists && matchAccount(doc, email)) {
+                    if (cb) cb(true);
+                } else {
+                    localStorage.removeItem('pos_account_id');
+                    scanAllAccounts(email, cb);
+                }
+            })
+            .catch(function() { scanAllAccounts(email, cb); });
+    } else {
+        scanAllAccounts(email, cb);
+    }
+}
 
-    var modal=document.createElement('div');modal.className='notes-modal';modal.id='install-modal';
-    modal.innerHTML='<div class="notes-modal-card"><h3><i class="fas fa-mobile-alt" style="color:var(--primary)"></i> Install POS App</h3>'+
-        '<div style="font-size:.85rem;color:var(--text-mid);line-height:1.8;margin-bottom:16px">'+steps+'</div>'+
-        '<button style="width:100%;padding:12px;background:var(--bg);color:var(--text-light);border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit" '+
-        'onclick="document.getElementById(\'install-modal\').remove()">Close</button></div>';
+function scanAllAccounts(email, cb) {
+    db.collection('accounts').get()
+        .then(function(snap) {
+            var found = false;
+            snap.forEach(function(doc) {
+                if (found) return;
+                if (matchAccount(doc, email)) found = true;
+            });
+            if (cb) cb(found);
+        })
+        .catch(function() { if (cb) cb(false); });
+}
+
+function matchAccount(doc, email) {
+    var data = doc.data();
+    // Check owner
+    if (data.owner && data.owner.email &&
+        data.owner.email.toLowerCase() === email) {
+        setPosAccount(doc.id, data, email, 'owner', null);
+        return true;
+    }
+    // Check entity users
+    var users = data.users || {};
+    var found = false;
+    Object.keys(users).forEach(function(eid) {
+        if (found) return;
+        (users[eid] || []).forEach(function(u) {
+            if (found) return;
+            if (u.email && u.email.toLowerCase() === email) {
+                setPosAccount(doc.id, data, email, 'user', eid, u);
+                found = true;
+            }
+        });
+    });
+    return found;
+}
+
+function setPosAccount(docId, data, email, type, eid, userObj) {
+    localStorage.setItem('pos_account_id', docId);
+    POS.accountId   = docId;
+    POS.accountData = data;
+    var ents = data.entities || [];
+
+    if (type === 'owner') {
+        POS.user = {
+            name:  data.owner.name || email,
+            email: email,
+            role:  'Owner',
+            uid:   auth.currentUser ? auth.currentUser.uid : ''
+        };
+        // If multiple entities — pick first (entity selector can be added)
+        POS.entity     = ents[0] || null;
+        POS.entityId   = POS.entity ? POS.entity.id   : null;
+        POS.entityName = POS.entity ? POS.entity.name : '';
+    } else {
+        POS.user = {
+            name:  userObj.name || email,
+            email: email,
+            role:  userObj.role || 'Waiter',
+            uid:   auth.currentUser ? auth.currentUser.uid : '',
+            pin:   userObj.pin  || null
+        };
+        POS.entityId   = eid;
+        POS.entity     = ents.find(function(e) { return e.id === eid; }) || ents[0] || null;
+        POS.entityName = POS.entity ? POS.entity.name : '';
+    }
+}
+
+function posLogout() {
+    stopSync();
+    auth.signOut().then(function() {
+        POS.user         = null;
+        POS.accountId    = null;
+        POS.currentTable = null;
+        POS.currentOrder = [];
+        document.getElementById('pos-app').classList.add('hidden');
+        document.getElementById('pos-login').classList.remove('hidden');
+        // Remove any open screens
+        ['order-screen','cashup-screen','pin-modal',
+         'notes-modal','vt-modal','void-modal','transfer-modal',
+         'new-table-modal','install-modal','discount-modal','qr-modal'
+        ].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.remove();
+        });
+    });
+}
+
+function posForgotPw() {
+    var e = prompt('Enter your email address:');
+    if (!e) return;
+    auth.sendPasswordResetEmail(e.trim())
+        .then(function() { posToast('success', 'Password reset link sent!'); })
+        .catch(function(err) { posToast('error', err.message); });
+}
+
+function stopSync() {
+    if (POS.syncListener)   { POS.syncListener(); POS.syncListener = null; }
+    if (POS.shiftTimer)     { clearInterval(POS.shiftTimer); POS.shiftTimer = null; }
+    if (POS.stockSaveTimer) { clearTimeout(POS.stockSaveTimer); POS.stockSaveTimer = null; }
+}
+
+/* ═══════════════════════════════════════════
+   ENTER POS
+═══════════════════════════════════════════ */
+function enterPOS() {
+    document.getElementById('pos-app').classList.remove('hidden');
+    document.getElementById('pos-waiter-name').textContent  = POS.user ? POS.user.name : 'Waiter';
+    document.getElementById('pos-entity-name').textContent  = POS.entityName || 'Entity';
+
+    POS.clockInTime = new Date();
+    startShiftTimer();
+    loadPOSData();
+    startPOSSync();
+}
+
+function loadPOSData() {
+    if (!POS.accountId) return;
+    db.collection('accounts').doc(POS.accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) return;
+            var d = doc.data();
+            // Static config only — dynamic data handled by onSnapshot
+            POS.menuTabs        = (d.posMenuTabs        || {})[POS.entityId] || [];
+            POS.kitchenSections = (d.posKitchenSections || {})[POS.entityId] || [];
+            POS.tables          = (d.posTables          || {})[POS.entityId] || [];
+            POS.happyHour       = (d.posHappyHour       || {})[POS.entityId] || { active: false };
+        });
+}
+
+function startPOSSync() {
+    if (!POS.accountId) return;
+    stopSync();
+
+    POS.syncListener = db.collection('accounts').doc(POS.accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var d = doc.data();
+            POS.accountData = d;
+            POS.orders      = (d.posOrders  || {})[POS.entityId] || {};
+            POS.menuItems   = (d.posMenuItems|| {})[POS.entityId] || [];
+            POS.inventory   = (d.inventory   || {})[POS.entityId] || [];
+
+            calculatePortions();
+            renderDashboard();
+
+            // If order screen is open — refresh bill (for ready items etc.)
+            if (POS.currentTable && document.getElementById('order-screen')) {
+                POS.currentOrder = (POS.orders[POS.currentTable] || {}).items || [];
+                renderBill();
+            }
+        }, function(err) {
+            console.error('Sync error:', err);
+            posToast('error', 'Connection lost. Reconnecting…');
+        });
+}
+
+function posSave(fields) {
+    if (!POS.accountId) return Promise.resolve();
+    var data = {
+        lastUpdated:       firebase.firestore.FieldValue.serverTimestamp(),
+        lastUpdatedBy:     POS.user ? POS.user.name : 'POS',
+        lastUpdatedDevice: 'POS'
+    };
+    Object.keys(fields).forEach(function(k) { data[k] = fields[k]; });
+    return db.collection('accounts').doc(POS.accountId)
+        .set(data, { merge: true })
+        .catch(function(e) { console.warn('Save error:', e); });
+}
+
+/* ═══════════════════════════════════════════
+   SHIFT TIMER
+═══════════════════════════════════════════ */
+function startShiftTimer() {
+    if (POS.shiftTimer) clearInterval(POS.shiftTimer);
+    POS.shiftTimer = setInterval(function() {
+        if (!POS.clockInTime) return;
+        var diff = Date.now() - POS.clockInTime.getTime();
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        var el = document.getElementById('pos-shift-time');
+        if (el) el.textContent =
+            ('0'+h).slice(-2) + ':' + ('0'+m).slice(-2) + ':' + ('0'+s).slice(-2);
+    }, 1000);
+}
+
+function formatShiftTime() {
+    if (!POS.clockInTime) return '00:00';
+    var diff = Date.now() - POS.clockInTime.getTime();
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    return ('0'+h).slice(-2) + ':' + ('0'+m).slice(-2);
+}
+
+/* ═══════════════════════════════════════════
+   PRICING — HAPPY HOUR / SPECIALS
+═══════════════════════════════════════════ */
+function getItemPrice(item) {
+    if (item.specialActive && item.specialPrice)           return item.specialPrice;
+    if (isHappyHourActive() && item.happyHourPrice)        return item.happyHourPrice;
+    return item.price || 0;
+}
+
+function isHappyHourActive() {
+    var hh = POS.happyHour;
+    if (!hh) return false;
+    if (hh.manualOverride) return hh.active;
+    if (!hh.startTime || !hh.endTime) return false;
+    var now  = new Date();
+    var hhmm = ('0'+now.getHours()).slice(-2) + ':' + ('0'+now.getMinutes()).slice(-2);
+    return hhmm >= hh.startTime && hhmm <= hh.endTime;
+}
+
+/* ═══════════════════════════════════════════
+   PORTIONS / STOCK
+═══════════════════════════════════════════ */
+function calculatePortions() {
+    POS.menuItems.forEach(function(mi) {
+        if (!mi.linkedInventoryItems || mi.linkedInventoryItems.length === 0) {
+            mi.portionsAvailable = 999;
+            return;
+        }
+        var min = 999;
+        mi.linkedInventoryItems.forEach(function(invId) {
+            var inv = POS.inventory.find(function(i) { return i.id === invId; });
+            if (inv) {
+                var p = Math.floor((inv.quantity || 0) * (mi.portionsPerUnit || 1));
+                if (p < min) min = p;
+            }
+        });
+        mi.portionsAvailable = min;
+        mi.status = min <= 0 ? 'outofstock' : 'active';
+    });
+}
+
+function deductStock(menuItem) {
+    if (!menuItem.linkedInventoryItems || menuItem.linkedInventoryItems.length === 0) return;
+    menuItem.linkedInventoryItems.forEach(function(invId) {
+        var inv = POS.inventory.find(function(i) { return i.id === invId; });
+        if (!inv) return;
+        var deduct = 1 / (menuItem.portionsPerUnit || 1);
+        inv.quantity = Math.max(0, parseFloat(((inv.quantity||0) - deduct).toFixed(4)));
+        inv.value    = (inv.quantity || 0) * (inv.cost || 0);
+        inv.status   = inv.quantity === 0 ? 'out-of-stock'
+                     : inv.quantity <= (inv.reorder || 0) ? 'low-stock' : 'in-stock';
+    });
+    calculatePortions();
+    scheduleStockSave();
+}
+
+function reverseStockDeduction(orderItem) {
+    var mi = POS.menuItems.find(function(m) { return m.id === orderItem.menuItemId; });
+    if (!mi || !mi.linkedInventoryItems) return;
+    mi.linkedInventoryItems.forEach(function(invId) {
+        var inv = POS.inventory.find(function(i) { return i.id === invId; });
+        if (!inv) return;
+        var add  = 1 / (mi.portionsPerUnit || 1);
+        inv.quantity = parseFloat(((inv.quantity||0) + add).toFixed(4));
+        inv.value    = (inv.quantity || 0) * (inv.cost || 0);
+        inv.status   = inv.quantity === 0 ? 'out-of-stock'
+                     : inv.quantity <= (inv.reorder || 0) ? 'low-stock' : 'in-stock';
+    });
+    calculatePortions();
+    scheduleStockSave();
+}
+
+function scheduleStockSave() {
+    if (POS.stockSaveTimer) clearTimeout(POS.stockSaveTimer);
+    POS.stockSaveTimer = setTimeout(function() {
+        var update = {};
+        update['inventory.' + POS.entityId] = POS.inventory;
+        posSave(update);
+    }, 2000);
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+function renderDashboard() {
+    POS.happyHour.active = isHappyHourActive();
+
+    var openOrders = Object.keys(POS.orders).filter(function(k) {
+        return POS.orders[k] && POS.orders[k].status === 'open';
+    });
+
+    // Calculate shift sales from closed orders
+    var shiftStart   = POS.clockInTime ? POS.clockInTime.toISOString() : null;
+    var totalSales   = Object.values(POS.orders).reduce(function(sum, o) {
+        if (o.status === 'closed' && o.closedAt &&
+            (!shiftStart || o.closedAt >= shiftStart)) {
+            sum += o.total || 0;
+        }
+        return sum;
+    }, 0);
+
+    var html =
+        '<div class="dash-welcome">' +
+        '<div class="dash-avatar">' + (POS.user ? POS.user.name.charAt(0).toUpperCase() : 'W') + '</div>' +
+        '<div>' +
+        '<div style="font-size:1rem;font-weight:700">Welcome, ' + escHtml(POS.user ? POS.user.name : 'Waiter') + '</div>' +
+        '<div style="font-size:.78rem;color:var(--text-light)">' +
+        escHtml(POS.user ? POS.user.role : '') + ' • ' + escHtml(POS.entityName || '') + '</div>' +
+        (isHappyHourActive() ? '<div style="font-size:.75rem;color:var(--gold);margin-top:4px;font-weight:600">' +
+            '<i class="fas fa-star"></i> Happy Hour Active!</div>' : '') +
+        '</div></div>';
+
+    html +=
+        '<div class="dash-stats">' +
+        '<div class="dash-stat"><small>Shift Time</small><strong>' + formatShiftTime() + '</strong></div>' +
+        '<div class="dash-stat gold"><small>Total Sales</small><strong>R' + totalSales.toFixed(0) + '</strong></div>' +
+        '<div class="dash-stat green"><small>Open Tables</small><strong>' + openOrders.length + '</strong></div>' +
+        '</div>';
+
+    html +=
+        '<div class="dash-actions">' +
+        '<div class="dash-action" onclick="openNewTable()" style="border-left:4px solid var(--primary)">' +
+        '<i class="fas fa-plus-circle" style="color:var(--primary)"></i>' +
+        '<h3>Open Table</h3><p>Start a new table order</p></div>' +
+        '<div class="dash-action" onclick="openTakeaway()" style="border-left:4px solid var(--gold)">' +
+        '<i class="fas fa-shopping-bag" style="color:var(--gold)"></i>' +
+        '<h3>Takeaway</h3><p>Process a takeaway order</p></div>' +
+        '</div>';
+
+    if (openOrders.length > 0) {
+        html += '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);' +
+                'text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">' +
+                '<i class="fas fa-chair"></i> Open Tables</div>';
+        html += '<div class="open-tables-grid">';
+        openOrders.forEach(function(tableKey) {
+            var order = POS.orders[tableKey];
+            if (!order) return;
+            var items   = (order.items || []).filter(function(i) { return !i.voided; });
+            var total   = items.reduce(function(s, i) {
+                return s + ((i.price||0) * (i.qty||1));
+            }, 0);
+            var elapsed = order.openedAt
+                ? Math.floor((Date.now() - new Date(order.openedAt).getTime()) / 60000)
+                : 0;
+            var hasReady = items.some(function(i) { return i.status === 'ready'; });
+
+            html +=
+                '<div class="open-table-card occupied" onclick="resumeTable(\'' + tableKey + '\')">' +
+                '<div class="table-num">' + escHtml(String(order.tableNumber || tableKey)) + '</div>' +
+                '<div class="table-info">' + escHtml(order.customerName || 'Guest') +
+                ' • ' + (order.pax || 1) + ' pax</div>' +
+                '<div class="table-info">' + elapsed + ' min</div>' +
+                '<div class="table-total">R' + total.toFixed(2) + '</div>' +
+                (hasReady ? '<div class="table-alert"><i class="fas fa-bell"></i> Items Ready</div>' : '') +
+                '</div>';
+        });
+        html += '</div>';
+    }
+
+    document.getElementById('waiter-dash').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════
+   OPEN TABLE / TAKEAWAY
+═══════════════════════════════════════════ */
+function openNewTable() {
+    // Build available tables list
+    var availableOpts = '';
+    if (POS.tables.length > 0) {
+        var avail = POS.tables.filter(function(t) {
+            var o = POS.orders['table-' + t.number];
+            return !o || o.status !== 'open';
+        });
+        if (avail.length === 0) {
+            posToast('warning', 'All configured tables are currently open.');
+            return;
+        }
+        avail.forEach(function(t) {
+            availableOpts += '<option value="' + t.number + '">Table ' + t.number + '</option>';
+        });
+    } else {
+        for (var n = 1; n <= 30; n++) {
+            var o = POS.orders['table-' + n];
+            if (!o || o.status !== 'open') {
+                availableOpts += '<option value="' + n + '">Table ' + n + '</option>';
+            }
+        }
+        if (!availableOpts) {
+            posToast('warning', 'All tables are currently open.');
+            return;
+        }
+    }
+
+    removeModal('new-table-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'new-table-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card" style="max-width:420px">' +
+        '<h3><i class="fas fa-plus-circle" style="color:var(--primary)"></i> Open New Table</h3>' +
+
+        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);display:block;margin-bottom:4px">Table Number *</label>' +
+        '<select class="pos-input" id="nt-table" style="margin-bottom:12px">' + availableOpts + '</select>' +
+
+        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);display:block;margin-bottom:4px">Number of Guests *</label>' +
+        '<input type="number" class="pos-input" id="nt-pax" value="2" min="1" max="50" style="margin-bottom:12px">' +
+
+        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);display:block;margin-bottom:4px">Customer Name</label>' +
+        '<input type="text" class="pos-input" id="nt-name" placeholder="Optional" style="margin-bottom:0">' +
+
+        '<div class="notes-actions">' +
+        '<button style="background:var(--bg);color:var(--text-light)" ' +
+        'onclick="removeModal(\'new-table-modal\')">Cancel</button>' +
+        '<button style="background:var(--primary);color:#fff" onclick="confirmNewTable()">Open Table</button>' +
+        '</div></div>';
     document.body.appendChild(modal);
 }
 
-if('serviceWorker'in navigator){window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
-});}
+function confirmNewTable() {
+    var tableNum = document.getElementById('nt-table').value;
+    var pax      = parseInt(document.getElementById('nt-pax').value) || 2;
+    var name     = (document.getElementById('nt-name').value || '').trim() || 'Guest';
 
-console.log('✅ POS — Waiter Interface loaded');
+    if (!tableNum) { posToast('error', 'Please select a table'); return; }
+    if (pax < 1)   { posToast('error', 'Guests must be at least 1'); return; }
+
+    var tableKey = 'table-' + tableNum;
+    if (POS.orders[tableKey] && POS.orders[tableKey].status === 'open') {
+        posToast('error', 'Table ' + tableNum + ' is already open');
+        return;
+    }
+
+    removeModal('new-table-modal');
+
+    var order = {
+        id:              'ORD-' + Date.now(),
+        tableNumber:     parseInt(tableNum),
+        orderType:       'dine-in',
+        waiterName:      POS.user ? POS.user.name  : 'Waiter',
+        waiterId:        POS.user ? POS.user.uid   : '',
+        pax:             pax,
+        customerName:    name,
+        items:           [],
+        subtotal:        0,
+        gratuity:        0,
+        discount:        0,
+        total:           0,
+        paymentMethod:   null,
+        status:          'open',
+        openedAt:        new Date().toISOString(),
+        closedAt:        null,
+        isPromotion:     false,
+        promotionReason: null
+    };
+
+    POS.orders[tableKey] = order;
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + tableKey] = order;
+    posSave(update)
+        .then(function() { openOrderScreen(tableKey); })
+        .catch(function() {
+            posToast('error', 'Failed to open table. Please try again.');
+            delete POS.orders[tableKey];
+        });
+}
+
+function openTakeaway() {
+    var tableKey = 'takeaway-' + Date.now() + '-' +
+                   Math.random().toString(36).substr(2, 5);
+    var order = {
+        id:              'ORD-TK-' + Date.now(),
+        tableNumber:     'Takeaway',
+        orderType:       'takeaway',
+        waiterName:      POS.user ? POS.user.name : 'Waiter',
+        waiterId:        POS.user ? POS.user.uid  : '',
+        pax:             1,
+        customerName:    'Takeaway',
+        items:           [],
+        subtotal:        0,
+        gratuity:        0,
+        discount:        0,
+        total:           0,
+        paymentMethod:   null,
+        status:          'open',
+        openedAt:        new Date().toISOString(),
+        closedAt:        null,
+        isTakeaway:      true,
+        isPromotion:     false,
+        promotionReason: null
+    };
+
+    POS.orders[tableKey] = order;
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + tableKey] = order;
+    posSave(update)
+        .then(function() { openOrderScreen(tableKey); })
+        .catch(function() {
+            posToast('error', 'Failed to create takeaway. Please try again.');
+            delete POS.orders[tableKey];
+        });
+}
+
+function resumeTable(tableKey) { openOrderScreen(tableKey); }
+
+/* ═══════════════════════════════════════════
+   ORDER SCREEN
+═══════════════════════════════════════════ */
+function openOrderScreen(tableKey) {
+    // Remove any existing order screen first
+    removeModal('order-screen');
+
+    POS.currentTable = tableKey;
+    POS.currentOrder = (POS.orders[tableKey] || {}).items || [];
+
+    var order      = POS.orders[tableKey] || {};
+    var activeTab  = POS.menuTabs.length > 0 ? POS.menuTabs[0].id : null;
+    POS._activeOrderTab = activeTab;
+
+    var screen = document.createElement('div');
+    screen.className = 'order-screen';
+    screen.id        = 'order-screen';
+    screen.innerHTML =
+        '<div class="order-header">' +
+        '<button class="pos-header-btn" onclick="closeOrderScreen()">' +
+        '<i class="fas fa-arrow-left"></i></button>' +
+        '<h3>' +
+        (order.isTakeaway ? '<i class="fas fa-shopping-bag"></i> Takeaway'
+            : 'Table ' + escHtml(String(order.tableNumber || ''))) +
+        (order.customerName && !order.isTakeaway ? ' — ' + escHtml(order.customerName) : '') +
+        '</h3>' +
+        '<span style="font-size:.72rem;opacity:.7">' + (order.pax || 1) + ' pax</span>' +
+        '<button class="pos-header-btn" onclick="showQRCode(\'' + tableKey + '\')" title="Show QR Code">' +
+        '<i class="fas fa-qrcode"></i></button>' +
+        '</div>' +
+
+        '<div class="order-body">' +
+        '<div class="order-menu">' +
+        '<div class="order-tabs" id="order-tabs"></div>' +
+        '<div class="order-items-grid" id="order-items"></div>' +
+        '</div>' +
+
+        '<div class="order-bill">' +
+        '<div class="bill-header">' +
+        '<span>Current Order</span>' +
+        '<span id="bill-count">0 items</span>' +
+        '</div>' +
+        '<div class="bill-items" id="bill-items"></div>' +
+        '<div class="bill-total-area" id="bill-totals"></div>' +
+        '</div>' +
+        '</div>';
+
+    document.body.appendChild(screen);
+    renderOrderTabs();
+    renderOrderItems(activeTab);
+    renderBill();
+}
+
+function closeOrderScreen() {
+    removeModal('order-screen');
+    POS.currentTable = null;
+    POS.currentOrder = [];
+    renderDashboard();
+}
+
+/* ═══════════════════════════════════════════
+   MENU TABS + ITEMS
+═══════════════════════════════════════════ */
+function renderOrderTabs() {
+    var el = document.getElementById('order-tabs');
+    if (!el) return;
+    el.innerHTML = POS.menuTabs.map(function(tab) {
+        return '<button class="order-tab' + (POS._activeOrderTab === tab.id ? ' active' : '') + '" ' +
+               'style="background:' + (tab.color || '#1a8ba8') + '" ' +
+               'onclick="selectOrderTab(\'' + tab.id + '\')">' +
+               '<i class="fas fa-' + (tab.icon || 'tag') + '"></i> ' +
+               escHtml(tab.name) + '</button>';
+    }).join('');
+}
+
+function selectOrderTab(tabId) {
+    POS._activeOrderTab = tabId;
+    renderOrderTabs();
+    renderOrderItems(tabId);
+}
+
+function renderOrderItems(tabId) {
+    var el = document.getElementById('order-items');
+    if (!el) return;
+
+    var items = POS.menuItems.filter(function(i) { return i.tabId === tabId; });
+
+    if (items.length === 0) {
+        el.innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">' +
+            '<i class="fas fa-utensils" style="font-size:2rem;opacity:.3;display:block;margin-bottom:8px"></i>' +
+            'No items in this category</div>';
+        return;
+    }
+
+    el.innerHTML = items.map(function(item) {
+        var price = getItemPrice(item);
+        var oos   = item.status === 'outofstock' || item.portionsAvailable <= 0;
+        return '<div class="order-item-card' + (oos ? ' out-of-stock' : '') + '" ' +
+               'data-item-id="' + escHtml(item.id) + '" ' +
+               (oos ? '' : 'onclick="addItemToOrder(this.dataset.itemId)"') + '>' +
+               (item.specialActive ? '<div class="item-special">SPECIAL</div>' : '') +
+               '<div class="item-name">' + escHtml(item.name) + '</div>' +
+               '<div class="item-price">R' + price.toFixed(2) + '</div>' +
+               '<div class="item-portions">' +
+               (oos ? 'OUT OF STOCK'
+                   : (item.portionsAvailable >= 999 ? '✓ Available' : item.portionsAvailable + ' left')) +
+               '</div>' +
+               (oos ? '<div class="item-oos">SOLD OUT</div>' : '') +
+               '</div>';
+    }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   ADD ITEM TO ORDER
+═══════════════════════════════════════════ */
+function addItemToOrder(itemId) {
+    var item = POS.menuItems.find(function(i) { return i.id === itemId; });
+    if (!item || item.status === 'outofstock') return;
+
+    var tab     = POS.menuTabs.find(function(t) { return t.id === item.tabId; });
+    var subCats = (tab && tab.subCategories && tab.subCategories.length > 0)
+                ? tab.subCategories : null;
+
+    if (subCats) {
+        showNotesModal(item, subCats);
+    } else {
+        confirmAddItem(item, '', null);
+    }
+}
+
+function showNotesModal(item, subCats) {
+    removeModal('notes-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'notes-modal';
+
+    var subHtml = '';
+    if (subCats && subCats.length > 0) {
+        subHtml =
+            '<div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px">Options:</div>' +
+            '<div class="notes-subcats">' +
+            subCats.map(function(sc) {
+                return '<div class="notes-subcat" ' +
+                       'onclick="this.classList.toggle(\'selected\')" ' +
+                       'data-val="' + escHtml(sc) + '">' + escHtml(sc) + '</div>';
+            }).join('') +
+            '</div>';
+    }
+
+    modal.innerHTML =
+        '<div class="notes-modal-card">' +
+        '<h3>' + escHtml(item.name) + ' — R' + getItemPrice(item).toFixed(2) + '</h3>' +
+        subHtml +
+        '<div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px">Special Instructions:</div>' +
+        '<textarea class="notes-textarea" id="item-notes" ' +
+        'placeholder="e.g. No onions, extra sauce…"></textarea>' +
+        '<div class="notes-actions">' +
+        '<button style="background:var(--bg);color:var(--text-light)" ' +
+        'onclick="removeModal(\'notes-modal\')">Cancel</button>' +
+        '<button style="background:var(--primary);color:#fff" ' +
+        'data-item-id="' + escHtml(item.id) + '" ' +
+        'onclick="confirmAddFromModal(this.dataset.itemId)">Add to Order</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+    setTimeout(function() {
+        var ta = document.getElementById('item-notes');
+        if (ta) ta.focus();
+    }, 200);
+}
+
+function confirmAddFromModal(itemId) {
+    var item = POS.menuItems.find(function(i) { return i.id === itemId; });
+    if (!item) return;
+
+    var notes       = (document.getElementById('item-notes').value || '').trim();
+    var selectedSubs = [];
+    document.querySelectorAll('.notes-subcat.selected').forEach(function(el) {
+        selectedSubs.push(el.dataset.val);
+    });
+
+    var subNote  = selectedSubs.join(', ');
+    var fullNote = [subNote, notes].filter(function(n) { return n; }).join(' — ');
+
+    removeModal('notes-modal');
+    confirmAddItem(item, fullNote, selectedSubs);
+}
+
+function confirmAddItem(item, notes, subSelections) {
+    var price   = getItemPrice(item);
+    var tab     = POS.menuTabs.find(function(t) { return t.id === item.tabId; });
+    var section = item.sectionId || (tab ? tab.sectionId : null);
+
+    // Check for existing identical unsent item to merge qty
+    var existing = POS.currentOrder.find(function(i) {
+        return i.menuItemId === item.id &&
+               i.notes      === (notes || '') &&
+               i.status     === 'ordered' &&
+               !i.voided;
+    });
+
+    if (existing) {
+        existing.qty   = (existing.qty || 1) + 1;
+        existing.total = price * existing.qty;
+    } else {
+        var orderItem = {
+            id:            'OI-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            menuItemId:    item.id,
+            name:          item.name,
+            price:         price,
+            qty:           1,
+            total:         price,
+            notes:         notes || '',
+            subSelections: subSelections || [],
+            section:       section,
+            status:        'ordered',
+            orderedAt:     new Date().toISOString(),
+            sentAt:        null,
+            readyAt:       null,
+            voided:        false,
+            voidReason:    null,
+            voidBy:        null,
+            voidedAt:      null,
+            transferredFrom: null,
+            transferredAt:   null
+        };
+        POS.currentOrder.push(orderItem);
+    }
+
+    if (POS.orders[POS.currentTable]) {
+        POS.orders[POS.currentTable].items = POS.currentOrder;
+        recalcOrderTotal();
+    }
+
+    deductStock(item);
+    renderBill();
+    renderOrderItems(POS._activeOrderTab);
+    posToast('success', '✓ ' + item.name + ' added');
+}
+
+/* ═══════════════════════════════════════════
+   RENDER BILL
+═══════════════════════════════════════════ */
+function renderBill() {
+    var billEl   = document.getElementById('bill-items');
+    var countEl  = document.getElementById('bill-count');
+    var totalsEl = document.getElementById('bill-totals');
+    if (!billEl) return;
+
+    var items    = POS.currentOrder.filter(function(i) { return !i.voided; });
+    var unsentCt = items.filter(function(i) { return i.status === 'ordered'; }).length;
+
+    if (countEl) countEl.textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
+
+    if (items.length === 0) {
+        billEl.innerHTML =
+            '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:.82rem">' +
+            '<i class="fas fa-receipt" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3"></i>' +
+            'No items added yet</div>';
+    } else {
+        billEl.innerHTML = items.map(function(item) {
+            var qty       = item.qty || 1;
+            var linePrice = (item.price || 0) * qty;
+            var isSent    = item.status === 'sent';
+            var isReady   = item.status === 'ready';
+            var statusIcon = isReady ? '<i class="fas fa-bell" style="color:var(--gold)"></i>'
+                           : isSent  ? '<i class="fas fa-check" style="color:var(--success)"></i>'
+                           : '';
+            return '<div class="bill-item' + (isSent ? ' sent' : '') + (isReady ? ' ready' : '') + '">' +
+                   '<div class="bill-item-info">' +
+                   '<div class="bill-item-name">' + statusIcon + ' ' + escHtml(item.name) + '</div>' +
+                   (qty > 1 ? '<div class="bill-item-meta">×' + qty + ' @ R' + item.price.toFixed(2) + '</div>' : '') +
+                   (item.notes ? '<div class="bill-item-note">' + escHtml(item.notes) + '</div>' : '') +
+                   '<div class="bill-item-actions">' +
+                   '<button class="bill-item-btn void" ' +
+                   'data-item-id="' + item.id + '" ' +
+                   'onclick="showVoidTransfer(this.dataset.itemId)">' +
+                   '<i class="fas fa-ellipsis-h"></i> Options</button>' +
+                   '</div></div>' +
+                   '<div class="bill-item-price">R' + linePrice.toFixed(2) + '</div>' +
+                   '</div>';
+        }).join('');
+    }
+
+    recalcOrderTotal();
+
+    if (totalsEl) {
+        var order    = POS.orders[POS.currentTable] || {};
+        var subtotal = items.reduce(function(s, i) {
+            return s + ((i.price||0) * (i.qty||1));
+        }, 0);
+        var discount = order.discount  || 0;
+        var gratuity = order.gratuity  || 0;
+        var total    = subtotal - discount + gratuity;
+
+        totalsEl.innerHTML =
+            '<div class="bill-total-row"><span>Subtotal</span><strong>R' + subtotal.toFixed(2) + '</strong></div>' +
+            (discount > 0 ? '<div class="bill-total-row"><span>Discount</span>' +
+                '<strong style="color:var(--danger)">-R' + discount.toFixed(2) + '</strong></div>' : '') +
+            (gratuity > 0 ? '<div class="bill-total-row"><span>Gratuity</span>' +
+                '<strong style="color:var(--success)">+R' + gratuity.toFixed(2) + '</strong></div>' : '') +
+            '<div class="bill-total-row total"><span>TOTAL</span><strong>R' + total.toFixed(2) + '</strong></div>' +
+
+            '<div class="bill-action-btns">' +
+            '<button class="bill-send-btn" onclick="sendToKitchen()"' +
+            (unsentCt === 0 ? ' disabled' : '') + '>' +
+            '<i class="fas fa-paper-plane"></i> Send to Kitchen' +
+            (unsentCt > 0 ? ' (' + unsentCt + ')' : '') + '</button>' +
+
+            '<button class="bill-pay-btn bill-pay-cash" onclick="closeTable(\'cash\')">' +
+'<i class="fas fa-money-bill-wave"></i> Cash</button>' +
+
+'<button class="bill-pay-btn bill-pay-card" onclick="closeTable(\'card\')">' +
+'<i class="fas fa-credit-card"></i> Card</button>' +
+
+'<button class="bill-pay-btn bill-pay-discount" onclick="showDiscountModal()">' +
+'<i class="fas fa-tag"></i> Discount' +
+'<span style="font-size:.65rem;display:block;font-weight:400">Manager PIN</span>' +
+'</button>' +
+
+'<button class="bill-pay-btn" ' +
+'style="background:linear-gradient(135deg,var(--success),#1a7a4a);color:#fff;' +
+'grid-column:1/-1" onclick="showPromotionClose()">' +
+'<i class="fas fa-gift"></i> Promotion / Complimentary' +
+'<span style="font-size:.65rem;display:block;font-weight:400;opacity:.8">Manager PIN required</span>' +
+'</button>' +
+            '</div>';
+    }
+}
+
+function recalcOrderTotal() {
+    if (!POS.orders[POS.currentTable]) return;
+    var items    = POS.currentOrder.filter(function(i) { return !i.voided; });
+    var subtotal = items.reduce(function(s, i) {
+        return s + ((i.price||0) * (i.qty||1));
+    }, 0);
+    var order      = POS.orders[POS.currentTable];
+    order.subtotal = subtotal;
+    order.total    = subtotal - (order.discount||0) + (order.gratuity||0);
+    order.items    = POS.currentOrder;
+}
+
+/* ═══════════════════════════════════════════
+   SEND TO KITCHEN
+═══════════════════════════════════════════ */
+function sendToKitchen() {
+    var newItems = POS.currentOrder.filter(function(i) {
+        return i.status === 'ordered' && !i.voided;
+    });
+    if (newItems.length === 0) { posToast('info', 'No new items to send'); return; }
+
+    var kitchenItems = newItems.filter(function(i) { return i.section !== 'bar'; });
+    var barItems     = newItems.filter(function(i) { return i.section === 'bar'; });
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + POS.currentTable] =
+        POS.orders[POS.currentTable];
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedDevice'] = 'POS';
+
+    // Mark as sent only after successful save
+    posSave(update).then(function() {
+        newItems.forEach(function(i) {
+            i.status = 'sent';
+            i.sentAt = new Date().toISOString();
+        });
+
+        var parts = [];
+        if (kitchenItems.length > 0) parts.push(kitchenItems.length + ' to Kitchen');
+        if (barItems.length > 0)     parts.push(barItems.length + ' to Bar');
+        posToast('success', '✅ Sent: ' + parts.join(' + '));
+
+        renderBill();
+    }).catch(function() {
+        posToast('error', 'Failed to send order. Please try again.');
+    });
+}
+
+/* ═══════════════════════════════════════════
+   CLOSE TABLE / PAYMENT
+═══════════════════════════════════════════ */
+function closeTable(method) {
+    var order = POS.orders[POS.currentTable];
+    if (!order) return;
+
+    var items    = (order.items || []).filter(function(i) { return !i.voided; });
+    var unsentCt = items.filter(function(i) { return i.status === 'ordered'; }).length;
+
+    if (unsentCt > 0) {
+        if (!confirm('There are ' + unsentCt + ' unsent item(s). Close table anyway?')) return;
+    }
+
+    var total = order.total || 0;
+    if (total <= 0) {
+        posToast('warning', 'Order total is R0. Please check the order.');
+        return;
+    }
+
+    if (!confirm('Close table — ' + method.toUpperCase() + ' payment of R' + total.toFixed(2) + '?')) return;
+
+    order.status        = 'closed';
+    order.paymentMethod = method;
+    order.closedAt      = new Date().toISOString();
+    order.closedBy      = POS.user ? POS.user.name : 'Waiter';
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + POS.currentTable] = order;
+
+    posSave(update).then(function() {
+        posToast('success', '✅ Table closed — ' + method + ' payment of R' + total.toFixed(2));
+        closeOrderScreen();
+    }).catch(function() {
+        posToast('error', 'Failed to close table. Please try again.');
+        order.status = 'open'; // rollback
+    });
+}
+
+/* ═══════════════════════════════════════
+   PROMOTION / COMPLIMENTARY CLOSE
+═══════════════════════════════════════ */
+function showPromotionClose() {
+    // Step 1 — Manager must authorise
+    showManagerPin(function() {
+
+        // Step 2 — Ask for reason
+        removeModal('promo-modal');
+        var modal = document.createElement('div');
+        modal.className = 'notes-modal';
+        modal.id        = 'promo-modal';
+        modal.innerHTML =
+            '<div class="notes-modal-card">' +
+            '<h3><i class="fas fa-gift" style="color:var(--success)"></i> ' +
+            'Promotion / Complimentary</h3>' +
+            '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">' +
+            'Select a reason for this complimentary bill:</p>' +
+
+            '<div class="void-reasons">' +
+            ['VIP / Regular Customer',
+             'Management Complimentary',
+             'Birthday / Special Occasion',
+             'Quality Complaint Resolution',
+             'Staff Meal',
+             'Other'].map(function(reason) {
+                return '<div class="void-reason" ' +
+                       'data-reason="' + reason + '" ' +
+                       'onclick="confirmPromotionClose(this.dataset.reason)">' +
+                       reason + '</div>';
+            }).join('') +
+            '</div>' +
+
+            '<div class="notes-actions" style="margin-top:14px">' +
+            '<button style="background:var(--bg);color:var(--text-light)" ' +
+            'onclick="removeModal(\'promo-modal\')">Cancel</button>' +
+            '</div></div>';
+
+        document.body.appendChild(modal);
+    });
+}
+
+function confirmPromotionClose(reason) {
+    removeModal('promo-modal');
+
+    var order = POS.orders[POS.currentTable];
+    if (!order) return;
+
+    var total = order.total || 0;
+
+    if (!confirm('Close this table as COMPLIMENTARY?\n\n' +
+                 'Reason: ' + reason + '\n' +
+                 'Amount written off: R' + total.toFixed(2))) return;
+
+    order.status          = 'closed';
+    order.paymentMethod   = 'promotion';
+    order.isPromotion     = true;
+    order.promotionReason = reason;
+    order.discount        = total;  // full amount written off
+    order.total           = 0;
+    order.closedAt        = new Date().toISOString();
+    order.closedBy        = POS.user ? POS.user.name : 'Waiter';
+
+    // Log for manager report
+    logManagerAction('discount',
+        { name: 'Promotion/Complimentary', price: total, qty: 1 },
+        reason);
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + POS.currentTable] = order;
+
+    posSave(update)
+        .then(function() {
+            posToast('success',
+                '✅ Table closed — Complimentary (' + reason + ')');
+            closeOrderScreen();
+        })
+        .catch(function() {
+            posToast('error', 'Failed to close table. Please try again.');
+            // Rollback
+            order.status        = 'open';
+            order.paymentMethod = null;
+            order.isPromotion   = false;
+        });
+}
+
+/* ═══════════════════════════════════════════
+   DISCOUNT MODAL
+═══════════════════════════════════════════ */
+function showDiscountModal() {
+    removeModal('discount-modal');
+    var order    = POS.orders[POS.currentTable] || {};
+    var items    = POS.currentOrder.filter(function(i) { return !i.voided; });
+    var subtotal = items.reduce(function(s, i) {
+        return s + ((i.price||0) * (i.qty||1));
+    }, 0);
+
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'discount-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card">' +
+        '<h3><i class="fas fa-tag" style="color:var(--warning)"></i> Apply Discount</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">' +
+        'Subtotal: R' + subtotal.toFixed(2) + '</p>' +
+        '<div class="discount-options">' +
+        [10, 20, 50, 100].map(function(pct) {
+            var amt = parseFloat((subtotal * pct / 100).toFixed(2));
+            return '<button class="discount-btn" onclick="applyDiscount(' + amt + ',' + pct + ')">' +
+                   pct + '%<br><span style="font-size:.75rem;font-weight:400;color:var(--text-light)">-R' +
+                   amt.toFixed(2) + '</span></button>';
+        }).join('') +
+        '</div>' +
+        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);display:block;margin:12px 0 4px">Custom Amount (R):</label>' +
+        '<div style="display:flex;gap:8px">' +
+        '<input type="number" class="pos-input" id="discount-custom" placeholder="0.00" min="0" ' +
+        'max="' + subtotal + '" step="0.01" style="margin-bottom:0;flex:1">' +
+        '<button style="padding:12px 16px;background:var(--warning);color:#fff;border:none;' +
+        'border-radius:var(--rs);font-weight:700;cursor:pointer;font-family:inherit" ' +
+        'onclick="applyCustomDiscount(' + subtotal + ')">Apply</button>' +
+        '</div>' +
+        '<div class="notes-actions" style="margin-top:14px">' +
+        (order.discount > 0
+            ? '<button style="background:rgba(201,69,69,.1);color:var(--danger)" ' +
+              'onclick="applyDiscount(0,0)"><i class="fas fa-times"></i> Remove Discount</button>'
+            : '') +
+        '<button style="background:var(--bg);color:var(--text-light)" ' +
+        'onclick="removeModal(\'discount-modal\')">Cancel</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+    showManagerPin(function() {
+        // Pin verified — modal already showing, do nothing
+        // Discount applied when button tapped
+    });
+}
+
+function applyDiscount(amount, pct) {
+    removeModal('discount-modal');
+    var order = POS.orders[POS.currentTable];
+    if (!order) return;
+    order.discount     = amount;
+    order.isPromotion  = amount > 0;
+    order.promotionReason = pct > 0 ? pct + '% discount' : 'Discount removed';
+    recalcOrderTotal();
+    renderBill();
+    if (amount > 0) {
+        logManagerAction('discount', { name: 'Discount', price: amount, qty: 1 },
+                         (pct > 0 ? pct + '%' : 'R' + amount.toFixed(2)) + ' discount applied');
+        posToast('success', 'Discount of R' + amount.toFixed(2) + ' applied');
+    } else {
+        posToast('info', 'Discount removed');
+    }
+}
+
+function applyCustomDiscount(subtotal) {
+    var amt = parseFloat(document.getElementById('discount-custom').value || 0);
+    if (isNaN(amt) || amt < 0) { posToast('error', 'Enter a valid amount'); return; }
+    if (amt > subtotal) { posToast('error', 'Discount cannot exceed subtotal'); return; }
+    applyDiscount(parseFloat(amt.toFixed(2)), 0);
+}
+
+/* ═══════════════════════════════════════════
+   VOID / TRANSFER
+═══════════════════════════════════════════ */
+function showVoidTransfer(itemId) {
+    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
+    if (!item) return;
+
+    removeModal('vt-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'vt-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card" style="max-width:380px">' +
+        '<h3>' + escHtml(item.name) + '</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">What would you like to do?</p>' +
+        '<div class="notes-actions" style="flex-direction:column;gap:8px">' +
+        '<button style="background:var(--danger);color:#fff;padding:14px" ' +
+        'data-item-id="' + item.id + '" onclick="startVoid(this.dataset.itemId)">' +
+        '<i class="fas fa-times-circle"></i> Void Item</button>' +
+        '<button style="background:var(--info);color:#fff;padding:14px" ' +
+        'data-item-id="' + item.id + '" onclick="startTransfer(this.dataset.itemId)">' +
+        '<i class="fas fa-exchange-alt"></i> Transfer to Another Table</button>' +
+        '<button style="background:var(--bg);color:var(--text-light);padding:14px" ' +
+        'onclick="removeModal(\'vt-modal\')">Cancel</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+function startVoid(itemId) {
+    removeModal('vt-modal');
+    showManagerPin(function() { showVoidReasons(itemId); });
+}
+
+function startTransfer(itemId) {
+    removeModal('vt-modal');
+    showManagerPin(function() { showTransferTables(itemId); });
+}
+
+function showVoidReasons(itemId) {
+    var reasons = [
+        'Customer changed mind',
+        'Wrong item ordered',
+        'Kitchen error',
+        'Quality issue',
+        'Manager discretion',
+        'Other'
+    ];
+    removeModal('void-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'void-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card">' +
+        '<h3><i class="fas fa-times-circle" style="color:var(--danger)"></i> Void Reason</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">Select a reason:</p>' +
+        '<div class="void-reasons">' +
+        reasons.map(function(r) {
+            return '<div class="void-reason" ' +
+                   'data-item-id="' + itemId + '" ' +
+                   'data-reason="' + escHtml(r) + '" ' +
+                   'onclick="confirmVoid(this.dataset.itemId, this.dataset.reason)">' +
+                   escHtml(r) + '</div>';
+        }).join('') +
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmVoid(itemId, reason) {
+    removeModal('void-modal');
+    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
+    if (!item) return;
+
+    item.voided   = true;
+    item.voidReason = reason;
+    item.voidBy   = POS.user ? POS.user.name : 'Manager';
+    item.voidedAt = new Date().toISOString();
+
+    reverseStockDeduction(item);
+    logManagerAction('void', item, reason);
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + POS.currentTable + '.items'] = POS.currentOrder;
+    posSave(update);
+
+    recalcOrderTotal();
+    renderBill();
+    renderOrderItems(POS._activeOrderTab);
+    posToast('info', 'Voided: ' + item.name);
+}
+
+function showTransferTables(itemId) {
+    var openTables = Object.keys(POS.orders).filter(function(k) {
+        return POS.orders[k] && POS.orders[k].status === 'open' && k !== POS.currentTable;
+    });
+
+    removeModal('transfer-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'transfer-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card">' +
+        '<h3><i class="fas fa-exchange-alt" style="color:var(--info)"></i> Transfer Item</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">Select destination table:</p>' +
+        (openTables.length === 0
+            ? '<p style="color:var(--text-muted);text-align:center;padding:16px">No other open tables.</p>'
+            : '<div class="transfer-tables">' +
+              openTables.map(function(k) {
+                  var o = POS.orders[k];
+                  return '<div class="transfer-table occupied" ' +
+                         'data-item-id="' + itemId + '" ' +
+                         'data-target-key="' + k + '" ' +
+                         'onclick="confirmTransfer(this.dataset.itemId, this.dataset.targetKey)">' +
+                         escHtml(String(o.tableNumber || k)) +
+                         '<br><span style="font-size:.65rem;font-weight:400;color:var(--text-light)">' +
+                         escHtml(o.customerName || 'Guest') + '</span></div>';
+              }).join('') +
+              '</div>') +
+        '<div class="notes-actions" style="margin-top:12px">' +
+        '<button style="background:var(--bg);color:var(--text-light)" ' +
+        'onclick="removeModal(\'transfer-modal\')">Cancel</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+function confirmTransfer(itemId, targetKey) {
+    removeModal('transfer-modal');
+    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
+    if (!item || !POS.orders[targetKey]) return;
+
+    // Remove from current table using filter (no splice)
+    POS.currentOrder = POS.currentOrder.filter(function(i) { return i.id !== itemId; });
+    POS.orders[POS.currentTable].items = POS.currentOrder;
+
+    // Add to target table
+    item.transferredFrom = POS.currentTable;
+    item.transferredAt   = new Date().toISOString();
+    item.status          = 'ordered'; // reset so kitchen gets it
+    POS.orders[targetKey].items = (POS.orders[targetKey].items || []).concat([item]);
+
+    logManagerAction('transfer', item,
+        'Transferred to table ' + (POS.orders[targetKey].tableNumber || targetKey));
+
+    var update = {};
+    update['posOrders.' + POS.entityId + '.' + POS.currentTable + '.items'] = POS.currentOrder;
+    update['posOrders.' + POS.entityId + '.' + targetKey + '.items']         = POS.orders[targetKey].items;
+    posSave(update);
+
+    recalcOrderTotal();
+    renderBill();
+    posToast('success', 'Item transferred to table ' +
+        (POS.orders[targetKey].tableNumber || targetKey));
+}
+
+/* ═══════════════════════════════════════════
+   MANAGER PIN
+═══════════════════════════════════════════ */
+function showManagerPin(callback) {
+    removeModal('pin-modal');
+    POS._pinCallback = callback;
+    POS._pinAttempts = 0;
+
+    var modal = document.createElement('div');
+    modal.className = 'pin-modal';
+    modal.id        = 'pin-modal';
+    modal.innerHTML =
+        '<div class="pin-card">' +
+        '<h3><i class="fas fa-lock" style="color:var(--primary)"></i> Manager Authorisation</h3>' +
+        '<p>Enter manager PIN to proceed</p>' +
+        '<input type="password" class="pin-input" id="mgr-pin" ' +
+        'maxlength="6" placeholder="••••" ' +
+        'autocomplete="off" inputmode="numeric">' +
+        '<div class="pin-attempts" id="pin-attempts"></div>' +
+        '<div class="notes-actions" style="margin-top:16px">' +
+        '<button style="background:var(--bg);color:var(--text-light);flex:1;padding:12px;border:none;' +
+        'border-radius:var(--rs);cursor:pointer;font-family:inherit" ' +
+        'onclick="removeModal(\'pin-modal\')">Cancel</button>' +
+        '<button style="background:var(--primary);color:#fff;flex:1;padding:12px;border:none;' +
+        'border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700" ' +
+        'onclick="verifyPin()">Verify</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+
+    setTimeout(function() {
+        var inp = document.getElementById('mgr-pin');
+        if (inp) {
+            inp.focus();
+            inp.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') verifyPin();
+            });
+        }
+    }, 300);
+}
+
+function verifyPin() {
+    var pin       = (document.getElementById('mgr-pin').value || '').trim();
+    var attemptsEl = document.getElementById('pin-attempts');
+
+    if (!pin) { posToast('error', 'Please enter a PIN'); return; }
+
+    POS._pinAttempts++;
+
+    if (POS._pinAttempts > 3) {
+        removeModal('pin-modal');
+        posToast('error', 'Too many incorrect attempts. Please try again.');
+        POS._pinAttempts = 0;
+        return;
+    }
+
+    // Check manager/owner PINs
+    var users       = POS.accountData ? (POS.accountData.users || {}) : {};
+    var entityUsers = users[POS.entityId] || [];
+    var managers    = entityUsers.filter(function(u) {
+        return u.role === 'Manager' ||
+               u.role === 'General Manager' ||
+               u.role === 'Owner';
+    });
+
+    // Also check owner-level PIN
+    if (POS.accountData && POS.accountData.owner && POS.accountData.owner.pin) {
+        managers.push(POS.accountData.owner);
+    }
+
+    var validPin    = false;
+    var managerName = 'Manager';
+    managers.forEach(function(m) {
+        if (m.pin && m.pin === pin) {
+            validPin    = true;
+            managerName = m.name || 'Manager';
+        }
+    });
+
+    if (validPin) {
+        POS._pinAttempts = 0;
+        removeModal('pin-modal');
+        posToast('success', '✅ Authorised by ' + managerName);
+        if (POS._pinCallback) POS._pinCallback();
+        POS._pinCallback = null;
+    } else {
+        var remaining = 3 - POS._pinAttempts;
+        if (attemptsEl) attemptsEl.textContent =
+            'Incorrect PIN. ' + remaining + ' attempt' + (remaining !== 1 ? 's' : '') + ' remaining.';
+        var inp = document.getElementById('mgr-pin');
+        if (inp) { inp.value = ''; inp.focus(); }
+    }
+}
+
+/* ═══════════════════════════════════════════
+   LOG MANAGER ACTION
+═══════════════════════════════════════════ */
+function logManagerAction(action, item, reason) {
+    var fieldMap = {
+        'void':     'posVoids',
+        'transfer': 'posTransfers',
+        'discount': 'posDiscounts',
+        'cashup':   'posCashups'
+    };
+    var field = fieldMap[action] || ('pos' + action + 's');
+
+    var logEntry = {
+        action:    action,
+        itemName:  item.name  || '',
+        itemPrice: (item.price || 0) * (item.qty || 1),
+        itemQty:   item.qty   || 1,
+        reason:    reason     || '',
+        by:        POS.user   ? POS.user.name : 'Manager',
+        table:     POS.currentTable
+                 ? (POS.orders[POS.currentTable] || {}).tableNumber || POS.currentTable
+                 : '',
+        tableKey:  POS.currentTable || '',
+        entityId:  POS.entityId     || '',
+        date:      new Date().toISOString()
+    };
+
+    var update = {};
+    update[field + '.' + POS.entityId] =
+        firebase.firestore.FieldValue.arrayUnion(logEntry);
+
+    posSave(update).catch(function(err) {
+        console.warn('Failed to log manager action:', err);
+    });
+}
+
+/* ═══════════════════════════════════════════
+   QR CODE DISPLAY
+═══════════════════════════════════════════ */
+function showQRCode(tableKey) {
+    var order = POS.orders[tableKey];
+    if (!order) return;
+
+    var tNum    = order.tableNumber || tableKey;
+    var billUrl = window.location.origin +
+                  '/tablebill.html?a=' + POS.accountId +
+                  '&e=' + POS.entityId +
+                  '&t=' + (order.isTakeaway ? 'takeaway' : tNum);
+
+    // Use Google Charts QR API (no library needed)
+    var qrSrc   = 'https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' +
+                  encodeURIComponent(billUrl) + '&choe=UTF-8';
+
+    removeModal('qr-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'qr-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card" style="text-align:center">' +
+        '<h3><i class="fas fa-qrcode" style="color:var(--primary)"></i> Table QR Code</h3>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">' +
+        'Customer scans this to view their live bill</p>' +
+        '<div class="qr-display">' +
+        '<img src="' + qrSrc + '" width="200" height="200" alt="QR Code" ' +
+        'style="border-radius:8px;box-shadow:var(--shadow)">' +
+        '</div>' +
+        '<p style="font-size:.72rem;color:var(--text-muted);margin-top:12px;word-break:break-all">' +
+        escHtml(billUrl) + '</p>' +
+        '<div class="notes-actions" style="margin-top:16px">' +
+        '<button style="background:var(--bg);color:var(--text-light)" ' +
+        'onclick="removeModal(\'qr-modal\')">Close</button>' +
+        '</div></div>';
+    document.body.appendChild(modal);
+}
+
+/* ═══════════════════════════════════════════
+   CASH UP
+═══════════════════════════════════════════ */
+function showWaiterCashup() {
+    var shiftStart   = POS.clockInTime ? POS.clockInTime.toISOString() : null;
+    var waiterName   = POS.user ? POS.user.name : '';
+
+    var closedOrders = Object.values(POS.orders).filter(function(o) {
+        return o.status      === 'closed' &&
+               o.waiterName  === waiterName &&
+               (!shiftStart  || (o.closedAt && o.closedAt >= shiftStart));
+    });
+
+    var cashTotal  = closedOrders.filter(function(o) { return o.paymentMethod === 'cash'; })
+                                 .reduce(function(s, o) { return s + (o.total||0); }, 0);
+    var cardTotal  = closedOrders.filter(function(o) { return o.paymentMethod === 'card'; })
+                                 .reduce(function(s, o) { return s + (o.total||0); }, 0);
+    var promoTotal = closedOrders.filter(function(o) { return o.isPromotion; })
+                                 .reduce(function(s, o) { return s + (o.total||0); }, 0);
+    var tipTotal   = closedOrders.reduce(function(s, o) { return s + (o.gratuity||0); }, 0);
+    var totalSales = cashTotal + cardTotal;
+
+    // Collect voids this shift
+    var voidedItems = [];
+    Object.values(POS.orders).forEach(function(o) {
+        (o.items || []).forEach(function(i) {
+            if (i.voided && i.voidBy === waiterName &&
+                (!shiftStart || (i.voidedAt && i.voidedAt >= shiftStart))) {
+                voidedItems.push({
+                    name:     i.name,
+                    price:    (i.price||0) * (i.qty||1),
+                    reason:   i.voidReason,
+                    voidedAt: i.voidedAt,
+                    table:    o.tableNumber
+                });
+            }
+        });
+    });
+
+    // Store for submit
+    POS._pendingCashup = {
+        waiterName:    waiterName,
+        waiterId:      POS.user ? POS.user.uid : '',
+        shiftStart:    shiftStart,
+        submittedAt:   new Date().toISOString(),
+        entityId:      POS.entityId,
+        status:        'pending',
+        tablesServed:  closedOrders.length,
+        totalSales:    totalSales,
+        cashTotal:     cashTotal,
+        cardTotal:     cardTotal,
+        promoTotal:    promoTotal,
+        gratuityTotal: tipTotal,
+        cashToHandIn:  cashTotal,
+        voids:         voidedItems,
+        orders:        closedOrders.map(function(o) {
+            return {
+                tableNumber:   o.tableNumber,
+                total:         o.total,
+                paymentMethod: o.paymentMethod,
+                gratuity:      o.gratuity || 0,
+                closedAt:      o.closedAt
+            };
+        })
+    };
+
+    var screen = document.createElement('div');
+    screen.className = 'cashup-screen';
+    screen.id        = 'cashup-screen';
+    screen.innerHTML =
+        '<div class="order-header">' +
+        '<button class="pos-header-btn" onclick="removeModal(\'cashup-screen\')">' +
+        '<i class="fas fa-arrow-left"></i></button>' +
+        '<h3><i class="fas fa-calculator"></i> My Cash Up</h3>' +
+        '</div>' +
+        '<div class="cashup-content">' +
+
+        '<div class="cashup-card">' +
+        '<h3 style="font-size:1rem;font-weight:700;margin-bottom:12px">' +
+        '<i class="fas fa-chart-bar" style="color:var(--primary)"></i> Shift Summary</h3>' +
+        '<div class="cashup-row"><span>Waiter</span><strong>' + escHtml(waiterName) + '</strong></div>' +
+        '<div class="cashup-row"><span>Tables Served</span><strong>' + closedOrders.length + '</strong></div>' +
+        '<div class="cashup-row"><span>Total Sales</span><strong>R' + totalSales.toFixed(2) + '</strong></div>' +
+        '<div class="cashup-row"><span>Card Payments</span><strong>R' + cardTotal.toFixed(2) + '</strong></div>' +
+        '<div class="cashup-row"><span>Cash Payments</span><strong>R' + cashTotal.toFixed(2) + '</strong></div>' +
+        '<div class="cashup-row"><span>Tips / Gratuity</span>' +
+        '<strong style="color:var(--success)">R' + tipTotal.toFixed(2) + '</strong></div>' +
+        (promoTotal > 0
+            ? '<div class="cashup-row"><span>Promotions</span><strong>R' + promoTotal.toFixed(2) + '</strong></div>'
+            : '') +
+        (voidedItems.length > 0
+            ? '<div class="cashup-row"><span>Voids</span>' +
+              '<strong style="color:var(--danger)">' + voidedItems.length + ' item(s)</strong></div>'
+            : '') +
+        '<div class="cashup-total">' +
+        '<span>Cash to Hand In</span>' +
+        '<strong style="color:var(--danger)">R' + cashTotal.toFixed(2) + '</strong>' +
+        '</div></div>' +
+
+        (voidedItems.length > 0
+            ? '<div class="cashup-card"><h3 style="font-size:.88rem;font-weight:700;margin-bottom:10px">' +
+              '<i class="fas fa-times-circle" style="color:var(--danger)"></i> Voided Items</h3>' +
+              voidedItems.map(function(v) {
+                  return '<div class="cashup-row"><span>' + escHtml(v.name) +
+                         ' (Table ' + escHtml(String(v.table || '-')) + ')</span>' +
+                         '<strong style="color:var(--danger)">R' + (v.price||0).toFixed(2) + '</strong></div>';
+              }).join('') + '</div>'
+            : '') +
+
+        '<button class="bill-send-btn" onclick="submitWaiterCashup()" ' +
+        'style="max-width:100%;margin:0 0 24px">' +
+        '<i class="fas fa-check"></i> Submit Cash Up</button>' +
+        '</div>';
+
+    document.body.appendChild(screen);
+}
+
+function submitWaiterCashup() {
+    if (!POS._pendingCashup) return;
+    if (!confirm('Submit your cash up? This will be sent to your manager for review.')) return;
+
+    var uid    = POS.user ? POS.user.uid : 'unknown';
+    var data   = POS._pendingCashup;
+    data.submittedAt = new Date().toISOString();
+
+    var update = {};
+    update['posCashups.' + POS.entityId + '.' + uid] = data;
+
+    posSave(update).then(function() {
+        removeModal('cashup-screen');
+        posToast('success', '✅ Cash up submitted for manager review');
+        sendCashupEmail(data);
+        POS._pendingCashup = null;
+    }).catch(function() {
+        posToast('error', 'Failed to submit cash up. Please try again.');
+    });
+}
+
+function sendCashupEmail(data) {
+    var managerEmail = POS.accountData && POS.accountData.owner
+                     ? POS.accountData.owner.email : null;
+    if (!managerEmail) return;
+
+    var rowStyle = 'padding:8px 0;border-bottom:1px solid #e4f1f5;display:flex;justify-content:space-between;font-size:.88rem';
+
+    var html =
+        '<div style="font-family:Poppins,sans-serif;max-width:520px;margin:0 auto">' +
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:24px;' +
+        'border-radius:12px 12px 0 0;color:#fff;text-align:center">' +
+        '<h1 style="font-size:1.1rem;margin:0">Cash Up Report</h1>' +
+        '<p style="font-size:.82rem;opacity:.8;margin-top:4px">' +
+        escHtml(data.waiterName) + ' — ' + escHtml(POS.entityName || '') + '</p>' +
+        '<p style="font-size:.75rem;opacity:.7;margin-top:2px">' +
+        new Date(data.submittedAt).toLocaleString('en-ZA') + '</p>' +
+        '</div>' +
+        '<div style="background:#fff;padding:24px;border:1px solid #e4f1f5;border-radius:0 0 12px 12px">' +
+        '<div style="' + rowStyle + '"><span>Tables Served</span><strong>' + data.tablesServed + '</strong></div>' +
+        '<div style="' + rowStyle + '"><span>Total Sales</span><strong>R' + data.totalSales.toFixed(2) + '</strong></div>' +
+        '<div style="' + rowStyle + '"><span>Card Payments</span><strong>R' + data.cardTotal.toFixed(2) + '</strong></div>' +
+        '<div style="' + rowStyle + '"><span>Cash Payments</span><strong>R' + data.cashTotal.toFixed(2) + '</strong></div>' +
+        '<div style="' + rowStyle + '"><span>Tips / Gratuity</span>' +
+        '<strong style="color:#2ea871">R' + data.gratuityTotal.toFixed(2) + '</strong></div>' +
+        '<div style="' + rowStyle + 'border-bottom:none"><span>Voids</span>' +
+        '<strong style="color:#c94545">' + (data.voids ? data.voids.length : 0) + ' item(s)</strong></div>' +
+        '<div style="' + rowStyle + 'border-top:2px solid #c4dde4;margin-top:8px;font-size:1rem;font-weight:900">' +
+        '<span>Cash to Hand In</span>' +
+        '<strong style="color:#c94545">R' + data.cashToHandIn.toFixed(2) + '</strong></div>' +
+        '<p style="text-align:center;color:#8aabb5;font-size:.75rem;margin-top:20px">Powered by StockAI-Pro</p>' +
+        '</div></div>';
+
+    fetch('https://api.resend.com/emails', {
+        method:  'POST',
+        headers: {
+            'Authorization': 'Bearer re_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT',
+            'Content-Type':  'application/json'
+        },
+        body: JSON.stringify({
+            from:    'StockAI-Pro POS <noreply@stockai-pro.co.za>',
+            to:      [managerEmail],
+            subject: 'Cash Up — ' + data.waiterName + ' (' +
+                     new Date(data.submittedAt).toLocaleDateString('en-ZA') + ')',
+            html:    html
+        })
+    }).catch(function(err) {
+        console.warn('Cash up email failed:', err);
+    });
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+function posToast(type, msg) {
+    var icons = {
+        success: 'check-circle',
+        error:   'times-circle',
+        info:    'info-circle',
+        warning: 'exclamation-triangle'
+    };
+    var t = document.createElement('div');
+    t.className = 'pos-toast ' + type;
+    t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i>' +
+                  '<span>' + escHtml(msg) + '</span>';
+    var wrap = document.getElementById('pos-toast-wrap');
+    if (wrap) wrap.appendChild(t);
+    setTimeout(function() { if (t.parentElement) t.remove(); }, 3500);
+}
+
+/* ═══════════════════════════════════════════
+   INSTALL GUIDE
+═══════════════════════════════════════════ */
+function showPosInstallGuide() {
+    var ua    = navigator.userAgent || '';
+    var isIOS = /iPad|iPhone|iPod/.test(ua);
+    var steps = isIOS
+        ? '<p>1. Open this page in <strong>Safari</strong></p>' +
+          '<p>2. Tap the <strong>Share ⬆️</strong> button</p>' +
+          '<p>3. Tap <strong>"Add to Home Screen"</strong></p>' +
+          '<p>4. Tap <strong>"Add"</strong></p>'
+        : '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>' +
+          '<p>2. Tap <strong>"Add to Home screen"</strong></p>' +
+          '<p>3. Tap <strong>"Add"</strong></p>';
+
+    removeModal('install-modal');
+    var modal = document.createElement('div');
+    modal.className = 'notes-modal';
+    modal.id        = 'install-modal';
+    modal.innerHTML =
+        '<div class="notes-modal-card">' +
+        '<h3><i class="fas fa-mobile-alt" style="color:var(--primary)"></i> Install POS App</h3>' +
+        '<div style="font-size:.85rem;color:var(--text-mid);line-height:1.8;margin-bottom:16px">' +
+        steps + '</div>' +
+        '<button style="width:100%;padding:12px;background:var(--bg);color:var(--text-light);' +
+        'border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit" ' +
+        'onclick="removeModal(\'install-modal\')">Close</button>' +
+        '</div>';
+    document.body.appendChild(modal);
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function removeModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;')
+        .replace(/'/g,  '&#39;');
+}
+
+/* ═══════════════════════════════════════════
+   SERVICE WORKER
+═══════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+    });
+}
+
+console.log('✅ StockAI-Pro POS loaded');
 </script>
 </body>
 </html>
