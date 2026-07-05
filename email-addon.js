@@ -122,7 +122,11 @@ function sendQuoteEmailToCustomer(data) {
         '<p style="font-size:.75rem;color:#8aabb5">Built with love in South Africa</p>' +
         '</div>' +
         '</div></div>';
-    return sendViaProxy(data.customer.email, 'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''), html);
+    return new Promise(function(resolve) {
+    setTimeout(function() {
+        resolve(sendViaProxy(data.customer.email, 'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''), html));
+    }, 1500);
+});
 }
 
 function sendQuoteNotificationToAdmin(data) {
