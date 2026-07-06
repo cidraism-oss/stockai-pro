@@ -697,145 +697,13 @@ var ROLE_DEFAULTS = {
 // DOM READY
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-
-    // ✅ FIX: Check for hub_return FIRST — before anything else runs
-    // If returning from an external app (pos.html / app.html),
-    // skip welcome screen and login entirely
-    var isHubReturn = sessionStorage.getItem('hub_return') === 'true';
-
-    if (isHubReturn) {
-        // ── Immediately hide welcome + login screens ──
-        var welcomeEl = document.getElementById('welcome-screen');
-        var loginEl   = document.getElementById('login-screen');
-        if (welcomeEl) { welcomeEl.style.display = 'none'; }
-        if (loginEl)   { loginEl.classList.add('hidden');  }
-
-        // ── Clear the return flag ──
-        sessionStorage.removeItem('hub_return');
-
-        // ── Restore session from sessionStorage keys ──
-        var accountId  = sessionStorage.getItem('hub_account_id')  || '';
-        var entityId   = sessionStorage.getItem('hub_entity_id')   || '';
-        var entityName = sessionStorage.getItem('hub_entity_name') || '';
-        var userName   = sessionStorage.getItem('hub_user_name')   || '';
-        var userEmail  = sessionStorage.getItem('hub_user_email')  || '';
-        var userRole   = sessionStorage.getItem('hub_user_role')   || '';
-
-        // ── Rebuild HUB state ──
-        HUB.accountId  = accountId;
-        HUB.entityId   = entityId;
-        HUB.entityName = entityName;
-        HUB.user = {
-            name:  userName,
-            email: userEmail,
-            role:  userRole
-        };
-
-        // ── Try to restore full session cache ──
-        var cacheRestored = restoreSessionCache();
-        if (cacheRestored) {
-            console.log('✅ Hub: Session restored from cache on return');
-        }
-
-        // ── Restore allowed apps from cache or use role defaults ──
-        if (!HUB.allowedApps || HUB.allowedApps.length === 0) {
-            HUB.allowedApps = ROLE_DEFAULTS[userRole] || ALL_APPS.map(function(a) { return a.id; });
-        }
-
-        // ── Set isMaster flag if needed ──
-        HUB.isMaster = (userEmail.toLowerCase() === MASTER_EMAIL.toLowerCase());
-
-        // ── Load fresh account data from Firestore then route ──
-        hubToast('info', '🔄 Restoring your session...');
-
-        // Use Firebase auth state to verify and load data
-        var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
-            unsubReturn(); // Only run once
-
-            if (firebaseUser) {
-                // ── User still authenticated — load account data ──
-                db.collection('accounts').doc(accountId).get()
-                    .then(function(doc) {
-                        if (doc.exists) {
-                            HUB.accountData   = doc.data();
-                            HUB.entities      = doc.data().entities || [];
-                            HUB.functionsData = (doc.data().functions || {})[entityId] || [];
-
-                            // ── Set entity object ──
-                            if (entityId) {
-                                HUB.entity = HUB.entities.find(function(e) {
-                                    return e.id === entityId;
-                                }) || null;
-                            }
-
-                            // ── Start sync listener ──
-                            startHubSync();
-                            startHubClock();
-
-                            // ── Route to correct view ──
-                            routeAfterLogin();
-
-                        } else {
-                            // Account doc not found — fall back to login
-                            console.warn('Hub return: account doc not found');
-                            showLoginScreen();
-                        }
-                    })
-                    .catch(function(err) {
-                        console.warn('Hub return: Firestore error', err);
-                        // Still try to show hub with cached data
-                        if (HUB.user && HUB.accountId) {
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
-                        }
-                    });
-            } else {
-                // ── Firebase session expired — show login ──
-                console.warn('Hub return: Firebase session expired');
-                showLoginScreen();
-            }
-        });
-
-        // ── Start clock regardless ──
-        startHubClock();
-
-        // ── Apply saved language + currency ──
-        setTimeout(function() {
-            var sel = document.getElementById('hub-lang-selector');
-            if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
-            var saved = localStorage.getItem('stockai_currency');
-            if (saved && CURRENCIES[saved]) DISPLAY_CURRENCY = saved;
-        }, 300);
-
-        // ── Fetch live rates ──
-        setTimeout(function() {
-            try { fetchLiveRates(); } catch(e) {}
-        }, 2000);
-
-        // ── Register service worker ──
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').catch(function() {});
-            });
-        }
-
-        // ── STOP here — do not run the rest of DOMContentLoaded ──
-        return;
-    }
-
-    // ════════════════════════════════════════════════
-    // NORMAL LOAD (not a hub_return) — runs as before
-    // ════════════════════════════════════════════════
-
-    // Welcome screen enter button
     var enterBtn = document.getElementById('welcome-enter');
     if (enterBtn) {
         enterBtn.addEventListener('click', function() {
             var screen = document.getElementById('welcome-screen');
-            screen.style.transition  = 'opacity 1s ease, transform 1s ease';
-            screen.style.opacity     = '0';
-            screen.style.transform   = 'scale(1.05)';
+            screen.style.transition    = 'opacity 1s ease, transform 1s ease';
+            screen.style.opacity       = '0';
+            screen.style.transform     = 'scale(1.05)';
             screen.style.pointerEvents = 'none';
             setTimeout(function() {
                 screen.style.display = 'none';
@@ -843,48 +711,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
-
-    // Login form
     var loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', function(e) { e.preventDefault(); hubLogin(); });
-
-    // Forgot password
     var forgotBtn = document.getElementById('hub-forgot-btn');
     if (forgotBtn) forgotBtn.addEventListener('click', hubForgotPw);
-
-    // Logout buttons
     var logoutBtn = document.getElementById('hub-logout-btn');
     if (logoutBtn) logoutBtn.addEventListener('click', hubLogout);
     var adminLogout = document.getElementById('admin-logout-btn');
     if (adminLogout) adminLogout.addEventListener('click', hubLogout);
-
-    // Notifications
     var notifBtn = document.getElementById('hub-notif-btn');
     if (notifBtn) notifBtn.addEventListener('click', showHubNotifications);
-
-    // Service worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js').catch(function() {});
         });
     }
-
-    // Start clock
     startHubClock();
-
-    // Apply saved language
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
         if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
     }, 300);
-
-    // Apply saved currency
     setTimeout(function() {
         var saved = localStorage.getItem('stockai_currency');
         if (saved && CURRENCIES[saved]) DISPLAY_CURRENCY = saved;
     }, 100);
-
-    // Fetch live exchange rates
     setTimeout(function() {
         try { fetchLiveRates(); } catch(e) { console.warn('Rate fetch error:', e); }
     }, 2000);
@@ -894,83 +744,37 @@ document.addEventListener('DOMContentLoaded', function() {
 // AUTH — CHECK ON LOAD (no re-login after returning from app)
 // ============================================================
 function checkHubAuth() {
-    // Show loading state
-    hubToast('info', '🔄 Checking session...');
-
-    // ✅ FIX: Use Firebase onAuthStateChanged as primary check
-    // This handles all cases: remember me, session, return from external app
-    var unsubscribe = auth.onAuthStateChanged(function(firebaseUser) {
-        unsubscribe(); // Only run once
-
-        if (firebaseUser) {
-            // User is still authenticated — restore session without re-login
-            var cachedEmail = firebaseUser.email;
-
-            // Check if returning from external app (pos.html / app.html)
-            var isReturn = sessionStorage.getItem('hub_return') === 'true';
-if (isReturn) {
-    sessionStorage.removeItem('hub_return');
-
-    // Try to restore from session cache first (instant)
-    if (restoreSessionCache()) {
-        document.getElementById('login-screen').classList.add('hidden');
-        routeAfterLogin();
-        return;
-    }
-
-    // Cache restore failed — try rebuilding from
-    // sessionStorage values set by goBackToHub()
-    var cachedAccountId = sessionStorage.getItem('hub_account_id');
-    var cachedEmail     = sessionStorage.getItem('hub_user_email');
-    var cachedName      = sessionStorage.getItem('hub_user_name');
-    var cachedRole      = sessionStorage.getItem('hub_user_role');
-
-    if (cachedAccountId && cachedEmail) {
-        // We have enough to rebuild session
-        // without going back to login screen
-        findHubAccount(cachedEmail, function(found) {
-            if (found) {
-                document.getElementById('login-screen').classList.add('hidden');
-                routeAfterLogin();
-            } else {
-                // Last resort — show login but
-                // pre-fill the email
-                showLoginScreen();
-                var emailField = document.getElementById('hub-email');
-                if (emailField) emailField.value = cachedEmail || '';
-            }
-        });
-        return;
-    }
-}
-
-            // Load account data from Firestore
-            findHubAccount(cachedEmail, function(found) {
-                if (found) {
-                    document.getElementById('login-screen').classList.add('hidden');
-                    routeAfterLogin();
+    var remembered = localStorage.getItem('stockai_remember');
+    var remEmail   = localStorage.getItem('stockai_email');
+    if (remembered === 'yes' && remEmail) {
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(function() {
+                return new Promise(function(resolve) {
+                    var unsub = auth.onAuthStateChanged(function(user) {
+                        unsub();
+                        resolve(user);
+                    });
+                });
+            })
+            .then(function(firebaseUser) {
+                if (firebaseUser) {
+                    hubToast('info', '🔄 Loading...');
+                    findHubAccount(firebaseUser.email, function(found) {
+                        if (found) {
+                            document.getElementById('login-screen').classList.add('hidden');
+                            routeAfterLogin();
+                        } else {
+                            showLoginScreen();
+                        }
+                    });
                 } else {
-                    // Account not found — show login
                     showLoginScreen();
                 }
             });
-        } else {
-            // No Firebase session — check remember me
-            var remembered = localStorage.getItem('stockai_remember');
-            var remEmail   = localStorage.getItem('stockai_email');
-
-            if (remembered === 'yes' && remEmail) {
-                // Has remember me but no active session — show login with email prefilled
-                showLoginScreen();
-                var emailField = document.getElementById('hub-email');
-                if (emailField) emailField.value = remEmail;
-            } else {
-                showLoginScreen();
-            }
-        }
-    });
+    } else {
+        auth.signOut().then(showLoginScreen).catch(showLoginScreen);
+    }
 }
-
 // ============================================================
 // SESSION CACHE — Prevents re-login on app return
 // ============================================================
