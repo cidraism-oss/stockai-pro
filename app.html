@@ -1399,29 +1399,18 @@ function openWhatsAppSupport() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 function goBackToHub() {
-    // Tell hub.html we are returning from the app
-    sessionStorage.setItem('hub_return', 'true');
+    // Preserve exactly what hub.html needs
+    // using the same keys it reads on load
+    sessionStorage.setItem('hub_return',      'true');
+    sessionStorage.setItem('hub_account_id',  S._accountId || '');
+    sessionStorage.setItem('hub_entity_id',   S.currentEntity ? S.currentEntity.id : '');
+    sessionStorage.setItem('hub_user_name',   S.user ? S.user.name  : '');
+    sessionStorage.setItem('hub_user_email',  S.user ? S.user.email : '');
+    sessionStorage.setItem('hub_user_role',   S.user ? S.user.role  : '');
 
-    // Work out the current entity
-    var currentEntity = null;
-    if (S.currentEntity) {
-        currentEntity = S.currentEntity;
-    } else if (S.entities && S.entities[S.activeEntity]) {
-        currentEntity = S.entities[S.activeEntity];
-    }
-
-    // Build the exact session format that hub.html expects
-    var hubSession = {
-        user: S.user || null,
-        accountId: S._accountId || '',
-        entityId: currentEntity ? currentEntity.id : '',
-        entityName: currentEntity ? currentEntity.name : '',
-        entities: S.entities || [],
-        allowedApps: ['hub', 'web_boh', 'app', 'dashboard'],
-        isMaster: isMasterAccount(),
-        currentView: 'dashboard',
-        entity: currentEntity || null
-    };
+    // Go back to hub
+    window.location.href = 'hub.html';
+}
 
     // Save it using the exact key hub.html is reading
     sessionStorage.setItem('hub_session', JSON.stringify(hubSession));
