@@ -945,6 +945,68 @@ section { padding: 90px 24px; position: relative; }
 </div>
 
 <!-- TOAST -->
+<!-- QUOTE SENT POPUP -->
+<div id="quoteSentOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99999;display:none;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;max-width:420px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)">
+    <div id="quoteLetterAnim" style="width:120px;height:120px;margin:0 auto 24px;position:relative">
+      <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:80px;height:50px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);border-radius:6px;animation:letterFly 1.5s ease-in-out forwards">
+        <div style="position:absolute;top:0;left:0;right:0;height:0;border-left:40px solid transparent;border-right:40px solid transparent;border-top:25px solid #0d4a5c"></div>
+        <div style="position:absolute;bottom:8px;left:12px;right:12px;height:2px;background:rgba(255,255,255,.3);border-radius:1px"></div>
+        <div style="position:absolute;bottom:14px;left:12px;right:20px;height:2px;background:rgba(255,255,255,.3);border-radius:1px"></div>
+        <div style="position:absolute;bottom:20px;left:12px;right:16px;height:2px;background:rgba(255,255,255,.3);border-radius:1px"></div>
+      </div>
+      <div style="position:absolute;top:20px;right:15px;font-size:1.2rem;opacity:0;animation:sparkle1 1.5s ease-in-out .5s forwards">✨</div>
+      <div style="position:absolute;top:10px;left:20px;font-size:.9rem;opacity:0;animation:sparkle2 1.5s ease-in-out .7s forwards">⭐</div>
+      <div style="position:absolute;top:5px;right:25px;font-size:.8rem;opacity:0;animation:sparkle3 1.5s ease-in-out .9s forwards">✨</div>
+      <div style="position:absolute;top:30px;left:10px;font-size:.7rem;opacity:0;animation:sparkle1 1.5s ease-in-out 1.1s forwards">⭐</div>
+    </div>
+    <div style="width:60px;height:60px;border-radius:50%;background:#d1fae5;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;opacity:0;animation:checkPop .4s ease 1.3s forwards">
+      <i class="fas fa-check" style="color:#2ea871;font-size:1.5rem"></i>
+    </div>
+    <h3 style="font-size:1.4rem;font-weight:900;color:#0d4a5c;margin-bottom:8px;opacity:0;animation:fadeUp .4s ease 1.5s forwards">Quote Sent Successfully!</h3>
+    <p style="font-size:.92rem;color:#5a8a96;line-height:1.6;margin-bottom:24px;opacity:0;animation:fadeUp .4s ease 1.7s forwards">Your custom quotation has been emailed. Check your inbox!</p>
+    <button onclick="closeQuoteSentPopup()" style="padding:14px 40px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .2s;opacity:0;animation:fadeUp .4s ease 1.9s forwards">
+      <i class="fas fa-thumbs-up" style="margin-right:8px"></i> Got It!
+    </button>
+  </div>
+</div>
+
+<style>
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.7) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes letterFly {
+  0% { transform: translateX(-50%) translateY(0) rotate(0deg); opacity: 1; }
+  50% { transform: translateX(-50%) translateY(-60px) rotate(-5deg); opacity: 1; }
+  80% { transform: translateX(-50%) translateY(-90px) rotate(3deg); opacity: .8; }
+  100% { transform: translateX(-50%) translateY(-110px) rotate(0deg) scale(.6); opacity: 0; }
+}
+@keyframes sparkle1 {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(0) translateY(-20px); }
+}
+@keyframes sparkle2 {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(0) translateY(-15px) translateX(-10px); }
+}
+@keyframes sparkle3 {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(0) translateY(-25px) translateX(10px); }
+}
+@keyframes checkPop {
+  0% { opacity: 0; transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- ================================================
@@ -1237,14 +1299,70 @@ function submitQuote(action) {
 
   } else if (action === 'print') {
     generateQuotePDF(quoteData, 'print');
-  } else if (action === 'download') {
+    } else if (action === 'download') {
     generateQuotePDF(quoteData, 'download');
   }
+
+  // Show popup and reset form for all actions
+  showQuoteSentPopup();
 }
 
 // ============================================================
 // STORE QUOTE FOR DAILY ANALYSIS
 // ============================================================
+// ============================================================
+// QUOTE SENT POPUP
+// ============================================================
+function showQuoteSentPopup() {
+  var overlay = document.getElementById('quoteSentOverlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeQuoteSentPopup() {
+  var overlay = document.getElementById('quoteSentOverlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Reset the quote builder form
+  document.getElementById('qb-name').value = '';
+  document.getElementById('qb-phone').value = '';
+  document.getElementById('qb-business').value = '';
+  document.getElementById('qb-email').value = '';
+
+  // Unselect all optional features
+  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(el) {
+    el.classList.remove('selected');
+  });
+
+  // Reset entities to 1
+  document.getElementById('qb-entities').value = '1';
+
+  // Uncheck technician
+  var techCheck = document.getElementById('qb-tech-check');
+  if (techCheck) techCheck.checked = false;
+
+  // Uncheck training
+  var trainCheck = document.getElementById('qb-training-check');
+  if (trainCheck) trainCheck.checked = false;
+
+  // Reset extra staff
+  var extraStaff = document.getElementById('qb-extra-staff');
+  if (extraStaff) extraStaff.value = '0';
+
+  // Recalculate totals
+  calcQuote();
+
+  // Scroll to top of quote builder
+  var quoteSection = document.getElementById('quote-section');
+  if (quoteSection) {
+    quoteSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 function storeQuoteForAnalysis(data) {
   try {
     var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
