@@ -123,16 +123,15 @@ var FEATURE_REGISTRY = {
     ]
   },
 
-  // OPTIONAL — Menu Master
-  menu_master: {
+    menu_master: {
     name: 'Menu Master',
     alwaysActive: false,
     tabs: [
+      'menu',
       'menu-recipes',
       'menu-ingredients',
       'menu-costing',
-      'menu-categories',
-      'menu-allergens'
+      'menu-categories'
     ],
     navItems: [
       'nav-menu-master'
