@@ -1454,7 +1454,7 @@ function pageDashboard() {
             '<button class="btn-primary" onclick="navigate(\'purchases\')" style="margin-left:auto;padding:6px 14px;font-size:.78rem">View</button></div>' : '') +
 
         '<div class="stats-row">' +
-        statCard('Stock Value', 'R' + fmtNum(stockVal), '') +
+        statCard('Stock Value (excl. VAT)', 'R' + fmtNum(stockVal), '') +
         statCard('Daily Sales (excl.)', 'R' + fmtNum(dailySales), '') +
         statCard('Live Food Cost', liveFoodCost.toFixed(1) + '%', liveFoodCost > targetFC ? 'red' : 'green') +
         statCard('Target FC', targetFC + '%', '') +
@@ -1727,8 +1727,8 @@ function pageInventory() {
 
         '<div class="table-wrap"><table class="data-table">' +
         '<thead><tr><th>Name</th><th>Pack Size</th><th>Department</th><th>Category</th>' +
-        '<th>Qty</th><th>Unit</th><th>Cost</th><th>Value</th><th>VAT</th><th>Par Level</th>' +
-        '<th>Status</th><th>Actions</th></tr></thead>' +
+        '<th>Qty</th><th>Unit</th><th>Cost (excl.)</th><th>Value (excl.)</th><th>VAT</th><th>Par Level</th>' +
+        '<th>Status</th><th>Actions</th></tr></thead>'
         '<tbody id="inv-body"></tbody></table></div>';
 }
 
@@ -3830,7 +3830,9 @@ function showGRVForm(poId) {
         '<div style="background:rgba(212,160,23,.1);border:1px solid var(--warning);border-radius:var(--radius-sm);' +
         'padding:12px;margin-bottom:14px;font-size:.82rem;color:var(--text)">' +
         '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> ' +
-        'Enter <strong>actual quantities received</strong> and <strong>actual costs</strong> from the invoice. ' +
+        'Enter <strong>actual quantities received</strong> and <strong>actual costs from the invoice</strong>. ' +
+        'Enter prices <strong>as they appear on the invoice (incl. VAT)</strong> — ' +
+        'the system will automatically store costs <strong>excl. VAT (15%)</strong>. ' +
         'Stock only updates after submission.</div>' +
 
         '<div class="form-row" style="margin-bottom:14px">' +
@@ -3850,8 +3852,12 @@ function showGRVForm(poId) {
         'display:flex;justify-content:space-between;align-items:center">' +
         '<div><label style="font-size:.78rem;color:var(--text-mid);font-weight:600">Notes</label>' +
         '<input type="text" id="grv-notes" placeholder="Any discrepancies" style="margin-top:4px;width:100%"></div>' +
-        '<div style="text-align:right"><span style="font-size:.78rem;color:var(--text-mid)">GRV Total</span>' +
-        '<strong style="display:block;font-size:1.2rem;color:var(--accent)" id="grv-total">R 0.00</strong></div></div>',
+        '<div style="text-align:right">'<span style="font-size:.78rem;color:var(--text-mid)">GRV Total (enter prices incl. VAT)</span>' +
+        '<div id="grv-total">' +
+        '<div style="font-size:.75rem;color:var(--text-light)">Excl. VAT: <strong>R 0.00</strong></div>' +
+        '<div style="font-size:.75rem;color:var(--text-light)">VAT (15%): <strong>R 0.00</strong></div>' +
+        '<div style="font-size:1.2rem;color:var(--accent)">Incl. VAT: <strong>R 0.00</strong></div>' +
+        '</div></div></div>',
 
         '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
         '<button class="btn-success" onclick="completeGRV(\'' + poId + '\')">' +
@@ -3875,16 +3881,22 @@ function addGRVLine() {
 }
 
 function calcGRVTotal() {
-    var total = 0;
+    var totalIncl = 0;
     document.querySelectorAll('.grv-line').forEach(function(row) {
         var qty  = parseFloat(row.querySelector('.grv-rec-qty').value) || 0;
         var cost = parseFloat(row.querySelector('.grv-cost').value)    || 0;
-        total += qty * cost;
+        totalIncl += qty * cost;
     });
-    var el = document.getElementById('grv-total');
-    if (el) el.textContent = 'R ' + total.toFixed(2);
-}
+    // Display both incl and excl VAT
+    var totalExcl = parseFloat((totalIncl / (1 + VAT_RATE)).toFixed(2));
+    var vatAmt    = parseFloat((totalIncl - totalExcl).toFixed(2));
 
+    var el = document.getElementById('grv-total');
+    if (el) el.innerHTML =
+        '<div style="font-size:.75rem;color:var(--text-light)">Excl. VAT: <strong>R ' + totalExcl.toFixed(2) + '</strong></div>' +
+        '<div style="font-size:.75rem;color:var(--text-light)">VAT (15%): <strong>R ' + vatAmt.toFixed(2) + '</strong></div>' +
+        '<div style="font-size:1.2rem;color:var(--accent)">Incl. VAT: <strong>R ' + totalIncl.toFixed(2) + '</strong></div>';
+}
 function completeGRV(poId) {
     var po = getPurch().find(function(p) { return p.id === poId; });
     if (!po) return;
@@ -3910,10 +3922,18 @@ function completeGRV(poId) {
             var inv     = getInv();
             var invItem = inv.find(function(i) { return i.name.toLowerCase() === name.toLowerCase(); });
             if (invItem) {
+                // ── STRIP VAT — store cost excl. VAT ──────────
+                var costExclVat = parseFloat(
+                    (cost / (1 + VAT_RATE)).toFixed(4)
+                );
+                // ──────────────────────────────────────────────
+
                 invItem.quantity += recQty;
                 invItem.lastCost  = invItem.cost;
-                invItem.cost      = cost;
-                invItem.value     = invItem.quantity * invItem.cost;
+                invItem.cost      = costExclVat;
+                invItem.value     = parseFloat(
+                    (invItem.quantity * costExclVat).toFixed(2)
+                );
                 invItem.status    = invItem.quantity === 0 ? 'out-of-stock' :
                     invItem.quantity <= (invItem.parLevel || invItem.reorder || 0) ? 'low-stock' : 'in-stock';
 
@@ -3921,7 +3941,7 @@ function completeGRV(poId) {
                 grvUpdatedItems.push({
                     itemId:  invItem.id,
                     name:    invItem.name,
-                    newCost: cost
+                    newCost: costExclVat
                 });
             }
         }
@@ -3951,7 +3971,12 @@ function completeGRV(poId) {
     po.grvCompleted   = true;
     po.grvDate        = grvDate;
     po.grvBy          = S.user ? S.user.name : 'Unknown';
-    po.grvTotal       = parseFloat(grvTotal.toFixed(2));
+        po.grvCompleted   = true;
+    po.grvDate        = grvDate;
+    po.grvBy          = S.user ? S.user.name : 'Unknown';
+    // Store both incl. and excl. VAT totals
+    po.grvTotalIncl   = parseFloat(grvTotal.toFixed(2));
+    po.grvTotal       = parseFloat((grvTotal / (1 + VAT_RATE)).toFixed(2));
     po.grvLines       = grvLines;
     po.grvNotes       = grvNotes;
     po.invoiceNumber  = invNum;
