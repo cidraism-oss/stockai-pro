@@ -1399,13 +1399,37 @@ function openWhatsAppSupport() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 function goBackToHub() {
-    // Keep session alive so hub knows who you are
-    sessionStorage.setItem('hub_return', 'false');
-    sessionStorage.setItem('hub_account_id', S._accountId || '');
-    sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
-    sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
-    sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
-    // Navigate to hub
+    // Set hub_return to TRUE so hub.html knows
+    // we are coming back from the app
+    // and skips the login screen
+    sessionStorage.setItem('hub_return',       'true');
+    sessionStorage.setItem('hub_account_id',   S._accountId || '');
+    sessionStorage.setItem('hub_user_name',    S.user ? S.user.name  : '');
+    sessionStorage.setItem('hub_user_email',   S.user ? S.user.email : '');
+    sessionStorage.setItem('hub_user_role',    S.user ? S.user.role  : '');
+    sessionStorage.setItem('hub_authenticated','true');
+    sessionStorage.setItem('hub_owner_email',  S.owner ? S.owner.email : '');
+    sessionStorage.setItem('hub_owner_name',   S.owner ? S.owner.name  : '');
+
+    // Cache the full account data so hub can restore instantly
+    if (S._accountId) {
+        var cacheData = {
+            _accountId:   S._accountId,
+            user:         S.user,
+            owner:        S.owner,
+            entities:     S.entities,
+            billing:      S.billing,
+            activeEntity: S.activeEntity
+        };
+        try {
+            sessionStorage.setItem('hub_session_cache',
+                JSON.stringify(cacheData));
+        } catch(e) {
+            console.warn('Cache error:', e);
+        }
+    }
+
+    // Navigate back to hub
     window.location.href = 'hub.html';
 }
 console.log('✅ StockAI-Pro 2.0 — Core Engine loaded');
