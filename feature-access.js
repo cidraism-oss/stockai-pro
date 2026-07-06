@@ -145,7 +145,6 @@ var FEATURE_REGISTRY = {
       '/menu/categories'
     ]
   },
-  ,
 
   // OPTIONAL — FunctionsAI Events Manager
   functions_ai: {
