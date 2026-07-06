@@ -433,8 +433,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
     </div>
     <nav class="sidebar-nav" id="sidebar-nav"></nav>
     <div class="sidebar-bottom">
-        <a href="hub.html" class="sidebar-hub-btn" onclick="sessionStorage.removeItem('hub_return')">
-            <i class="fas fa-th"></i> Back to Hub
+        <a href="hub.html" class="sidebar-hub-btn" onclick="goBackToHub()">
+    <i class="fas fa-th"></i> Back to Hub
+</a>
         </a>
         <button class="sidebar-ai-btn" onclick="toggleAI()">
             <i class="fas fa-robot"></i> AI Assistant
@@ -556,7 +557,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
         <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:6px">Select Entity</h2>
         <p style="font-size:.82rem;color:var(--text-light);margin-bottom:24px">Click any entity to enter</p>
         <div id="entity-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:20px"></div>
-        <a href="hub.html" onclick="sessionStorage.removeItem('hub_return')" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-radius:var(--radius-sm);text-decoration:none;font-weight:600;font-size:.85rem">
+        <a href="hub.html" onclick="goBackToHub(" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border-radius:var(--radius-sm);text-decoration:none;font-weight:600;font-size:.85rem">
             <i class="fas fa-arrow-left"></i> Back to Hub
         </a>
     </div>
@@ -1395,6 +1396,16 @@ function openWhatsAppSupport() {
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
+function goBackToHub() {
+    // Keep session alive so hub knows who you are
+    sessionStorage.setItem('hub_return', 'false');
+    sessionStorage.setItem('hub_account_id', S._accountId || '');
+    sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
+    sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
+    sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
+    // Navigate to hub
+    window.location.href = 'hub.html';
+}
 console.log('✅ StockAI-Pro 2.0 — Core Engine loaded');
 </script>
 <script>
