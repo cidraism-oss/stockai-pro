@@ -1127,7 +1127,9 @@ function navigate(page) {
     };
 
     var requiredFeature = pageFeatureMap[page];
-    if (requiredFeature && userFeatures.indexOf(requiredFeature) === -1) {
+    if (requiredFeature && 
+        userFeatures.indexOf(requiredFeature) === -1 &&
+        !isMasterAccount()) {
         toast('error', '🔒 ' + featureNames[requiredFeature] +
             ' is not in your package. Upgrade for R' +
             featurePrices[requiredFeature] + '/mo');
@@ -3450,7 +3452,12 @@ function markPODelivered(poId) {
 }
 
 function markPOPaid(poId) {
-    if (S.user && S.user.role !== 'Owner' && S.user.role !== 'General Manager') {
+    // Master account bypass — can do everything in any entity
+    var isMaster = isMasterAccount();
+
+    if (!isMaster && S.user && 
+        S.user.role !== 'Owner' && 
+        S.user.role !== 'General Manager') {
         toast('error', 'Only Owner and GM can mark as paid');
         return;
     }
@@ -4864,7 +4871,9 @@ function saveNewUser() {
 }
 
 function editUser(userId) {
-    if (S.user && S.user.role !== 'Owner' && S.user.role !== 'General Manager') {
+    if (!isMasterAccount() && S.user && 
+        S.user.role !== 'Owner' && 
+        S.user.role !== 'General Manager') {
         toast('error', 'Only Owner and GM can edit users');
         return;
     }
@@ -4963,9 +4972,10 @@ function saveEditedUser(userId) {
 }
 
 function deleteUser(userId) {
-    if (S.user && S.user.role !== 'Owner' && S.user.role !== 'General Manager') {
-        toast('error', 'Only Owner and GM can delete users');
-        return;
+    if (!isMasterAccount() && S.user && 
+        S.user.role !== 'Owner' && 
+        S.user.role !== 'General Manager') {
+        toast('error', 'Only Owner and GM can delete users'); return;
     }
     var user = getUsers().find(function(u) { return u.id === userId; });
     if (!user) return;
