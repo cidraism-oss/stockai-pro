@@ -3891,7 +3891,10 @@ function completeGRV(poId) {
         var recQty = parseFloat(row.querySelector('.grv-rec-qty').value) || 0;
         var cost   = parseFloat(row.querySelector('.grv-cost').value)    || 0;
 
-        if (name && recQty > 0 && cost > 0) {
+            // Collect updated items for menu cascade
+    var grvUpdatedItems = [];
+
+    if (name && recQty > 0 && cost > 0) {
             hasItems = true;
             var lineTotal = recQty * cost;
             grvTotal += lineTotal;
@@ -3906,6 +3909,13 @@ function completeGRV(poId) {
                 invItem.value     = invItem.quantity * invItem.cost;
                 invItem.status    = invItem.quantity === 0 ? 'out-of-stock' :
                     invItem.quantity <= (invItem.parLevel || invItem.reorder || 0) ? 'low-stock' : 'in-stock';
+
+                // Track this item for menu cascade update
+                grvUpdatedItems.push({
+                    itemId:  invItem.id,
+                    name:    invItem.name,
+                    newCost: cost
+                });
             }
         }
     });
@@ -3941,22 +3951,103 @@ function completeGRV(poId) {
     po.paymentStatus  = paymentTerms === 'COD' ? 'Paid' : 'Unpaid';
     po.paymentDueDate = calcPaymentDue(paymentTerms, grvDate);
 
-    S.purchases[eid()] = getPurch();
+     S.purchases[eid()] = getPurch();
     S.inventory[eid()] = getInv();
+
+    // ── CASCADE COST UPDATE TO MENU ITEMS ──────────────────
+    var menuUpdated = updateMenuCostsAfterGRV(grvUpdatedItems);
+    // ───────────────────────────────────────────────────────
 
     logAction('GRV Completed', poId + ' — R' + grvTotal.toFixed(2) + ' — ' + grvLines.length + ' items updated');
     addNotif('success', 'GRV Completed', poId + ' — Stock & costs updated');
+
+    if (menuUpdated > 0) {
+        addNotif('info', 'Menu Costs Updated',
+            menuUpdated + ' menu item(s) ingredient costs recalculated after GRV');
+        toast('info', '🍽️ ' + menuUpdated + ' menu item(s) costs updated automatically');
+    }
+
     debouncedSave();
     closeModal();
     renderGRVSection();
     renderPurchasesTable();
     renderInventory();
+    safeCall(renderMenu);
     toast('success', '✅ GRV completed! Stock levels and costs updated.');
 }
 
 // ============================================================
 // GRV PRINT
 // ============================================================
+// ============================================================
+// AUTO-UPDATE MENU ITEM COSTS AFTER GRV
+// Called automatically after completeGRV()
+// ============================================================
+function updateMenuCostsAfterGRV(updatedItems) {
+    // updatedItems = array of { name, newCost }
+    if (!updatedItems || updatedItems.length === 0) return;
+
+    var menu    = getMenu();
+    var ent     = S.entities[S.activeEntity] || {};
+    var targetFC = ent.foodCostTarget || 28;
+    var updated  = 0;
+
+    menu.forEach(function(menuItem) {
+        var recalc = false;
+
+        // Loop through each ingredient in the menu item
+        (menuItem.ingredients || []).forEach(function(ingredient) {
+
+            // Find if this ingredient was updated in the GRV
+            var grvItem = updatedItems.find(function(u) {
+                return u.name.toLowerCase() === ingredient.item.toLowerCase() ||
+                       u.itemId === ingredient.itemId;
+            });
+
+            if (grvItem) {
+                // Update the ingredient cost and line total
+                ingredient.cost  = grvItem.newCost;
+                ingredient.total = parseFloat(
+                    (ingredient.qty * grvItem.newCost).toFixed(2)
+                );
+                recalc = true;
+            }
+        });
+
+        // If any ingredient was updated, recalculate the menu item
+        if (recalc) {
+            // Recalculate total recipe cost
+            var newTotalCost = (menuItem.ingredients || []).reduce(
+                function(s, ing) { return s + (ing.total || 0); }, 0
+            );
+
+            var yieldVal     = menuItem.yield || 1;
+            var newCostPP    = newTotalCost / yieldVal;
+            var setPrice     = menuItem.setPrice || 0;
+            var newActualFC  = setPrice > 0
+                ? parseFloat((newCostPP / setPrice * 100).toFixed(2))
+                : 0;
+            var newSuggested = targetFC > 0
+                ? parseFloat((newCostPP / (targetFC / 100)).toFixed(2))
+                : 0;
+
+            menuItem.totalCost      = parseFloat(newTotalCost.toFixed(2));
+            menuItem.costPerPortion = parseFloat(newCostPP.toFixed(2));
+            menuItem.suggestedPrice = newSuggested;
+            menuItem.actualFC       = newActualFC;
+            menuItem.lastCostUpdate = new Date().toISOString();
+
+            updated++;
+        }
+    });
+
+    if (updated > 0) {
+        S.menuItems[eid()] = menu;
+        console.log('✅ ' + updated + ' menu item(s) cost updated after GRV');
+        return updated;
+    }
+    return 0;
+}
 function printGRV(poId) {
     var po  = getPurch().find(function(p) { return p.id === poId; });
     if (!po) return;
