@@ -1399,29 +1399,12 @@ function openWhatsAppSupport() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 function goBackToHub() {
-    // Preserve exactly what hub.html needs
-    // using the same keys it reads on load
-    sessionStorage.setItem('hub_return',      'true');
-    sessionStorage.setItem('hub_account_id',  S._accountId || '');
-    sessionStorage.setItem('hub_entity_id',   S.currentEntity ? S.currentEntity.id : '');
-    sessionStorage.setItem('hub_user_name',   S.user ? S.user.name  : '');
-    sessionStorage.setItem('hub_user_email',  S.user ? S.user.email : '');
-    sessionStorage.setItem('hub_user_role',   S.user ? S.user.role  : '');
-
-    // Go back to hub
-    window.location.href = 'hub.html';
-}
-
-    // Save it using the exact key hub.html is reading
-    sessionStorage.setItem('hub_session', JSON.stringify(hubSession));
-
-    // Optional extra values for safety
-    sessionStorage.setItem('hub_account_id', hubSession.accountId || '');
+    sessionStorage.setItem('hub_return',     'true');
+    sessionStorage.setItem('hub_account_id', S._accountId || '');
+    sessionStorage.setItem('hub_entity_id',  S.currentEntity ? S.currentEntity.id : '');
     sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
     sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
     sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
-
-    // Go back to hub
     window.location.href = 'hub.html';
 }
 console.log('✅ StockAI-Pro 2.0 — Core Engine loaded');
