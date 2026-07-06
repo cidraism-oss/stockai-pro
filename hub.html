@@ -777,15 +777,41 @@ function checkHubAuth() {
 
             // Check if returning from external app (pos.html / app.html)
             var isReturn = sessionStorage.getItem('hub_return') === 'true';
-            if (isReturn) {
-                sessionStorage.removeItem('hub_return');
-                // Try to restore from session cache first (instant)
-                if (restoreSessionCache()) {
-                    document.getElementById('login-screen').classList.add('hidden');
-                    routeAfterLogin();
-                    return;
-                }
+if (isReturn) {
+    sessionStorage.removeItem('hub_return');
+
+    // Try to restore from session cache first (instant)
+    if (restoreSessionCache()) {
+        document.getElementById('login-screen').classList.add('hidden');
+        routeAfterLogin();
+        return;
+    }
+
+    // Cache restore failed — try rebuilding from
+    // sessionStorage values set by goBackToHub()
+    var cachedAccountId = sessionStorage.getItem('hub_account_id');
+    var cachedEmail     = sessionStorage.getItem('hub_user_email');
+    var cachedName      = sessionStorage.getItem('hub_user_name');
+    var cachedRole      = sessionStorage.getItem('hub_user_role');
+
+    if (cachedAccountId && cachedEmail) {
+        // We have enough to rebuild session
+        // without going back to login screen
+        findHubAccount(cachedEmail, function(found) {
+            if (found) {
+                document.getElementById('login-screen').classList.add('hidden');
+                routeAfterLogin();
+            } else {
+                // Last resort — show login but
+                // pre-fill the email
+                showLoginScreen();
+                var emailField = document.getElementById('hub-email');
+                if (emailField) emailField.value = cachedEmail || '';
             }
+        });
+        return;
+    }
+}
 
             // Load account data from Firestore
             findHubAccount(cachedEmail, function(found) {
