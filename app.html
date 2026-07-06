@@ -1399,37 +1399,40 @@ function openWhatsAppSupport() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 function goBackToHub() {
-    // Set hub_return to TRUE so hub.html knows
-    // we are coming back from the app
-    // and skips the login screen
-    sessionStorage.setItem('hub_return',       'true');
-    sessionStorage.setItem('hub_account_id',   S._accountId || '');
-    sessionStorage.setItem('hub_user_name',    S.user ? S.user.name  : '');
-    sessionStorage.setItem('hub_user_email',   S.user ? S.user.email : '');
-    sessionStorage.setItem('hub_user_role',    S.user ? S.user.role  : '');
-    sessionStorage.setItem('hub_authenticated','true');
-    sessionStorage.setItem('hub_owner_email',  S.owner ? S.owner.email : '');
-    sessionStorage.setItem('hub_owner_name',   S.owner ? S.owner.name  : '');
+    // Tell hub.html we are returning from the app
+    sessionStorage.setItem('hub_return', 'true');
 
-    // Cache the full account data so hub can restore instantly
-    if (S._accountId) {
-        var cacheData = {
-            _accountId:   S._accountId,
-            user:         S.user,
-            owner:        S.owner,
-            entities:     S.entities,
-            billing:      S.billing,
-            activeEntity: S.activeEntity
-        };
-        try {
-            sessionStorage.setItem('hub_session_cache',
-                JSON.stringify(cacheData));
-        } catch(e) {
-            console.warn('Cache error:', e);
-        }
+    // Work out the current entity
+    var currentEntity = null;
+    if (S.currentEntity) {
+        currentEntity = S.currentEntity;
+    } else if (S.entities && S.entities[S.activeEntity]) {
+        currentEntity = S.entities[S.activeEntity];
     }
 
-    // Navigate back to hub
+    // Build the exact session format that hub.html expects
+    var hubSession = {
+        user: S.user || null,
+        accountId: S._accountId || '',
+        entityId: currentEntity ? currentEntity.id : '',
+        entityName: currentEntity ? currentEntity.name : '',
+        entities: S.entities || [],
+        allowedApps: ['hub', 'web_boh', 'app', 'dashboard'],
+        isMaster: isMasterAccount(),
+        currentView: 'dashboard',
+        entity: currentEntity || null
+    };
+
+    // Save it using the exact key hub.html is reading
+    sessionStorage.setItem('hub_session', JSON.stringify(hubSession));
+
+    // Optional extra values for safety
+    sessionStorage.setItem('hub_account_id', hubSession.accountId || '');
+    sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
+    sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
+    sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
+
+    // Go back to hub
     window.location.href = 'hub.html';
 }
 console.log('✅ StockAI-Pro 2.0 — Core Engine loaded');
