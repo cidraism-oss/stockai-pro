@@ -688,6 +688,8 @@ var S = {
     user: null, owner: null,
     entities: [], activeEntity: 0, isGlobalMode: false, currentEntity: null,
     _accountId: null,
+    shifts: {},
+    productions: {},
     inventory: {}, purchases: {}, wastage: {}, suppliers: {},
     users: {}, menuItems: {}, cashups: {}, activities: {},
     pendingPOs: {}, userLogs: {}, dayEnds: {}, invoices: {},
@@ -915,6 +917,7 @@ function loadUserAccount(email, callback) {
 // LOAD ALL DATA FROM FIRESTORE DOC
 // ============================================================
 function loadAllData(data) {
+    S.productions       = data.productions       || {};
     S.entities          = data.entities          || [];
     S.inventory         = data.inventory         || {};
     S.purchases         = data.purchases         || {};
@@ -948,6 +951,7 @@ function loadAllData(data) {
 function saveToCloud(extraFields) {
     if (!S._accountId) return Promise.resolve();
     var data = {
+        productions: S.productions,
         inventory: S.inventory, purchases: S.purchases, wastage: S.wastage,
         suppliers: S.suppliers, users: S.users, menuItems: S.menuItems,
         cashups: S.cashups, activities: S.activities, pendingPOs: S.pendingPOs,
@@ -1073,7 +1077,14 @@ function enterApp() {
     renderPages();
 
     var perms = PERMS[S.user ? S.user.role : 'Staff'] || {};
-    navigate(perms.pages ? perms.pages[0] || 'dashboard' : 'dashboard');
+        // Check if hub sent us to a specific page
+    var targetPage = sessionStorage.getItem('hub_target_page');
+    if (targetPage) {
+        sessionStorage.removeItem('hub_target_page');
+        navigate(targetPage);
+    } else {
+        navigate(perms.pages ? perms.pages[0] || 'dashboard' : 'dashboard');
+    }
     startCloudSync();
 }
 
@@ -1081,14 +1092,37 @@ function enterApp() {
 // SIDEBAR
 // ============================================================
 function renderSidebar() {
-    var nav = document.getElementById('sidebar-nav');
+    var nav   = document.getElementById('sidebar-nav');
     var perms = PERMS[S.user ? S.user.role : 'Staff'] || {};
-    var items = NAV_ITEMS.filter(function(item) {
-        if (!perms.pages) return false;
-        return perms.pages.indexOf(item.page) !== -1;
-    });
-    if (S.entities.length < 2) items = items.filter(function(i) { return i.page !== 'transfers'; });
-    if (isMasterAccount()) items = NAV_ITEMS.slice();
+    var items;
+
+    // Master account always gets all pages
+    if (isMasterAccount()) {
+        items = NAV_ITEMS.slice();
+    } else {
+        items = NAV_ITEMS.filter(function(item) {
+            if (!perms.pages) return false;
+            return perms.pages.indexOf(item.page) !== -1;
+        });
+    }
+
+    // Only show transfers if 2+ entities
+    if (S.entities.length < 2) {
+        items = items.filter(function(i) { return i.page !== 'transfers'; });
+    }
+
+    // Add production manager for all users who have menu-creation access
+    var hasProduction = items.find(function(i) { return i.page === 'production'; });
+    if (!hasProduction && (isMasterAccount() || (perms.pages && perms.pages.indexOf('menu-creation') !== -1))) {
+        // Insert after menu-creation
+        var menuIdx = -1;
+        items.forEach(function(item, idx) { if (item.page === 'menu-creation') menuIdx = idx; });
+        if (menuIdx !== -1) {
+            items.splice(menuIdx + 1, 0, { page:'production', icon:'fa-industry', label:'Production' });
+        } else {
+            items.push({ page:'production', icon:'fa-industry', label:'Production' });
+        }
+    }
 
     nav.innerHTML = items.map(function(item, i) {
         return '<a class="nav-link ' + (i === 0 ? 'active' : '') + '" data-page="' + item.page +
@@ -1151,6 +1185,7 @@ function navigate(page) {
     if (page === 'day-end')   try { loadDayEnd(); }          catch(e) {}
     if (page === 'pos-builder') try { renderPOSItems(); }    catch(e) {}
     if (page === 'transfers') try { renderTransfers(); }     catch(e) {}
+    if (page === 'production') try { renderProduction(); } catch(e) {}
 }
 
 // ============================================================
@@ -1159,20 +1194,28 @@ function navigate(page) {
 function renderPages() {
     var container = document.getElementById('pages-container');
     var perms = PERMS[S.user ? S.user.role : 'Staff'] || {};
-    var pages = perms.pages || [];
-    if (isMasterAccount()) pages = NAV_ITEMS.map(function(n) { return n.page; });
+    var pages;
+
+    // Master account always gets all pages
+    if (isMasterAccount()) {
+        pages = NAV_ITEMS.map(function(n) { return n.page; });
+        pages.push('production'); // Always include production for master
+    } else {
+        pages = perms.pages || [];
+    }
 
     var html = '';
     if (pages.indexOf('dashboard')     !== -1) html += '<section id="page-dashboard" class="page active">'    + pageDashboard()      + '</section>';
     if (pages.indexOf('inventory')     !== -1) html += '<section id="page-inventory" class="page">'           + pageInventory()      + '</section>';
     if (pages.indexOf('menu-creation') !== -1) html += '<section id="page-menu-creation" class="page">'       + pageMenuCreation()   + '</section>';
+    if (pages.indexOf('production')    !== -1 || isMasterAccount()) html += '<section id="page-production" class="page">' + pageProduction() + '</section>';
     if (pages.indexOf('stock-take')    !== -1) html += '<section id="page-stock-take" class="page">'          + pageStockTake()      + '</section>';
     if (pages.indexOf('cashup')        !== -1) html += '<section id="page-cashup" class="page">'              + pageCashup()         + '</section>';
     if (pages.indexOf('day-end')       !== -1) html += '<section id="page-day-end" class="page">'             + pageDayEnd()         + '</section>';
     if (pages.indexOf('purchases')     !== -1) html += '<section id="page-purchases" class="page">'           + pagePurchases()      + '</section>';
     if (pages.indexOf('grv')           !== -1) html += '<section id="page-grv" class="page">'                 + pageGRV()            + '</section>';
     if (pages.indexOf('transfers')     !== -1 && S.entities.length >= 2)
-                                               html += '<section id="page-transfers" class="page">'           + pageTransfers()      + '</section>';
+                                                html += '<section id="page-transfers" class="page">'           + pageTransfers()      + '</section>';
     if (pages.indexOf('suppliers')     !== -1) html += '<section id="page-suppliers" class="page">'           + pageSuppliers()      + '</section>';
     if (pages.indexOf('wastage')       !== -1) html += '<section id="page-wastage" class="page">'             + pageWastage()        + '</section>';
     if (pages.indexOf('reports')       !== -1) html += '<section id="page-reports" class="page">'             + pageReports()        + '</section>';
@@ -1210,6 +1253,7 @@ function safeRenderAll() {
     safeCall(renderTransfers);
     safeCall(loadCashup);
     safeCall(loadDayEnd);
+    safeCall(renderProduction);
     setTimeout(function() { try { initDashCharts(); } catch(e) {} }, 100);
 }
 
@@ -1399,12 +1443,7 @@ function openWhatsAppSupport() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 function goBackToHub() {
-    sessionStorage.setItem('hub_return',     'true');
-    sessionStorage.setItem('hub_account_id', S._accountId || '');
-    sessionStorage.setItem('hub_entity_id',  S.currentEntity ? S.currentEntity.id : '');
-    sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
-    sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
-    sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
+    sessionStorage.setItem('hub_return', 'true');
     window.location.href = 'hub.html';
 }
 console.log('✅ StockAI-Pro 2.0 — Core Engine loaded');
@@ -3285,6 +3324,9 @@ console.log('✅ Stock Take + Cash-up + Day End + POS Builder loaded');
 // PAGE: PURCHASES
 // ============================================================
 function pagePurchases() {
+    var isOwnerOrGM = isMasterAccount() ||
+        (S.user && (S.user.role === 'Owner' || S.user.role === 'General Manager'));
+
     return '<div class="page-watermark">STOCKAI-PRO</div>' +
         '<h1 class="page-heading">Purchases</h1>' +
 
@@ -3295,6 +3337,16 @@ function pagePurchases() {
         '<div class="stat-card red"><div class="stat-card-title">Unpaid</div><div class="stat-card-value" id="po-unpaid-count">0</div></div>' +
         '</div>' +
 
+        // Sub-tabs
+        '<div class="tab-nav-app">' +
+        '<button class="tab-btn-app active" onclick="switchPurchaseTab(\'orders\',this)">Orders</button>' +
+        (isOwnerOrGM
+            ? '<button class="tab-btn-app" onclick="switchPurchaseTab(\'payments\',this)">💳 Payments</button>'
+            : '') +
+        '</div>' +
+
+        // ORDERS TAB
+        '<div id="purchase-tab-orders" class="tab-panel active">' +
         '<div class="action-bar">' +
         '<button class="btn-primary" onclick="showManualPOForm()"><i class="fas fa-plus"></i> Create Manual PO</button>' +
         '<button class="btn-outline" onclick="showAIPOSection()"><i class="fas fa-robot"></i> AI Pending POs</button>' +
@@ -3322,12 +3374,90 @@ function pagePurchases() {
         '<div class="table-wrap"><table class="data-table"><thead><tr>' +
         '<th>PO #</th><th>Supplier</th><th>Invoice #</th><th>GRV Total (excl.)</th><th>Payment</th><th>Due Date</th><th>Actions</th>' +
         '</tr></thead><tbody id="po-complete-body"></tbody></table></div></div>' +
+        '</div>' +
 
-        '<div class="form-card" style="border-left-color:var(--danger)">' +
-        '<h3 class="block-title"><i class="fas fa-exclamation-circle" style="color:var(--danger)"></i> Unpaid Invoices</h3>' +
-        '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        '<th>PO #</th><th>Supplier</th><th>Total</th><th>Terms</th><th>Due Date</th><th>Overdue</th><th>Actions</th>' +
-        '</tr></thead><tbody id="po-unpaid-body"></tbody></table></div></div>';
+        // PAYMENTS TAB — Owner/GM only
+        (isOwnerOrGM
+            ? '<div id="purchase-tab-payments" class="tab-panel">' +
+              '<h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:18px">' +
+              '<i class="fas fa-credit-card" style="color:var(--danger)"></i> Invoices Ready for Payment</h3>' +
+
+              '<div class="stats-row">' +
+              '<div class="stat-card red"><div class="stat-card-title">Total Unpaid</div>' +
+              '<div class="stat-card-value" id="pay-total-unpaid">R0</div></div>' +
+              '<div class="stat-card gold"><div class="stat-card-title">Due This Week</div>' +
+              '<div class="stat-card-value" id="pay-due-week">0</div></div>' +
+              '<div class="stat-card red"><div class="stat-card-title">Overdue</div>' +
+              '<div class="stat-card-value" id="pay-overdue">0</div></div>' +
+              '<div class="stat-card"><div class="stat-card-title">Total Invoices</div>' +
+              '<div class="stat-card-value" id="pay-total-count">0</div></div></div>' +
+
+              '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+              '<th>PO #</th><th>Supplier</th><th>Invoice #</th><th>GRV Date</th>' +
+              '<th>Amount (excl.)</th><th>Terms</th><th>Due Date</th><th>Status</th><th>Actions</th>' +
+              '</tr></thead><tbody id="po-payments-body"></tbody></table></div></div>'
+            : '');
+}
+
+function switchPurchaseTab(tab, btn) {
+    document.querySelectorAll('.tab-btn-app').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById('purchase-tab-' + tab);
+    if (panel) panel.classList.add('active');
+    if (tab === 'payments') renderPaymentsTab();
+}
+
+function renderPaymentsTab() {
+    var ps      = getPurch();
+    var unpaid  = ps.filter(function(p) { return p.grvCompleted && p.paymentStatus !== 'Paid'; });
+    var today   = new Date().toISOString().split('T')[0];
+    var weekEnd = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+
+    var overdue = unpaid.filter(function(p) { return p.paymentDueDate && p.paymentDueDate < today; });
+    var dueWeek = unpaid.filter(function(p) {
+        return p.paymentDueDate && p.paymentDueDate >= today && p.paymentDueDate <= weekEnd;
+    });
+    var totalAmt = unpaid.reduce(function(s, p) {
+        return s + ((p.grvTotal || p.total || 0) / (1 + VAT_RATE));
+    }, 0);
+
+    var el;
+    el = document.getElementById('pay-total-unpaid'); if (el) el.textContent = 'R' + fmtNum(totalAmt);
+    el = document.getElementById('pay-due-week');     if (el) el.textContent = dueWeek.length;
+    el = document.getElementById('pay-overdue');      if (el) el.textContent = overdue.length;
+    el = document.getElementById('pay-total-count');  if (el) el.textContent = unpaid.length;
+
+    var tb = document.getElementById('po-payments-body');
+    if (!tb) return;
+
+    if (unpaid.length === 0) {
+        tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--success)">' +
+            '<i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:8px"></i>' +
+            'All invoices paid! ✅</td></tr>';
+        return;
+    }
+
+    tb.innerHTML = unpaid.map(function(p) {
+        var isOverdue = p.paymentDueDate && p.paymentDueDate < today;
+        var daysOver  = isOverdue ? Math.ceil((new Date(today) - new Date(p.paymentDueDate)) / 86400000) : 0;
+        var amtExcl   = (p.grvTotal || p.total || 0) / (1 + VAT_RATE);
+
+        return '<tr style="' + (isOverdue ? 'background:rgba(201,69,69,.05)' : '') + '">' +
+            '<td><strong>' + p.id + '</strong></td>' +
+            '<td>' + p.supplier + '</td>' +
+            '<td>' + (p.invoiceNumber || '—') + '</td>' +
+            '<td>' + (p.grvDate ? fmtDate(p.grvDate) : '—') + '</td>' +
+            '<td style="font-weight:700">R' + amtExcl.toFixed(2) + '</td>' +
+            '<td>' + (p.paymentTerms || 'COD') + '</td>' +
+            '<td>' + (p.paymentDueDate || '—') + '</td>' +
+            '<td>' + (isOverdue
+                ? '<span class="status-badge out-of-stock">' + daysOver + ' days overdue</span>'
+                : '<span class="status-badge pending">Due</span>') + '</td>' +
+            '<td><button class="btn-success" style="padding:5px 12px;font-size:.75rem" ' +
+            'onclick="markPOPaid(\'' + p.id + '\')">' +
+            '<i class="fas fa-check"></i> Mark Paid</button></td></tr>';
+    }).join('');
 }
 
 // ============================================================
@@ -3470,6 +3600,10 @@ function markPOPaid(poId) {
     logAction('Invoice Paid', poId + ' paid by ' + (S.user ? S.user.name : ''));
     debouncedSave();
     renderPurchasesTable();
+    // Send payment status back to ProcureAI if applicable
+    if (po.procureOrderId) {
+        try { updateProcureAfterPayment(po); } catch(e) {}
+    }
     toast('success', '✅ ' + poId + ' marked as paid');
 }
 
@@ -4004,7 +4138,11 @@ function completeGRV(poId) {
     renderPurchasesTable();
     renderInventory();
     safeCall(renderMenu);
-    toast('success', '✅ GRV completed! Stock levels and costs updated.');
+    // Send GRV data back to ProcureAI if applicable
+    if (po.procureOrderId) {
+        try { updateProcureAfterGRV(po); } catch(e) {}
+    }    
+toast('success', '✅ GRV completed! Stock levels and costs updated.');
 }
 
 // ============================================================
@@ -6157,6 +6295,495 @@ function processClockAction() {
     debouncedSave();
     setTimeout(closeModal, 2500);
 }
+// ============================================================
+// PAGE: PRODUCTION MANAGER
+// ============================================================
+function pageProduction() {
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading">Production Manager</h1>' +
+
+        '<div style="background:rgba(26,139,168,.1);border-left:3px solid var(--accent);padding:14px;' +
+        'border-radius:var(--radius-sm);margin-bottom:18px;font-size:.82rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Create bulk production runs from your menu items. The system will auto-calculate ingredient quantities, ' +
+        'check stock levels, generate POs for missing items, and track production status.</div>' +
+
+        '<div class="action-bar">' +
+        '<button class="btn-primary" onclick="showCreateProductionModal()">' +
+        '<i class="fas fa-plus"></i> New Production Run</button></div>' +
+
+        // Stats
+        '<div class="stats-row">' +
+        '<div class="stat-card"><div class="stat-card-title">Active Runs</div>' +
+        '<div class="stat-card-value" id="prod-active">0</div></div>' +
+        '<div class="stat-card gold"><div class="stat-card-title">Awaiting Stock</div>' +
+        '<div class="stat-card-value" id="prod-waiting">0</div></div>' +
+        '<div class="stat-card green"><div class="stat-card-title">Completed</div>' +
+        '<div class="stat-card-value" id="prod-completed">0</div></div>' +
+        '<div class="stat-card"><div class="stat-card-title">Total Runs</div>' +
+        '<div class="stat-card-value" id="prod-total">0</div></div></div>' +
+
+        // Not Processed
+        '<div class="form-card" style="border-left-color:var(--warning);margin-bottom:18px">' +
+        '<h3 class="block-title"><i class="fas fa-pause-circle" style="color:var(--warning)"></i> ' +
+        'Awaiting Stock — Not Processed</h3>' +
+        '<div id="prod-waiting-list"></div></div>' +
+
+        // Active / In Progress
+        '<div class="form-card" style="border-left-color:var(--accent);margin-bottom:18px">' +
+        '<h3 class="block-title"><i class="fas fa-cogs" style="color:var(--accent)"></i> ' +
+        'Active Production Runs</h3>' +
+        '<div id="prod-active-list"></div></div>' +
+
+        // Completed
+        '<div class="form-card" style="border-left-color:var(--success)">' +
+        '<h3 class="block-title"><i class="fas fa-check-double" style="color:var(--success)"></i> ' +
+        'Completed Production</h3>' +
+        '<div id="prod-completed-list"></div></div>';
+}
+
+// ── GET PRODUCTIONS ────────────────────────────────────────
+function getProductions() {
+    if (!eid()) return [];
+    if (!S.productions) S.productions = {};
+    return S.productions[eid()] || [];
+}
+
+// ── RENDER PRODUCTION ──────────────────────────────────────
+function renderProduction() {
+    var prods    = getProductions();
+    var waiting  = prods.filter(function(p) { return p.status === 'awaiting-stock'; });
+    var active   = prods.filter(function(p) { return p.status === 'processing'; });
+    var completed = prods.filter(function(p) { return p.status === 'completed'; });
+
+    var el;
+    el = document.getElementById('prod-active');    if (el) el.textContent = active.length;
+    el = document.getElementById('prod-waiting');   if (el) el.textContent = waiting.length;
+    el = document.getElementById('prod-completed'); if (el) el.textContent = completed.length;
+    el = document.getElementById('prod-total');     if (el) el.textContent = prods.length;
+
+    // Check if waiting items now have enough stock
+    waiting.forEach(function(prod) {
+        prod.canProcess = checkProductionStock(prod);
+    });
+
+    // Waiting
+    var waitEl = document.getElementById('prod-waiting-list');
+    if (waitEl) {
+        waitEl.innerHTML = waiting.length === 0
+            ? '<p style="color:var(--text-light);padding:14px;text-align:center">No productions waiting for stock</p>'
+            : waiting.map(function(p) {
+                return '<div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);' +
+                    'border-radius:var(--radius-sm);margin-bottom:10px;border-left:3px solid ' +
+                    (p.canProcess ? 'var(--success)' : 'var(--warning)') + '">' +
+                    '<div style="flex:1">' +
+                    '<strong style="font-size:.88rem">' + p.menuItemName + ' × ' + p.targetYield + '</strong>' +
+                    '<div style="font-size:.72rem;color:var(--text-light)">Created: ' + fmtDate(p.createdAt) +
+                    ' by ' + p.createdBy + '</div>' +
+                    (p.canProcess
+                        ? '<div style="font-size:.72rem;color:var(--success);margin-top:4px">' +
+                          '<i class="fas fa-check-circle"></i> Stock now available!</div>'
+                        : '<div style="font-size:.72rem;color:var(--warning);margin-top:4px">' +
+                          '<i class="fas fa-exclamation-triangle"></i> Insufficient stock — POs sent</div>') +
+                    '</div>' +
+                    (p.canProcess
+                        ? '<button class="btn-success" style="padding:8px 16px;font-size:.82rem" ' +
+                          'onclick="processProduction(\'' + p.id + '\')">' +
+                          '<i class="fas fa-play"></i> Process</button>'
+                        : '<span class="status-badge pending">Awaiting Stock</span>') +
+                    '</div>';
+            }).join('');
+    }
+
+    // Active
+    var actEl = document.getElementById('prod-active-list');
+    if (actEl) {
+        actEl.innerHTML = active.length === 0
+            ? '<p style="color:var(--text-light);padding:14px;text-align:center">No active production runs</p>'
+            : active.map(function(p) {
+                return '<div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);' +
+                    'border-radius:var(--radius-sm);margin-bottom:10px;border-left:3px solid var(--accent)">' +
+                    '<div style="flex:1">' +
+                    '<strong style="font-size:.88rem">' + p.menuItemName + ' × ' + p.targetYield + '</strong>' +
+                    '<div style="font-size:.72rem;color:var(--text-light)">Started: ' + fmtDate(p.processedAt) +
+                    ' by ' + (p.processedBy || '—') + '</div></div>' +
+                    '<button class="btn-success" style="padding:8px 16px;font-size:.82rem" ' +
+                    'onclick="completeProduction(\'' + p.id + '\')">' +
+                    '<i class="fas fa-check-double"></i> Mark Complete</button></div>';
+            }).join('');
+    }
+
+    // Completed
+    var compEl = document.getElementById('prod-completed-list');
+    if (compEl) {
+        compEl.innerHTML = completed.length === 0
+            ? '<p style="color:var(--text-light);padding:14px;text-align:center">No completed productions yet</p>'
+            : '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+              '<th>Item</th><th>Yield</th><th>Created</th><th>Completed</th><th>By</th><th>Status</th>' +
+              '</tr></thead><tbody>' +
+              completed.slice(0, 20).map(function(p) {
+                  return '<tr>' +
+                      '<td><strong>' + p.menuItemName + '</strong></td>' +
+                      '<td>' + p.targetYield + '</td>' +
+                      '<td>' + fmtDate(p.createdAt) + '</td>' +
+                      '<td>' + (p.completedAt ? fmtDate(p.completedAt) : '—') + '</td>' +
+                      '<td>' + (p.completedBy || '—') + '</td>' +
+                      '<td><span class="status-badge in-stock">Completed ✅</span></td></tr>';
+              }).join('') +
+              '</tbody></table></div>';
+    }
+}
+
+// ── CHECK IF PRODUCTION HAS ENOUGH STOCK ───────────────────
+function checkProductionStock(prod) {
+    var inv = getInv();
+    var allGood = true;
+
+    (prod.requiredIngredients || []).forEach(function(req) {
+        var invItem = inv.find(function(i) { return i.id === req.itemId; });
+        if (!invItem || invItem.quantity < req.totalQty) {
+            allGood = false;
+        }
+    });
+
+    return allGood;
+}
+
+// ── CREATE PRODUCTION MODAL ────────────────────────────────
+function showCreateProductionModal() {
+    var menu = getMenu();
+    if (menu.length === 0) {
+        toast('warning', 'No menu items found. Create menu items first.');
+        return;
+    }
+
+    var menuOpts = '<option value="">Select a menu item</option>' +
+        menu.map(function(m) {
+            return '<option value="' + m.id + '" data-name="' + m.name +
+                '" data-yield="' + (m.yield || 1) + '">' +
+                m.name + ' (base yield: ' + (m.yield || 1) + ')</option>';
+        }).join('');
+
+    showModal('<i class="fas fa-industry" style="color:var(--accent)"></i> New Production Run',
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Menu Item *</label>' +
+        '<select id="prod-menu" onchange="previewProduction()">' + menuOpts + '</select></div>' +
+        '<div class="form-field"><label>Target Yield (units to produce) *</label>' +
+        '<input type="number" id="prod-yield" min="1" value="10" oninput="previewProduction()"></div></div>' +
+
+        '<div id="prod-preview" style="margin-top:16px"></div>',
+
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="createProductionRun()">' +
+        '<i class="fas fa-industry"></i> Create Production Run</button>'
+    );
+}
+
+// ── PREVIEW PRODUCTION ─────────────────────────────────────
+function previewProduction() {
+    var menuSel = document.getElementById('prod-menu');
+    var yieldEl = document.getElementById('prod-yield');
+    var preview = document.getElementById('prod-preview');
+    if (!menuSel || menuSel.selectedIndex < 1 || !preview) {
+        if (preview) preview.innerHTML = '';
+        return;
+    }
+
+    var menuId      = menuSel.value;
+    var targetYield = parseInt(yieldEl.value) || 1;
+    var menuItem    = getMenu().find(function(m) { return m.id === menuId; });
+    if (!menuItem) return;
+
+    var baseYield  = menuItem.yield || 1;
+    var multiplier = targetYield / baseYield;
+    var inv        = getInv();
+
+    var html = '<div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px">' +
+        '<h4 style="font-size:.88rem;color:var(--text);margin-bottom:12px">' +
+        '<i class="fas fa-list"></i> Required Ingredients for ' + targetYield + ' × ' + menuItem.name + '</h4>' +
+        '<div style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
+        'Base recipe yield: ' + baseYield + ' | Multiplier: ' + multiplier.toFixed(2) + 'x</div>';
+
+    var hasShortage = false;
+    var totalCost   = 0;
+
+    html += '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr style="background:var(--bg-dark)">' +
+        '<th style="padding:8px;text-align:left;font-size:.72rem;color:var(--text-light)">Ingredient</th>' +
+        '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Required</th>' +
+        '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">In Stock</th>' +
+        '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Status</th>' +
+        '<th style="padding:8px;text-align:right;font-size:.72rem;color:var(--text-light)">Cost</th>' +
+        '</tr></thead><tbody>';
+
+    (menuItem.ingredients || []).forEach(function(ing) {
+        var reqQty  = parseFloat((ing.qty * multiplier).toFixed(3));
+        var invItem = inv.find(function(i) { return i.id === ing.itemId; });
+        var inStock = invItem ? invItem.quantity : 0;
+        var ok      = inStock >= reqQty;
+        var lineCost = reqQty * (ing.cost || 0);
+        totalCost  += lineCost;
+
+        if (!ok) hasShortage = true;
+
+        html += '<tr style="border-bottom:1px solid var(--border)">' +
+            '<td style="padding:8px;font-size:.82rem;color:var(--text)">' + ing.item + '</td>' +
+            '<td style="padding:8px;text-align:center;font-size:.82rem;color:var(--text)">' + reqQty + ' ' + (ing.unit || '') + '</td>' +
+            '<td style="padding:8px;text-align:center;font-size:.82rem;color:' + (ok ? 'var(--success)' : 'var(--danger)') + '">' + inStock + '</td>' +
+            '<td style="padding:8px;text-align:center">' +
+            (ok ? '<span class="status-badge in-stock">✅ OK</span>'
+                : '<span class="status-badge out-of-stock">⚠️ Short ' + (reqQty - inStock).toFixed(2) + '</span>') +
+            '</td>' +
+            '<td style="padding:8px;text-align:right;font-size:.82rem;color:var(--accent)">R' + lineCost.toFixed(2) + '</td></tr>';
+    });
+
+    html += '</tbody></table>';
+
+    html += '<div style="display:flex;justify-content:space-between;padding:12px 0;' +
+        'border-top:2px solid var(--accent);margin-top:8px;font-weight:800;color:var(--accent)">' +
+        '<span>Total Production Cost</span><span>R' + totalCost.toFixed(2) + '</span></div>';
+
+    if (hasShortage) {
+        html += '<div style="background:rgba(212,160,23,.1);border-left:3px solid var(--warning);' +
+            'padding:12px;border-radius:var(--radius-sm);margin-top:12px;font-size:.82rem;color:var(--text)">' +
+            '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> ' +
+            '<strong>Insufficient stock.</strong> Production will be saved as "Awaiting Stock". ' +
+            'POs will be automatically generated for missing items and sent to suppliers.</div>';
+    } else {
+        html += '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);' +
+            'padding:12px;border-radius:var(--radius-sm);margin-top:12px;font-size:.82rem;color:var(--text)">' +
+            '<i class="fas fa-check-circle" style="color:var(--success)"></i> ' +
+            '<strong>All ingredients in stock.</strong> Production can be processed immediately.</div>';
+    }
+
+    html += '</div>';
+    preview.innerHTML = html;
+}
+
+// ── CREATE PRODUCTION RUN ──────────────────────────────────
+function createProductionRun() {
+    var menuSel = document.getElementById('prod-menu');
+    var yieldEl = document.getElementById('prod-yield');
+    if (!menuSel || menuSel.selectedIndex < 1) { toast('error', 'Select a menu item'); return; }
+
+    var menuId      = menuSel.value;
+    var targetYield = parseInt(yieldEl.value) || 1;
+    var menuItem    = getMenu().find(function(m) { return m.id === menuId; });
+    if (!menuItem) return;
+
+    var baseYield  = menuItem.yield || 1;
+    var multiplier = targetYield / baseYield;
+    var inv        = getInv();
+    var hasShortage = false;
+    var requiredIngredients = [];
+    var shortages = [];
+
+    (menuItem.ingredients || []).forEach(function(ing) {
+        var reqQty  = parseFloat((ing.qty * multiplier).toFixed(3));
+        var invItem = inv.find(function(i) { return i.id === ing.itemId; });
+        var inStock = invItem ? invItem.quantity : 0;
+        var ok      = inStock >= reqQty;
+
+        requiredIngredients.push({
+            itemId:   ing.itemId,
+            item:     ing.item,
+            unit:     ing.unit || 'each',
+            baseQty:  ing.qty,
+            totalQty: reqQty,
+            cost:     ing.cost || 0,
+            inStock:  inStock,
+            sufficient: ok
+        });
+
+        if (!ok) {
+            hasShortage = true;
+            shortages.push({
+                itemId:   ing.itemId,
+                item:     ing.item,
+                unit:     ing.unit || 'each',
+                needed:   parseFloat((reqQty - inStock).toFixed(3)),
+                cost:     ing.cost || 0
+            });
+        }
+    });
+
+    var prodId = 'PROD-' + Date.now();
+    var prod = {
+        id:                  prodId,
+        menuItemId:          menuId,
+        menuItemName:        menuItem.name,
+        targetYield:         targetYield,
+        baseYield:           baseYield,
+        multiplier:          multiplier,
+        requiredIngredients: requiredIngredients,
+        status:              hasShortage ? 'awaiting-stock' : 'processing',
+        canProcess:          !hasShortage,
+        createdAt:           new Date().toISOString(),
+        createdBy:           S.user ? S.user.name : 'Unknown'
+    };
+
+    if (!hasShortage) {
+        prod.processedAt = new Date().toISOString();
+        prod.processedBy = S.user ? S.user.name : 'Unknown';
+
+        // Deduct stock immediately
+        requiredIngredients.forEach(function(req) {
+            var invItem = inv.find(function(i) { return i.id === req.itemId; });
+            if (invItem) {
+                invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
+                invItem.value    = invItem.quantity * invItem.cost;
+                invItem.status   = invItem.quantity === 0 ? 'out-of-stock' :
+                    invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
+            }
+        });
+        S.inventory[eid()] = inv;
+    } else {
+        // Generate POs for shortages
+        generateProductionPOs(shortages, prodId);
+    }
+
+    if (!S.productions) S.productions = {};
+    if (!S.productions[eid()]) S.productions[eid()] = [];
+    S.productions[eid()].unshift(prod);
+
+    logAction('Production Created', menuItem.name + ' × ' + targetYield +
+        (hasShortage ? ' (awaiting stock)' : ' (processing)'));
+    debouncedSave();
+    closeModal();
+    renderProduction();
+    renderInventory();
+
+    if (hasShortage) {
+        toast('warning', '⏳ Production saved — POs generated for missing stock');
+    } else {
+        toast('success', '✅ Production started — stock deducted');
+    }
+}
+
+// ── GENERATE POs FOR SHORTAGES ─────────────────────────────
+function generateProductionPOs(shortages, prodId) {
+    var inv = getInv();
+    var bySupplier = {};
+
+    shortages.forEach(function(s) {
+        var invItem = inv.find(function(i) { return i.id === s.itemId; });
+        var supName = (invItem && invItem.supplier) ? invItem.supplier : 'Unknown Supplier';
+
+        if (!bySupplier[supName]) bySupplier[supName] = [];
+        bySupplier[supName].push({
+            id:    s.itemId,
+            name:  s.item,
+            qty:   s.needed,
+            unit:  s.unit,
+            cost:  s.cost,
+            total: parseFloat((s.needed * s.cost).toFixed(2))
+        });
+    });
+
+    if (!S.pendingPOs[eid()]) S.pendingPOs[eid()] = [];
+
+    Object.keys(bySupplier).forEach(function(supName) {
+        var items = bySupplier[supName];
+        var total = items.reduce(function(sum, i) { return sum + i.total; }, 0);
+
+        var po = {
+            id:           'PPO-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            supplier:     supName,
+            items:        items,
+            total:        total,
+            date:         new Date().toISOString(),
+            status:       'Pending Approval',
+            generatedBy:  'Production',
+            productionId: prodId
+        };
+
+        S.pendingPOs[eid()].push(po);
+
+        // Auto email to supplier
+        var sup = getSups().find(function(s) { return s.name === supName; });
+        if (sup && sup.email) {
+            try {
+                emailPurchaseOrder({
+                    poId:          po.id,
+                    supplierName:  supName,
+                    supplierEmail: sup.email,
+                    entityName:    S.entities[S.activeEntity] ? S.entities[S.activeEntity].name : '',
+                    entityAddress: S.entities[S.activeEntity] ? (S.entities[S.activeEntity].address || '') : '',
+                    createdBy:     'Production Manager',
+                    createdAt:     new Date().toISOString(),
+                    items:         items,
+                    total:         total
+                });
+                toast('info', '📧 PO sent to ' + supName);
+            } catch(e) { console.warn('PO email error:', e); }
+        }
+    });
+
+    addNotif('info', 'Production POs',
+        Object.keys(bySupplier).length + ' PO(s) generated for production');
+}
+
+// ── PROCESS PRODUCTION ─────────────────────────────────────
+function processProduction(prodId) {
+    var prods = getProductions();
+    var prod  = prods.find(function(p) { return p.id === prodId; });
+    if (!prod) return;
+
+    if (!checkProductionStock(prod)) {
+        toast('error', 'Still insufficient stock for this production');
+        return;
+    }
+
+    if (!confirm('Process production: ' + prod.menuItemName + ' × ' + prod.targetYield + '?\n\nStock will be deducted.')) return;
+
+    var inv = getInv();
+    (prod.requiredIngredients || []).forEach(function(req) {
+        var invItem = inv.find(function(i) { return i.id === req.itemId; });
+        if (invItem) {
+            invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
+            invItem.value    = invItem.quantity * invItem.cost;
+            invItem.status   = invItem.quantity === 0 ? 'out-of-stock' :
+                invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
+        }
+    });
+
+    S.inventory[eid()] = inv;
+    prod.status      = 'processing';
+    prod.canProcess  = false;
+    prod.processedAt = new Date().toISOString();
+    prod.processedBy = S.user ? S.user.name : 'Unknown';
+
+    S.productions[eid()] = prods;
+    logAction('Production Started', prod.menuItemName + ' × ' + prod.targetYield);
+    debouncedSave();
+    renderProduction();
+    renderInventory();
+    toast('success', '✅ Production started — stock deducted');
+}
+
+// ── COMPLETE PRODUCTION ────────────────────────────────────
+function completeProduction(prodId) {
+    var prods = getProductions();
+    var prod  = prods.find(function(p) { return p.id === prodId; });
+    if (!prod) return;
+
+    if (!confirm('Mark production as completed?\n\n' + prod.menuItemName + ' × ' + prod.targetYield)) return;
+
+    prod.status      = 'completed';
+    prod.completedAt = new Date().toISOString();
+    prod.completedBy = S.user ? S.user.name : 'Unknown';
+
+    S.productions[eid()] = prods;
+
+    // Send production report notification
+    addNotif('success', 'Production Complete',
+        prod.menuItemName + ' × ' + prod.targetYield + ' completed by ' + prod.completedBy);
+
+    logAction('Production Complete', prod.menuItemName + ' × ' + prod.targetYield);
+    debouncedSave();
+    renderProduction();
+    toast('success', '🎉 Production completed! Report sent to management.');
+}
 
 console.log('✅ Users + Reports + Settings + Transfers + Month End + Invoicing loaded');
 </script>
@@ -6734,6 +7361,382 @@ setTimeout(function() {
     if (sel) sel.value = APP_LANG;
     if (APP_LANG !== 'en') appChangeLang(APP_LANG);
 }, 500);
+// ============================================================
+// PROCUREAI ↔ WEB APP INTEGRATION
+// ============================================================
+
+// ── LISTEN FOR PROCUREAI ORDERS ────────────────────────────
+var procureListener = null;
+
+function startProcureSync() {
+    if (!S._accountId || !eid()) return;
+    if (procureListener) procureListener();
+
+    procureListener = db.collection('accounts').doc(S._accountId)
+        .collection('procure_orders')
+        .where('entityId', '==', eid())
+        .where('status', '==', 'submitted')
+        .onSnapshot(function(snap) {
+            if (snap.empty) return;
+
+            var newOrders = 0;
+            snap.forEach(function(doc) {
+                var order = doc.data();
+                order._docId = doc.id;
+                processProcureOrder(order);
+                newOrders++;
+            });
+
+            if (newOrders > 0) {
+                toast('info', '📦 ' + newOrders + ' new order(s) from ProcureAI');
+                addNotif('info', 'ProcureAI Order',
+                    newOrders + ' order(s) received — POs being generated');
+                renderPurchasesTable();
+            }
+        }, function(err) {
+            console.warn('ProcureAI sync error:', err);
+        });
+}
+
+// ── PROCESS A PROCUREAI ORDER ──────────────────────────────
+function processProcureOrder(order) {
+    if (!order || !order.items || order.items.length === 0) return;
+
+    var inv     = getInv();
+    var sups    = getSups();
+    var ent     = S.entities[S.activeEntity] || {};
+    var entName = ent.name || '';
+
+    // Group items by supplier — find cheapest supplier for each item
+    var bySupplier = {};
+
+    order.items.forEach(function(orderItem) {
+        var invItem = inv.find(function(i) {
+            return i.name.toLowerCase() === (orderItem.name || '').toLowerCase() ||
+                   i.id === orderItem.itemId;
+        });
+
+        // Find cheapest supplier for this item
+        var bestSupplier = findCheapestSupplier(orderItem, invItem, sups);
+        var supName      = bestSupplier.name;
+
+        if (!bySupplier[supName]) {
+            bySupplier[supName] = {
+                supplier:  bestSupplier,
+                items:     [],
+                total:     0
+            };
+        }
+
+        var itemCost  = bestSupplier.price || (invItem ? invItem.cost : 0) || orderItem.cost || 0;
+        var lineTotal = parseFloat(((orderItem.qty || 0) * itemCost).toFixed(2));
+
+        bySupplier[supName].items.push({
+            id:    orderItem.itemId || (invItem ? invItem.id : 'UNKNOWN'),
+            name:  orderItem.name,
+            qty:   orderItem.qty || 0,
+            unit:  orderItem.unit || (invItem ? invItem.unit : 'each'),
+            cost:  itemCost,
+            total: lineTotal
+        });
+
+        bySupplier[supName].total += lineTotal;
+    });
+
+    // Create POs for each supplier
+    var ps         = getPurch();
+    var createdPOs = [];
+
+    Object.keys(bySupplier).forEach(function(supName) {
+        var group = bySupplier[supName];
+        var sup   = group.supplier;
+        var poId  = 'PRO-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+        var po = {
+            id:            poId,
+            supplier:      supName,
+            supplierEmail: sup.email || '',
+            items:         group.items.length,
+            total:         parseFloat(group.total.toFixed(2)),
+            lineItems:     group.items,
+            createdAt:     new Date().toISOString(),
+            date:          new Date().toISOString(),
+            status:        'In Transit',
+            type:          'ProcureAI',
+            paymentTerms:  sup.paymentTerms || 'COD',
+            procureOrderId: order._docId || order.id || '',
+            procureRef:    order.ref || ''
+        };
+
+        ps.unshift(po);
+        createdPOs.push(po);
+
+        // Email PO to supplier
+        if (sup.email) {
+            try {
+                emailPurchaseOrder({
+                    poId:          poId,
+                    supplierName:  supName,
+                    supplierEmail: sup.email,
+                    entityName:    entName,
+                    entityAddress: ent.address || '',
+                    createdBy:     'ProcureAI',
+                    createdAt:     new Date().toISOString(),
+                    items:         group.items,
+                    total:         group.total
+                });
+            } catch(e) { console.warn('PO email error:', e); }
+        }
+
+        logAction('ProcureAI PO', poId + ' → ' + supName + ' (R' + group.total.toFixed(2) + ')');
+    });
+
+    S.purchases[eid()] = ps;
+
+    // Update the Firestore order status to 'processing'
+    // and send back created PO details
+    if (order._docId) {
+        db.collection('accounts').doc(S._accountId)
+            .collection('procure_orders')
+            .doc(order._docId)
+            .update({
+                status:         'processing',
+                processedAt:    new Date().toISOString(),
+                processedBy:    'Web App',
+                createdPOs:     createdPOs.map(function(po) {
+                    return {
+                        poId:     po.id,
+                        supplier: po.supplier,
+                        total:    po.total,
+                        items:    po.items,
+                        status:   po.status
+                    };
+                })
+            })
+            .then(function() {
+                console.log('✅ ProcureAI order updated: ' + order._docId);
+            })
+            .catch(function(err) {
+                console.warn('ProcureAI update error:', err);
+            });
+    }
+
+    debouncedSave();
+}
+
+// ── FIND CHEAPEST SUPPLIER FOR AN ITEM ─────────────────────
+function findCheapestSupplier(orderItem, invItem, sups) {
+    var bestPrice = Infinity;
+    var bestSup   = { name: 'Unknown Supplier', email: '', paymentTerms: 'COD', price: 0 };
+
+    // Check all suppliers that have this item linked
+    sups.forEach(function(sup) {
+        // Check if this supplier has a price for this item
+        var price = null;
+
+        // 1. Check itemPrices (from price list upload)
+        if (sup.itemPrices && invItem && sup.itemPrices[invItem.id]) {
+            price = sup.itemPrices[invItem.id];
+        }
+
+        // 2. Check if item is linked to this supplier
+        if (price === null && invItem) {
+            var isLinked = (invItem.linkedSuppliers || []).indexOf(sup.id) !== -1 ||
+                           invItem.supplier === sup.name;
+            if (isLinked) {
+                price = invItem.cost || 0;
+            }
+        }
+
+        // 3. Check by name match
+        if (price === null && sup.linkedItems) {
+            sup.linkedItems.forEach(function(linkedId) {
+                if (invItem && linkedId === invItem.id && price === null) {
+                    price = invItem.cost || 0;
+                }
+            });
+        }
+
+        if (price !== null && price < bestPrice) {
+            bestPrice = price;
+            bestSup   = {
+                id:           sup.id,
+                name:         sup.name,
+                email:        sup.email || '',
+                paymentTerms: sup.paymentTerms || 'COD',
+                price:        price
+            };
+        }
+    });
+
+    // Fallback if no supplier found
+    if (bestPrice === Infinity) {
+        // Use first linked supplier or the item's default supplier
+        if (invItem && invItem.supplier) {
+            var fallbackSup = sups.find(function(s) { return s.name === invItem.supplier; });
+            if (fallbackSup) {
+                bestSup = {
+                    id:           fallbackSup.id,
+                    name:         fallbackSup.name,
+                    email:        fallbackSup.email || '',
+                    paymentTerms: fallbackSup.paymentTerms || 'COD',
+                    price:        invItem.cost || 0
+                };
+            } else {
+                bestSup.name  = invItem.supplier;
+                bestSup.price = invItem.cost || 0;
+            }
+        }
+    }
+
+    return bestSup;
+}
+
+// ── HANDLE PROCUREAI DELIVERY ACCEPTANCE ────────────────────
+// When ProcureAI user marks order as delivered,
+// it updates Firestore. This listener catches that
+// and auto-creates GRVs in the web app
+function startProcureDeliverySync() {
+    if (!S._accountId || !eid()) return;
+
+    db.collection('accounts').doc(S._accountId)
+        .collection('procure_orders')
+        .where('entityId', '==', eid())
+        .where('status', '==', 'delivered')
+        .where('grvCreated', '==', false)
+        .onSnapshot(function(snap) {
+            if (snap.empty) return;
+
+            snap.forEach(function(doc) {
+                var order = doc.data();
+                order._docId = doc.id;
+                createAutoGRVFromProcure(order);
+            });
+        }, function(err) {
+            console.warn('Procure delivery sync error:', err);
+        });
+}
+
+// ── AUTO-CREATE GRV FROM PROCUREAI DELIVERY ────────────────
+function createAutoGRVFromProcure(order) {
+    if (!order || !order.createdPOs) return;
+
+    var ps = getPurch();
+
+    order.createdPOs.forEach(function(poRef) {
+        // Find the PO in our purchases
+        var po = ps.find(function(p) { return p.id === poRef.poId; });
+        if (!po) return;
+
+        // Only process if not already GRV'd
+        if (po.grvCompleted) return;
+
+        // Mark as delivered first
+        po.status       = 'Delivered';
+        po.receivedDate = order.deliveredAt || new Date().toISOString();
+        po.receivedBy   = order.deliveredBy || 'ProcureAI';
+    });
+
+    S.purchases[eid()] = ps;
+
+    // Update Firestore to mark GRV as created
+    if (order._docId) {
+        db.collection('accounts').doc(S._accountId)
+            .collection('procure_orders')
+            .doc(order._docId)
+            .update({
+                grvCreated:   true,
+                grvCreatedAt: new Date().toISOString()
+            })
+            .catch(function(err) {
+                console.warn('GRV flag update error:', err);
+            });
+    }
+
+    debouncedSave();
+    renderPurchasesTable();
+    renderGRVSection();
+
+    addNotif('info', 'ProcureAI Delivery',
+        'Delivery received — GRV ready for processing');
+    toast('info', '📦 ProcureAI delivery received — process GRV now');
+}
+
+// ── SEND PO STATUS BACK TO PROCUREAI ───────────────────────
+// Called after GRV is completed on the web app
+// Updates the ProcureAI order with final GRV data
+function updateProcureAfterGRV(po) {
+    if (!po || !po.procureOrderId) return;
+    if (!S._accountId) return;
+
+    db.collection('accounts').doc(S._accountId)
+        .collection('procure_orders')
+        .doc(po.procureOrderId)
+        .update({
+            status:           'grv-completed',
+            grvCompletedAt:   new Date().toISOString(),
+            grvCompletedBy:   S.user ? S.user.name : 'Web App',
+            grvTotal:         po.grvTotal || 0,
+            grvTotalIncl:     po.grvTotalIncl || po.grvTotal || 0,
+            invoiceNumber:    po.invoiceNumber || '',
+            paymentStatus:    po.paymentStatus || 'Unpaid',
+            paymentDueDate:   po.paymentDueDate || '',
+            paymentTerms:     po.paymentTerms || 'COD',
+            grvLines:         po.grvLines || [],
+            updatedPOs:       (po.id ? [{
+                poId:           po.id,
+                supplier:       po.supplier,
+                grvTotal:       po.grvTotal || 0,
+                paymentStatus:  po.paymentStatus || 'Unpaid',
+                invoiceNumber:  po.invoiceNumber || ''
+            }] : [])
+        })
+        .then(function() {
+            console.log('✅ ProcureAI order updated after GRV: ' + po.procureOrderId);
+        })
+        .catch(function(err) {
+            console.warn('ProcureAI GRV update error:', err);
+        });
+}
+
+// ── SEND PAYMENT STATUS TO PROCUREAI ───────────────────────
+// Called after markPOPaid on the web app
+function updateProcureAfterPayment(po) {
+    if (!po || !po.procureOrderId) return;
+    if (!S._accountId) return;
+
+    db.collection('accounts').doc(S._accountId)
+        .collection('procure_orders')
+        .doc(po.procureOrderId)
+        .update({
+            paymentStatus:  'Paid',
+            paidAt:         new Date().toISOString(),
+            paidBy:         S.user ? S.user.name : 'Web App'
+        })
+        .then(function() {
+            console.log('✅ ProcureAI payment status updated');
+        })
+        .catch(function(err) {
+            console.warn('ProcureAI payment update error:', err);
+        });
+}
+
+// ── START PROCURE SYNC ON APP LOAD ─────────────────────────
+// Hook into enterApp to start listening
+(function() {
+    var _origEnterApp = typeof enterApp === 'function' ? enterApp : null;
+    if (_origEnterApp) {
+        enterApp = function() {
+            _origEnterApp();
+            setTimeout(function() {
+                try { startProcureSync(); }         catch(e) {}
+                try { startProcureDeliverySync(); } catch(e) {}
+            }, 2000);
+        };
+    }
+})();
+
+console.log('✅ ProcureAI Integration loaded');
 
 console.log('✅ AI + Voice + Global Dashboard + Payment + Security + Language loaded');
 console.log('🚀 StockAI-Pro 2.0 — Core sections complete');
