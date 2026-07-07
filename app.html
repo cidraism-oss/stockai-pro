@@ -6302,17 +6302,19 @@ function pageProduction() {
     return '<div class="page-watermark">STOCKAI-PRO</div>' +
         '<h1 class="page-heading">Production Manager</h1>' +
 
-        '<div style="background:rgba(26,139,168,.1);border-left:3px solid var(--accent);padding:14px;' +
-        'border-radius:var(--radius-sm);margin-bottom:18px;font-size:.82rem;color:var(--text-mid)">' +
+        '<div style="background:rgba(26,139,168,.1);border-left:3px solid var(--accent);' +
+        'padding:14px;border-radius:var(--radius-sm);margin-bottom:18px;font-size:.82rem;color:var(--text-mid)">' +
         '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
-        'Create bulk production runs from your menu items. The system will auto-calculate ingredient quantities, ' +
-        'check stock levels, generate POs for missing items, and track production status.</div>' +
+        'Create bulk production runs. Select a menu item, enter your required yield, and the system ' +
+        'will calculate all ingredient quantities, costs, deduct stock, add finished units, ' +
+        'and update menu costs automatically.</div>' +
 
         '<div class="action-bar">' +
         '<button class="btn-primary" onclick="showCreateProductionModal()">' +
-        '<i class="fas fa-plus"></i> New Production Run</button></div>' +
+        '<i class="fas fa-plus"></i> New Production Run</button>' +
+        '<button class="btn-outline" onclick="showProductionReportModal()">' +
+        '<i class="fas fa-chart-bar"></i> Production Report</button></div>' +
 
-        // Stats
         '<div class="stats-row">' +
         '<div class="stat-card"><div class="stat-card-title">Active Runs</div>' +
         '<div class="stat-card-value" id="prod-active">0</div></div>' +
@@ -6323,38 +6325,44 @@ function pageProduction() {
         '<div class="stat-card"><div class="stat-card-title">Total Runs</div>' +
         '<div class="stat-card-value" id="prod-total">0</div></div></div>' +
 
-        // Not Processed
         '<div class="form-card" style="border-left-color:var(--warning);margin-bottom:18px">' +
         '<h3 class="block-title"><i class="fas fa-pause-circle" style="color:var(--warning)"></i> ' +
-        'Awaiting Stock — Not Processed</h3>' +
-        '<div id="prod-waiting-list"></div></div>' +
+        'Awaiting Stock</h3><div id="prod-waiting-list"></div></div>' +
 
-        // Active / In Progress
         '<div class="form-card" style="border-left-color:var(--accent);margin-bottom:18px">' +
         '<h3 class="block-title"><i class="fas fa-cogs" style="color:var(--accent)"></i> ' +
-        'Active Production Runs</h3>' +
-        '<div id="prod-active-list"></div></div>' +
+        'Active Production</h3><div id="prod-active-list"></div></div>' +
 
-        // Completed
         '<div class="form-card" style="border-left-color:var(--success)">' +
         '<h3 class="block-title"><i class="fas fa-check-double" style="color:var(--success)"></i> ' +
-        'Completed Production</h3>' +
-        '<div id="prod-completed-list"></div></div>';
+        'Completed</h3><div id="prod-completed-list"></div></div>';
 }
-
 // ── GET PRODUCTIONS ────────────────────────────────────────
+// ============================================================
+// PRODUCTION — STATE VARIABLE FOR SELECTED MENU ITEM
+// ============================================================
+var SELECTED_PROD_MENU = null;
+
+// ============================================================
+// GET PRODUCTIONS
+// ============================================================
 function getProductions() {
     if (!eid()) return [];
     if (!S.productions) S.productions = {};
     return S.productions[eid()] || [];
 }
 
-// ── RENDER PRODUCTION ──────────────────────────────────────
+// ============================================================
+// RENDER PRODUCTION
+// ============================================================
 function renderProduction() {
-    var prods    = getProductions();
-    var waiting  = prods.filter(function(p) { return p.status === 'awaiting-stock'; });
-    var active   = prods.filter(function(p) { return p.status === 'processing'; });
+    var prods     = getProductions();
+    var waiting   = prods.filter(function(p) { return p.status === 'awaiting-stock'; });
+    var active    = prods.filter(function(p) { return p.status === 'processing'; });
     var completed = prods.filter(function(p) { return p.status === 'completed'; });
+
+    // Re-check stock for waiting
+    waiting.forEach(function(prod) { prod.canProcess = checkProductionStock(prod); });
 
     var el;
     el = document.getElementById('prod-active');    if (el) el.textContent = active.length;
@@ -6362,71 +6370,100 @@ function renderProduction() {
     el = document.getElementById('prod-completed'); if (el) el.textContent = completed.length;
     el = document.getElementById('prod-total');     if (el) el.textContent = prods.length;
 
-    // Check if waiting items now have enough stock
-    waiting.forEach(function(prod) {
-        prod.canProcess = checkProductionStock(prod);
-    });
-
-    // Waiting
+    // Waiting list
     var waitEl = document.getElementById('prod-waiting-list');
     if (waitEl) {
         waitEl.innerHTML = waiting.length === 0
             ? '<p style="color:var(--text-light);padding:14px;text-align:center">No productions waiting for stock</p>'
             : waiting.map(function(p) {
-                return '<div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);' +
-                    'border-radius:var(--radius-sm);margin-bottom:10px;border-left:3px solid ' +
-                    (p.canProcess ? 'var(--success)' : 'var(--warning)') + '">' +
+                var rows = (p.requiredIngredients || []).map(function(req) {
+                    var inv     = getInv().find(function(i) { return i.id === req.itemId; });
+                    var inStock = inv ? inv.quantity : 0;
+                    var ok      = inStock >= req.totalQty;
+                    return '<div style="display:flex;gap:10px;padding:4px 0;font-size:.75rem;' +
+                        'border-bottom:1px solid var(--border-light)">' +
+                        '<span style="flex:2;color:var(--text)">' + req.item + '</span>' +
+                        '<span style="flex:1;text-align:center">Need: <strong>' + req.totalQty + ' ' + req.unit + '</strong></span>' +
+                        '<span style="flex:1;text-align:center;color:' + (ok ? 'var(--success)' : 'var(--danger)') +
+                        ';font-weight:700">Have: ' + inStock + '</span>' +
+                        '<span style="flex:1;text-align:right;color:var(--accent)">R' + (req.cost * req.totalQty).toFixed(2) + '</span></div>';
+                }).join('');
+
+                return '<div style="background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px;' +
+                    'border-left:3px solid ' + (p.canProcess ? 'var(--success)' : 'var(--warning)') + ';overflow:hidden">' +
+                    '<div style="display:flex;align-items:center;gap:14px;padding:14px">' +
                     '<div style="flex:1">' +
-                    '<strong style="font-size:.88rem">' + p.menuItemName + ' × ' + p.targetYield + '</strong>' +
-                    '<div style="font-size:.72rem;color:var(--text-light)">Created: ' + fmtDate(p.createdAt) +
-                    ' by ' + p.createdBy + '</div>' +
+                    '<strong style="font-size:.92rem">' + p.menuItemName + '</strong> ' +
+                    '<span style="color:var(--accent);font-weight:700">× ' + p.targetYield + ' units</span>' +
+                    '<div style="font-size:.72rem;color:var(--text-light);margin-top:2px">' +
+                    'Cost/unit: <strong style="color:var(--accent)">R' + (p.costPerUnit || 0).toFixed(2) + '</strong> | ' +
+                    'Total: <strong>R' + (p.totalProductionCost || 0).toFixed(2) + '</strong></div>' +
+                    '<div style="font-size:.72rem;color:var(--text-light)">Created: ' + fmtDate(p.createdAt) + ' by ' + p.createdBy + '</div>' +
                     (p.canProcess
-                        ? '<div style="font-size:.72rem;color:var(--success);margin-top:4px">' +
-                          '<i class="fas fa-check-circle"></i> Stock now available!</div>'
-                        : '<div style="font-size:.72rem;color:var(--warning);margin-top:4px">' +
-                          '<i class="fas fa-exclamation-triangle"></i> Insufficient stock — POs sent</div>') +
+                        ? '<div style="color:var(--success);font-size:.72rem;margin-top:4px;font-weight:600">' +
+                          '<i class="fas fa-check-circle"></i> Stock available — ready to process!</div>'
+                        : '<div style="color:var(--warning);font-size:.72rem;margin-top:4px">' +
+                          '<i class="fas fa-clock"></i> Awaiting stock — POs sent</div>') +
                     '</div>' +
                     (p.canProcess
                         ? '<button class="btn-success" style="padding:8px 16px;font-size:.82rem" ' +
                           'onclick="processProduction(\'' + p.id + '\')">' +
                           '<i class="fas fa-play"></i> Process</button>'
                         : '<span class="status-badge pending">Awaiting Stock</span>') +
-                    '</div>';
+                    '</div>' +
+                    '<details style="padding:0 14px 14px">' +
+                    '<summary style="font-size:.75rem;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 0">' +
+                    'Ingredient Details (' + (p.requiredIngredients || []).length + ')</summary>' +
+                    '<div style="margin-top:8px">' + rows + '</div></details></div>';
             }).join('');
     }
 
-    // Active
+    // Active list
     var actEl = document.getElementById('prod-active-list');
     if (actEl) {
         actEl.innerHTML = active.length === 0
             ? '<p style="color:var(--text-light);padding:14px;text-align:center">No active production runs</p>'
             : active.map(function(p) {
-                return '<div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);' +
-                    'border-radius:var(--radius-sm);margin-bottom:10px;border-left:3px solid var(--accent)">' +
+                var hrs = p.processedAt ? ((Date.now() - new Date(p.processedAt).getTime()) / 3600000).toFixed(1) : '0';
+                return '<div style="display:flex;align-items:center;gap:14px;padding:14px;' +
+                    'background:var(--bg);border-radius:var(--radius-sm);margin-bottom:10px;' +
+                    'border-left:3px solid var(--accent)">' +
+                    '<div style="width:44px;height:44px;background:rgba(26,139,168,.15);border-radius:10px;' +
+                    'display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1.1rem;flex-shrink:0">' +
+                    '<i class="fas fa-cogs"></i></div>' +
                     '<div style="flex:1">' +
-                    '<strong style="font-size:.88rem">' + p.menuItemName + ' × ' + p.targetYield + '</strong>' +
-                    '<div style="font-size:.72rem;color:var(--text-light)">Started: ' + fmtDate(p.processedAt) +
-                    ' by ' + (p.processedBy || '—') + '</div></div>' +
+                    '<strong style="font-size:.92rem">' + p.menuItemName + '</strong> ' +
+                    '<span style="color:var(--accent);font-weight:700">× ' + p.targetYield + ' units</span>' +
+                    '<div style="font-size:.72rem;color:var(--text-light)">' +
+                    'Cost/unit: R' + (p.costPerUnit || 0).toFixed(2) + ' | Started: ' + fmtDate(p.processedAt) +
+                    ' by ' + (p.processedBy || '—') + ' • ' + hrs + ' hrs ago</div></div>' +
                     '<button class="btn-success" style="padding:8px 16px;font-size:.82rem" ' +
                     'onclick="completeProduction(\'' + p.id + '\')">' +
-                    '<i class="fas fa-check-double"></i> Mark Complete</button></div>';
+                    '<i class="fas fa-check-double"></i> Complete</button></div>';
             }).join('');
     }
 
-    // Completed
+    // Completed list
     var compEl = document.getElementById('prod-completed-list');
     if (compEl) {
         compEl.innerHTML = completed.length === 0
             ? '<p style="color:var(--text-light);padding:14px;text-align:center">No completed productions yet</p>'
             : '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-              '<th>Item</th><th>Yield</th><th>Created</th><th>Completed</th><th>By</th><th>Status</th>' +
+              '<th>Menu Item</th><th>Units</th><th>Cost/Unit</th><th>Total Cost</th>' +
+              '<th>Created</th><th>Completed</th><th>Duration</th><th>By</th><th>Status</th>' +
               '</tr></thead><tbody>' +
-              completed.slice(0, 20).map(function(p) {
-                  return '<tr>' +
-                      '<td><strong>' + p.menuItemName + '</strong></td>' +
+              completed.slice(0, 30).map(function(p) {
+                  var duration = '—';
+                  if (p.processedAt && p.completedAt) {
+                      duration = ((new Date(p.completedAt) - new Date(p.processedAt)) / 3600000).toFixed(1) + ' hrs';
+                  }
+                  return '<tr><td><strong>' + p.menuItemName + '</strong></td>' +
                       '<td>' + p.targetYield + '</td>' +
+                      '<td>R' + (p.costPerUnit || 0).toFixed(2) + '</td>' +
+                      '<td>R' + (p.totalProductionCost || 0).toFixed(2) + '</td>' +
                       '<td>' + fmtDate(p.createdAt) + '</td>' +
                       '<td>' + (p.completedAt ? fmtDate(p.completedAt) : '—') + '</td>' +
+                      '<td>' + duration + '</td>' +
                       '<td>' + (p.completedBy || '—') + '</td>' +
                       '<td><span class="status-badge in-stock">Completed ✅</span></td></tr>';
               }).join('') +
@@ -6434,248 +6471,407 @@ function renderProduction() {
     }
 }
 
-// ── CHECK IF PRODUCTION HAS ENOUGH STOCK ───────────────────
+// ============================================================
+// CHECK PRODUCTION STOCK
+// ============================================================
 function checkProductionStock(prod) {
-    var inv = getInv();
+    var inv    = getInv();
     var allGood = true;
-
     (prod.requiredIngredients || []).forEach(function(req) {
         var invItem = inv.find(function(i) { return i.id === req.itemId; });
-        if (!invItem || invItem.quantity < req.totalQty) {
-            allGood = false;
-        }
+        if (!invItem || invItem.quantity < req.totalQty) allGood = false;
     });
-
     return allGood;
 }
 
-// ── CREATE PRODUCTION MODAL ────────────────────────────────
-function showCreateProductionModal() {
+// ============================================================
+// SEARCHABLE DROPDOWN — builds menu item search
+// ============================================================
+function buildProdMenuSearch() {
     var menu = getMenu();
-    if (menu.length === 0) {
-        toast('warning', 'No menu items found. Create menu items first.');
-        return;
-    }
-
-    var menuOpts = '<option value="">Select a menu item</option>' +
-        menu.map(function(m) {
-            return '<option value="' + m.id + '" data-name="' + m.name +
-                '" data-yield="' + (m.yield || 1) + '">' +
-                m.name + ' (base yield: ' + (m.yield || 1) + ')</option>';
-        }).join('');
-
-    showModal('<i class="fas fa-industry" style="color:var(--accent)"></i> New Production Run',
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Menu Item *</label>' +
-        '<select id="prod-menu" onchange="previewProduction()">' + menuOpts + '</select></div>' +
-        '<div class="form-field"><label>Target Yield (units to produce) *</label>' +
-        '<input type="number" id="prod-yield" min="1" value="10" oninput="previewProduction()"></div></div>' +
-
-        '<div id="prod-preview" style="margin-top:16px"></div>',
-
-        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
-        '<button class="btn-primary" onclick="createProductionRun()">' +
-        '<i class="fas fa-industry"></i> Create Production Run</button>'
-    );
+    return '<div class="form-field" style="position:relative" id="prod-menu-wrap">' +
+        '<label>Step 1 — Select Menu Item *</label>' +
+        '<input type="text" id="prod-menu-search" placeholder="🔍 Search menu items..." autocomplete="off" ' +
+        'oninput="filterProdMenuDropdown()" onfocus="openProdMenuDropdown()" onclick="openProdMenuDropdown()" ' +
+        'style="width:100%">' +
+        '<input type="hidden" id="prod-menu-selected-id">' +
+        '<div id="prod-menu-dropdown" style="position:absolute;top:100%;left:0;right:0;background:var(--bg-card);' +
+        'border:1px solid var(--accent);border-radius:var(--radius-sm);max-height:220px;overflow-y:auto;' +
+        'z-index:500;box-shadow:var(--shadow-lg);display:none">' +
+        (menu.length === 0
+            ? '<div style="padding:10px 14px;color:var(--text-muted);font-size:.82rem;font-style:italic">' +
+              'No menu items. Create them in Menu Creation first.</div>'
+            : menu.map(function(m) {
+                return '<div class="prod-menu-opt" onclick="selectProdMenuItem(\'' + m.id + '\',\'' +
+                    m.name.replace(/'/g, "\\'") + '\')" ' +
+                    'data-name="' + m.name.toLowerCase() + '" ' +
+                    'style="padding:10px 14px;cursor:pointer;font-size:.85rem;color:var(--text);' +
+                    'border-bottom:1px solid var(--border-light);transition:.15s">' +
+                    '<strong>' + m.name + '</strong>' +
+                    '<span style="font-size:.72rem;color:var(--text-light);margin-left:8px">' +
+                    'Yield: ' + (m.yield || 1) + ' | Cost: R' + (m.costPerPortion || 0).toFixed(2) + '</span></div>';
+            }).join('')) +
+        '</div></div>';
 }
 
-// ── PREVIEW PRODUCTION ─────────────────────────────────────
-function previewProduction() {
-    var menuSel = document.getElementById('prod-menu');
-    var yieldEl = document.getElementById('prod-yield');
-    var preview = document.getElementById('prod-preview');
-    if (!menuSel || menuSel.selectedIndex < 1 || !preview) {
-        if (preview) preview.innerHTML = '';
-        return;
+function openProdMenuDropdown() {
+    var dd = document.getElementById('prod-menu-dropdown');
+    if (dd) dd.style.display = 'block';
+}
+
+function filterProdMenuDropdown() {
+    var input = document.getElementById('prod-menu-search');
+    var dd    = document.getElementById('prod-menu-dropdown');
+    if (!input || !dd) return;
+    var q = input.value.toLowerCase();
+    dd.style.display = 'block';
+
+    dd.querySelectorAll('.prod-menu-opt').forEach(function(opt) {
+        var name = opt.dataset.name || '';
+        opt.style.display = name.includes(q) ? 'block' : 'none';
+    });
+
+    document.getElementById('prod-menu-selected-id').value = '';
+    SELECTED_PROD_MENU = null;
+    var recipeEl = document.getElementById('prod-recipe-section');
+    if (recipeEl) recipeEl.innerHTML = '<p style="color:var(--text-muted);font-style:italic;padding:10px 0">Select a menu item to see the recipe</p>';
+}
+
+function selectProdMenuItem(id, name) {
+    document.getElementById('prod-menu-search').value     = name;
+    document.getElementById('prod-menu-selected-id').value = id;
+    document.getElementById('prod-menu-dropdown').style.display = 'none';
+
+    SELECTED_PROD_MENU = getMenu().find(function(m) { return m.id === id; });
+    showProdRecipeBlank();
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('prod-menu-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+        var dd = document.getElementById('prod-menu-dropdown');
+        if (dd) dd.style.display = 'none';
     }
+});
 
-    var menuId      = menuSel.value;
-    var targetYield = parseInt(yieldEl.value) || 1;
-    var menuItem    = getMenu().find(function(m) { return m.id === menuId; });
-    if (!menuItem) return;
+// ============================================================
+// SHOW RECIPE — BLANK QUANTITIES
+// ============================================================
+function showProdRecipeBlank() {
+    if (!SELECTED_PROD_MENU) return;
+    var m   = SELECTED_PROD_MENU;
+    var inv = getInv();
 
-    var baseYield  = menuItem.yield || 1;
-    var multiplier = targetYield / baseYield;
-    var inv        = getInv();
+    var html = '<div style="margin-top:14px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+        '<h4 style="font-size:.88rem;color:var(--text)"><i class="fas fa-utensils"></i> Recipe: ' + m.name + '</h4>' +
+        '<span style="font-size:.75rem;color:var(--text-light)">Base yield: ' + (m.yield || 1) + ' unit(s)</span></div>' +
 
-    var html = '<div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px">' +
-        '<h4 style="font-size:.88rem;color:var(--text);margin-bottom:12px">' +
-        '<i class="fas fa-list"></i> Required Ingredients for ' + targetYield + ' × ' + menuItem.name + '</h4>' +
-        '<div style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
-        'Base recipe yield: ' + baseYield + ' | Multiplier: ' + multiplier.toFixed(2) + 'x</div>';
-
-    var hasShortage = false;
-    var totalCost   = 0;
-
-    html += '<table style="width:100%;border-collapse:collapse">' +
-        '<thead><tr style="background:var(--bg-dark)">' +
+        '<table style="width:100%;border-collapse:collapse"><thead><tr style="background:var(--bg-dark)">' +
         '<th style="padding:8px;text-align:left;font-size:.72rem;color:var(--text-light)">Ingredient</th>' +
+        '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Base Qty</th>' +
+        '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Unit</th>' +
         '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Required</th>' +
         '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">In Stock</th>' +
         '<th style="padding:8px;text-align:center;font-size:.72rem;color:var(--text-light)">Status</th>' +
         '<th style="padding:8px;text-align:right;font-size:.72rem;color:var(--text-light)">Cost</th>' +
         '</tr></thead><tbody>';
 
-    (menuItem.ingredients || []).forEach(function(ing) {
-        var reqQty  = parseFloat((ing.qty * multiplier).toFixed(3));
+    (m.ingredients || []).forEach(function(ing) {
         var invItem = inv.find(function(i) { return i.id === ing.itemId; });
         var inStock = invItem ? invItem.quantity : 0;
-        var ok      = inStock >= reqQty;
-        var lineCost = reqQty * (ing.cost || 0);
-        totalCost  += lineCost;
-
-        if (!ok) hasShortage = true;
-
-        html += '<tr style="border-bottom:1px solid var(--border)">' +
-            '<td style="padding:8px;font-size:.82rem;color:var(--text)">' + ing.item + '</td>' +
-            '<td style="padding:8px;text-align:center;font-size:.82rem;color:var(--text)">' + reqQty + ' ' + (ing.unit || '') + '</td>' +
-            '<td style="padding:8px;text-align:center;font-size:.82rem;color:' + (ok ? 'var(--success)' : 'var(--danger)') + '">' + inStock + '</td>' +
-            '<td style="padding:8px;text-align:center">' +
-            (ok ? '<span class="status-badge in-stock">✅ OK</span>'
-                : '<span class="status-badge out-of-stock">⚠️ Short ' + (reqQty - inStock).toFixed(2) + '</span>') +
-            '</td>' +
-            '<td style="padding:8px;text-align:right;font-size:.82rem;color:var(--accent)">R' + lineCost.toFixed(2) + '</td></tr>';
+        html += '<tr style="border-bottom:1px solid var(--border-light)">' +
+            '<td style="padding:8px;font-size:.82rem"><strong>' + ing.item + '</strong></td>' +
+            '<td style="padding:8px;text-align:center">' + ing.qty + '</td>' +
+            '<td style="padding:8px;text-align:center">' + (ing.unit || 'each') + '</td>' +
+            '<td style="padding:8px;text-align:center;color:var(--text-muted)" id="prod-req-' + ing.itemId + '">—</td>' +
+            '<td style="padding:8px;text-align:center">' + inStock + '</td>' +
+            '<td style="padding:8px;text-align:center" id="prod-status-' + ing.itemId + '">—</td>' +
+            '<td style="padding:8px;text-align:right" id="prod-cost-' + ing.itemId + '">—</td></tr>';
     });
 
-    html += '</tbody></table>';
+    html += '</tbody></table>' +
+        '<div id="prod-cost-summary" style="display:none;background:var(--bg);border-radius:var(--radius-sm);padding:14px;margin-top:16px">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;color:var(--text-mid)">' +
+        '<span>Total Ingredient Cost</span><strong id="prod-total-cost">R0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;color:var(--text-mid)">' +
+        '<span>÷ Units to Produce</span><strong id="prod-yield-disp">0</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:12px 0;border-top:2px solid var(--accent);' +
+        'margin-top:8px;font-size:1.1rem;font-weight:800;color:var(--accent)">' +
+        '<span>Cost Per Unit</span><strong id="prod-cpu">R0.00</strong></div></div></div>';
 
-    html += '<div style="display:flex;justify-content:space-between;padding:12px 0;' +
-        'border-top:2px solid var(--accent);margin-top:8px;font-weight:800;color:var(--accent)">' +
-        '<span>Total Production Cost</span><span>R' + totalCost.toFixed(2) + '</span></div>';
-
-    if (hasShortage) {
-        html += '<div style="background:rgba(212,160,23,.1);border-left:3px solid var(--warning);' +
-            'padding:12px;border-radius:var(--radius-sm);margin-top:12px;font-size:.82rem;color:var(--text)">' +
-            '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> ' +
-            '<strong>Insufficient stock.</strong> Production will be saved as "Awaiting Stock". ' +
-            'POs will be automatically generated for missing items and sent to suppliers.</div>';
-    } else {
-        html += '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);' +
-            'padding:12px;border-radius:var(--radius-sm);margin-top:12px;font-size:.82rem;color:var(--text)">' +
-            '<i class="fas fa-check-circle" style="color:var(--success)"></i> ' +
-            '<strong>All ingredients in stock.</strong> Production can be processed immediately.</div>';
-    }
-
-    html += '</div>';
-    preview.innerHTML = html;
+    document.getElementById('prod-recipe-section').innerHTML = html;
 }
 
-// ── CREATE PRODUCTION RUN ──────────────────────────────────
-function createProductionRun() {
-    var menuSel = document.getElementById('prod-menu');
-    var yieldEl = document.getElementById('prod-yield');
-    if (!menuSel || menuSel.selectedIndex < 1) { toast('error', 'Select a menu item'); return; }
+// ============================================================
+// ON YIELD CHANGE — Update quantities and costs
+// ============================================================
+function onProdYieldChange() {
+    if (!SELECTED_PROD_MENU) return;
+    var yieldEl = document.getElementById('prod-yield-input');
+    var target  = parseInt(yieldEl ? yieldEl.value : 0) || 0;
+    var m       = SELECTED_PROD_MENU;
+    var inv     = getInv();
 
-    var menuId      = menuSel.value;
-    var targetYield = parseInt(yieldEl.value) || 1;
-    var menuItem    = getMenu().find(function(m) { return m.id === menuId; });
-    if (!menuItem) return;
+    if (target <= 0) {
+        (m.ingredients || []).forEach(function(ing) {
+            var el;
+            el = document.getElementById('prod-req-'    + ing.itemId); if (el) el.innerHTML = '—';
+            el = document.getElementById('prod-status-' + ing.itemId); if (el) el.innerHTML = '—';
+            el = document.getElementById('prod-cost-'   + ing.itemId); if (el) el.innerHTML = '—';
+        });
+        var cs = document.getElementById('prod-cost-summary');
+        if (cs) cs.style.display = 'none';
+        return;
+    }
 
-    var baseYield  = menuItem.yield || 1;
-    var multiplier = targetYield / baseYield;
+    var baseYield  = m.yield || 1;
+    var multiplier = target / baseYield;
+    var totalCost  = 0;
+
+    (m.ingredients || []).forEach(function(ing) {
+        var reqQty     = parseFloat((ing.qty * multiplier).toFixed(3));
+        var invItem    = inv.find(function(i) { return i.id === ing.itemId; });
+        var inStock    = invItem ? invItem.quantity : 0;
+        var latestCost = invItem ? (invItem.cost || ing.cost || 0) : (ing.cost || 0);
+        var lineCost   = reqQty * latestCost;
+        totalCost += lineCost;
+        var ok = inStock >= reqQty;
+
+        var el;
+        el = document.getElementById('prod-req-' + ing.itemId);
+        if (el) el.innerHTML = '<strong>' + reqQty + ' ' + (ing.unit || '') + '</strong>';
+
+        el = document.getElementById('prod-status-' + ing.itemId);
+        if (el) el.innerHTML = ok
+            ? '<span class="status-badge in-stock">✅ OK</span>'
+            : '<span class="status-badge out-of-stock">⚠️ Short ' + Math.max(0, reqQty - inStock).toFixed(2) + '</span>';
+
+        el = document.getElementById('prod-cost-' + ing.itemId);
+        if (el) el.innerHTML = '<span style="color:var(--accent)">R' + lineCost.toFixed(2) + '</span>';
+    });
+
+    var costPerUnit = target > 0 ? totalCost / target : 0;
+    var cs = document.getElementById('prod-cost-summary');
+    if (cs) cs.style.display = 'block';
+
+    var el;
+    el = document.getElementById('prod-total-cost'); if (el) el.textContent = 'R' + totalCost.toFixed(2);
+    el = document.getElementById('prod-yield-disp'); if (el) el.textContent = target;
+    el = document.getElementById('prod-cpu');        if (el) el.textContent = 'R' + costPerUnit.toFixed(2);
+}
+
+// ============================================================
+// CREATE PRODUCTION MODAL
+// ============================================================
+function showCreateProductionModal() {
+    SELECTED_PROD_MENU = null;
+
+    showModal('<i class="fas fa-industry" style="color:var(--accent)"></i> New Production Run',
+        buildProdMenuSearch() +
+
+        '<div class="form-field" style="margin-top:16px"><label>Step 2 — How many units to produce? *</label>' +
+        '<input type="number" id="prod-yield-input" min="1" placeholder="e.g. 50" ' +
+        'oninput="onProdYieldChange()" style="width:100%"></div>' +
+
+        '<div id="prod-recipe-section" style="margin-top:16px">' +
+        '<p style="color:var(--text-muted);font-style:italic;padding:10px 0">Select a menu item to see the recipe</p></div>',
+
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="submitProductionRun()">' +
+        '<i class="fas fa-industry"></i> Create Production Run</button>'
+    );
+}
+
+// ============================================================
+// SUBMIT PRODUCTION RUN
+// ============================================================
+function submitProductionRun() {
+    var menuId = document.getElementById('prod-menu-selected-id')
+        ? document.getElementById('prod-menu-selected-id').value : '';
+
+    if (!menuId || !SELECTED_PROD_MENU) { toast('error', 'Select a menu item'); return; }
+
+    var yieldEl     = document.getElementById('prod-yield-input');
+    var targetYield = parseInt(yieldEl ? yieldEl.value : 0) || 0;
+    if (targetYield <= 0) { toast('error', 'Enter number of units to produce'); return; }
+
+    var m          = SELECTED_PROD_MENU;
     var inv        = getInv();
+    var baseYield  = m.yield || 1;
+    var multiplier = targetYield / baseYield;
     var hasShortage = false;
     var requiredIngredients = [];
-    var shortages = [];
+    var shortages  = [];
+    var totalCost  = 0;
 
-    (menuItem.ingredients || []).forEach(function(ing) {
-        var reqQty  = parseFloat((ing.qty * multiplier).toFixed(3));
-        var invItem = inv.find(function(i) { return i.id === ing.itemId; });
-        var inStock = invItem ? invItem.quantity : 0;
-        var ok      = inStock >= reqQty;
-
-        requiredIngredients.push({
-            itemId:   ing.itemId,
-            item:     ing.item,
-            unit:     ing.unit || 'each',
-            baseQty:  ing.qty,
-            totalQty: reqQty,
-            cost:     ing.cost || 0,
-            inStock:  inStock,
-            sufficient: ok
-        });
+    (m.ingredients || []).forEach(function(ing) {
+        var reqQty     = parseFloat((ing.qty * multiplier).toFixed(3));
+        var invItem    = inv.find(function(i) { return i.id === ing.itemId; });
+        var inStock    = invItem ? invItem.quantity : 0;
+        var latestCost = invItem ? (invItem.cost || ing.cost || 0) : (ing.cost || 0);
+        var lineCost   = reqQty * latestCost;
+        totalCost += lineCost;
+        var ok = inStock >= reqQty;
 
         if (!ok) {
             hasShortage = true;
             shortages.push({
-                itemId:   ing.itemId,
-                item:     ing.item,
-                unit:     ing.unit || 'each',
-                needed:   parseFloat((reqQty - inStock).toFixed(3)),
-                cost:     ing.cost || 0
+                itemId: ing.itemId, item: ing.item,
+                unit: ing.unit || 'each',
+                needed: parseFloat((reqQty - inStock).toFixed(3)),
+                cost: latestCost
             });
         }
+
+        requiredIngredients.push({
+            itemId: ing.itemId, item: ing.item,
+            unit: ing.unit || 'each', baseQty: ing.qty,
+            totalQty: reqQty, cost: latestCost,
+            lineCost: parseFloat(lineCost.toFixed(2)),
+            inStock: inStock, sufficient: ok
+        });
     });
 
+    var costPerUnit = targetYield > 0 ? totalCost / targetYield : 0;
     var prodId = 'PROD-' + Date.now();
+
     var prod = {
-        id:                  prodId,
-        menuItemId:          menuId,
-        menuItemName:        menuItem.name,
-        targetYield:         targetYield,
-        baseYield:           baseYield,
-        multiplier:          multiplier,
+        id: prodId, menuItemId: menuId, menuItemName: m.name,
+        targetYield: targetYield, baseYield: baseYield, multiplier: multiplier,
         requiredIngredients: requiredIngredients,
-        status:              hasShortage ? 'awaiting-stock' : 'processing',
-        canProcess:          !hasShortage,
-        createdAt:           new Date().toISOString(),
-        createdBy:           S.user ? S.user.name : 'Unknown'
+        totalProductionCost: parseFloat(totalCost.toFixed(2)),
+        costPerUnit: parseFloat(costPerUnit.toFixed(2)),
+        status: hasShortage ? 'awaiting-stock' : 'processing',
+        canProcess: !hasShortage,
+        createdAt: new Date().toISOString(),
+        createdBy: S.user ? S.user.name : 'Unknown',
+        source: 'Web App'
     };
 
     if (!hasShortage) {
         prod.processedAt = new Date().toISOString();
         prod.processedBy = S.user ? S.user.name : 'Unknown';
-
-        // Deduct stock immediately
-        requiredIngredients.forEach(function(req) {
-            var invItem = inv.find(function(i) { return i.id === req.itemId; });
-            if (invItem) {
-                invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
-                invItem.value    = invItem.quantity * invItem.cost;
-                invItem.status   = invItem.quantity === 0 ? 'out-of-stock' :
-                    invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
-            }
-        });
-        S.inventory[eid()] = inv;
+        prodDeductIngredients(requiredIngredients);
+        prodAddToStock(m, targetYield, costPerUnit);
+        prodUpdateMenuCost(menuId, costPerUnit, requiredIngredients);
     } else {
-        // Generate POs for shortages
-        generateProductionPOs(shortages, prodId);
+        prodGeneratePOs(shortages, prodId);
     }
 
     if (!S.productions) S.productions = {};
     if (!S.productions[eid()]) S.productions[eid()] = [];
     S.productions[eid()].unshift(prod);
 
-    logAction('Production Created', menuItem.name + ' × ' + targetYield +
+    logAction('Production Created', m.name + ' × ' + targetYield +
         (hasShortage ? ' (awaiting stock)' : ' (processing)'));
     debouncedSave();
     closeModal();
     renderProduction();
     renderInventory();
+    renderMenu();
 
     if (hasShortage) {
-        toast('warning', '⏳ Production saved — POs generated for missing stock');
+        toast('warning', '⏳ Saved — POs generated for missing stock');
     } else {
-        toast('success', '✅ Production started — stock deducted');
+        toast('success', '✅ Production started! ' + targetYield + ' units added. Menu cost: R' + costPerUnit.toFixed(2));
     }
 }
 
-// ── GENERATE POs FOR SHORTAGES ─────────────────────────────
-function generateProductionPOs(shortages, prodId) {
+// ============================================================
+// DEDUCT INGREDIENTS
+// ============================================================
+function prodDeductIngredients(ingredients) {
+    var inv = getInv();
+    ingredients.forEach(function(req) {
+        var invItem = inv.find(function(i) { return i.id === req.itemId; });
+        if (invItem) {
+            invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
+            invItem.value    = parseFloat((invItem.quantity * invItem.cost).toFixed(2));
+            invItem.status   = invItem.quantity === 0 ? 'out-of-stock' :
+                invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
+        }
+    });
+    S.inventory[eid()] = inv;
+}
+
+// ============================================================
+// ADD PRODUCED UNITS TO STOCK
+// ============================================================
+function prodAddToStock(menuItem, unitsProduced, costPerUnit) {
+    var inv      = getInv();
+    var existing = inv.find(function(i) {
+        return i.name.toLowerCase() === menuItem.name.toLowerCase() || i.menuItemId === menuItem.id;
+    });
+
+    if (existing) {
+        existing.quantity   += unitsProduced;
+        existing.cost        = parseFloat(costPerUnit.toFixed(2));
+        existing.value       = parseFloat((existing.quantity * existing.cost).toFixed(2));
+        existing.lastUpdated = new Date().toISOString();
+        existing.status      = existing.quantity > 0 ? 'in-stock' : 'out-of-stock';
+    } else {
+        inv.push({
+            id: 'ITM-PROD-' + Date.now(), menuItemId: menuItem.id,
+            name: menuItem.name, category: 'Produced', department: 'Production',
+            unit: 'each', quantity: unitsProduced,
+            cost: parseFloat(costPerUnit.toFixed(2)), lastCost: 0,
+            value: parseFloat((unitsProduced * costPerUnit).toFixed(2)),
+            status: 'in-stock', parLevel: 0, reorder: 0,
+            isVat: true, linkedSuppliers: [], isProduced: true,
+            addedDate: new Date().toISOString(), addedBy: 'Production Manager'
+        });
+    }
+    S.inventory[eid()] = inv;
+}
+
+// ============================================================
+// UPDATE MENU ITEM COST
+// ============================================================
+function prodUpdateMenuCost(menuId, newCostPerUnit, ingredients) {
+    var menu     = getMenu();
+    var menuItem = menu.find(function(m) { return m.id === menuId; });
+    if (!menuItem) return;
+
+    var newTotalCost = ingredients.reduce(function(s, ing) { return s + (ing.lineCost || 0); }, 0);
+    var baseYield    = menuItem.yield || 1;
+    var newCostPP    = newTotalCost / baseYield;
+    var setPrice     = menuItem.setPrice || 0;
+    var ent          = S.entities[S.activeEntity] || {};
+    var targetFC     = ent.foodCostTarget || 28;
+
+    menuItem.totalCost      = parseFloat(newTotalCost.toFixed(2));
+    menuItem.costPerPortion = parseFloat(newCostPP.toFixed(2));
+    menuItem.actualFC       = setPrice > 0 ? parseFloat((newCostPP / setPrice * 100).toFixed(2)) : 0;
+    menuItem.suggestedPrice = targetFC > 0 ? parseFloat((newCostPP / (targetFC / 100)).toFixed(2)) : 0;
+    menuItem.lastCostUpdate = new Date().toISOString();
+
+    (menuItem.ingredients || []).forEach(function(recIng) {
+        var prodIng = ingredients.find(function(p) { return p.itemId === recIng.itemId; });
+        if (prodIng) {
+            recIng.cost  = prodIng.cost;
+            recIng.total = parseFloat((recIng.qty * prodIng.cost).toFixed(2));
+        }
+    });
+
+    S.menuItems[eid()] = menu;
+}
+
+// ============================================================
+// GENERATE POs FOR SHORTAGES
+// ============================================================
+function prodGeneratePOs(shortages, prodId) {
     var inv = getInv();
     var bySupplier = {};
 
     shortages.forEach(function(s) {
         var invItem = inv.find(function(i) { return i.id === s.itemId; });
         var supName = (invItem && invItem.supplier) ? invItem.supplier : 'Unknown Supplier';
-
         if (!bySupplier[supName]) bySupplier[supName] = [];
         bySupplier[supName].push({
-            id:    s.itemId,
-            name:  s.item,
-            qty:   s.needed,
-            unit:  s.unit,
-            cost:  s.cost,
+            id: s.itemId, name: s.item, qty: s.needed,
+            unit: s.unit, cost: s.cost,
             total: parseFloat((s.needed * s.cost).toFixed(2))
         });
     });
@@ -6685,69 +6881,71 @@ function generateProductionPOs(shortages, prodId) {
     Object.keys(bySupplier).forEach(function(supName) {
         var items = bySupplier[supName];
         var total = items.reduce(function(sum, i) { return sum + i.total; }, 0);
+        S.pendingPOs[eid()].push({
+            id: 'PPO-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            supplier: supName, items: items, total: total,
+            date: new Date().toISOString(), status: 'Pending Approval',
+            generatedBy: 'Production', productionId: prodId
+        });
 
-        var po = {
-            id:           'PPO-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            supplier:     supName,
-            items:        items,
-            total:        total,
-            date:         new Date().toISOString(),
-            status:       'Pending Approval',
-            generatedBy:  'Production',
-            productionId: prodId
-        };
-
-        S.pendingPOs[eid()].push(po);
-
-        // Auto email to supplier
         var sup = getSups().find(function(s) { return s.name === supName; });
         if (sup && sup.email) {
             try {
                 emailPurchaseOrder({
-                    poId:          po.id,
-                    supplierName:  supName,
+                    poId: 'PPO-' + Date.now(), supplierName: supName,
                     supplierEmail: sup.email,
-                    entityName:    S.entities[S.activeEntity] ? S.entities[S.activeEntity].name : '',
+                    entityName: S.entities[S.activeEntity] ? S.entities[S.activeEntity].name : '',
                     entityAddress: S.entities[S.activeEntity] ? (S.entities[S.activeEntity].address || '') : '',
-                    createdBy:     'Production Manager',
-                    createdAt:     new Date().toISOString(),
-                    items:         items,
-                    total:         total
+                    createdBy: 'Production Manager', createdAt: new Date().toISOString(),
+                    items: items, total: total
                 });
                 toast('info', '📧 PO sent to ' + supName);
-            } catch(e) { console.warn('PO email error:', e); }
+            } catch (e) { console.warn('PO email error:', e); }
         }
     });
 
-    addNotif('info', 'Production POs',
-        Object.keys(bySupplier).length + ' PO(s) generated for production');
+    addNotif('info', 'Production POs', Object.keys(bySupplier).length + ' PO(s) generated');
 }
 
-// ── PROCESS PRODUCTION ─────────────────────────────────────
+// ============================================================
+// PROCESS PRODUCTION (when stock arrives)
+// ============================================================
 function processProduction(prodId) {
     var prods = getProductions();
     var prod  = prods.find(function(p) { return p.id === prodId; });
     if (!prod) return;
 
     if (!checkProductionStock(prod)) {
-        toast('error', 'Still insufficient stock for this production');
+        toast('error', 'Still insufficient stock — check your GRVs');
+        renderProduction();
         return;
     }
 
-    if (!confirm('Process production: ' + prod.menuItemName + ' × ' + prod.targetYield + '?\n\nStock will be deducted.')) return;
+    if (!confirm('Process: ' + prod.menuItemName + ' × ' + prod.targetYield +
+        ' units?\n\nIngredients will be deducted and finished units added to stock.')) return;
 
-    var inv = getInv();
-    (prod.requiredIngredients || []).forEach(function(req) {
-        var invItem = inv.find(function(i) { return i.id === req.itemId; });
-        if (invItem) {
-            invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
-            invItem.value    = invItem.quantity * invItem.cost;
-            invItem.status   = invItem.quantity === 0 ? 'out-of-stock' :
-                invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
-        }
+    var inv       = getInv();
+    var totalCost = 0;
+    prod.requiredIngredients.forEach(function(req) {
+        var invItem    = inv.find(function(i) { return i.id === req.itemId; });
+        var latestCost = invItem ? (invItem.cost || req.cost) : req.cost;
+        req.cost       = latestCost;
+        req.lineCost   = parseFloat((req.totalQty * latestCost).toFixed(2));
+        totalCost     += req.lineCost;
     });
 
-    S.inventory[eid()] = inv;
+    var costPerUnit = prod.targetYield > 0 ? totalCost / prod.targetYield : 0;
+    prod.totalProductionCost = parseFloat(totalCost.toFixed(2));
+    prod.costPerUnit         = parseFloat(costPerUnit.toFixed(2));
+
+    prodDeductIngredients(prod.requiredIngredients);
+
+    var m = getMenu().find(function(mi) { return mi.id === prod.menuItemId; });
+    if (m) {
+        prodAddToStock(m, prod.targetYield, costPerUnit);
+        prodUpdateMenuCost(prod.menuItemId, costPerUnit, prod.requiredIngredients);
+    }
+
     prod.status      = 'processing';
     prod.canProcess  = false;
     prod.processedAt = new Date().toISOString();
@@ -6758,31 +6956,93 @@ function processProduction(prodId) {
     debouncedSave();
     renderProduction();
     renderInventory();
-    toast('success', '✅ Production started — stock deducted');
+    renderMenu();
+    toast('success', '✅ Production started! ' + prod.targetYield + ' units added. Cost: R' + costPerUnit.toFixed(2));
 }
 
-// ── COMPLETE PRODUCTION ────────────────────────────────────
+// ============================================================
+// COMPLETE PRODUCTION
+// ============================================================
 function completeProduction(prodId) {
     var prods = getProductions();
     var prod  = prods.find(function(p) { return p.id === prodId; });
     if (!prod) return;
 
-    if (!confirm('Mark production as completed?\n\n' + prod.menuItemName + ' × ' + prod.targetYield)) return;
+    if (!confirm('Mark completed?\n\n' + prod.menuItemName + ' × ' + prod.targetYield + ' units')) return;
 
     prod.status      = 'completed';
     prod.completedAt = new Date().toISOString();
     prod.completedBy = S.user ? S.user.name : 'Unknown';
+    if (prod.processedAt) {
+        prod.durationHrs = parseFloat(
+            ((new Date(prod.completedAt) - new Date(prod.processedAt)) / 3600000).toFixed(2));
+    }
 
     S.productions[eid()] = prods;
-
-    // Send production report notification
     addNotif('success', 'Production Complete',
         prod.menuItemName + ' × ' + prod.targetYield + ' completed by ' + prod.completedBy);
-
     logAction('Production Complete', prod.menuItemName + ' × ' + prod.targetYield);
     debouncedSave();
     renderProduction();
-    toast('success', '🎉 Production completed! Report sent to management.');
+    toast('success', '🎉 Production completed! Report updated.');
+}
+
+// ============================================================
+// PRODUCTION REPORT MODAL
+// ============================================================
+function showProductionReportModal() {
+    var prods     = getProductions();
+    var completed = prods.filter(function(p) { return p.status === 'completed'; });
+    var totalUnits = completed.reduce(function(s, p) { return s + (p.targetYield || 0); }, 0);
+    var totalCost  = completed.reduce(function(s, p) { return s + (p.totalProductionCost || 0); }, 0);
+    var avgDur = completed.length > 0
+        ? (completed.reduce(function(s, p) { return s + (p.durationHrs || 0); }, 0) / completed.length).toFixed(1)
+        : '0';
+
+    var body = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">' +
+        '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--accent)">' +
+        '<div style="font-size:1.5rem;font-weight:900;color:var(--accent)">' + completed.length + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">Completed</div></div>' +
+        '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--success)">' +
+        '<div style="font-size:1.5rem;font-weight:900;color:var(--success)">' + totalUnits + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">Units Produced</div></div>' +
+        '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--gold)">' +
+        '<div style="font-size:1.3rem;font-weight:900;color:var(--gold)">R' + totalCost.toFixed(2) + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">Total Cost</div></div>' +
+        '<div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--info)">' +
+        '<div style="font-size:1.5rem;font-weight:900;color:var(--info)">' + avgDur + ' hrs</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">Avg Duration</div></div></div>';
+
+    if (completed.length > 0) {
+        var byItem = {};
+        completed.forEach(function(p) {
+            if (!byItem[p.menuItemName]) byItem[p.menuItemName] = { runs: 0, yield: 0, cost: 0 };
+            byItem[p.menuItemName].runs++;
+            byItem[p.menuItemName].yield += (p.targetYield || 0);
+            byItem[p.menuItemName].cost  += (p.totalProductionCost || 0);
+        });
+
+        body += '<h4 style="font-size:.88rem;color:var(--text);margin-bottom:10px">By Menu Item</h4>' +
+            '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+            '<th>Menu Item</th><th>Runs</th><th>Units</th><th>Total Cost</th><th>Avg Cost/Unit</th>' +
+            '</tr></thead><tbody>' +
+            Object.keys(byItem).map(function(name) {
+                var item = byItem[name];
+                var avg  = item.yield > 0 ? item.cost / item.yield : 0;
+                return '<tr><td><strong>' + name + '</strong></td>' +
+                    '<td style="text-align:center">' + item.runs + '</td>' +
+                    '<td style="text-align:center;font-weight:700">' + item.yield + '</td>' +
+                    '<td style="text-align:right;color:var(--gold)">R' + item.cost.toFixed(2) + '</td>' +
+                    '<td style="text-align:right;color:var(--accent)">R' + avg.toFixed(2) + '</td></tr>';
+            }).join('') +
+            '</tbody></table></div>';
+    } else {
+        body += '<p style="color:var(--text-light);text-align:center;padding:20px">No completed productions yet</p>';
+    }
+
+    showModal('<i class="fas fa-chart-bar" style="color:var(--accent)"></i> Production Report', body,
+        '<button class="btn-outline" onclick="closeModal()">Close</button>' +
+        '<button class="btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Print</button>');
 }
 
 console.log('✅ Users + Reports + Settings + Transfers + Month End + Invoicing loaded');
