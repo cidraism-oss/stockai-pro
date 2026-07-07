@@ -1044,12 +1044,8 @@ section { padding: 90px 24px; position: relative; }
 // TOAST
 // ============================================================
 function showToast(type, msg) {
-  var icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
-  var t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i><span>' + msg + '</span>';
-  document.getElementById('toastWrap').appendChild(t);
-  setTimeout(function() { if (t.parentElement) t.remove(); }, 5000);
+  // Disabled — using popups instead
+  console.log(type + ':', msg);
 }
 
 // ============================================================
@@ -1267,11 +1263,11 @@ function submitQuote(action) {
   var email    = document.getElementById('qb-email').value.trim();
 
   if (!name || !phone || !business || !email) {
-    showToast('error', 'Please fill in all your details');
+    alert('Please fill in all your details before submitting.');
     return;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showToast('error', 'Please enter a valid email address');
+    alert('Please enter a valid email address.');
     return;
   }
 
@@ -1283,51 +1279,29 @@ function submitQuote(action) {
     return QBFeatureNames[f] || f;
   });
 
-  // Always store for daily analysis
+  // Store for daily analysis
   storeQuoteForAnalysis(quoteData);
 
   if (action === 'email') {
-    // Verify email templates are loaded
-    console.log('📧 Checking email system...');
-    console.log('📧 sendQuoteEmailToCustomer type:', typeof window.sendQuoteEmailToCustomer);
-
-    if (typeof window.sendQuoteEmailToCustomer !== 'function') {
-      console.error('❌ email-templates.js not loaded correctly!');
-      showToast('error', '❌ Email system not ready. Please refresh the page and try again.');
-      return;
-    }
-
-    showToast('info', '📧 Sending your quote to ' + email + '...');
-
     // Send to customer
-    window.sendQuoteEmailToCustomer(quoteData)
-      .then(function(res) {
-        if (res && res.ok) {
-          showToast('success', '✅ Quote successfully emailed to ' + email);
-        } else {
-          showToast('error', '⚠️ Email may not have delivered. Please check your Resend domain is verified.');
-          console.warn('⚠️ Email response not OK. Status:', res ? res.status : 'no response');
-        }
-      })
-      .catch(function(err) {
-        console.error('❌ Email error:', err);
-        showToast('error', '❌ Email failed. Please try again or contact us on WhatsApp.');
-      });
-
-    // Send admin notification
+    if (typeof window.sendQuoteEmailToCustomer === 'function') {
+      window.sendQuoteEmailToCustomer(quoteData)
+        .then(function() { console.log('✅ Customer quote email sent'); })
+        .catch(function(err) { console.warn('Quote email issue:', err); });
+    }
+    // Send to admin
     if (typeof window.sendQuoteNotificationToAdmin === 'function') {
       window.sendQuoteNotificationToAdmin(quoteData)
         .then(function() { console.log('✅ Admin notification sent'); })
-        .catch(function(err) { console.warn('⚠️ Admin notify failed:', err); });
+        .catch(function(err) { console.warn('Admin notify issue:', err); });
     }
-
   } else if (action === 'print') {
     generateQuotePDF(quoteData, 'print');
-    } else if (action === 'download') {
+  } else if (action === 'download') {
     generateQuotePDF(quoteData, 'download');
   }
 
-  // Show popup and reset form for all actions
+  // Show the beautiful sent popup
   showQuoteSentPopup();
 }
 
