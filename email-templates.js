@@ -68,13 +68,7 @@ function sendEmail(to, subject, html) {
         console.warn('sendEmail: no valid recipients');
         return Promise.resolve({ ok: false });
     }
-
-    // Use Cloudflare Worker proxy to bypass CORS
-    var PROXY_URL = 'https://YOUR-ACTUAL-WORKER-URL.workers.dev';
-
-    console.log('📧 Sending to:', recipients.join(', '), '| Subject:', subject);
-
-    return fetch(PROXY_URL, {
+    return fetch('https://bold-dust-c51b.cidraism.workers.dev/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,12 +81,12 @@ function sendEmail(to, subject, html) {
         if (res.ok) {
             console.log('✅ Email sent to:', recipients.join(', '));
         } else {
-            console.error('❌ Email failed. Status:', res.status);
+            console.warn('⚠️ Email failed:', res.status);
         }
         return res;
     })
     .catch(function(err) {
-        console.error('❌ Email error:', err.message || err);
+        console.warn('❌ Email error:', err.message || err);
         return { ok: false };
     });
 }
