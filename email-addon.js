@@ -73,88 +73,67 @@ function sendQuoteEmailToCustomer(data) {
         var name  = ADDON_FEATURE_MAP[f] || (data.featureLabels && data.featureLabels[i]) || f;
         featureRows +=
             '<tr>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">' +
-            (f === 'web_boh' ? '🔒 ' : '✅ ') + name + '</td>' +
-            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">' +
+            '<td style="padding:10px;border-bottom:1px solid #e4f1f5;font-size:14px;color:#2a5f70">' +
+            (f === 'web_boh' ? 'Included: ' : 'Add-on: ') + name + '</td>' +
+            '<td style="padding:10px;border-bottom:1px solid #e4f1f5;font-size:14px;color:#0d4a5c;text-align:right;font-weight:bold">' +
             'R' + price.toLocaleString() + '.00/mo</td>' +
             '</tr>';
     });
 
     var getStartedUrl = 'https://www.stockai-pro.co.za/signup.html?features=' +
-    (data.features || []).join(',') +
-    '&entities=' + (data.entities || 1) +
-    (data.techIncluded ? '&tech=yes' : '') +
-    (data.trainingIncluded ? '&training=yes' : '') +
-    (data.extraStaff > 0 ? '&extrastaff=' + data.extraStaff : '');
+        (data.features || []).join(',') +
+        '&entities=' + (data.entities || 1) +
+        (data.techIncluded ? '&tech=yes' : '') +
+        (data.trainingIncluded ? '&training=yes' : '') +
+        (data.extraStaff > 0 ? '&extrastaff=' + data.extraStaff : '');
 
+    // Simplified HTML for better Gmail deliverability
     var html =
-        '<div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:28px;text-align:center;border-radius:12px 12px 0 0">' +
-        '<div style="font-size:1.5rem;font-weight:900;color:#fff">StockAI-Pro</div>' +
-        '<div style="font-size:.72rem;color:#5EEAD4;letter-spacing:2px;margin-top:4px">INTELLIGENCE A CLICK AWAY</div>' +
-        '<h2 style="color:#fff;margin:14px 0 0;font-size:1.1rem">Your Custom Quotation</h2>' +
+        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
+        '<div style="background-color:#0d4a5c;padding:30px;text-align:center;">' +
+        '<h1 style="color:#ffffff;margin:0;font-size:24px;">StockAI-Pro</h1>' +
+        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:12px;letter-spacing:1px;">INTELLIGENCE A CLICK AWAY</p>' +
         '</div>' +
-        '<div style="background:#fff;padding:28px;border:1px solid #e4f1f5;border-top:none;border-radius:0 0 12px 12px">' +
-        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.customer.name + '</strong>,</p>' +
-        '<p style="color:#5a8a96;line-height:1.7">Thank you for using our quote builder. Here is your custom quotation:</p>' +
-        '<div style="background:#f0f7f9;padding:14px 18px;border-radius:10px;margin:16px 0">' +
-        '<table style="width:100%"><tr>' +
-        '<td><span style="font-size:.72rem;color:#5a8a96;display:block">Quote Reference</span>' +
-        '<strong style="color:#0d4a5c">' + (data.quoteRef || '—') + '</strong></td>' +
-        '<td style="text-align:right"><span style="font-size:.72rem;color:#5a8a96;display:block">Date</span>' +
-        '<strong style="color:#0d4a5c">' + (data.quoteDate || '—') + '</strong></td>' +
-        '</tr></table></div>' +
-        '<table style="width:100%;border-collapse:collapse;margin:16px 0">' +
-        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96;width:35%">Name</td>' +
-        '<td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.name + '</td></tr>' +
-        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Business</td>' +
-        '<td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.business + '</td></tr>' +
-        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Phone</td>' +
-        '<td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.phone + '</td></tr>' +
-        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:.82rem;color:#5a8a96">Email</td>' +
-        '<td style="padding:8px 12px;font-size:.88rem;color:#0d4a5c;font-weight:600">' + data.customer.email + '</td></tr>' +
+        '<div style="padding:30px;background-color:#ffffff;">' +
+        '<h2 style="color:#0d4a5c;font-size:18px;">Your Custom Quotation</h2>' +
+        '<p style="color:#5a8a96;font-size:14px;line-height:1.6;">Hi ' + data.customer.name + ',</p>' +
+        '<p style="color:#5a8a96;font-size:14px;line-height:1.6;">Thank you for your interest. Below is the breakdown for your requested package:</p>' +
+        
+        '<table style="width:100%;margin:20px 0;background-color:#f0f7f9;border-radius:8px;">' +
+        '<tr><td style="padding:10px;font-size:12px;color:#5a8a96;">Quote Ref: ' + (data.quoteRef || '—') + '</td>' +
+        '<td style="padding:10px;font-size:12px;color:#5a8a96;text-align:right;">Date: ' + (data.quoteDate || '—') + '</td></tr>' +
         '</table>' +
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-        '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>' +
-        featureRows +
-        '<tr><td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">Entities (' + (data.entities || 1) + ' x R599/mo)</td>' +
-        '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">R' + (data.entityTotal || 0).toLocaleString() + '.00/mo</td></tr>' +
-        '<tr style="background:#e4f1f5"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Monthly Total</td>' +
-        '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#1a8ba8;text-align:right">R' + (data.monthlyTotal || 0).toLocaleString() + '.00/mo</td></tr>' +
-        '</table>' +
-        (data.onceOffTotal > 0 ?
-            '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
-            '<tr><td colspan="2" style="background:#d97706;color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;border-radius:8px 8px 0 0">ONCE-OFF CHARGES (incl. VAT)</td></tr>' +
-            (data.techIncluded && data.techHours > 0 ?
-                '<tr><td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">Technician Setup (' + data.techHours + ' hrs x R450)</td>' +
-                '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">R' + (data.techTotal || 0).toLocaleString() + '.00</td></tr>' : '') +
-            (data.trainingIncluded ?
-                '<tr><td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">Staff Training</td>' +
-                '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#0d4a5c;text-align:right;font-weight:700">R' + (data.trainingTotal || 0).toLocaleString() + '.00</td></tr>' : '') +
-            '<tr style="background:#fef3c7"><td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Once-off Total</td>' +
-            '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#d97706;text-align:right">R' + (data.onceOffTotal || 0).toLocaleString() + '.00</td></tr>' +
-            '</table>' : '') +
-        '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;padding:14px;margin-bottom:20px;text-align:center">' +
-        '<div style="font-size:.88rem;font-weight:700;color:#065f46">✅ 30-Day Money-Back Guarantee</div>' +
-        '<div style="font-size:.78rem;color:#047857;margin-top:4px">Not satisfied within 30 days? Full refund — no questions asked.</div>' +
-        '</div>' +
-        '<div style="text-align:center;margin:24px 0">' +
-        '<a href="' + getStartedUrl + '" style="display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:1rem">🚀 Get Started Now</a>' +
-        '</div>' +
-        '<p style="font-size:.75rem;color:#8aabb5;text-align:center">This quotation is valid for 30 days from the date of issue.</p>' +
-        '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #e4f1f5;text-align:center">' +
-        '<a href="https://www.stockai-pro.co.za" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;margin:0 8px">🌐 Website</a>' +
-        '<a href="https://wa.me/27790440508" style="color:#25D366;text-decoration:none;font-size:.82rem;margin:0 8px">💬 WhatsApp</a>' +
-        '<a href="tel:0790440508" style="color:#1a8ba8;text-decoration:none;font-size:.82rem;margin:0 8px">📞 079 044 0508</a>' +
-        '</div>' +
-        '<p style="color:#8aabb5;font-size:.75rem;text-align:center;margin-top:12px">© 2025 StockAI-Pro. Built with ❤️ in South Africa.</p>' +
-        '</div></div>';
 
-    return sendViaProxy(
-        data.customer.email,
-        'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''),
-        html
-    );
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">' +
+        '<thead><tr style="background-color:#0d4a5c;color:#ffffff;">' +
+        '<th style="padding:10px;text-align:left;font-size:12px;">DESCRIPTION</th>' +
+        '<th style="padding:10px;text-align:right;font-size:12px;">AMOUNT</th>' +
+        '</tr></thead>' +
+        '<tbody>' + featureRows + 
+        '<tr><td style="padding:10px;border-bottom:1px solid #e4f1f5;font-size:14px;color:#2a5f70;">Entities (' + (data.entities || 1) + ' x R599/mo)</td>' +
+        '<td style="padding:10px;border-bottom:1px solid #e4f1f5;font-size:14px;color:#0d4a5c;text-align:right;font-weight:bold;">R' + (data.entityTotal || 0).toLocaleString() + '.00/mo</td></tr>' +
+        '</tbody>' +
+        '</table>' +
+
+        '<div style="background-color:#e4f1f5;padding:15px;text-align:right;border-radius:8px;">' +
+        '<span style="font-size:16px;font-weight:bold;color:#0d4a5c;">Monthly Total: R' + (data.monthlyTotal || 0).toLocaleString() + '.00</span>' +
+        '</div>' +
+
+        (data.onceOffTotal > 0 ?
+            '<div style="margin-top:20px;padding:15px;background-color:#fff8e1;border-left:4px solid #f59e0b;">' +
+            '<p style="margin:0;font-size:14px;color:#d97706;font-weight:bold;">Once-off setup fees apply: R' + (data.onceOffTotal || 0).toLocaleString() + '.00</p>' +
+            '</div>' : '') +
+
+        '<div style="text-align:center;margin:30px 0;">' +
+        '<a href="' + getStartedUrl + '" style="background-color:#f59e0b;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;">🚀 Start Your Setup Now</a>' +
+        '</div>' +
+
+        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:20px 0;">' +
+        '<p style="text-align:center;color:#8aabb5;font-size:12px;">StockAI-Pro • 079 044 0508 • support@stockai-pro.co.za</p>' +
+        '</div>' +
+        '</div>';
+
+    return sendViaProxy(data.customer.email, 'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''), html);
 }
 
 // ============================================================
