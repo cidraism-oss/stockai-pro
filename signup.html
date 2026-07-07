@@ -8,9 +8,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
-/* ================================================
-   ROOT VARIABLES
-================================================ */
 :root {
   --teal-dark: #0d4a5c;
   --teal-mid: #1a8ba8;
@@ -34,9 +31,6 @@
   --radius-lg: 18px;
 }
 
-/* ================================================
-   RESET & BASE
-================================================ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Poppins', sans-serif;
@@ -45,9 +39,7 @@ body {
   min-height: 100vh;
 }
 
-/* ================================================
-   HEADER
-================================================ */
+/* HEADER */
 .header {
   background: linear-gradient(90deg, var(--teal-dark), var(--teal-mid));
   padding: 12px 24px;
@@ -70,75 +62,20 @@ body {
 }
 .header-back:hover { color: #fff; }
 
-/* ================================================
-   PROGRESS BAR
-================================================ */
-.progress-bar {
-  background: var(--bg-alt);
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-}
-.progress-steps {
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.progress-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-}
-.progress-step-circle {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .78rem;
-  font-weight: 700;
-  border: 2px solid var(--border);
-  background: #fff;
-  color: var(--text-light);
-  transition: all .3s ease;
-}
-.progress-step.active .progress-step-circle {
-  background: var(--teal-mid);
-  border-color: var(--teal-mid);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(26,139,168,.3);
-}
-.progress-step.done .progress-step-circle {
-  background: var(--success);
-  border-color: var(--success);
-  color: #fff;
-}
-.progress-step-label {
-  font-size: .65rem;
-  font-weight: 600;
-  color: var(--text-light);
-  text-align: center;
-  white-space: nowrap;
-}
+/* PROGRESS */
+.progress-bar { background: var(--bg-alt); padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.progress-steps { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.progress-step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; border: 2px solid var(--border); background: #fff; color: var(--text-light); transition: all .3s ease; }
+.progress-step.active .progress-step-circle { background: var(--teal-mid); border-color: var(--teal-mid); color: #fff; box-shadow: 0 4px 12px rgba(26,139,168,.3); }
+.progress-step.done .progress-step-circle { background: var(--success); border-color: var(--success); color: #fff; }
+.progress-step-label { font-size: .65rem; font-weight: 600; color: var(--text-light); text-align: center; white-space: nowrap; }
 .progress-step.active .progress-step-label { color: var(--teal-mid); font-weight: 700; }
 .progress-step.done .progress-step-label { color: var(--success); }
-.progress-line {
-  flex: 1;
-  height: 2px;
-  background: var(--border);
-  margin: 0 4px;
-  margin-bottom: 20px;
-  transition: background .3s ease;
-}
+.progress-line { flex: 1; height: 2px; background: var(--border); margin: 0 4px; margin-bottom: 20px; transition: background .3s ease; }
 .progress-line.done { background: var(--success); }
 
-/* ================================================
-   PAGE HERO
-================================================ */
+/* PAGE HERO */
 .page-hero {
   background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
   padding: 40px 24px;
@@ -147,41 +84,14 @@ body {
   position: relative;
   overflow: hidden;
 }
-.page-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 30% 50%, rgba(255,255,255,.06), transparent 50%);
-}
-.page-hero h1 {
-  font-size: 2rem;
-  font-weight: 900;
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 1;
-}
-.page-hero p {
-  font-size: .95rem;
-  opacity: .9;
-  max-width: 500px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-  line-height: 1.6;
-}
+.page-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(255,255,255,.06), transparent 50%); }
+.page-hero h1 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; position: relative; z-index: 1; }
+.page-hero p { font-size: .95rem; opacity: .9; max-width: 500px; margin: 0 auto; position: relative; z-index: 1; line-height: 1.6; }
 
-/* ================================================
-   MAIN
-================================================ */
-.main {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 40px 24px 60px;
-}
+/* MAIN */
+.main { max-width: 820px; margin: 0 auto; padding: 40px 24px 60px; }
 
-/* ================================================
-   BUILDER CARD
-================================================ */
+/* BUILDER CARD */
 .builder-card {
   background: #fff;
   border-radius: var(--radius-lg);
@@ -207,25 +117,13 @@ body {
   white-space: nowrap;
   z-index: 5;
 }
-.builder-header {
-  background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
-  padding: 30px 28px 22px;
-  color: #fff;
-  text-align: center;
-}
+.builder-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 30px 28px 22px; color: #fff; text-align: center; }
 .builder-header h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 6px; }
 .builder-header p { font-size: .88rem; opacity: .85; }
 .builder-body { padding: 28px; }
 
-/* ================================================
-   FEATURE TOGGLE CARDS
-================================================ */
-.feature-toggles {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
+/* FEATURE TOGGLE CARDS */
+.feature-toggles { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 .ft-card {
   display: flex;
   align-items: center;
@@ -239,388 +137,89 @@ body {
   gap: 12px;
 }
 .ft-card:hover { border-color: var(--teal-light); box-shadow: var(--shadow); }
-.ft-card.selected {
-  border-color: var(--teal-mid);
-  background: rgba(26,139,168,.04);
-  box-shadow: 0 0 0 3px rgba(26,139,168,.08);
-}
-.ft-card.locked {
-  border-color: var(--success);
-  background: rgba(46,168,113,.06);
-  cursor: default;
-}
+.ft-card.selected { border-color: var(--teal-mid); background: rgba(26,139,168,.04); box-shadow: 0 0 0 3px rgba(26,139,168,.08); }
+.ft-card.locked { border-color: var(--success); background: rgba(46,168,113,.06); cursor: default; }
 .ft-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
-.ft-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1.15rem;
-  flex-shrink: 0;
-}
+.ft-icon { width: 46px; height: 46px; border-radius: 11px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.15rem; flex-shrink: 0; }
 .ft-card.locked .ft-icon { background: linear-gradient(135deg, var(--success), #1a7a4a); }
 .ft-name { font-size: .95rem; font-weight: 700; color: var(--text-dark); }
 .ft-desc { font-size: .75rem; color: var(--text-light); margin-top: 2px; }
-.ft-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
+.ft-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .ft-price { font-size: 1rem; font-weight: 800; color: var(--text-dark); white-space: nowrap; }
-.ft-badge {
-  font-size: .6rem;
-  font-weight: 700;
-  color: var(--success);
-  background: rgba(46,168,113,.1);
-  padding: 3px 10px;
-  border-radius: 8px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  white-space: nowrap;
-}
-.ft-toggle {
-  width: 46px;
-  height: 26px;
-  border-radius: 13px;
-  background: var(--border);
-  position: relative;
-  transition: background .3s ease;
-  flex-shrink: 0;
-}
-.ft-toggle::after {
-  content: '';
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #fff;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: transform .3s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,.15);
-}
+.ft-badge { font-size: .6rem; font-weight: 700; color: var(--success); background: rgba(46,168,113,.1); padding: 3px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.ft-toggle { width: 46px; height: 26px; border-radius: 13px; background: var(--border); position: relative; transition: background .3s ease; flex-shrink: 0; }
+.ft-toggle::after { content: ''; width: 22px; height: 22px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform .3s ease; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 .ft-card.selected .ft-toggle { background: var(--teal-mid); }
 .ft-card.selected .ft-toggle::after { transform: translateX(20px); }
 .ft-card.locked .ft-toggle { background: var(--success); }
 .ft-card.locked .ft-toggle::after { transform: translateX(20px); }
 
-/* ================================================
-   SELECTED FEATURES CHIPS
-================================================ */
-.selected-summary {
-  background: var(--bg);
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 24px;
-  border: 1px solid var(--border);
-}
-.selected-summary-title {
-  font-size: .78rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+/* SELECTED CHIPS */
+.selected-summary { background: var(--bg); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; border: 1px solid var(--border); }
+.selected-summary-title { font-size: .78rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
 .selected-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.selected-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: .78rem;
-  font-weight: 600;
-  background: rgba(26,139,168,.1);
-  color: var(--teal-mid);
-  border: 1px solid rgba(26,139,168,.2);
-}
-.selected-chip.locked {
-  background: rgba(46,168,113,.1);
-  color: var(--success);
-  border-color: rgba(46,168,113,.2);
-}
+.selected-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600; background: rgba(26,139,168,.1); color: var(--teal-mid); border: 1px solid rgba(26,139,168,.2); }
+.selected-chip.locked { background: rgba(46,168,113,.1); color: var(--success); border-color: rgba(46,168,113,.2); }
 .selected-chip i { font-size: .65rem; }
 
-/* ================================================
-   ADD-ONS SECTION
-================================================ */
-.addons-section {
-  border-top: 1px solid var(--border);
-  padding-top: 22px;
-  margin-top: 6px;
-}
-.addons-title {
-  font-size: .95rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* ADD-ONS */
+.addons-section { border-top: 1px solid var(--border); padding-top: 22px; margin-top: 6px; }
+.addons-title { font-size: .95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .addons-title i { color: var(--teal-mid); }
-.addon-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid #f0f7f9;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+.addon-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f7f9; gap: 16px; flex-wrap: wrap; }
 .addon-row:last-child { border-bottom: none; }
 .addon-label { flex: 1; min-width: 200px; }
 .addon-label strong { font-size: .88rem; color: var(--text-dark); display: block; margin-bottom: 3px; }
 .addon-label small { font-size: .75rem; color: var(--text-light); line-height: 1.5; }
 .addon-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.addon-controls select {
-  padding: 10px 14px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: .9rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  background: #fff;
-  cursor: pointer;
-  min-width: 130px;
-  transition: border-color .3s ease;
-}
+.addon-controls select { padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; font-weight: 600; color: var(--text-dark); background: #fff; cursor: pointer; min-width: 130px; transition: border-color .3s ease; }
 .addon-controls select:focus { outline: none; border-color: var(--teal-mid); }
-.addon-controls input[type="number"] {
-  padding: 10px 12px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: .9rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  background: #fff;
-  width: 75px;
-  transition: border-color .3s ease;
-}
+.addon-controls input[type="number"] { padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; font-weight: 600; color: var(--text-dark); background: #fff; width: 75px; transition: border-color .3s ease; }
 .addon-controls input[type="number"]:focus { outline: none; border-color: var(--teal-mid); }
-.addon-price {
-  font-weight: 700;
-  font-size: .95rem;
-  color: var(--teal-mid);
-  min-width: 90px;
-  text-align: right;
-}
+.addon-price { font-weight: 700; font-size: .95rem; color: var(--teal-mid); min-width: 90px; text-align: right; }
 
-/* Tech breakdown box */
-.tech-breakdown-box {
-  display: none;
-  background: var(--bg);
-  border-radius: 10px;
-  padding: 14px 16px;
-  width: 100%;
-  border: 1px solid var(--border);
-  margin-top: 8px;
-}
+/* TECH BREAKDOWN */
+.tech-breakdown-box { display: none; background: var(--bg); border-radius: 10px; padding: 14px 16px; width: 100%; border: 1px solid var(--border); margin-top: 8px; }
 .tech-breakdown-box.visible { display: block; }
-.tech-breakdown-title {
-  font-size: .78rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.tech-breakdown-title { font-size: .78rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 .tech-breakdown-title i { color: var(--teal-mid); }
 .tech-breakdown-lines { font-size: .78rem; color: var(--text-mid); line-height: 2; }
-.tech-breakdown-total {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  margin-top: 8px;
-  border-top: 2px solid var(--border);
-  font-weight: 700;
-  font-size: .9rem;
-  color: var(--text-dark);
-}
+.tech-breakdown-total { display: flex; justify-content: space-between; padding: 8px 0; margin-top: 8px; border-top: 2px solid var(--border); font-weight: 700; font-size: .9rem; color: var(--text-dark); }
 .tech-breakdown-total span:last-child { color: var(--teal-mid); }
 
-/* Training extras */
-.training-extras {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
+/* TRAINING EXTRAS */
+.training-extras { display: none; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .training-extras.visible { display: flex; }
 
-/* ================================================
-   PRICE SUMMARY
-================================================ */
-.price-summary {
-  background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
-  border-radius: 14px;
-  padding: 24px;
-  color: #fff;
-  margin-top: 28px;
-}
-.price-summary-title {
-  font-size: .78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: .7;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.ps-section-label {
-  font-size: .7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: .55;
-  margin: 12px 0 4px;
-  font-weight: 700;
-}
-.ps-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  font-size: .88rem;
-  opacity: .85;
-}
-.ps-line.sub {
-  padding-left: 14px;
-  font-size: .8rem;
-  opacity: .65;
-}
+/* PRICE SUMMARY */
+.price-summary { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); border-radius: 14px; padding: 24px; color: #fff; margin-top: 28px; }
+.price-summary-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .7; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.ps-section-label { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; opacity: .55; margin: 12px 0 4px; font-weight: 700; }
+.ps-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: .88rem; opacity: .85; }
+.ps-line.sub { padding-left: 14px; font-size: .8rem; opacity: .65; }
 .ps-line.sub::before { content: '• '; opacity: .6; }
-.ps-divider {
-  border: none;
-  border-top: 1px solid rgba(255,255,255,.15);
-  margin: 12px 0;
-}
-.ps-line.monthly {
-  font-size: 1.3rem;
-  font-weight: 900;
-  opacity: 1;
-  padding: 12px 0 4px;
-}
+.ps-divider { border: none; border-top: 1px solid rgba(255,255,255,.15); margin: 12px 0; }
+.ps-line.monthly { font-size: 1.3rem; font-weight: 900; opacity: 1; padding: 12px 0 4px; }
 .ps-line.monthly .ps-val { color: var(--gold); }
-.ps-line.onceoff {
-  font-size: 1rem;
-  font-weight: 700;
-  opacity: .9;
-}
+.ps-line.onceoff { font-size: 1rem; font-weight: 700; opacity: .9; }
 .ps-line.onceoff .ps-val { color: #fcd34d; }
-.ps-vat {
-  font-size: .72rem;
-  opacity: .5;
-  text-align: right;
-  margin-top: 8px;
-}
+.ps-vat { font-size: .72rem; opacity: .5; text-align: right; margin-top: 8px; }
 
-/* ================================================
-   PAYMENT SECTION
-================================================ */
+/* PAYMENT */
 .payment-section { text-align: center; padding: 28px 0 10px; }
-.btn-pay {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 40px;
-  background: linear-gradient(135deg, var(--success), #1a7a4a);
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: transform .3s ease, box-shadow .3s ease;
-  box-shadow: 0 8px 25px rgba(46,168,113,.35);
-  max-width: 100%;
-  word-break: break-word;
-  text-align: center;
-}
+.btn-pay { display: inline-flex; align-items: center; gap: 12px; padding: 18px 40px; background: linear-gradient(135deg, var(--success), #1a7a4a); color: #fff; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 8px 25px rgba(46,168,113,.35); max-width: 100%; }
 .btn-pay:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(46,168,113,.45); }
 .btn-pay:disabled { opacity: .5; transform: none; cursor: not-allowed; box-shadow: none; }
-.payment-note {
-  font-size: .82rem;
-  color: var(--text-light);
-  margin-top: 16px;
-  line-height: 1.75;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.payment-icons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 14px;
-  opacity: .45;
-}
+.payment-note { font-size: .82rem; color: var(--text-light); margin-top: 16px; line-height: 1.75; max-width: 480px; margin-left: auto; margin-right: auto; }
+.payment-icons { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; opacity: .45; }
 .payment-icons i { font-size: 1.8rem; color: var(--text-light); }
 
-/* ================================================
-   GUARANTEE
-================================================ */
-.guarantee {
-  background: #fff;
-  border-radius: var(--radius);
-  padding: 24px 28px;
-  box-shadow: var(--shadow);
-  text-align: center;
-  margin-top: 24px;
-  border-left: 4px solid var(--success);
-}
+/* GUARANTEE */
+.guarantee { background: #fff; border-radius: var(--radius); padding: 24px 28px; box-shadow: var(--shadow); text-align: center; margin-top: 24px; border-left: 4px solid var(--success); }
 .guarantee h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
 .guarantee p { font-size: .85rem; color: var(--text-light); max-width: 500px; margin: 0 auto; line-height: 1.6; }
 
-/* ================================================
-   TOAST
-================================================ */
-.toast-wrap {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.toast {
-  padding: 14px 18px;
-  border-radius: 10px;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: .88rem;
-  font-weight: 500;
-  animation: slideIn .3s ease;
-  min-width: 280px;
-  max-width: 380px;
-}
-@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.toast.success { background: #d1fae5; color: #065f46; border-left: 3px solid var(--success); }
-.toast.error { background: #fee2e2; color: #991b1b; border-left: 3px solid var(--danger); }
-.toast.info { background: #d4f0f7; color: #0d4a5c; border-left: 3px solid var(--teal-mid); }
-
-/* ================================================
-   RESPONSIVE
-================================================ */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .page-hero h1 { font-size: 1.5rem; }
   .builder-body { padding: 20px 16px; }
@@ -642,9 +241,7 @@ body {
 </head>
 <body>
 
-<!-- ================================================
-     HEADER
-================================================ -->
+<!-- HEADER -->
 <header class="header">
   <a href="index.html" class="logo">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="40">
@@ -697,9 +294,7 @@ body {
   <a href="index.html" class="header-back"><i class="fas fa-arrow-left"></i> Back to Website</a>
 </header>
 
-<!-- ================================================
-     PROGRESS BAR
-================================================ -->
+<!-- PROGRESS -->
 <div class="progress-bar">
   <div class="progress-steps">
     <div class="progress-step active" id="step-1">
@@ -724,20 +319,14 @@ body {
   </div>
 </div>
 
-<!-- ================================================
-     PAGE HERO
-================================================ -->
+<!-- PAGE HERO -->
 <div class="page-hero">
   <h1><i class="fas fa-tools" style="margin-right:10px;opacity:.85"></i> Build Your Base Platform</h1>
-  <p>Select the features you need, add your entities, and pay securely. Only pay for what you use. Cancel anytime.</p>
+  <p>Select the features you need, add your entities, and pay securely. Only pay for what you use.</p>
 </div>
 
-<!-- ================================================
-     MAIN CONTENT
-================================================ -->
+<!-- MAIN -->
 <div class="main">
-
-  <!-- BUILD YOUR BASE CARD -->
   <div class="builder-card">
     <div class="builder-header">
       <h2>Select Your Features</h2>
@@ -748,13 +337,13 @@ body {
       <!-- FEATURE TOGGLES -->
       <div class="feature-toggles">
 
-        <!-- LOCKED: Web App BOH — always included -->
+        <!-- LOCKED: Web App BOH -->
         <div class="ft-card locked" data-feature="web_boh" data-price="799" data-setup-hrs="12">
           <div class="ft-left">
             <div class="ft-icon"><i class="fas fa-laptop-code"></i></div>
             <div>
               <div class="ft-name">Web App B.O.H</div>
-              <div class="ft-desc">Full back-of-house management platform — always included</div>
+              <div class="ft-desc">Full back-of-house management — always included</div>
             </div>
           </div>
           <div class="ft-right">
@@ -841,9 +430,43 @@ body {
           </div>
         </div>
 
+        <!-- Retail POS -->
+        <div class="ft-card" data-feature="retail_pos" data-price="999" data-setup-hrs="12" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+              <i class="fas fa-store"></i>
+            </div>
+            <div>
+              <div class="ft-name">Retail POS</div>
+              <div class="ft-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R999/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- Invoice Scanner -->
+        <div class="ft-card" data-feature="invoice_scanner" data-price="499" data-setup-hrs="1" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+              <i class="fas fa-file-invoice"></i>
+            </div>
+            <div>
+              <div class="ft-name">Invoice Scanner App</div>
+              <div class="ft-desc">Scan invoices — auto-updates inventory, pricing & completes GRV entries</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R499/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- SELECTED FEATURES CHIPS -->
+      <!-- SELECTED CHIPS -->
       <div class="selected-summary">
         <div class="selected-summary-title">
           <i class="fas fa-check-circle" style="color:var(--success)"></i>
@@ -854,7 +477,7 @@ body {
         </div>
       </div>
 
-      <!-- ADD-ONS SECTION -->
+      <!-- ADD-ONS -->
       <div class="addons-section">
         <div class="addons-title"><i class="fas fa-building"></i> Entities & Services</div>
 
@@ -881,11 +504,11 @@ body {
           </div>
         </div>
 
-        <!-- TECHNICIAN SETUP -->
+        <!-- TECHNICIAN -->
         <div class="addon-row">
           <div class="addon-label">
             <strong>Technician Setup & Configuration</strong>
-            <small>R450/hour — hours are automatically calculated based on your selected features. Each feature has a fixed setup time.</small>
+            <small>R450/hour — hours automatically calculated from selected features and multiplied by number of entities</small>
           </div>
           <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:380px">
             <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
@@ -896,18 +519,18 @@ body {
               <div class="tech-breakdown-title"><i class="fas fa-clock"></i> Setup Hours Per Feature</div>
               <div class="tech-breakdown-lines" id="su-tech-breakdown">Loading...</div>
               <div class="tech-breakdown-total">
-                <span>Total: <span id="su-tech-hrs-display">12</span> hours @ R450/hr</span>
+                <span>Total: <span id="su-tech-hrs-display">12</span> @ R450/hr</span>
                 <span id="su-tech-price">R5,400.00</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- STAFF TRAINING -->
+        <!-- TRAINING -->
         <div class="addon-row">
           <div class="addon-label">
             <strong>Staff Training</strong>
-            <small>Standard: R1,500 includes up to 5 staff members • Additional staff members: R750 each</small>
+            <small>Standard: R1,500 includes up to 5 staff members • Additional staff: R750 each</small>
           </div>
           <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:380px">
             <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
@@ -915,7 +538,7 @@ body {
               Include staff training (R1,500 for up to 5 staff)
             </label>
             <div class="training-extras" id="su-training-extras">
-              <span style="font-size:.85rem;color:var(--text-light)">Additional staff members:</span>
+              <span style="font-size:.85rem;color:var(--text-light)">Additional staff:</span>
               <input type="number" id="su-extra-staff" value="0" min="0" max="50" onchange="calcSignup()" oninput="calcSignup()">
               <span class="addon-price" id="su-training-price">R1,500.00</span>
             </div>
@@ -927,15 +550,12 @@ body {
       <!-- PRICE SUMMARY -->
       <div class="price-summary">
         <div class="price-summary-title"><i class="fas fa-receipt"></i> Your Price Breakdown</div>
-
         <div class="ps-section-label">Monthly Subscription</div>
         <div class="ps-line"><span>Web App B.O.H</span><span class="ps-val">R799.00/mo</span></div>
         <div id="ps-feature-details"></div>
         <div class="ps-line"><span>Entities (<span id="ps-ent-count">1</span> × R599)</span><span class="ps-val" id="ps-entities">R599.00/mo</span></div>
-
         <hr class="ps-divider">
         <div class="ps-line monthly"><span>Monthly Total</span><span class="ps-val" id="ps-monthly">R1,398.00</span></div>
-
         <div id="ps-onceoff-section" style="display:none">
           <div class="ps-section-label" style="margin-top:14px">Once-off Charges</div>
           <div class="ps-line" id="ps-tech-row" style="display:none"><span>Technician Setup (<span id="ps-tech-hrs">0</span> hrs × R450)</span><span class="ps-val" id="ps-tech">R0.00</span></div>
@@ -943,7 +563,6 @@ body {
           <hr class="ps-divider">
           <div class="ps-line onceoff"><span>Once-off Total</span><span class="ps-val" id="ps-onceoff">R0.00</span></div>
         </div>
-
         <div class="ps-vat">All prices include 15% VAT</div>
       </div>
 
@@ -973,403 +592,439 @@ body {
   <!-- GUARANTEE -->
   <div class="guarantee">
     <h3>✅ 30-Day Money-Back Guarantee</h3>
-    <p>Not happy within your first 30 days? We'll give you a full refund — no questions asked. Zero risk to try us.</p>
+    <p>Not happy within your first 30 days? We'll give you a full refund — no questions asked. Zero risk.</p>
   </div>
 
 </div>
 
-<!-- TOAST -->
-<div class="toast-wrap" id="toastWrap"></div>
-
-<!-- ================================================
-     JAVASCRIPT
-================================================ -->
 <script>
 // ============================================================
-// CONFIG & PRICING
+// CONFIG — LIVE PAYSTACK KEY
 // ============================================================
-var PAYSTACK_PUBLIC_KEY = 'pk_test_96a8fd66211568738d566d5da04cd5b0f1873120';
+var PAYSTACK_PUBLIC_KEY = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
 
 var FEATURE_PRICES = {
-  web_boh: 799,
-  mobile_app: 349,
-  procure_ai: 399,
-  pos_system: 799,
-  menu_master: 349,
-  functions_ai: 449
+    web_boh:          799,
+    mobile_app:       349,
+    procure_ai:       399,
+    pos_system:       799,
+    menu_master:      349,
+    functions_ai:     449,
+    retail_pos:       999,
+    invoice_scanner:  499
 };
 
 var FEATURE_NAMES = {
-  web_boh: 'Web App B.O.H',
-  mobile_app: 'Mobile App',
-  procure_ai: 'ProcureAI App',
-  pos_system: 'P.O.S System',
-  menu_master: 'Menu Master',
-  functions_ai: 'FunctionsAI'
+    web_boh:          'Web App B.O.H',
+    mobile_app:       'Mobile App',
+    procure_ai:       'ProcureAI App',
+    pos_system:       'P.O.S System',
+    menu_master:      'Menu Master',
+    functions_ai:     'FunctionsAI',
+    retail_pos:       'Retail POS',
+    invoice_scanner:  'Invoice Scanner App'
 };
 
-// Setup hours per feature — LOCKED (not changeable by customer)
 var SETUP_HOURS = {
-  web_boh: 12,
-  mobile_app: 1,
-  procure_ai: 1,
-  pos_system: 8,
-  menu_master: 0,
-  functions_ai: 1
+    web_boh:          12,
+    mobile_app:       1,
+    procure_ai:       1,
+    pos_system:       8,
+    menu_master:      0,
+    functions_ai:     1,
+    retail_pos:       12,
+    invoice_scanner:  1
 };
 
-var ENTITY_RATE = 599;
-var TECH_RATE = 450;
+var ENTITY_RATE   = 599;
+var TECH_RATE     = 450;
 var TRAINING_BASE = 1500;
 var TRAINING_EXTRA = 750;
 
 // ============================================================
-// TOGGLE FEATURES ON/OFF
+// TOGGLE FEATURES
 // ============================================================
 function toggleFeature(el) {
-  if (el.classList.contains('locked')) return;
-  el.classList.toggle('selected');
-  calcSignup();
-  updateChips();
+    if (el.classList.contains('locked')) return;
+    el.classList.toggle('selected');
+    calcSignup();
+    updateChips();
 }
 
-// ============================================================
-// UPDATE CHIPS (shows selected features as tags)
-// ============================================================
 function updateChips() {
-  var container = document.getElementById('selected-chips');
-  var html = '<span class="selected-chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>';
-  document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
-    var key = card.getAttribute('data-feature');
-    var name = FEATURE_NAMES[key] || key;
-    html += '<span class="selected-chip"><i class="fas fa-check"></i> ' + name + '</span>';
-  });
-  container.innerHTML = html;
+    var container = document.getElementById('selected-chips');
+    var html = '<span class="selected-chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>';
+    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
+        var key  = card.getAttribute('data-feature');
+        var name = FEATURE_NAMES[key] || key;
+        html += '<span class="selected-chip"><i class="fas fa-check"></i> ' + name + '</span>';
+    });
+    container.innerHTML = html;
 }
 
 // ============================================================
 // CALCULATE PRICING
 // ============================================================
 function calcSignup() {
-  // Step 1 — Get selected features
-  var featureTotal = FEATURE_PRICES.web_boh;
-  var selectedFeatures = ['web_boh'];
-  var totalSetupHrs = SETUP_HOURS.web_boh;
-  var featureDetailsHTML = '';
+    // Features
+    var featureTotal = FEATURE_PRICES.web_boh;
+    var selectedFeatures = ['web_boh'];
+    var totalSetupHrs = SETUP_HOURS.web_boh;
+    var featureDetailsHTML = '';
 
-  document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
-    var key = card.getAttribute('data-feature');
-    var price = parseInt(card.getAttribute('data-price'));
-    var hrs = parseInt(card.getAttribute('data-setup-hrs')) || 0;
-    featureTotal += price;
-    totalSetupHrs += hrs;
-    selectedFeatures.push(key);
-    featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) + '</span><span class="ps-val">R' + price.toLocaleString() + '.00/mo</span></div>';
-  });
-
-  // Step 2 — Entities
-  var entCount = parseInt(document.getElementById('su-entities').value) || 1;
-  var entTotal = entCount * ENTITY_RATE;
-  document.getElementById('su-entity-price').textContent = 'R' + entTotal.toLocaleString() + '.00';
-  document.getElementById('ps-ent-count').textContent = entCount;
-  document.getElementById('ps-entities').textContent = 'R' + entTotal.toLocaleString() + '.00/mo';
-  document.getElementById('ps-feature-details').innerHTML = featureDetailsHTML;
-
-  // Step 3 — Technician (auto-calculated from setup hours)
-  var techCheck = document.getElementById('su-tech-check').checked;
-  var techDetails = document.getElementById('su-tech-details');
-  var techTotal = 0;
-
-  if (techCheck) {
-    techDetails.classList.add('visible');
-    techTotal = totalSetupHrs * TECH_RATE * entCount;
-
-    // Build breakdown
-    var breakdownHTML = '';
-    selectedFeatures.forEach(function(key) {
-      var hrs = SETUP_HOURS[key] || 0;
-      var name = FEATURE_NAMES[key] || key;
-      breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:1px 0">' +
-        '<span>' + name + '</span>' +
-        '<span style="font-weight:700">' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'Included') + '</span>' +
-      '</div>';
+    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
+        var key   = card.getAttribute('data-feature');
+        var price = parseInt(card.getAttribute('data-price'));
+        var hrs   = parseInt(card.getAttribute('data-setup-hrs')) || 0;
+        featureTotal += price;
+        totalSetupHrs += hrs;
+        selectedFeatures.push(key);
+        featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) + '</span><span class="ps-val">R' + price.toLocaleString() + '.00/mo</span></div>';
     });
 
-    document.getElementById('su-tech-breakdown').innerHTML = breakdownHTML;
-    document.getElementById('su-tech-hrs-display').textContent = totalSetupHrs + ' x ' + entCount + ' entities = ' + (totalSetupHrs * entCount);
-    document.getElementById('su-tech-price').textContent = 'R' + techTotal.toLocaleString() + '.00';
-  } else {
-    techDetails.classList.remove('visible');
-  }
+    // Entities
+    var entCount = parseInt(document.getElementById('su-entities').value) || 1;
+    var entTotal = entCount * ENTITY_RATE;
+    document.getElementById('su-entity-price').textContent = 'R' + entTotal.toLocaleString() + '.00';
+    document.getElementById('ps-ent-count').textContent = entCount;
+    document.getElementById('ps-entities').textContent = 'R' + entTotal.toLocaleString() + '.00/mo';
+    document.getElementById('ps-feature-details').innerHTML = featureDetailsHTML;
 
-  // Step 4 — Training
-  var trainingCheck = document.getElementById('su-training-check').checked;
-  var trainingExtras = document.getElementById('su-training-extras');
-  var trainingTotal = 0;
-  var extraStaff = 0;
+    // Technician — multiplied by entity count
+    var techCheck   = document.getElementById('su-tech-check').checked;
+    var techDetails = document.getElementById('su-tech-details');
+    var techTotal   = 0;
+    var totalHrsAllEntities = totalSetupHrs * entCount;
 
-  if (trainingCheck) {
-    trainingExtras.classList.add('visible');
-    extraStaff = parseInt(document.getElementById('su-extra-staff').value) || 0;
-    trainingTotal = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
-    document.getElementById('su-training-price').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
-  } else {
-    trainingExtras.classList.remove('visible');
-  }
+    if (techCheck) {
+        techDetails.classList.add('visible');
+        techTotal = totalHrsAllEntities * TECH_RATE;
 
-  // Step 5 — Calculate totals
-  var monthlyTotal = featureTotal + entTotal;
-  var onceOffTotal = techTotal + trainingTotal;
+        var breakdownHTML = '';
+        selectedFeatures.forEach(function(key) {
+            var hrs  = SETUP_HOURS[key] || 0;
+            var name = FEATURE_NAMES[key] || key;
+            breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:1px 0">' +
+                '<span>' + name + '</span>' +
+                '<span style="font-weight:700">' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'Included') + '</span>' +
+                '</div>';
+        });
+        if (entCount > 1) {
+            breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:6px;border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700">' +
+                '<span>× ' + entCount + ' entities</span>' +
+                '<span>' + totalHrsAllEntities + ' total hrs</span>' +
+                '</div>';
+        }
 
-  // Step 6 — Update price summary
-  document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
-
-  var onceOffSection = document.getElementById('ps-onceoff-section');
-  var techRow = document.getElementById('ps-tech-row');
-  var trainRow = document.getElementById('ps-train-row');
-
-  if (onceOffTotal > 0) {
-    onceOffSection.style.display = 'block';
-    if (techCheck && techTotal > 0) {
-      techRow.style.display = 'flex';
-      document.getElementById('ps-tech-hrs').textContent = totalSetupHrs;
-      document.getElementById('ps-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
+        document.getElementById('su-tech-breakdown').innerHTML = breakdownHTML;
+        document.getElementById('su-tech-hrs-display').textContent = totalHrsAllEntities + ' hrs @ R450';
+        document.getElementById('su-tech-price').textContent = 'R' + techTotal.toLocaleString() + '.00';
     } else {
-      techRow.style.display = 'none';
+        techDetails.classList.remove('visible');
     }
+
+    // Training
+    var trainingCheck  = document.getElementById('su-training-check').checked;
+    var trainingExtras = document.getElementById('su-training-extras');
+    var trainingTotal  = 0;
+    var extraStaff     = 0;
+
     if (trainingCheck) {
-      trainRow.style.display = 'flex';
-      document.getElementById('ps-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+        trainingExtras.classList.add('visible');
+        extraStaff    = parseInt(document.getElementById('su-extra-staff').value) || 0;
+        trainingTotal = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
+        document.getElementById('su-training-price').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
     } else {
-      trainRow.style.display = 'none';
+        trainingExtras.classList.remove('visible');
     }
-    document.getElementById('ps-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
-  } else {
-    onceOffSection.style.display = 'none';
-  }
 
-  // Step 7 — Update pay button text
-  var btnText = 'Pay R' + monthlyTotal.toLocaleString() + '.00/mo';
-  if (onceOffTotal > 0) {
-    btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
-  }
-  btnText += ' — Get Started';
-  document.getElementById('payBtnText').textContent = btnText;
+    // Totals
+    var monthlyTotal  = featureTotal + entTotal;
+    var onceOffTotal  = techTotal + trainingTotal;
 
-  // Return data for payment
-  return {
-    features: selectedFeatures,
-    featureTotal: featureTotal,
-    entities: entCount,
-    entityTotal: entTotal,
-    techIncluded: techCheck,
-    techHours: techCheck ? totalSetupHrs : 0,
-    techTotal: techTotal,
-    trainingIncluded: trainingCheck,
-    extraStaff: extraStaff,
-    trainingTotal: trainingTotal,
-    monthlyTotal: monthlyTotal,
-    onceOffTotal: onceOffTotal,
-    totalCharge: monthlyTotal + onceOffTotal
-  };
+    document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
+
+    var onceOffSection = document.getElementById('ps-onceoff-section');
+    var techRow        = document.getElementById('ps-tech-row');
+    var trainRow       = document.getElementById('ps-train-row');
+
+    if (onceOffTotal > 0) {
+        onceOffSection.style.display = 'block';
+        if (techCheck && techTotal > 0) {
+            techRow.style.display = 'flex';
+            document.getElementById('ps-tech-hrs').textContent = totalHrsAllEntities;
+            document.getElementById('ps-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
+        } else {
+            techRow.style.display = 'none';
+        }
+        if (trainingCheck) {
+            trainRow.style.display = 'flex';
+            document.getElementById('ps-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
+        } else {
+            trainRow.style.display = 'none';
+        }
+        document.getElementById('ps-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
+    } else {
+        onceOffSection.style.display = 'none';
+    }
+
+    // Pay button text
+    var btnText = 'Pay R' + monthlyTotal.toLocaleString() + '.00/mo';
+    if (onceOffTotal > 0) {
+        btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
+    }
+    btnText += ' — Get Started';
+    document.getElementById('payBtnText').textContent = btnText;
+
+    return {
+        features:          selectedFeatures,
+        featureTotal:      featureTotal,
+        entities:          entCount,
+        entityTotal:       entTotal,
+        techIncluded:      techCheck,
+        techHours:         techCheck ? totalHrsAllEntities : 0,
+        techTotal:         techTotal,
+        trainingIncluded:  trainingCheck,
+        extraStaff:        extraStaff,
+        trainingTotal:     trainingTotal,
+        monthlyTotal:      monthlyTotal,
+        onceOffTotal:      onceOffTotal,
+        totalCharge:       monthlyTotal + onceOffTotal
+    };
 }
 
 // ============================================================
 // INIT ON PAGE LOAD
 // ============================================================
 window.addEventListener('load', function() {
-  // Pre-select features from URL if coming from website
-  var params = new URLSearchParams(window.location.search);
-  var features = params.get('features');
-  if (features) {
-    features.split(',').forEach(function(f) {
-      var card = document.querySelector('.ft-card[data-feature="' + f.trim() + '"]');
-      if (card && !card.classList.contains('locked')) {
-        card.classList.add('selected');
-      }
-    });
-  }
-
-  // Pre-select entities from URL
-  var entities = params.get('entities');
-  if (entities) {
-    var sel = document.getElementById('su-entities');
-    if (sel && parseInt(entities) >= 1 && parseInt(entities) <= 10) {
-      sel.value = entities;
+    var params   = new URLSearchParams(window.location.search);
+    var features = params.get('features');
+    if (features) {
+        features.split(',').forEach(function(f) {
+            var card = document.querySelector('.ft-card[data-feature="' + f.trim() + '"]');
+            if (card && !card.classList.contains('locked')) {
+                card.classList.add('selected');
+            }
+        });
     }
-  }
-    // Pre-select technician if it was on the quote
+
+    var entities = params.get('entities');
+    if (entities) {
+        var sel = document.getElementById('su-entities');
+        if (sel && parseInt(entities) >= 1 && parseInt(entities) <= 10) {
+            sel.value = entities;
+        }
+    }
+
     var tech = params.get('tech');
     if (tech === 'yes') {
         var techCheck = document.getElementById('su-tech-check');
-        if (techCheck) {
-            techCheck.checked = true;
-        }
+        if (techCheck) techCheck.checked = true;
     }
 
-    // Pre-select training if it was on the quote
     var training = params.get('training');
     if (training === 'yes') {
         var trainCheck = document.getElementById('su-training-check');
-        if (trainCheck) {
-            trainCheck.checked = true;
-        }
+        if (trainCheck) trainCheck.checked = true;
     }
 
-    // Pre-fill extra staff if specified
     var extrastaff = params.get('extrastaff');
     if (extrastaff && parseInt(extrastaff) > 0) {
         var extraInput = document.getElementById('su-extra-staff');
-        if (extraInput) {
-            extraInput.value = extrastaff;
-        }
+        if (extraInput) extraInput.value = extrastaff;
     }
 
-  // Run calculation
-  setTimeout(function() {
-    calcSignup();
-    updateChips();
-  }, 100);
+    setTimeout(function() {
+        calcSignup();
+        updateChips();
+    }, 100);
 });
 
 // ============================================================
-// START PAYMENT
+// START PAYMENT — LIVE PAYSTACK
 // ============================================================
 function startPayment() {
-  var data = calcSignup();
+    var data = calcSignup();
 
-  // Ask for email address
-  var email = prompt('Please enter your email address to continue:');
-  if (!email || !email.trim()) return;
-  email = email.trim().toLowerCase();
+    var email = prompt('Please enter your email address to continue:');
+    if (!email || !email.trim()) return;
+    email = email.trim().toLowerCase();
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showToast('error', 'Please enter a valid email address');
-    return;
-  }
-
-  // Save all data to sessionStorage for use on setup page
-  sessionStorage.setItem('signup_email', email);
-  sessionStorage.setItem('signup_features', JSON.stringify(data.features));
-  sessionStorage.setItem('signup_feature_names', JSON.stringify(data.features.map(function(f){ return FEATURE_NAMES[f]||f; })));
-  sessionStorage.setItem('signup_feature_total', data.featureTotal.toString());
-  sessionStorage.setItem('signup_entities', data.entities.toString());
-  sessionStorage.setItem('signup_entity_total', data.entityTotal.toString());
-  sessionStorage.setItem('signup_monthly_total', data.monthlyTotal.toString());
-  sessionStorage.setItem('signup_tech_included', data.techIncluded.toString());
-  sessionStorage.setItem('signup_tech_hours', data.techHours.toString());
-  sessionStorage.setItem('signup_tech_total', data.techTotal.toString());
-  sessionStorage.setItem('signup_training_included', data.trainingIncluded.toString());
-  sessionStorage.setItem('signup_extra_staff', data.extraStaff.toString());
-  sessionStorage.setItem('signup_training_total', data.trainingTotal.toString());
-  sessionStorage.setItem('signup_onceoff_total', data.onceOffTotal.toString());
-  sessionStorage.setItem('signup_total_charge', data.totalCharge.toString());
-
-  // Move progress to step 2
-  setProgress(2);
-
-  // Build feature labels for Paystack metadata
-  var featureLabels = data.features.map(function(f) { return FEATURE_NAMES[f] || f; });
-
-  // Open Paystack payment popup
-  var handler = PaystackPop.setup({
-    key: PAYSTACK_PUBLIC_KEY,
-    email: email,
-    amount: data.totalCharge * 100, // Convert rands to cents
-    currency: 'ZAR',
-    ref: 'STOCKAI-' + Date.now(),
-    metadata: {
-      plan: 'StockAI-Pro Custom Build',
-      features: data.features.join(', '),
-      featureLabels: featureLabels.join(', '),
-      entities: data.entities,
-      monthlyTotal: data.monthlyTotal,
-      techHours: data.techHours,
-      techTotal: data.techTotal,
-      trainingIncluded: data.trainingIncluded,
-      extraStaff: data.extraStaff,
-      trainingTotal: data.trainingTotal,
-      onceOffTotal: data.onceOffTotal,
-      totalCharged: data.totalCharge,
-      custom_fields: [
-        { display_name: 'Features', variable_name: 'features', value: featureLabels.join(', ') },
-        { display_name: 'Entities', variable_name: 'entities', value: data.entities + ' entities' },
-        { display_name: 'Monthly Recurring', variable_name: 'monthly', value: 'R' + data.monthlyTotal + '/mo' },
-        { display_name: 'Once-off Charged', variable_name: 'onceoff', value: 'R' + data.onceOffTotal },
-        { display_name: 'Total Charged Today', variable_name: 'total', value: 'R' + data.totalCharge }
-      ]
-    },
-    onClose: function() {
-      setProgress(1);
-      showToast('info', 'Payment cancelled — you can try again anytime');
-    },
-    callback: function(response) {
-      // Payment successful
-      sessionStorage.setItem('signup_ref', response.reference);
-      sessionStorage.setItem('signup_paid', 'true');
-
-      // Notify admin of new signup
-      if (typeof window.sendSignupNotificationToAdmin === 'function') {
-        window.sendSignupNotificationToAdmin({
-          ref: response.reference,
-          email: email,
-          features: data.features,
-          featureLabels: featureLabels,
-          entities: data.entities,
-          monthlyTotal: data.monthlyTotal,
-          techTotal: data.techTotal,
-          trainingTotal: data.trainingTotal,
-          onceOffTotal: data.onceOffTotal,
-          totalCharged: data.totalCharge
-        });
-      }
-
-      setProgress(3);
-      showToast('success', '✅ Payment successful! Setting up your account...');
-
-      setTimeout(function() {
-        window.location.href = 'setup.html';
-      }, 1500);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
     }
-  });
 
-  handler.openIframe();
+    // Save to sessionStorage
+    sessionStorage.setItem('signup_email',            email);
+    sessionStorage.setItem('signup_features',         JSON.stringify(data.features));
+    sessionStorage.setItem('signup_feature_names',    JSON.stringify(data.features.map(function(f){ return FEATURE_NAMES[f] || f; })));
+    sessionStorage.setItem('signup_feature_total',    data.featureTotal.toString());
+    sessionStorage.setItem('signup_entities',         data.entities.toString());
+    sessionStorage.setItem('signup_entity_total',     data.entityTotal.toString());
+    sessionStorage.setItem('signup_monthly_total',    data.monthlyTotal.toString());
+    sessionStorage.setItem('signup_tech_included',    data.techIncluded.toString());
+    sessionStorage.setItem('signup_tech_hours',       data.techHours.toString());
+    sessionStorage.setItem('signup_tech_total',       data.techTotal.toString());
+    sessionStorage.setItem('signup_training_included', data.trainingIncluded.toString());
+    sessionStorage.setItem('signup_extra_staff',      data.extraStaff.toString());
+    sessionStorage.setItem('signup_training_total',   data.trainingTotal.toString());
+    sessionStorage.setItem('signup_onceoff_total',    data.onceOffTotal.toString());
+    sessionStorage.setItem('signup_total_charge',     data.totalCharge.toString());
+
+    var featureLabels = data.features.map(function(f) { return FEATURE_NAMES[f] || f; });
+
+    setProgress(2);
+
+    var handler = PaystackPop.setup({
+        key:      PAYSTACK_PUBLIC_KEY,
+        email:    email,
+        amount:   data.totalCharge * 100,
+        currency: 'ZAR',
+        ref:      'STOCKAI-' + Date.now(),
+        metadata: {
+            plan:          'StockAI-Pro Custom Build',
+            features:      data.features.join(', '),
+            featureLabels: featureLabels.join(', '),
+            entities:      data.entities,
+            monthlyTotal:  data.monthlyTotal,
+            techHours:     data.techHours,
+            techTotal:     data.techTotal,
+            trainingIncluded: data.trainingIncluded,
+            extraStaff:    data.extraStaff,
+            trainingTotal: data.trainingTotal,
+            onceOffTotal:  data.onceOffTotal,
+            totalCharged:  data.totalCharge,
+            custom_fields: [
+                { display_name: 'Features',       variable_name: 'features',       value: featureLabels.join(', ') },
+                { display_name: 'Entities',       variable_name: 'entities',       value: data.entities + ' entities' },
+                { display_name: 'Monthly',        variable_name: 'monthly',        value: 'R' + data.monthlyTotal + '/mo' },
+                { display_name: 'Once-off',       variable_name: 'onceoff',        value: 'R' + data.onceOffTotal },
+                { display_name: 'Total Charged',  variable_name: 'total_charged',  value: 'R' + data.totalCharge }
+            ]
+        },
+        onClose: function() {
+            setProgress(1);
+            alert('Payment was cancelled. You can try again anytime.');
+        },
+        callback: function(response) {
+            sessionStorage.setItem('signup_ref',  response.reference);
+            sessionStorage.setItem('signup_paid', 'true');
+
+            // Send admin notification
+            if (typeof window.sendSignupNotificationToAdmin === 'function') {
+                window.sendSignupNotificationToAdmin({
+                    ref:           response.reference,
+                    email:         email,
+                    features:      data.features,
+                    featureLabels: featureLabels,
+                    entities:      data.entities,
+                    monthlyTotal:  data.monthlyTotal,
+                    techTotal:     data.techTotal,
+                    trainingTotal: data.trainingTotal,
+                    onceOffTotal:  data.onceOffTotal,
+                    totalCharged:  data.totalCharge
+                });
+            }
+
+            // Send welcome email to customer
+            sendWelcomeEmail(email, data, response.reference);
+
+            setProgress(3);
+
+            setTimeout(function() {
+                window.location.href = 'setup.html';
+            }, 1500);
+        }
+    });
+
+    handler.openIframe();
 }
 
 // ============================================================
-// UPDATE PROGRESS BAR
+// WELCOME EMAIL AFTER PAYMENT
+// ============================================================
+function sendWelcomeEmail(email, data, paymentRef) {
+    console.log('📧 Sending welcome email to:', email);
+
+    var featureList = (data.features || []).map(function(f) {
+        return '✅ ' + (FEATURE_NAMES[f] || f);
+    }).join('<br>');
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
+        '<div style="background-color:#0d4a5c;padding:30px;text-align:center;">' +
+        '<h1 style="color:#ffffff;margin:0;font-size:24px;">StockAI-Pro</h1>' +
+        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:12px;letter-spacing:1px;">INTELLIGENCE A CLICK AWAY</p>' +
+        '<h2 style="color:#ffffff;margin:14px 0 0;font-size:18px;">Welcome to StockAI-Pro!</h2>' +
+        '</div>' +
+        '<div style="padding:30px;background-color:#ffffff;">' +
+        '<p style="color:#0d4a5c;font-size:16px;">Your payment was successful!</p>' +
+        '<p style="color:#5a8a96;font-size:14px;line-height:1.6;">Thank you for joining StockAI-Pro. Your account is ready to be set up.</p>' +
+        '<div style="background-color:#0d4a5c;padding:20px;border-radius:8px;text-align:center;margin:20px 0;">' +
+        '<p style="color:#ffffff;margin:0;font-size:14px;">Payment Confirmed</p>' +
+        '<p style="color:#f59e0b;font-size:24px;font-weight:bold;margin:8px 0;">R' + (data.monthlyTotal || 0).toLocaleString() + '.00/mo</p>' +
+        '<p style="color:rgba(255,255,255,.7);font-size:12px;margin:0;">Reference: ' + paymentRef + '</p>' +
+        '</div>' +
+        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
+        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">YOUR PACKAGE INCLUDES:</p>' +
+        '<p style="color:#0d4a5c;font-size:13px;line-height:2;margin:0;">' + featureList + '</p>' +
+        '<p style="color:#2a5f70;font-size:13px;margin:10px 0 0;"><strong>Entities:</strong> ' + (data.entities || 1) + ' location' + ((data.entities || 1) > 1 ? 's' : '') + '</p>' +
+        '</div>' +
+        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
+        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">GETTING STARTED:</p>' +
+        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0;">1. Click the button below to set up your account<br>2. Add your suppliers and price lists<br>3. Create your stock items<br>4. Run your first stock count!</p>' +
+        '</div>' +
+        '<div style="text-align:center;margin:25px 0;">' +
+        '<a href="https://www.stockai-pro.co.za/setup.html?ref=' + paymentRef + '" style="background-color:#f59e0b;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:15px;">Set Up My Account Now</a>' +
+        '</div>' +
+        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:20px 0;">' +
+        '<div style="text-align:center;">' +
+        '<a href="https://wa.me/27790440508" style="color:#25D366;text-decoration:none;font-size:13px;margin:0 10px;">WhatsApp Support</a>' +
+        '<a href="tel:0790440508" style="color:#1a8ba8;text-decoration:none;font-size:13px;margin:0 10px;">079 044 0508</a>' +
+        '</div>' +
+        '<p style="text-align:center;color:#8aabb5;font-size:12px;margin-top:16px;">© 2025 StockAI-Pro. Built with love in South Africa.</p>' +
+        '</div></div>';
+
+    var PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
+
+    return fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            to:      email,
+            subject: 'Welcome to StockAI-Pro — Your Account is Ready!',
+            html:    html
+        })
+    })
+    .then(function(res) {
+        if (res.ok) { console.log('✅ Welcome email sent'); }
+        else { console.warn('⚠️ Welcome email issue:', res.status); }
+        return res;
+    })
+    .catch(function(err) {
+        console.warn('Welcome email error:', err.message);
+        return { ok: false };
+    });
+}
+
+// ============================================================
+// PROGRESS BAR
 // ============================================================
 function setProgress(step) {
-  for (var i = 1; i <= 4; i++) {
-    var s = document.getElementById('step-' + i);
-    if (!s) continue;
-    s.classList.remove('active', 'done');
-    if (i < step) s.classList.add('done');
-    else if (i === step) s.classList.add('active');
-  }
-  for (var j = 1; j <= 3; j++) {
-    var l = document.getElementById('line-' + j);
-    if (!l) continue;
-    l.classList.toggle('done', j < step);
-  }
+    for (var i = 1; i <= 4; i++) {
+        var s = document.getElementById('step-' + i);
+        if (!s) continue;
+        s.classList.remove('active', 'done');
+        if (i < step) s.classList.add('done');
+        else if (i === step) s.classList.add('active');
+    }
+    for (var j = 1; j <= 3; j++) {
+        var l = document.getElementById('line-' + j);
+        if (!l) continue;
+        l.classList.toggle('done', j < step);
+    }
 }
-
-// ============================================================
-// TOAST NOTIFICATIONS
-// ============================================================
-function showToast(type, msg) {
-  var icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
-  var t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i><span>' + msg + '</span>';
-  document.getElementById('toastWrap').appendChild(t);
-  setTimeout(function() { if (t.parentElement) t.remove(); }, 5000);
-}
-
-console.log('✅ StockAI-Pro — signup.html Loaded');
-console.log('💳 Paystack — Ready');
-console.log('🏗️ Build Your Base — Active');
 </script>
-<script src="email-templates.js"></script>
 </body>
 </html>
