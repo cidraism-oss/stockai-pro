@@ -401,13 +401,14 @@ section { padding: 90px 24px; position: relative; }
 .stocky-faq-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; font-size: .72rem; color: var(--text-dark); cursor: pointer; font-family: inherit; transition: background .2s ease, color .2s ease, border-color .2s ease; }
 .stocky-faq-btn:hover { background: var(--teal-mid); color: #fff; border-color: var(--teal-mid); }
 
-/* TOAST */
-.toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
-.toast { padding: 14px 18px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 500; animation: toastIn .3s ease; min-width: 280px; max-width: 380px; }
-@keyframes toastIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.toast.success { background: #d1fae5; color: #065f46; border-left: 3px solid var(--success); }
-.toast.error { background: #fee2e2; color: #991b1b; border-left: 3px solid var(--danger); }
-.toast.info { background: #d4f0f7; color: #0d4a5c; border-left: 3px solid var(--teal-mid); }
+/* POPUP ANIMATIONS */
+@keyframes popIn { from { opacity: 0; transform: scale(.7) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes letterFly { 0% { transform: translateX(-50%) translateY(0) rotate(0deg); opacity: 1; } 50% { transform: translateX(-50%) translateY(-60px) rotate(-5deg); opacity: 1; } 80% { transform: translateX(-50%) translateY(-90px) rotate(3deg); opacity: .8; } 100% { transform: translateX(-50%) translateY(-110px) rotate(0deg) scale(.6); opacity: 0; } }
+@keyframes sparkle1 { 0% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(0) translateY(-20px); } }
+@keyframes sparkle2 { 0% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(0) translateY(-15px) translateX(-10px); } }
+@keyframes sparkle3 { 0% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: scale(0) translateY(-25px) translateX(10px); } }
+@keyframes checkPop { 0% { opacity: 0; transform: scale(0); } 60% { transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* RESPONSIVE */
 @media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
@@ -455,23 +456,9 @@ section { padding: 90px 24px; position: relative; }
     <a href="#" class="logo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="44">
         <defs>
-          <linearGradient id="hAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-            <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
-          </linearGradient>
-          <linearGradient id="hStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-            <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-          </linearGradient>
-          <linearGradient id="hUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
-            <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-            <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-            <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-            <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
-          </linearGradient>
+          <linearGradient id="hAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/></linearGradient>
+          <linearGradient id="hStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/><stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/></linearGradient>
+          <linearGradient id="hUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
           <filter id="hGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="hGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="hGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -625,6 +612,8 @@ section { padding: 90px 24px; position: relative; }
       <div class="feature reveal"><div class="feature-icon"><i class="fas fa-tv"></i></div><h3>POS Menu Builder</h3><p>Build your front-of-house selling screen. Create color-coded departments, add selling buttons linked to menu items for auto stock deduction.</p><span class="feature-tag new">✨ New</span></div>
       <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Miglatron — AI Guide</h3><p>Personal AI assistant in the web app. Guides new users through every tab, answers questions, stores unknown queries for weekly improvement.</p><span class="feature-tag new">✨ New</span></div>
       <div class="feature reveal"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>6 Languages</h3><p>English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Your whole team can work in their language.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-store"></i></div><h3>Retail POS</h3><p>A fully retail-ready Point of Sale system. Manage walk-in sales, stock deductions, receipts and retail reporting all in one place.</p><span class="feature-tag new">✨ New</span></div>
+      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-file-invoice"></i></div><h3>Invoice Scanner App</h3><p>Scan supplier invoices directly into the system. Automatically updates inventory, adjusts pricing and auto-completes GRV entries.</p><span class="feature-tag new">✨ New</span></div>
     </div>
   </div>
 </section>
@@ -684,34 +673,61 @@ section { padding: 90px 24px; position: relative; }
       </div>
       <div class="quote-builder-body">
         <div class="qb-feature-grid">
+
+          <!-- LOCKED: Web App BOH -->
           <div class="qb-feature locked" data-feature="web_boh" data-price="799" data-setup-hrs="12">
             <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-laptop-code"></i></div><div><div class="qb-feature-name">Web App B.O.H</div><div class="qb-feature-desc">Full back-of-house management — always included</div></div></div>
             <div class="qb-feature-right"><span class="qb-locked-badge"><i class="fas fa-lock" style="margin-right:3px"></i> Included</span><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- Mobile App -->
           <div class="qb-feature" data-feature="mobile_app" data-price="349" data-setup-hrs="1" onclick="toggleQBFeature(this)">
             <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-mobile-alt"></i></div><div><div class="qb-feature-name">Mobile App</div><div class="qb-feature-desc">Full PWA app — stock counts, approvals, AI chat on mobile</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- ProcureAI -->
           <div class="qb-feature" data-feature="procure_ai" data-price="399" data-setup-hrs="1" onclick="toggleQBFeature(this)">
             <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-shopping-basket"></i></div><div><div class="qb-feature-name">ProcureAI App</div><div class="qb-feature-desc">Chef ordering app — auto-splits to cheapest suppliers</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R399/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- POS System -->
           <div class="qb-feature" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleQBFeature(this)">
             <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-cash-register"></i></div><div><div class="qb-feature-name">P.O.S System</div><div class="qb-feature-desc">Point of sale with menu builder, table payments & auto deduction</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R799/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- Menu Master -->
           <div class="qb-feature" data-feature="menu_master" data-price="349" data-setup-hrs="0" onclick="toggleQBFeature(this)">
             <div class="qb-feature-left"><div class="qb-feature-icon"><i class="fas fa-utensils"></i></div><div><div class="qb-feature-name">Menu Master</div><div class="qb-feature-desc">Menu & recipe costing — ingredient linking & live pricing</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R349/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- FunctionsAI -->
           <div class="qb-feature" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleQBFeature(this)">
             <div class="qb-feature-left"><div class="qb-feature-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-glass-cheers"></i></div><div><div class="qb-feature-name">FunctionsAI — Events Manager</div><div class="qb-feature-desc">Full event management — menus, beverages, invoicing & client bookings</div></div></div>
             <div class="qb-feature-right"><span class="qb-feature-price">R449/mo</span><div class="qb-toggle"></div></div>
           </div>
+
+          <!-- Retail POS -->
+          <div class="qb-feature" data-feature="retail_pos" data-price="999" data-setup-hrs="12" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-store"></i></div><div><div class="qb-feature-name">Retail POS</div><div class="qb-feature-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R999/mo</span><div class="qb-toggle"></div></div>
+          </div>
+
+          <!-- Invoice Scanner -->
+          <div class="qb-feature" data-feature="invoice_scanner" data-price="499" data-setup-hrs="1" onclick="toggleQBFeature(this)">
+            <div class="qb-feature-left"><div class="qb-feature-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-file-invoice"></i></div><div><div class="qb-feature-name">Invoice Scanner App</div><div class="qb-feature-desc">Scan invoices — auto-updates inventory, pricing & completes GRV entries</div></div></div>
+            <div class="qb-feature-right"><span class="qb-feature-price">R499/mo</span><div class="qb-toggle"></div></div>
+          </div>
+
         </div>
 
+        <!-- ADDONS -->
         <div class="qb-addon-section">
           <div class="qb-addon-title"><i class="fas fa-building" style="color:var(--teal-mid);margin-right:6px"></i> Entities & Services</div>
+
           <div class="qb-addon-row">
             <div class="qb-addon-label"><strong>Number of Entities / Locations</strong><div style="font-size:.75rem;color:var(--text-light)">R599/mo per entity</div></div>
             <div class="qb-addon-control">
@@ -724,8 +740,9 @@ section { padding: 90px 24px; position: relative; }
               <span class="qb-addon-price" id="qb-entity-total">R599.00</span>
             </div>
           </div>
+
           <div class="qb-addon-row" style="flex-wrap:wrap">
-            <div class="qb-addon-label"><strong>Technician Setup & Configuration</strong><div style="font-size:.75rem;color:var(--text-light)">R450/hour — automatically calculated from your selected features</div></div>
+            <div class="qb-addon-label"><strong>Technician Setup & Configuration</strong><div style="font-size:.75rem;color:var(--text-light)">R450/hour — automatically calculated from features × number of entities</div></div>
             <div class="qb-addon-control" style="flex-direction:column;align-items:flex-end;gap:10px">
               <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
                 <input type="checkbox" id="qb-tech-check" onchange="calcQuote()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
@@ -735,12 +752,13 @@ section { padding: 90px 24px; position: relative; }
                 <div style="font-size:.78rem;font-weight:700;color:var(--text-dark);margin-bottom:10px"><i class="fas fa-clock" style="color:var(--teal-mid);margin-right:4px"></i> Setup Hours Per Feature</div>
                 <div id="qb-tech-breakdown" style="font-size:.78rem;color:var(--text-mid);line-height:2"></div>
                 <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:8px;border-top:2px solid var(--border);font-weight:700;font-size:.9rem;color:var(--text-dark)">
-                  <span>Total: <span id="qb-tech-hrs-display">12</span> hours @ R450/hr</span>
+                  <span>Total: <span id="qb-tech-hrs-display">12</span> hrs @ R450/hr</span>
                   <span id="qb-tech-total" style="color:var(--teal-mid)">R5,400.00</span>
                 </div>
               </div>
             </div>
           </div>
+
           <div class="qb-addon-row" style="flex-wrap:wrap">
             <div class="qb-addon-label"><strong>Staff Training</strong><div style="font-size:.75rem;color:var(--text-light)">Standard: R1,500 (up to 5 staff) • Additional: R750 per person</div></div>
             <div class="qb-addon-control" style="flex-direction:column;gap:8px;align-items:flex-end">
@@ -757,6 +775,7 @@ section { padding: 90px 24px; position: relative; }
           </div>
         </div>
 
+        <!-- TOTALS -->
         <div class="qb-totals">
           <div class="qb-total-line"><span>Base Platform (features)</span><span class="qb-total-val" id="qt-features">R799.00</span></div>
           <div class="qb-total-line"><span>Entities (<span id="qt-ent-count">1</span> × R599)</span><span class="qb-total-val" id="qt-entities">R599.00</span></div>
@@ -767,6 +786,7 @@ section { padding: 90px 24px; position: relative; }
           <div class="qb-total-vat">All prices include 15% VAT</div>
         </div>
 
+        <!-- FORM -->
         <div class="qb-form">
           <div class="qb-form-title"><i class="fas fa-user-edit" style="color:var(--teal-mid);margin-right:6px"></i> Your Details</div>
           <div class="qb-form-grid">
@@ -802,7 +822,7 @@ section { padding: 90px 24px; position: relative; }
 <section class="cta">
   <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
   <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control.</p>
- <a href="javascript:void(0)" onclick="showComingSoon()" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
+  <a href="javascript:void(0)" onclick="showComingSoon()" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
 </section>
 
 <!-- FAQ -->
@@ -818,7 +838,7 @@ section { padding: 90px 24px; position: relative; }
       <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. Bank-level encryption, daily backups, POPIA compliant. Data stored securely in Google Firebase.</div></div>
       <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee included.</div></div>
       <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What languages does it support?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">StockAI-Pro supports 6 languages: English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Switch languages with one click.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I choose which features I pay for?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! With our "Build Your Base" model, you only pay for the features you select. Web App B.O.H is always included, and you can add Mobile App, ProcureAI, POS, Menu Master and FunctionsAI as needed.</div></div>
+      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I choose which features I pay for?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! With our "Build Your Base" model, you only pay for the features you select. Web App B.O.H is always included, and you can add Mobile App, ProcureAI, POS, Menu Master, FunctionsAI, Retail POS and Invoice Scanner as needed.</div></div>
     </div>
   </div>
 </section>
@@ -936,7 +956,7 @@ section { padding: 90px 24px; position: relative; }
           <div class="booking-field"><label>Contact Number *</label><input type="tel" id="book-phone" placeholder="079 044 0508"></div>
           <div class="booking-field"><label>Business / Entity Name *</label><input type="text" id="book-business" placeholder="The Boma Restaurant"></div>
           <div class="booking-field"><label>Email Address *</label><input type="email" id="book-email" placeholder="you@business.co.za"></div>
-<div class="booking-field" style="grid-column:1/-1"><label>Business Address *</label><input type="text" id="book-address" placeholder="123 Main Street, Sandton, Johannesburg, 2196"></div>
+          <div class="booking-field" style="grid-column:1/-1"><label>Business Address *</label><input type="text" id="book-address" placeholder="123 Main Street, Sandton, Johannesburg, 2196"></div>
         </div>
         <button class="booking-submit" onclick="submitBooking()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
       </div>
@@ -944,8 +964,6 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </div>
 
-<!-- TOAST -->
-<!-- QUOTE SENT POPUP -->
 <!-- COMING SOON POPUP -->
 <div id="comingSoonOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;padding:24px">
   <div style="background:#fff;border-radius:20px;max-width:480px;width:100%;padding:44px 36px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)">
@@ -958,18 +976,20 @@ section { padding: 90px 24px; position: relative; }
     </div>
     <p style="font-size:.95rem;color:#5a8a96;line-height:1.7;margin-bottom:28px">We are putting the final touches on StockAI-Pro.<br>Contact our team to set up a personalised presentation.</p>
     <div style="display:flex;flex-direction:column;gap:12px;max-width:320px;margin:0 auto">
-      <button onclick="closeComingSoon();openBookingModal();" style="padding:15px 32px;background:linear-gradient(135deg,#2ea871,#1a7a4a);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .2s;box-shadow:0 6px 20px rgba(46,168,113,.3)">
+      <button onclick="closeComingSoon();openBookingModal();" style="padding:15px 32px;background:linear-gradient(135deg,#2ea871,#1a7a4a);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 20px rgba(46,168,113,.3)">
         <i class="fas fa-calendar-check"></i> Book a Presentation
       </button>
-      <a href="https://wa.me/27790440508?text=Hi%2C%20I%20am%20interested%20in%20StockAI-Pro.%20Can%20I%20book%20a%20presentation%3F" target="_blank" style="padding:14px 32px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;transition:transform .2s">
+      <a href="https://wa.me/27790440508?text=Hi%2C%20I%20am%20interested%20in%20StockAI-Pro.%20Can%20I%20book%20a%20presentation%3F" target="_blank" style="padding:14px 32px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none">
         <i class="fab fa-whatsapp"></i> WhatsApp Us
       </a>
-      <button onclick="closeComingSoon()" style="padding:12px 32px;background:transparent;color:#5a8a96;border:2px solid #c4dde4;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">
+      <button onclick="closeComingSoon()" style="padding:12px 32px;background:transparent;color:#5a8a96;border:2px solid #c4dde4;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit">
         Close
       </button>
     </div>
   </div>
 </div>
+
+<!-- QUOTE SENT POPUP -->
 <div id="quoteSentOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99999;display:none;align-items:center;justify-content:center;padding:24px">
   <div style="background:#fff;border-radius:20px;max-width:420px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)">
     <div id="quoteLetterAnim" style="width:120px;height:120px;margin:0 auto 24px;position:relative">
@@ -989,70 +1009,32 @@ section { padding: 90px 24px; position: relative; }
     </div>
     <h3 style="font-size:1.4rem;font-weight:900;color:#0d4a5c;margin-bottom:8px;opacity:0;animation:fadeUp .4s ease 1.5s forwards">Quote Sent Successfully!</h3>
     <p style="font-size:.92rem;color:#5a8a96;line-height:1.6;margin-bottom:24px;opacity:0;animation:fadeUp .4s ease 1.7s forwards">Your custom quotation has been emailed. Check your inbox!</p>
-    <button onclick="closeQuoteSentPopup()" style="padding:14px 40px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .2s;opacity:0;animation:fadeUp .4s ease 1.9s forwards">
+    <button onclick="closeQuoteSentPopup()" style="padding:14px 40px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;opacity:0;animation:fadeUp .4s ease 1.9s forwards">
       <i class="fas fa-thumbs-up" style="margin-right:8px"></i> Got It!
     </button>
   </div>
 </div>
 
-<style>
-@keyframes popIn {
-  from { opacity: 0; transform: scale(.7) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-@keyframes letterFly {
-  0% { transform: translateX(-50%) translateY(0) rotate(0deg); opacity: 1; }
-  50% { transform: translateX(-50%) translateY(-60px) rotate(-5deg); opacity: 1; }
-  80% { transform: translateX(-50%) translateY(-90px) rotate(3deg); opacity: .8; }
-  100% { transform: translateX(-50%) translateY(-110px) rotate(0deg) scale(.6); opacity: 0; }
-}
-@keyframes sparkle1 {
-  0% { opacity: 0; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(0) translateY(-20px); }
-}
-@keyframes sparkle2 {
-  0% { opacity: 0; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1.3); }
-  100% { opacity: 0; transform: scale(0) translateY(-15px) translateX(-10px); }
-}
-@keyframes sparkle3 {
-  0% { opacity: 0; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 0; transform: scale(0) translateY(-25px) translateX(10px); }
-}
-@keyframes checkPop {
-  0% { opacity: 0; transform: scale(0); }
-  60% { transform: scale(1.2); }
-  100% { opacity: 1; transform: scale(1); }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
-<div class="toast-wrap" id="toastWrap"></div>
+<!-- TOAST WRAP (kept but disabled) -->
+<div style="display:none" id="toastWrap"></div>
 
 <!-- ================================================
-     IMPORTANT: email-templates.js MUST be loaded
-     BEFORE the main script block below
+     SCRIPTS — email-templates.js MUST load first
 ================================================ -->
 <script src="email-templates.js"></script>
 <script src="email-addon.js"></script>
+
 <script>
 // ============================================================
-// TOAST
+// TOAST — disabled, using popups instead
 // ============================================================
-function showToast(type, msg) {
-  // Disabled — using popups instead
-  console.log(type + ':', msg);
-}
+function showToast(type, msg) { console.log(type + ':', msg); }
 
 // ============================================================
 // SCROLL REVEAL
 // ============================================================
 function revealOnScroll() {
-  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el) {
     if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');
   });
 }
@@ -1105,11 +1087,9 @@ function animateDemo() {
   setTimeout(function() { typeText('demo-typed', '"Chicken breast twenty five"', 60); }, 3000);
 }
 function animateValue(id, start, end, dur, pre, suf) {
-  var el = document.getElementById(id);
-  if (!el) return;
+  var el = document.getElementById(id); if (!el) return;
   pre = pre || ''; suf = suf || '';
-  var range = end - start;
-  var startTime = null;
+  var range = end - start; var startTime = null;
   function step(ts) {
     if (!startTime) startTime = ts;
     var progress = Math.min((ts - startTime) / dur, 1);
@@ -1120,10 +1100,8 @@ function animateValue(id, start, end, dur, pre, suf) {
   requestAnimationFrame(step);
 }
 function typeText(id, text, speed) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var i = 0;
-  el.textContent = '';
+  var el = document.getElementById(id); if (!el) return;
+  var i = 0; el.textContent = '';
   function t() { if (i < text.length) { el.textContent += text.charAt(i); i++; setTimeout(t, speed); } }
   t();
 }
@@ -1132,9 +1110,19 @@ window.addEventListener('scroll', animateDemo);
 // ============================================================
 // QUOTE BUILDER
 // ============================================================
-var QBPrices = { web_boh: 799, mobile_app: 349, procure_ai: 399, pos_system: 799, menu_master: 349, functions_ai: 449 };
-var QBSetupHours = { web_boh: 12, mobile_app: 1, procure_ai: 1, pos_system: 8, menu_master: 0, functions_ai: 1 };
-var QBFeatureNames = { web_boh: 'Web App B.O.H', mobile_app: 'Mobile App', procure_ai: 'ProcureAI App', pos_system: 'P.O.S System', menu_master: 'Menu Master', functions_ai: 'FunctionsAI' };
+var QBPrices = {
+  web_boh: 799, mobile_app: 349, procure_ai: 399, pos_system: 799,
+  menu_master: 349, functions_ai: 449, retail_pos: 999, invoice_scanner: 499
+};
+var QBSetupHours = {
+  web_boh: 12, mobile_app: 1, procure_ai: 1, pos_system: 8,
+  menu_master: 0, functions_ai: 1, retail_pos: 12, invoice_scanner: 1
+};
+var QBFeatureNames = {
+  web_boh: 'Web App B.O.H', mobile_app: 'Mobile App', procure_ai: 'ProcureAI App',
+  pos_system: 'P.O.S System', menu_master: 'Menu Master', functions_ai: 'FunctionsAI',
+  retail_pos: 'Retail POS', invoice_scanner: 'Invoice Scanner App'
+};
 var ENTITY_RATE = 599;
 var TECH_RATE = 450;
 var TRAINING_BASE = 1500;
@@ -1167,10 +1155,11 @@ function calcQuote() {
   var techCheck = document.getElementById('qb-tech-check').checked;
   var techDetails = document.getElementById('qb-tech-details');
   var techTotal = 0;
+  var totalHrsAllEntities = totalSetupHrs * entCount;
 
   if (techCheck) {
     techDetails.style.display = 'block';
-    techTotal = totalSetupHrs * TECH_RATE * entCount;
+    techTotal = totalHrsAllEntities * TECH_RATE;
     var breakdownHTML = '';
     selectedFeatures.forEach(function(key) {
       var hrs = QBSetupHours[key] || 0;
@@ -1181,8 +1170,11 @@ function calcQuote() {
         breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:2px 0;opacity:.5"><span>' + name + '</span><span>Included</span></div>';
       }
     });
+    if (entCount > 1) {
+      breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:6px;border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700"><span>× ' + entCount + ' entities</span><span>' + totalHrsAllEntities + ' total hrs</span></div>';
+    }
     document.getElementById('qb-tech-breakdown').innerHTML = breakdownHTML;
-    document.getElementById('qb-tech-hrs-display').textContent = totalSetupHrs + ' x ' + entCount + ' entities = ' + (totalSetupHrs * entCount);
+    document.getElementById('qb-tech-hrs-display').textContent = totalHrsAllEntities + ' hrs @ R450';
     document.getElementById('qb-tech-total').textContent = 'R' + techTotal.toLocaleString() + '.00';
   } else {
     techDetails.style.display = 'none';
@@ -1209,21 +1201,17 @@ function calcQuote() {
   document.getElementById('qt-entities').textContent = 'R' + entTotal.toLocaleString() + '.00';
 
   var techRow = document.getElementById('qt-tech-row');
-  if (techCheck && totalSetupHrs > 0) {
+  if (techCheck && totalHrsAllEntities > 0) {
     techRow.style.display = 'flex';
-    document.getElementById('qt-tech-hrs').textContent = totalSetupHrs;
+    document.getElementById('qt-tech-hrs').textContent = totalHrsAllEntities;
     document.getElementById('qt-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
-  } else {
-    techRow.style.display = 'none';
-  }
+  } else { techRow.style.display = 'none'; }
 
   var trainRow = document.getElementById('qt-train-row');
   if (trainingCheck) {
     trainRow.style.display = 'flex';
     document.getElementById('qt-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
-  } else {
-    trainRow.style.display = 'none';
-  }
+  } else { trainRow.style.display = 'none'; }
 
   document.getElementById('qt-grand').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
 
@@ -1231,30 +1219,22 @@ function calcQuote() {
   if (onceOffTotal > 0) {
     onceRow.style.display = 'flex';
     document.getElementById('qt-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
-  } else {
-    onceRow.style.display = 'none';
-  }
+  } else { onceRow.style.display = 'none'; }
 
   return {
-    features: selectedFeatures,
-    featureTotal: featureTotal,
-    entities: entCount,
-    entityTotal: entTotal,
-    techIncluded: techCheck,
-    techHours: techCheck ? totalSetupHrs : 0,
-    techTotal: techTotal,
+    features: selectedFeatures, featureTotal: featureTotal,
+    entities: entCount, entityTotal: entTotal,
+    techIncluded: techCheck, techHours: techCheck ? totalHrsAllEntities : 0, techTotal: techTotal,
     trainingIncluded: trainingCheck,
     extraStaff: trainingCheck ? (parseInt(document.getElementById('qb-extra-staff').value) || 0) : 0,
-    trainingTotal: trainingTotal,
-    monthlyTotal: monthlyTotal,
-    onceOffTotal: onceOffTotal
+    trainingTotal: trainingTotal, monthlyTotal: monthlyTotal, onceOffTotal: onceOffTotal
   };
 }
 
 window.addEventListener('load', function() { setTimeout(calcQuote, 200); });
 
 // ============================================================
-// SUBMIT QUOTE — FIXED VERSION
+// SUBMIT QUOTE
 // ============================================================
 function submitQuote(action) {
   var name     = document.getElementById('qb-name').value.trim();
@@ -1275,21 +1255,16 @@ function submitQuote(action) {
   quoteData.customer = { name: name, phone: phone, business: business, email: email };
   quoteData.quoteRef = 'QT-' + Date.now();
   quoteData.quoteDate = new Date().toLocaleDateString('en-ZA');
-  quoteData.featureLabels = quoteData.features.map(function(f) {
-    return QBFeatureNames[f] || f;
-  });
+  quoteData.featureLabels = quoteData.features.map(function(f) { return QBFeatureNames[f] || f; });
 
-  // Store for daily analysis
   storeQuoteForAnalysis(quoteData);
 
   if (action === 'email') {
-    // Send to customer
     if (typeof window.sendQuoteEmailToCustomer === 'function') {
       window.sendQuoteEmailToCustomer(quoteData)
         .then(function() { console.log('✅ Customer quote email sent'); })
         .catch(function(err) { console.warn('Quote email issue:', err); });
     }
-    // Send to admin
     if (typeof window.sendQuoteNotificationToAdmin === 'function') {
       window.sendQuoteNotificationToAdmin(quoteData)
         .then(function() { console.log('✅ Admin notification sent'); })
@@ -1301,94 +1276,20 @@ function submitQuote(action) {
     generateQuotePDF(quoteData, 'download');
   }
 
-  // Show the beautiful sent popup
   showQuoteSentPopup();
 }
 
 // ============================================================
 // STORE QUOTE FOR DAILY ANALYSIS
 // ============================================================
-// ============================================================
-// QUOTE SENT POPUP
-// ============================================================
-// ============================================================
-// COMING SOON POPUP
-// ============================================================
-function showComingSoon() {
-  var overlay = document.getElementById('comingSoonOverlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-}
-
-function closeComingSoon() {
-  var overlay = document.getElementById('comingSoonOverlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-}
-function showQuoteSentPopup() {
-  var overlay = document.getElementById('quoteSentOverlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-}
-
-function closeQuoteSentPopup() {
-  var overlay = document.getElementById('quoteSentOverlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-
-  // Reset the quote builder form
-  document.getElementById('qb-name').value = '';
-  document.getElementById('qb-phone').value = '';
-  document.getElementById('qb-business').value = '';
-  document.getElementById('qb-email').value = '';
-
-  // Unselect all optional features
-  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(el) {
-    el.classList.remove('selected');
-  });
-
-  // Reset entities to 1
-  document.getElementById('qb-entities').value = '1';
-
-  // Uncheck technician
-  var techCheck = document.getElementById('qb-tech-check');
-  if (techCheck) techCheck.checked = false;
-
-  // Uncheck training
-  var trainCheck = document.getElementById('qb-training-check');
-  if (trainCheck) trainCheck.checked = false;
-
-  // Reset extra staff
-  var extraStaff = document.getElementById('qb-extra-staff');
-  if (extraStaff) extraStaff.value = '0';
-
-  // Recalculate totals
-  calcQuote();
-
-  // Scroll to top of quote builder
-  var quoteSection = document.getElementById('quote-section');
-  if (quoteSection) {
-    quoteSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
 function storeQuoteForAnalysis(data) {
   try {
     var quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
     data.timestamp = new Date().toISOString();
     quotes.push(data);
     localStorage.setItem('stockai_quotes', JSON.stringify(quotes));
-    console.log('📊 Quote stored for analysis:', data.quoteRef);
-  } catch(e) {
-    console.warn('⚠️ Could not store quote locally:', e);
-  }
+    console.log('📊 Quote stored:', data.quoteRef);
+  } catch(e) { console.warn('Could not store quote:', e); }
 }
 
 // ============================================================
@@ -1410,18 +1311,9 @@ function generateQuotePDF(data, action) {
   html += '.q-total td{font-weight:900;font-size:1.1rem;color:#0d4a5c;border-top:2px solid #1a8ba8;background:#e4f1f5}';
   html += '.q-footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #c4dde4;font-size:.78rem;color:#8aabb5}';
   html += '@media print{body{padding:20px}}</style></head><body>';
-
-  html += '<div class="q-header"><div><div class="q-logo">STOCK<span>AI</span>-PRO</div>';
-  html += '<div style="font-size:.78rem;color:#5a8a96;margin-top:4px">AI-Powered Stock Management — South Africa</div></div>';
-  html += '<div style="text-align:right;font-size:.85rem;color:#5a8a96"><strong style="color:#0d4a5c;display:block;font-size:1rem">QUOTATION</strong>';
-  html += 'Ref: ' + data.quoteRef + '<br>Date: ' + data.quoteDate + '</div></div>';
-
-  html += '<div class="q-customer"><h3>Customer Details</h3>';
-  html += '<p><strong>Name:</strong> ' + data.customer.name + '</p>';
-  html += '<p><strong>Business:</strong> ' + data.customer.business + '</p>';
-  html += '<p><strong>Phone:</strong> ' + data.customer.phone + '</p>';
-  html += '<p><strong>Email:</strong> ' + data.customer.email + '</p></div>';
-
+  html += '<div class="q-header"><div><div class="q-logo">STOCK<span>AI</span>-PRO</div><div style="font-size:.78rem;color:#5a8a96;margin-top:4px">AI-Powered Stock Management — South Africa</div></div>';
+  html += '<div style="text-align:right;font-size:.85rem;color:#5a8a96"><strong style="color:#0d4a5c;display:block;font-size:1rem">QUOTATION</strong>Ref: ' + data.quoteRef + '<br>Date: ' + data.quoteDate + '</div></div>';
+  html += '<div class="q-customer"><h3>Customer Details</h3><p><strong>Name:</strong> ' + data.customer.name + '</p><p><strong>Business:</strong> ' + data.customer.business + '</p><p><strong>Phone:</strong> ' + data.customer.phone + '</p><p><strong>Email:</strong> ' + data.customer.email + '</p></div>';
   html += '<table><thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead><tbody>';
   html += '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;font-weight:700;font-size:.82rem">MONTHLY SUBSCRIPTION (incl. VAT)</td></tr>';
   data.featureLabels.forEach(function(f, i) {
@@ -1430,23 +1322,57 @@ function generateQuotePDF(data, action) {
   });
   html += '<tr><td>Entities (' + data.entities + ' × R599)</td><td style="text-align:right">R' + data.entityTotal.toLocaleString() + '.00/mo</td></tr>';
   html += '<tr class="q-total"><td>Monthly Total (incl. VAT)</td><td style="text-align:right">R' + data.monthlyTotal.toLocaleString() + '.00</td></tr>';
-
   if (data.onceOffTotal > 0) {
     html += '<tr><td colspan="2" style="background:#d97706;color:#fff;font-weight:700;font-size:.82rem">ONCE-OFF CHARGES (incl. VAT)</td></tr>';
     if (data.techHours > 0) html += '<tr><td>Technician Setup (' + data.techHours + ' hrs × R450)</td><td style="text-align:right">R' + data.techTotal.toLocaleString() + '.00</td></tr>';
     if (data.trainingIncluded) html += '<tr><td>Staff Training (5 staff' + (data.extraStaff > 0 ? ' + ' + data.extraStaff + ' additional' : '') + ')</td><td style="text-align:right">R' + data.trainingTotal.toLocaleString() + '.00</td></tr>';
     html += '<tr class="q-total"><td>Once-off Total (incl. VAT)</td><td style="text-align:right">R' + data.onceOffTotal.toLocaleString() + '.00</td></tr>';
   }
-
   html += '</tbody></table>';
   html += '<div style="background:#d1fae5;border-radius:8px;padding:12px 16px;text-align:center;font-size:.82rem;font-weight:700;color:#065f46;margin-bottom:20px">✅ 30-Day Money-Back Guarantee • No Contracts • Cancel Anytime</div>';
-  html += '<div class="q-footer"><p>This quotation is valid for 30 days from the date of issue.</p>';
-  html += '<p style="margin-top:8px"><strong>StockAI-Pro</strong> • 079 044 0508 • support@stockai-pro.co.za • www.stockai-pro.co.za</p></div>';
+  html += '<div class="q-footer"><p>This quotation is valid for 30 days from the date of issue.</p><p style="margin-top:8px"><strong>StockAI-Pro</strong> • 079 044 0508 • support@stockai-pro.co.za • www.stockai-pro.co.za</p></div>';
   html += '</body></html>';
-
-  w.document.write(html);
-  w.document.close();
+  w.document.write(html); w.document.close();
   if (action === 'print') { setTimeout(function() { w.print(); }, 500); }
+}
+
+// ============================================================
+// COMING SOON POPUP
+// ============================================================
+function showComingSoon() {
+  var overlay = document.getElementById('comingSoonOverlay');
+  if (overlay) { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeComingSoon() {
+  var overlay = document.getElementById('comingSoonOverlay');
+  if (overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+// ============================================================
+// QUOTE SENT POPUP
+// ============================================================
+function showQuoteSentPopup() {
+  var overlay = document.getElementById('quoteSentOverlay');
+  if (overlay) { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeQuoteSentPopup() {
+  var overlay = document.getElementById('quoteSentOverlay');
+  if (overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+  document.getElementById('qb-name').value = '';
+  document.getElementById('qb-phone').value = '';
+  document.getElementById('qb-business').value = '';
+  document.getElementById('qb-email').value = '';
+  document.querySelectorAll('.qb-feature.selected:not(.locked)').forEach(function(el) { el.classList.remove('selected'); });
+  document.getElementById('qb-entities').value = '1';
+  var techCheck = document.getElementById('qb-tech-check');
+  if (techCheck) techCheck.checked = false;
+  var trainCheck = document.getElementById('qb-training-check');
+  if (trainCheck) trainCheck.checked = false;
+  var extraStaff = document.getElementById('qb-extra-staff');
+  if (extraStaff) extraStaff.value = '0';
+  calcQuote();
+  var qs = document.getElementById('quote-section');
+  if (qs) qs.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ============================================================
@@ -1468,10 +1394,7 @@ function closeBookingModal() {
 }
 document.addEventListener('click', function(e) { if (e.target.id === 'bookingModal') closeBookingModal(); });
 
-function changeMonth(dir) {
-  calendarDate.setMonth(calendarDate.getMonth() + dir);
-  renderCalendar();
-}
+function changeMonth(dir) { calendarDate.setMonth(calendarDate.getMonth() + dir); renderCalendar(); }
 
 function renderCalendar() {
   var grid = document.getElementById('cal-grid');
@@ -1480,67 +1403,45 @@ function renderCalendar() {
   var month = calendarDate.getMonth();
   var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   label.textContent = months[month] + ' ' + year;
-
   var firstDay = new Date(year, month, 1).getDay();
   var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var today = new Date();
-  today.setHours(0, 0, 0, 0);
-
+  var today = new Date(); today.setHours(0,0,0,0);
   var html = '';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) {
-    html += '<div class="cal-day-header">' + d + '</div>';
-  });
-
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) { html += '<div class="cal-day-header">' + d + '</div>'; });
   for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-
   for (var d = 1; d <= daysInMonth; d++) {
     var date = new Date(year, month, d);
     var dow = date.getDay();
     var isPast = date < today;
     var isWeekend = (dow === 0 || dow === 6);
     var isToday = date.getTime() === today.getTime();
-    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
     var hasBooking = storedBookings.filter(function(b) { return b.date === dateStr; }).length > 0;
-
     var classes = 'cal-day';
     if (isPast || isWeekend) classes += ' disabled';
     if (isToday) classes += ' today';
     if (selectedBookingDate === dateStr) classes += ' selected';
     if (hasBooking && !isPast && !isWeekend) classes += ' has-booking';
-
-    if (!isPast && !isWeekend) {
-      html += '<div class="' + classes + '" onclick="selectBookingDate(\'' + dateStr + '\')">' + d + '</div>';
-    } else {
-      html += '<div class="' + classes + '">' + d + '</div>';
-    }
+    if (!isPast && !isWeekend) { html += '<div class="' + classes + '" onclick="selectBookingDate(\'' + dateStr + '\')">' + d + '</div>'; }
+    else { html += '<div class="' + classes + '">' + d + '</div>'; }
   }
   grid.innerHTML = html;
 }
 
 function selectBookingDate(dateStr) {
-  selectedBookingDate = dateStr;
-  selectedBookingSlot = null;
-  renderCalendar();
+  selectedBookingDate = dateStr; selectedBookingSlot = null; renderCalendar();
   document.getElementById('time-slot-wrap').style.display = 'block';
   document.getElementById('booking-form-wrap').style.display = 'none';
-
   var dateObj = new Date(dateStr + 'T00:00:00');
-  document.getElementById('selected-date-label').textContent = dateObj.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
+  document.getElementById('selected-date-label').textContent = dateObj.toLocaleDateString('en-ZA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   var container = document.getElementById('time-slots');
-  var slots = [
-    { id: 'morning', label: '08:00 — 12:00', display: 'Morning Session' },
-    { id: 'afternoon', label: '13:00 — 17:00', display: 'Afternoon Session' }
-  ];
+  var slots = [{ id:'morning', label:'08:00 — 12:00', display:'Morning Session' }, { id:'afternoon', label:'13:00 — 17:00', display:'Afternoon Session' }];
   var existing = storedBookings.filter(function(b) { return b.date === dateStr; });
   var html = '';
   slots.forEach(function(slot) {
     var isBooked = existing.some(function(b) { return b.slot === slot.id; });
-    if (isBooked) {
-      html += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small><br><small style="color:#c94545">Booked</small></div>';
-    } else {
-      html += '<div class="time-slot" onclick="selectTimeSlot(this,\'' + slot.id + '\')"><i class="fas fa-clock" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small></div>';
-    }
+    if (isBooked) { html += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small><br><small style="color:#c94545">Booked</small></div>'; }
+    else { html += '<div class="time-slot" onclick="selectTimeSlot(this,\'' + slot.id + '\')"><i class="fas fa-clock" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small></div>'; }
   });
   container.innerHTML = html;
 }
@@ -1559,26 +1460,25 @@ function submitBooking() {
   var email    = document.getElementById('book-email').value.trim();
   var address  = document.getElementById('book-address').value.trim();
 
-if (!name || !phone || !business || !email || !address) { showToast('error', 'Please fill in all fields'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('error', 'Please enter a valid email'); return; }
-  if (!selectedBookingDate || !selectedBookingSlot) { showToast('error', 'Please select a date and time slot'); return; }
+  if (!name || !phone || !business || !email || !address) { alert('Please fill in all fields including your address.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  if (!selectedBookingDate || !selectedBookingSlot) { alert('Please select a date and time slot.'); return; }
 
   var existing = storedBookings.filter(function(b) { return b.date === selectedBookingDate; });
   if (existing.some(function(b) { return b.slot === selectedBookingSlot; })) {
-    showToast('error', 'This slot is already booked. Please choose another.');
+    alert('This slot is already booked. Please choose another.');
     return;
   }
 
   var slotLabels = { morning: '08:00 — 12:00 (Morning)', afternoon: '13:00 — 17:00 (Afternoon)' };
-
- var booking = {
+  var booking = {
     id: 'BK-' + Date.now(),
     date: selectedBookingDate,
     slot: selectedBookingSlot,
     slotLabel: slotLabels[selectedBookingSlot],
     customer: { name: name, phone: phone, business: business, email: email, address: address },
     timestamp: new Date().toISOString()
-};
+  };
 
   storedBookings.push(booking);
   localStorage.setItem('stockai_bookings', JSON.stringify(storedBookings));
@@ -1586,21 +1486,19 @@ if (!name || !phone || !business || !email || !address) { showToast('error', 'Pl
   if (typeof window.sendBookingEmailToAdmin === 'function') {
     window.sendBookingEmailToAdmin(booking)
       .then(function() { console.log('✅ Booking admin email sent'); })
-      .catch(function(err) { console.warn('⚠️ Booking admin email failed:', err); });
+      .catch(function(err) { console.warn('Booking admin email failed:', err); });
   }
-
   if (typeof window.sendBookingConfirmationToCustomer === 'function') {
     window.sendBookingConfirmationToCustomer(booking)
       .then(function() { console.log('✅ Booking confirmation sent to customer'); })
-      .catch(function(err) { console.warn('⚠️ Booking confirmation failed:', err); });
+      .catch(function(err) { console.warn('Booking confirmation failed:', err); });
   }
 
-  showToast('success', '✅ Presentation booked for ' + selectedBookingDate + ' (' + slotLabels[selectedBookingSlot] + ')');
+  alert('✅ Presentation booked for ' + selectedBookingDate + ' (' + slotLabels[selectedBookingSlot] + ')\n\nYou will receive a confirmation email shortly.');
 
   setTimeout(function() {
     closeBookingModal();
-    selectedBookingDate = null;
-    selectedBookingSlot = null;
+    selectedBookingDate = null; selectedBookingSlot = null;
     document.getElementById('book-name').value = '';
     document.getElementById('book-phone').value = '';
     document.getElementById('book-business').value = '';
@@ -1608,27 +1506,21 @@ if (!name || !phone || !business || !email || !address) { showToast('error', 'Pl
     document.getElementById('book-address').value = '';
     document.getElementById('time-slot-wrap').style.display = 'none';
     document.getElementById('booking-form-wrap').style.display = 'none';
-  }, 1500);
+  }, 500);
 }
 
 // ============================================================
 // STOCKY BOT
 // ============================================================
-var stockyPrompts = ['Need Assistance?', 'Have Questions on What You\'re Seeing?', 'Want to Know How Much?', 'Confused? I Can Help!', 'Need Help? I\'m Here!'];
+var stockyPrompts = ['Need Assistance?','Have Questions on What You\'re Seeing?','Want to Know How Much?','Confused? I Can Help!','Need Help? I\'m Here!'];
 var stockyIdx = 0;
 var stockyChatOpen = false;
 
-setTimeout(function() {
-  showStockyBubble();
-  setInterval(cycleStockyPrompt, 15000);
-}, 5000);
+setTimeout(function() { showStockyBubble(); setInterval(cycleStockyPrompt, 15000); }, 5000);
 
 function showStockyBubble() {
   var b = document.getElementById('stocky-bubble');
-  if (b && !stockyChatOpen) {
-    b.classList.add('visible');
-    setTimeout(function() { if (!stockyChatOpen) b.classList.remove('visible'); }, 8000);
-  }
+  if (b && !stockyChatOpen) { b.classList.add('visible'); setTimeout(function() { if (!stockyChatOpen) b.classList.remove('visible'); }, 8000); }
 }
 function cycleStockyPrompt() {
   if (stockyChatOpen) return;
@@ -1649,20 +1541,20 @@ function closeStockyChat() {
 }
 
 var stockyAnswers = {
-  'what': '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system. It helps restaurants, retail stores, and any business track inventory, reduce costs, and automate ordering!',
-  'cost': '💰 Build Your Own Package:<br><br>• <strong>Web App B.O.H:</strong> R799/mo (always included)<br>• <strong>Mobile App:</strong> R349/mo<br>• <strong>ProcureAI:</strong> R399/mo<br>• <strong>POS System:</strong> R799/mo<br>• <strong>Menu Master:</strong> R349/mo<br>• <strong>FunctionsAI:</strong> R449/mo<br>• <strong>Per Entity:</strong> R599/mo<br><br>Only pay for what you use!',
-  'ai': '🧠 AI is built into <strong>everything</strong>:<br><br>• Predicts stock needs<br>• Auto-generates purchase orders<br>• Splits orders to cheapest suppliers<br>• Voice counting — just speak!<br>• Live food cost in real-time',
-  'trial': '🎯 No trial, but we offer a <strong>30-day money-back guarantee</strong>. Not satisfied? Full refund, no questions asked!',
-  'start': '🚀 Getting started is easy:<br><br>1. Build your package on our website<br>2. Select your features<br>3. Pay securely via Paystack<br>4. Start immediately!<br><br>Or <a href="#quote-section" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">get a free quote first!</a>',
-  'functions': '🎉 <strong>FunctionsAI</strong> is our event management system:<br><br>• Create full event sheets<br>• Select menus & beverages<br>• Auto-calculate costs & VAT<br>• Generate professional invoices<br>• Email directly to clients<br><br>Only R449/mo to add on!',
-  'devices': '📱 Works on <strong>any device</strong>:<br><br>• Desktop / Laptop<br>• Tablet (iPad, Android)<br>• Mobile phone<br>• Kitchen display screens<br><br>Install as an app — no app store needed!',
-  'safe': '🔒 Your data is <strong>100% secure</strong>:<br><br>• Bank-level encryption<br>• Daily backups<br>• POPIA compliant<br>• Hosted on Google Firebase<br>• SSL secured'
+  'what': '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system!',
+  'cost': '💰 Build Your Own Package:<br><br>• <strong>Web App B.O.H:</strong> R799/mo (always included)<br>• <strong>Mobile App:</strong> R349/mo<br>• <strong>ProcureAI:</strong> R399/mo<br>• <strong>POS System:</strong> R799/mo<br>• <strong>Menu Master:</strong> R349/mo<br>• <strong>FunctionsAI:</strong> R449/mo<br>• <strong>Retail POS:</strong> R999/mo<br>• <strong>Invoice Scanner:</strong> R499/mo<br>• <strong>Per Entity:</strong> R599/mo',
+  'ai': '🧠 AI is built into <strong>everything</strong> — predictions, auto-POs, voice counting, live food cost!',
+  'trial': '🎯 No trial, but we offer a <strong>30-day money-back guarantee</strong>. Full refund, no questions asked!',
+  'start': '🚀 <a href="#quote-section" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">Get a free quote first!</a> Or book a presentation to see it in action.',
+  'functions': '🎉 <strong>FunctionsAI</strong> — full event management with menus, beverages, auto-pricing & invoices. R449/mo.',
+  'devices': '📱 Works on <strong>any device</strong> — desktop, tablet, mobile. Install as app — no app store needed!',
+  'safe': '🔒 <strong>100% secure</strong> — encryption, daily backups, POPIA compliant, Firebase hosted.'
 };
 
 function stockyAnswer(key) {
-  var answer = stockyAnswers[key] || 'I\'m not sure! WhatsApp us on 079 044 0508';
+  var answer = stockyAnswers[key] || 'WhatsApp us on 079 044 0508';
   var messages = document.getElementById('stocky-messages');
-  var labels = { 'what': 'What is StockAI-Pro?', 'cost': 'How much does it cost?', 'ai': 'How does AI help?', 'trial': 'Is there a trial?', 'start': 'How do I get started?', 'functions': 'What is FunctionsAI?', 'devices': 'What devices?', 'safe': 'Is my data safe?' };
+  var labels = {'what':'What is StockAI-Pro?','cost':'How much does it cost?','ai':'How does AI help?','trial':'Is there a trial?','start':'How do I get started?','functions':'What is FunctionsAI?','devices':'What devices?','safe':'Is my data safe?'};
   var userMsg = document.createElement('div');
   userMsg.className = 'stocky-msg user';
   userMsg.innerHTML = '<p>' + (labels[key] || key) + '</p>';
@@ -1685,11 +1577,12 @@ setInterval(function() {
 }, 20000);
 
 // ============================================================
-// CONFIRM EVERYTHING LOADED
+// CONFIRM LOADED
 // ============================================================
 window.addEventListener('load', function() {
   console.log('✅ index.html — Fully Loaded');
-  console.log('📧 email-templates.js status:', typeof window.sendQuoteEmailToCustomer === 'function' ? '✅ Loaded correctly' : '❌ NOT LOADED — check file path');
+  console.log('📧 email-templates.js:', typeof window.sendQuoteEmailToCustomer === 'function' ? '✅ Loaded' : '❌ NOT LOADED');
+  console.log('📧 email-addon.js:', typeof window.sendViaProxy !== 'undefined' ? '✅ Loaded' : 'Checking...');
   console.log('📋 Quote Builder — Active');
   console.log('📅 Booking System — Active');
   console.log('🤖 Stocky Bot — Active');
