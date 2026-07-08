@@ -558,15 +558,32 @@ var auth = firebase.auth();
 // Data passed from signup.html after payment
 // ============================================================
 window.addEventListener('load', function() {
-    var plan  = sessionStorage.getItem('signup_plan')  || 'Premium';
-    var price = sessionStorage.getItem('signup_price') || '999';
-    var email = sessionStorage.getItem('signup_email') || '';
-    var paid  = sessionStorage.getItem('signup_paid');
 
+    // ── Read from URL params first (email link)
+    // then fall back to sessionStorage (direct redirect) ──
+    var params   = new URLSearchParams(window.location.search);
+
+    var plan     = params.get('plan')     || sessionStorage.getItem('signup_plan')     || 'Premium';
+    var price    = params.get('price')    || sessionStorage.getItem('signup_price')    || '799';
+    var email    = params.get('email')    || sessionStorage.getItem('signup_email')    || '';
+    var paid     = params.get('paid')     || sessionStorage.getItem('signup_paid')     || 'false';
+    var features = params.get('features') || sessionStorage.getItem('signup_features') || 'web_boh';
+    var entities = params.get('entities') || sessionStorage.getItem('signup_entities') || '1';
+    var ref      = params.get('ref')      || sessionStorage.getItem('signup_ref')      || '';
+
+    // ── Store in session so createAccount() can use them ──
+    sessionStorage.setItem('signup_plan',     plan);
+    sessionStorage.setItem('signup_price',    price);
+    sessionStorage.setItem('signup_email',    email);
+    sessionStorage.setItem('signup_paid',     paid);
+    sessionStorage.setItem('signup_features', features);
+    sessionStorage.setItem('signup_entities', entities);
+    sessionStorage.setItem('signup_ref',      ref);
+
+    // ── Update the plan summary display ──
     document.getElementById('summaryPlanName').textContent  = plan;
     document.getElementById('summaryPlanPrice').textContent = parseInt(price).toLocaleString();
-
-    if (email) document.getElementById('f-email').value = email;
+    if (email) document.getElementById('f-email').value    = email;
 
     if (paid !== 'true') {
         showToast('info', 'Complete payment on signup page first for full activation');
@@ -716,6 +733,7 @@ function createAccount() {
             dismissedToday:  null
         },
         accountStatus: 'active',
+        maxEntities: parseInt(sessionStorage.getItem('signup_entities')) || 1,
         businessName:  business,
         businessType:  type,
         inventory:     {},
