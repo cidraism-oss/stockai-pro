@@ -373,6 +373,104 @@ input, textarea, select { user-select:text; -webkit-user-select:text; }
     .w-brand { font-size:2.5rem; }
     #hub-modal-container .hub-modal { max-width:95vw; }
 }
+/* ═══ FEATURE ACCESS — APP CARDS ═══ */
+.hub-app-card.locked {
+    cursor:pointer;
+    opacity:.85;
+}
+.hub-app-card.locked:hover {
+    transform:none;
+    box-shadow:var(--shadow);
+}
+.hub-app-status {
+    padding:4px 14px;
+    border-radius:20px;
+    font-size:.68rem;
+    font-weight:700;
+    letter-spacing:.3px;
+    margin-top:6px;
+    display:inline-block;
+}
+.hub-app-status.active {
+    background:rgba(46,168,113,.12);
+    color:var(--success);
+}
+.hub-app-status.locked {
+    background:rgba(201,69,69,.1);
+    color:var(--danger);
+}
+.hub-app-status.always {
+    background:rgba(26,139,168,.12);
+    color:var(--primary);
+}
+.hub-lock-overlay {
+    position:absolute;
+    top:8px;
+    right:8px;
+    width:26px;
+    height:26px;
+    background:rgba(201,69,69,.15);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--danger);
+    font-size:.72rem;
+}
+.hub-upgrade-prompt {
+    position:absolute;
+    inset:0;
+    background:rgba(13,74,92,.92);
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    opacity:0;
+    transition:.3s;
+    text-align:center;
+    pointer-events:none;
+}
+.hub-app-card.locked:hover .hub-upgrade-prompt {
+    opacity:1;
+    pointer-events:all;
+}
+.hub-upgrade-prompt i {
+    font-size:1.5rem;
+    color:#f59e0b;
+    margin-bottom:8px;
+}
+.hub-upgrade-prompt p {
+    font-size:.72rem;
+    color:rgba(255,255,255,.9);
+    margin-bottom:10px;
+    line-height:1.5;
+}
+.hub-upgrade-btn {
+    padding:6px 16px;
+    background:#f59e0b;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:.72rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    transition:.2s;
+}
+.hub-upgrade-btn:hover { background:#d97706; }
+.hub-feature-loading {
+    text-align:center;
+    padding:48px 24px;
+    color:var(--text-light);
+}
+.hub-feature-loading i {
+    font-size:2.5rem;
+    display:block;
+    margin-bottom:14px;
+    color:var(--primary);
+}
 </style>
 </head>
 <body>
@@ -984,6 +1082,12 @@ function findHubAccount(email, callback) {
 // ROUTE AFTER LOGIN
 // ============================================================
 function routeAfterLogin() {
+// ✅ Load purchased features from Firebase
+    var uid = auth.currentUser ? auth.currentUser.uid : null;
+    if (uid && !HUB.isMaster) {
+hubInitFeatures(HUB.accountId);
+        localStorage.setItem('stockai_user_uid', uid);
+    }
     if (HUB.isMaster) {
         showMasterDashboard();
         return;
@@ -1446,53 +1550,74 @@ function renderEntityHub() {
         'text-transform:uppercase;letter-spacing:1.5px;margin:8px 0;padding-left:4px">Your Applications</div>';
 
     // App cards grid
-    html += '<div style="width:100%;max-width:640px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">';
+   html += '<div style="width:100%;max-width:640px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">';
     ALL_APPS.forEach(function(app) {
-        var roleAllowed     = HUB.allowedApps.indexOf(app.id) !== -1;
+        var roleAllowed      = HUB.allowedApps.indexOf(app.id) !== -1;
         var featurePurchased = hubIsFeaturePurchased(app.id);
-        var allowed         = roleAllowed && featurePurchased;
-
-        // Feature key info for lock overlay
-        var featureKey  = hubGetFeatureKey(app.id);
-        var featurePrice = hubGetFeaturePrice(featureKey);
+        var featureKey       = hubGetFeatureKey(app.id);
+        var featurePrice     = hubGetFeaturePrice(featureKey);
+        var isAlwaysFree     = app.id === 'boh';
 
         if (!featurePurchased && !HUB.isMaster) {
-            // Show locked tile with upgrade overlay
-            html += '<div class="hub-app-card" style="position:relative;overflow:hidden;cursor:pointer" ' +
-                'onclick="hubRequestUpgrade(\'' + featureKey + '\',\'' + app.name + '\',' + featurePrice + ')">' +
-                '<div class="hub-app-icon" style="background:linear-gradient(135deg,#1a5a6e,#0d3d4f);opacity:.5">' +
+            // ── LOCKED — not purchased ──
+            html += '<div class="hub-app-card locked" ' +
+                'onclick="hubRequestUpgrade(\'' + featureKey + '\',\'' +
+                app.name + '\',' + featurePrice + ')">' +
+
+                // Lock icon top right
+                '<div class="hub-lock-overlay">' +
+                '<i class="fas fa-lock"></i></div>' +
+
+                // Icon (greyed)
+                '<div class="hub-app-icon locked-icon" ' +
+                'style="background:linear-gradient(135deg,#1a5a6e,#0d3d4f)">' +
                 '<i class="fas ' + app.icon + '"></i></div>' +
-                '<div class="hub-app-name" style="opacity:.5">' + app.name + '</div>' +
-                '<div class="hub-app-desc" style="opacity:.5">' + app.desc + '</div>' +
-                // Lock overlay
-                '<div style="position:absolute;inset:0;background:rgba(13,74,92,.88);' +
-                'backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);' +
-                'display:flex;flex-direction:column;align-items:center;justify-content:center;' +
-                'z-index:10;border-radius:inherit;padding:12px;text-align:center">' +
-                '<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);' +
-                'display:flex;align-items:center;justify-content:center;margin-bottom:8px">' +
-                '<i class="fas fa-lock" style="color:#fff;font-size:1rem"></i></div>' +
-                '<div style="font-size:.72rem;font-weight:700;color:#fff;margin-bottom:2px">' + app.name + '</div>' +
-                '<div style="font-size:.62rem;color:rgba(255,255,255,.7);margin-bottom:8px">Not in package</div>' +
-                '<div style="padding:4px 10px;background:#f59e0b;border-radius:6px;' +
-                'font-size:.62rem;font-weight:700;color:#fff">' +
-                'Add R' + featurePrice.toLocaleString() + '/mo</div></div></div>';
-        } else if (!roleAllowed) {
-            // Role doesn't have access — show disabled
+
+                '<div class="hub-app-name">' + app.name + '</div>' +
+                '<div class="hub-app-desc">' + app.desc + '</div>' +
+                '<span class="hub-app-status locked">' +
+                '<i class="fas fa-lock" style="font-size:.6rem;margin-right:4px"></i>' +
+                'Not in package</span>' +
+
+                // Hover upgrade prompt
+                '<div class="hub-upgrade-prompt">' +
+                '<i class="fas fa-star"></i>' +
+                '<p>Add <strong>' + app.name + '</strong><br>to your package</p>' +
+                '<button class="hub-upgrade-btn" ' +
+                'onclick="event.stopPropagation();hubRequestUpgrade(\'' +
+                featureKey + '\',\'' + app.name + '\',' + featurePrice + ')">' +
+                'R' + featurePrice.toLocaleString() + '/mo — Upgrade</button></div>' +
+
+                '</div>';
+
+        } else if (!roleAllowed && !HUB.isMaster) {
+            // ── PURCHASED but role has no access ──
             html += '<div class="hub-app-card disabled">' +
-                '<div class="hub-app-icon" style="background:linear-gradient(135deg,' +
-                app.color + ',' + adjustHexColor(app.color, -30) + ')">' +
+                '<div class="hub-app-icon" ' +
+                'style="background:linear-gradient(135deg,' + app.color + ',' +
+                adjustHexColor(app.color, -30) + ')">' +
                 '<i class="fas ' + app.icon + '"></i></div>' +
                 '<div class="hub-app-name">' + app.name + '</div>' +
-                '<div class="hub-app-desc">' + app.desc + '</div></div>';
+                '<div class="hub-app-desc">' + app.desc + '</div>' +
+                '<span class="hub-app-status locked">' +
+                '<i class="fas fa-ban" style="font-size:.6rem;margin-right:4px"></i>' +
+                'No access</span>' +
+                '</div>';
+
         } else {
-            // Fully accessible
+            // ── FULLY ACCESSIBLE ──
             html += '<div class="hub-app-card" onclick="openHubApp(\'' + app.id + '\')">' +
-                '<div class="hub-app-icon" style="background:linear-gradient(135deg,' +
-                app.color + ',' + adjustHexColor(app.color, -30) + ')">' +
+                '<div class="hub-app-icon" ' +
+                'style="background:linear-gradient(135deg,' + app.color + ',' +
+                adjustHexColor(app.color, -30) + ')">' +
                 '<i class="fas ' + app.icon + '"></i></div>' +
                 '<div class="hub-app-name">' + app.name + '</div>' +
-                '<div class="hub-app-desc">' + app.desc + '</div></div>';
+                '<div class="hub-app-desc">' + app.desc + '</div>' +
+                '<span class="hub-app-status ' + (isAlwaysFree ? 'always' : 'active') + '">' +
+                '<i class="fas fa-' + (isAlwaysFree ? 'check' : 'check-circle') +
+                '" style="font-size:.6rem;margin-right:4px"></i>' +
+                (isAlwaysFree ? 'Included' : 'Active') + '</span>' +
+                '</div>';
         }
     });
     html += '</div>';
@@ -1839,6 +1964,135 @@ var HUB_FEATURE_PRICES = {
 };
 
 // Get Firebase feature key from hub app ID
+// ============================================================
+// HUB INIT FEATURES — Called after auth, reads BOTH sources
+// Control panel stores features in entity.features[]
+// Signup stores features in customers/{uid}.features[]
+// We check both and merge them
+// ============================================================
+function hubInitFeatures(accountId) {
+    if (!accountId) return;
+
+    // First check localStorage cache for instant display
+    var cached = localStorage.getItem('stockai_user_features');
+    if (cached) {
+        try {
+            var cachedFeatures = JSON.parse(cached);
+            console.log('💾 Using cached features instantly:', cachedFeatures);
+            // Re-render if on entity hub
+            if (HUB.currentView === 'entity-hub') {
+                renderEntityHub();
+            }
+        } catch(e) {}
+    }
+
+    // Then fetch fresh from Firebase — check BOTH locations
+    // Location 1: customers/{uid}.features (set by signup/control panel)
+    var uid = localStorage.getItem('stockai_user_uid');
+
+    if (uid) {
+        db.collection('customers').doc(uid).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    var data     = doc.data();
+                    var features = data.features || data.purchasedFeatures || ['web_boh'];
+                    console.log('✅ Features from customers collection:', features);
+                    hubMergeAndApplyFeatures(features);
+                } else {
+                    // Location 2: check entity.features[] as fallback
+                    hubLoadEntityFeatures(accountId);
+                }
+            })
+            .catch(function(err) {
+                console.warn('⚠️ customers collection read failed:', err);
+                // Fallback to entity features
+                hubLoadEntityFeatures(accountId);
+            });
+    } else {
+        // No UID — try entity features
+        hubLoadEntityFeatures(accountId);
+    }
+}
+
+// ── Read features from entity object (control panel method) ──
+function hubLoadEntityFeatures(accountId) {
+    if (!HUB.accountData) {
+        // Use cached features or default
+        var cached = localStorage.getItem('stockai_user_features');
+        if (cached) {
+            try {
+                hubMergeAndApplyFeatures(JSON.parse(cached));
+                return;
+            } catch(e) {}
+        }
+        hubMergeAndApplyFeatures(['web_boh']);
+        return;
+    }
+
+    // Check entity features from account data
+    var entities = HUB.accountData.entities || [];
+    var allFeatures = ['web_boh']; // Always include web_boh
+
+    entities.forEach(function(ent) {
+        var entFeatures = ent.features || ent.purchasedFeatures || [];
+        entFeatures.forEach(function(f) {
+            if (allFeatures.indexOf(f) === -1) {
+                allFeatures.push(f);
+            }
+        });
+    });
+
+    // Also check account-level features
+    var accountFeatures = HUB.accountData.features ||
+                          HUB.accountData.purchasedFeatures || [];
+    accountFeatures.forEach(function(f) {
+        if (allFeatures.indexOf(f) === -1) {
+            allFeatures.push(f);
+        }
+    });
+
+    console.log('✅ Features from entity/account data:', allFeatures);
+    hubMergeAndApplyFeatures(allFeatures);
+}
+
+// ── Merge features from both sources and apply ──
+function hubMergeAndApplyFeatures(features) {
+    // Always include web_boh
+    if (features.indexOf('web_boh') === -1) {
+        features.unshift('web_boh');
+    }
+
+    // Get any existing cached features
+    var cached = localStorage.getItem('stockai_user_features');
+    if (cached) {
+        try {
+            var existing = JSON.parse(cached);
+            // Merge — take union of both arrays
+            existing.forEach(function(f) {
+                if (features.indexOf(f) === -1) {
+                    features.push(f);
+                }
+            });
+        } catch(e) {}
+    }
+
+    // Cache the merged result
+    localStorage.setItem('stockai_user_features', JSON.stringify(features));
+    console.log('💾 Features merged and cached:', features);
+
+    // Apply to feature-access.js system
+    if (typeof cacheUserFeatures === 'function') {
+        cacheUserFeatures(features);
+    }
+
+    // Re-render hub if on entity hub view
+    if (HUB.currentView === 'entity-hub') {
+        renderEntityHub();
+    }
+
+    // Update UI for feature-locked elements
+    applyHubFeatureAccess(features);
+}
 function hubGetFeatureKey(appId) {
     return HUB_FEATURE_MAP[appId] || appId;
 }
@@ -1860,20 +2114,42 @@ function hubIsFeaturePurchased(appId) {
     // Get feature key
     var featureKey = hubGetFeatureKey(appId);
 
-    // Check localStorage cache first (set by feature access system)
+    // ── Check 1: localStorage cache (set by both signup & control panel) ──
     var cached = localStorage.getItem('stockai_user_features');
     if (cached) {
         try {
             var features = JSON.parse(cached);
-            return features.indexOf(featureKey) !== -1;
+            if (features.indexOf(featureKey) !== -1) return true;
         } catch(e) {}
     }
 
-    // If no cache — default to true so app doesn't break
-    // (features will load on next login)
-    return true;
-}
+    // ── Check 2: entity.features[] (set by control panel) ──
+    if (HUB.entity && HUB.entity.features) {
+        if (HUB.entity.features.indexOf(featureKey) !== -1) return true;
+    }
 
+    // ── Check 3: account-level features ──
+    if (HUB.accountData && HUB.accountData.features) {
+        if (HUB.accountData.features.indexOf(featureKey) !== -1) return true;
+    }
+
+    // ── Check 4: any entity has the feature (for owners) ──
+    if (HUB.entities && HUB.entities.length > 0) {
+        var found = false;
+        HUB.entities.forEach(function(ent) {
+            if (ent.features && ent.features.indexOf(featureKey) !== -1) {
+                found = true;
+            }
+        });
+        if (found) return true;
+    }
+
+    // Not found anywhere — feature not purchased
+    // If no cache at all — default to true so app doesn't break on first load
+    if (!cached) return true;
+
+    return false;
+}
 // Show upgrade request modal/dialog
 function hubRequestUpgrade(featureKey, featureName, price) {
     var featureNames = {
