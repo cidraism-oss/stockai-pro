@@ -667,6 +667,100 @@ window.checkAndSendDailyAnalysis       = checkAndSendDailyAnalysis;
 // ============================================================
 // CONFIRM LOADED
 // ============================================================
+// ============================================================
+// EMAIL 16 — UPGRADE CONFIRMATION TO CUSTOMER
+// Triggered after successful upgrade payment via Paystack
+// ============================================================
+function emailUpgradeConfirmation(data) {
+    var featureRows = (data.features || []).map(function(f) {
+        var price = FEATURE_PRICES[f] || 0;
+        var name  = FEATURE_MAP[f]    || f;
+        return '<tr>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;color:#2a5f70">' +
+                '✅ ' + name +
+            '</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:.85rem;' +
+                'color:#0d4a5c;text-align:right;font-weight:700">' +
+                formatR(price) + '/mo' +
+            '</td>' +
+        '</tr>';
+    }).join('');
+
+    var html = emailHeader(
+        '🚀 Upgrade Confirmed!',
+        'Your new features are now active on ' + (data.entityName || 'your entity')
+    ) +
+        '<p style="color:#0d4a5c;font-size:1rem">Hi <strong>' + data.name + '</strong>,</p>' +
+        '<p style="color:#5a8a96;margin-top:8px;line-height:1.7">' +
+            'Your upgrade was successful! Your new features are live and ready to use immediately.' +
+        '</p>' +
+
+        '<div style="background:linear-gradient(135deg,rgba(46,168,113,.08),rgba(46,168,113,.04));' +
+            'border:1px solid rgba(46,168,113,.2);border-radius:12px;padding:20px;margin:20px 0;text-align:center">' +
+            '<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:2px;' +
+                'color:#5a8a96;font-weight:700;margin-bottom:8px">Entity Upgraded</div>' +
+            '<div style="font-size:1.2rem;font-weight:900;color:#0d4a5c">' + (data.entityName || '—') + '</div>' +
+        '</div>' +
+
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:16px">' +
+            '<tr><td colspan="2" style="background:#0d4a5c;color:#fff;padding:10px 14px;' +
+                'font-weight:700;font-size:.78rem;letter-spacing:.5px;border-radius:8px 8px 0 0">' +
+                'NEW FEATURES ACTIVATED' +
+            '</td></tr>' +
+            featureRows +
+            '<tr style="background:#e4f1f5">' +
+                '<td style="padding:14px;font-weight:900;font-size:1rem;color:#0d4a5c">Added Monthly Cost</td>' +
+                '<td style="padding:14px;font-weight:900;font-size:1.1rem;color:#1a8ba8;text-align:right">' +
+                    '+' + formatR(data.amount || 0) + '/mo' +
+                '</td>' +
+            '</tr>' +
+        '</table>' +
+
+        emailInfoBox([
+            { label: 'Payment Reference', value: data.ref   || '—' },
+            { label: 'Date',              value: data.date  || '—' },
+            { label: 'Amount Charged',    value: formatR(data.amount || 0) + ' (first month)' }
+        ]) +
+
+        '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;' +
+            'padding:14px 18px;margin:20px 0;text-align:center">' +
+            '<div style="font-size:.88rem;font-weight:700;color:#065f46">' +
+                '✅ Features are live immediately' +
+            '</div>' +
+            '<div style="font-size:.78rem;color:#047857;margin-top:4px">' +
+                'Refresh your app to see your new features.' +
+            '</div>' +
+        '</div>' +
+
+        emailButton('🚀 Open My App', EMAIL_CONFIG.appUrl, '#2ea871') +
+        emailFooter();
+
+    // Send to customer
+    sendEmail(
+        data.email,
+        '🚀 Upgrade Confirmed — ' + (data.entityName || 'Your Entity') + ' — StockAI-Pro',
+        html
+    );
+
+    // Send notification to admin
+    var adminHtml = emailHeader('💰 Customer Upgraded!', 'A customer has purchased additional features') +
+        emailInfoBox([
+            { label: 'Customer',     value: data.name        || '—' },
+            { label: 'Email',        value: data.email       || '—' },
+            { label: 'Entity',       value: data.entityName  || '—' },
+            { label: 'Features',     value: data.featureNames || '—' },
+            { label: 'Amount',       value: formatR(data.amount || 0) + '/mo' },
+            { label: 'Payment Ref',  value: data.ref         || '—' },
+            { label: 'Date',         value: data.date        || '—' }
+        ]) +
+        emailFooter();
+
+    sendEmail(
+        EMAIL_CONFIG.admin,
+        '💰 Upgrade: ' + (data.name || data.email) + ' — +' + formatR(data.amount || 0) + '/mo',
+        adminHtml
+    );
+}
 console.log('✅ StockAI-Pro 2.0 Email Templates loaded');
 console.log('📧 sendQuoteEmailToCustomer:', typeof window.sendQuoteEmailToCustomer);
 console.log('📧 sendQuoteNotificationToAdmin:', typeof window.sendQuoteNotificationToAdmin);
