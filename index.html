@@ -494,7 +494,7 @@ section { padding: 90px 24px; position: relative; }
       <a href="#faq">FAQ</a>
       <a href="javascript:void(0)" onclick="openBookingModal()" class="btn-present-nav"><i class="fas fa-calendar-check"></i> Book Presentation</a>
       <a href="hub.html" class="btn-login-nav"><i class="fas fa-user"></i> Login</a>
-      <a href="javascript:void(0)" onclick="showComingSoon()" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
+      <a href="signup.html" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
     </div>
     <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
   </nav>
@@ -518,7 +518,7 @@ section { padding: 90px 24px; position: relative; }
       <h1>The <span class="highlight">AI-Powered</span> Stock Management System for Every Business</h1>
       <p class="hero-desc">Restaurants, retail, manufacturers — if you hold stock, StockAI-Pro saves you money. AI predictions, voice counting, automated purchase orders, live food cost tracking, event management, client invoicing, and real-time insights from anywhere.</p>
       <div class="hero-buttons">
-        <a href="javascript:void(0)" onclick="showComingSoon()" class="btn-hero btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
+        <a href="signup.html" class="btn-hero btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
         <a href="#demo-section" class="btn-hero btn-hero-secondary"><i class="fas fa-play-circle"></i> See It In Action</a>
       </div>
       <div class="hero-stats">
@@ -822,7 +822,7 @@ section { padding: 90px 24px; position: relative; }
 <section class="cta">
   <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
   <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control.</p>
-  <a href="javascript:void(0)" onclick="showComingSoon()" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
+  <a href="signup.html" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
 </section>
 
 <!-- FAQ -->
@@ -964,29 +964,6 @@ section { padding: 90px 24px; position: relative; }
   </div>
 </div>
 
-<!-- COMING SOON POPUP -->
-<div id="comingSoonOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;padding:24px">
-  <div style="background:#fff;border-radius:20px;max-width:480px;width:100%;padding:44px 36px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)">
-    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);margin:0 auto 20px;display:flex;align-items:center;justify-content:center">
-      <i class="fas fa-rocket" style="color:#fff;font-size:2rem"></i>
-    </div>
-    <h3 style="font-size:1.6rem;font-weight:900;color:#0d4a5c;margin-bottom:8px">Coming Soon!</h3>
-    <div style="display:inline-block;padding:8px 20px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;margin-bottom:16px">
-      <span style="font-size:1rem;font-weight:800;color:#fff;letter-spacing:1px">Launching 1st July 2025</span>
-    </div>
-    <p style="font-size:.95rem;color:#5a8a96;line-height:1.7;margin-bottom:28px">We are putting the final touches on StockAI-Pro.<br>Contact our team to set up a personalised presentation.</p>
-    <div style="display:flex;flex-direction:column;gap:12px;max-width:320px;margin:0 auto">
-      <button onclick="closeComingSoon();openBookingModal();" style="padding:15px 32px;background:linear-gradient(135deg,#2ea871,#1a7a4a);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 20px rgba(46,168,113,.3)">
-        <i class="fas fa-calendar-check"></i> Book a Presentation
-      </button>
-      <a href="https://wa.me/27790440508?text=Hi%2C%20I%20am%20interested%20in%20StockAI-Pro.%20Can%20I%20book%20a%20presentation%3F" target="_blank" style="padding:14px 32px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none">
-        <i class="fab fa-whatsapp"></i> WhatsApp Us
-      </a>
-      <button onclick="closeComingSoon()" style="padding:12px 32px;background:transparent;color:#5a8a96;border:2px solid #c4dde4;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit">
-        Close
-      </button>
-    </div>
-  </div>
 </div>
 
 <!-- QUOTE SENT POPUP -->
@@ -1334,18 +1311,6 @@ function generateQuotePDF(data, action) {
   html += '</body></html>';
   w.document.write(html); w.document.close();
   if (action === 'print') { setTimeout(function() { w.print(); }, 500); }
-}
-
-// ============================================================
-// COMING SOON POPUP
-// ============================================================
-function showComingSoon() {
-  var overlay = document.getElementById('comingSoonOverlay');
-  if (overlay) { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-}
-function closeComingSoon() {
-  var overlay = document.getElementById('comingSoonOverlay');
-  if (overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
 }
 
 // ============================================================
