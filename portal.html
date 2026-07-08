@@ -493,25 +493,27 @@ var PLAN_DATA = {
 
 var selectedPlan = 'professional';
 
-// ── Feature Pricing ──
 var FEATURE_PRICES = {
-    web_boh:      799,
-    mobile_app:   349,
-    procure_ai:   399,
-    pos_system:   799,
-    menu_master:  349,
-    functions_ai: 449
+    web_boh:         799,
+    mobile_app:      349,
+    procure_ai:      399,
+    pos_system:      799,
+    menu_master:     349,
+    functions_ai:    449,
+    retail_pos:      999,
+    invoice_scanner: 499
 };
 
 var FEATURE_NAMES = {
-    web_boh:      'Web App B.O.H',
-    mobile_app:   'Mobile App',
-    procure_ai:   'ProcureAI App',
-    pos_system:   'P.O.S System',
-    menu_master:  'Menu Master',
-    functions_ai: 'FunctionsAI'
+    web_boh:         'Web App B.O.H',
+    mobile_app:      'Mobile App',
+    procure_ai:      'ProcureAI App',
+    pos_system:      'P.O.S System',
+    menu_master:     'Menu Master',
+    functions_ai:    'FunctionsAI',
+    retail_pos:      'Retail POS',
+    invoice_scanner: 'Invoice Scanner App'
 };
-
 // ============================================================
 // BILLING — PRICING MODEL
 // ============================================================
@@ -794,11 +796,12 @@ function renderEntityCards() {
 
         // ── Footer Buttons ──
         var footerButtons = isActive
-            ? '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>' +
-              '<button class="btn-portal outline small" onclick="showChangePlanModal(' + idx + ')"><i class="fas fa-exchange-alt"></i> Plan</button>' +
-              '<button class="btn-portal primary small" onclick="showManageFeaturesModal(' + idx + ')"><i class="fas fa-puzzle-piece"></i> Features</button>'
-            : '<button class="btn-portal success small" onclick="showActivateModal(' + idx + ')"><i class="fas fa-bolt"></i> Activate</button>' +
-              '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>';
+    ? '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>' +
+      '<button class="btn-portal outline small" onclick="showChangePlanModal(' + idx + ')"><i class="fas fa-exchange-alt"></i> Plan</button>' +
+      '<button class="btn-portal primary small" onclick="showManageFeaturesModal(' + idx + ')"><i class="fas fa-puzzle-piece"></i> Features</button>' +
+      '<button class="btn-portal gold small" onclick="openUpgradeWindow(' + idx + ')"><i class="fas fa-rocket"></i> Upgrade</button>'
+    : '<button class="btn-portal success small" onclick="showActivateModal(' + idx + ')"><i class="fas fa-bolt"></i> Activate</button>' +
+      '<button class="btn-portal outline small" onclick="showEditEntityModal(' + idx + ')"><i class="fas fa-edit"></i> Edit</button>';
 
         return '<div class="entity-card ' + cardClass + '">' +
             '<div class="entity-card-header">' +
@@ -931,6 +934,21 @@ function showManageFeaturesModal(idx) {
 }
 
 // ── Toggle a feature on/off for a specific entity ──
+// ============================================================
+// OPEN UPGRADE WINDOW
+// ============================================================
+function openUpgradeWindow(idx) {
+    var ent = P.entities[idx];
+    if (!ent) return;
+
+    if (ent.status === 'inactive' || ent.paymentStatus === 'unpaid') {
+        showToast('warning', 'Please activate this entity before upgrading.');
+        return;
+    }
+
+    var upgradeUrl = 'upgrade.html?accountId=' + P.accountId + '&entityIdx=' + idx;
+    window.open(upgradeUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+}
 function toggleEntityFeature(idx, featureKey) {
     var ent = P.entities[idx];
     if (!ent) return;
