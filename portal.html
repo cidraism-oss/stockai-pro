@@ -401,14 +401,17 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
                 <h1>Welcome, <span id="welcome-name">Owner</span></h1>
                 <p id="welcome-group">Manage your entities, billing, and account settings</p>
             </div>
-            <div class="portal-actions">
-                <button class="btn-portal primary" onclick="showCreateEntityModal()">
-                    <i class="fas fa-plus-circle"></i> Add New Entity
-                </button>
-                <button class="btn-portal outline" onclick="showProfileSection()">
-                    <i class="fas fa-user-cog"></i> My Profile
-                </button>
-            </div>
+            <div class="portal-actions" id="portal-action-buttons">
+    <button class="btn-portal primary" onclick="showCreateEntityModal()">
+        <i class="fas fa-plus-circle"></i> Add New Entity
+    </button>
+    <button class="btn-portal gold" onclick="openBuyEntityWindow()">
+        <i class="fas fa-shopping-cart"></i> Buy New Entity
+    </button>
+    <button class="btn-portal outline" onclick="showProfileSection()">
+        <i class="fas fa-user-cog"></i> My Profile
+    </button>
+</div>
         </div>
 
         <!-- STATS -->
@@ -477,10 +480,19 @@ function isMasterPortal() {
 }
 
 function getPortalMaxEntities() {
+    // ── Master account has no limit ──
     if (isMasterPortal()) return 9999;
+
+    // ── Read maxEntities from account data ──
+    // This was set when they signed up based on what they paid for
+    if (P.accountData && P.accountData.maxEntities) {
+        return parseInt(P.accountData.maxEntities) || 1;
+    }
+
+    // ── Fallback to plan based limit ──
     var plan = (P.billing || {}).planName || 'Premium';
     if (plan.includes('Exclusive')) return 9999;
-    if (plan.includes('Plus')) return 5;
+    if (plan.includes('Plus'))      return 5;
     return 1;
 }
 
@@ -949,6 +961,21 @@ function openUpgradeWindow(idx) {
     var upgradeUrl = 'upgrade.html?accountId=' + P.accountId + '&entityIdx=' + idx;
     window.open(upgradeUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
 }
+// ============================================================
+// OPEN BUY NEW ENTITY WINDOW
+// ============================================================
+function openBuyEntityWindow() {
+    var upgradeUrl = 'upgrade.html' +
+        '?accountId=' + P.accountId +
+        '&mode=entity' +
+        '&currentEntities=' + P.entities.length;
+    window.open(
+        upgradeUrl,
+        '_blank',
+        'width=900,height=700,scrollbars=yes,resizable=yes'
+    );
+}
+
 function toggleEntityFeature(idx, featureKey) {
     var ent = P.entities[idx];
     if (!ent) return;
@@ -1168,6 +1195,49 @@ function viewPortalStatement() {
 // CREATE NEW ENTITY
 // ============================================================
 function showCreateEntityModal() {
+// ── Check entity limit ──
+    if (!isMasterPortal()) {
+        var maxEnts     = getPortalMaxEntities();
+        var currentEnts = P.entities.length;
+
+        if (currentEnts >= maxEnts) {
+            // ── Show locked message ──
+            document.getElementById('modal-container').innerHTML =
+                '<div class="modal-overlay"><div class="modal-box" style="max-width:480px">' +
+                '<div class="modal-header" style="background:linear-gradient(135deg,#c94545,#a83232);' +
+                    'color:#fff;border-radius:var(--radius) var(--radius) 0 0">' +
+                    '<h2 style="color:#fff"><i class="fas fa-lock"></i> Entity Limit Reached</h2>' +
+                    '<button class="modal-close" onclick="closeModal()" style="color:#fff">' +
+                        '<i class="fas fa-times"></i>' +
+                    '</button>' +
+                '</div>' +
+                '<div class="modal-body" style="text-align:center;padding:32px">' +
+                    '<i class="fas fa-building" style="font-size:3rem;color:#c4dde4;' +
+                        'display:block;margin-bottom:16px"></i>' +
+                    '<h3 style="color:var(--text-dark);margin-bottom:10px">' +
+                        'You have used all ' + maxEnts + ' entit' +
+                        (maxEnts === 1 ? 'y' : 'ies') + ' in your plan' +
+                    '</h3>' +
+                    '<p style="color:var(--text-light);font-size:.88rem;margin-bottom:24px">' +
+                        'You currently have <strong>' + currentEnts + '</strong> entit' +
+                        (currentEnts === 1 ? 'y' : 'ies') + ' and your plan includes ' +
+                        '<strong>' + maxEnts + '</strong>. ' +
+                        'Purchase an additional entity to create more.' +
+                    '</p>' +
+                    '<button class="btn-portal gold" onclick="closeModal();openBuyEntityWindow()" ' +
+                        'style="width:100%;justify-content:center;padding:14px">' +
+                        '<i class="fas fa-shopping-cart"></i> Buy Additional Entity' +
+                    '</button>' +
+                    '<button class="btn-portal outline" onclick="closeModal()" ' +
+                        'style="width:100%;justify-content:center;margin-top:10px">' +
+                        '<i class="fas fa-times"></i> Cancel' +
+                    '</button>' +
+                '</div>' +
+                '</div></div>';
+            return;
+        }
+    }
+
     var allSections  = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar','Cold Kitchen','Hot Kitchen','Pastry Section','Prep Kitchen','Receiving Area','Wine Cellar'];
     var defaultOn    = ['Walk-in Fridge','Walk-in Freezer','Dry Store','Bar'];
     var sectionChecks = allSections.map(function(s) {
