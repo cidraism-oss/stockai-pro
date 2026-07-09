@@ -1,0 +1,22 @@
+{
+  "name": "StockAI-Pro Supplier Portal",
+  "short_name": "Supplier Portal",
+  "description": "Manage your purchase orders and pricing with StockAI-Pro",
+  "start_url": "/supplier.html",
+  "display": "standalone",
+  "background_color": "#0d3d4f",
+  "theme_color": "#0d4a5c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
