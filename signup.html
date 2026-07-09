@@ -154,6 +154,18 @@ body {
 .ft-card.locked .ft-toggle { background: var(--success); }
 .ft-card.locked .ft-toggle::after { transform: translateX(20px); }
 
+/* FREE FEATURE CARD */
+.ft-card-free {
+  border-color: var(--gold) !important;
+  background: rgba(245,158,11,.03) !important;
+}
+.ft-card-free .ft-toggle {
+  background: var(--success) !important;
+}
+.ft-card-free .ft-toggle::after {
+  transform: translateX(20px) !important;
+}
+
 /* SELECTED CHIPS */
 .selected-summary { background: var(--bg); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; border: 1px solid var(--border); }
 .selected-summary-title { font-size: .78rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
@@ -161,6 +173,26 @@ body {
 .selected-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600; background: rgba(26,139,168,.1); color: var(--teal-mid); border: 1px solid rgba(26,139,168,.2); }
 .selected-chip.locked { background: rgba(46,168,113,.1); color: var(--success); border-color: rgba(46,168,113,.2); }
 .selected-chip i { font-size: .65rem; }
+
+/* SECTION DIVIDER */
+.feature-section-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feature-section-label::before,
+.feature-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
 
 /* ADD-ONS */
 .addons-section { border-top: 1px solid var(--border); padding-top: 22px; margin-top: 6px; }
@@ -353,6 +385,9 @@ body {
           </div>
         </div>
 
+        <!-- SECTION: Core Apps -->
+        <div class="feature-section-label">Core Applications</div>
+
         <!-- Mobile App -->
         <div class="ft-card" data-feature="mobile_app" data-price="349" data-setup-hrs="1" onclick="toggleFeature(this)">
           <div class="ft-left">
@@ -383,23 +418,8 @@ body {
           </div>
         </div>
 
-        <!-- POS System -->
-        <div class="ft-card" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-cash-register"></i></div>
-            <div>
-              <div class="ft-name">P.O.S System</div>
-              <div class="ft-desc">Point of sale — menu builder, table payments & auto stock deduction</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R799/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
         <!-- Menu Master -->
-        <div class="ft-card" data-feature="menu_master" data-price="349" data-setup-hrs="01" onclick="toggleFeature(this)">
+        <div class="ft-card" data-feature="menu_master" data-price="349" data-setup-hrs="1" onclick="toggleFeature(this)">
           <div class="ft-left">
             <div class="ft-icon"><i class="fas fa-utensils"></i></div>
             <div>
@@ -409,40 +429,6 @@ body {
           </div>
           <div class="ft-right">
             <span class="ft-price">R349/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- FunctionsAI -->
-        <div class="ft-card" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-              <i class="fas fa-glass-cheers"></i>
-            </div>
-            <div>
-              <div class="ft-name">FunctionsAI — Events Manager</div>
-              <div class="ft-desc">Full event management — menus, beverages, invoicing & client bookings</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R449/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- Retail POS -->
-        <div class="ft-card" data-feature="retail_pos" data-price="999" data-setup-hrs="12" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
-              <i class="fas fa-store"></i>
-            </div>
-            <div>
-              <div class="ft-name">Retail POS</div>
-              <div class="ft-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R999/mo</span>
             <div class="ft-toggle"></div>
           </div>
         </div>
@@ -464,7 +450,161 @@ body {
           </div>
         </div>
 
+        <!-- SECTION: Point of Sale -->
+        <div class="feature-section-label">Point of Sale</div>
+
+        <!-- POS System -->
+        <div class="ft-card" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon"><i class="fas fa-cash-register"></i></div>
+            <div>
+              <div class="ft-name">P.O.S System</div>
+              <div class="ft-desc">Point of sale — menu builder, table payments & auto stock deduction</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R799/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- Retail POS -->
+        <div class="ft-card" data-feature="retail_pos" data-price="999" data-setup-hrs="12" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+              <i class="fas fa-store"></i>
+            </div>
+            <div>
+              <div class="ft-name">Retail POS</div>
+              <div class="ft-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R999/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- POS Builder — FREE with POS — hidden until POS selected -->
+        <div class="ft-card ft-card-free" id="ft-pos-builder"
+          data-feature="pos_builder" data-price="0" data-setup-hrs="2"
+          style="display:none;">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+              <i class="fas fa-tools"></i>
+            </div>
+            <div>
+              <div class="ft-name">POS Builder</div>
+              <div class="ft-desc">Build & configure your POS menus, categories and items</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-badge" style="color:var(--gold-dark);background:rgba(245,158,11,.12)">
+              <i class="fas fa-gift" style="margin-right:3px"></i> Free with POS
+            </span>
+            <span class="ft-price" style="color:var(--success)">Included</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- CashUp-Pro — FREE with POS — hidden until POS selected -->
+        <div class="ft-card ft-card-free" id="ft-cashup-pro"
+          data-feature="cashup_pro" data-price="0" data-setup-hrs="1"
+          style="display:none;">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#10b981,#065f46)">
+              <i class="fas fa-calculator"></i>
+            </div>
+            <div>
+              <div class="ft-name">CashUp-Pro</div>
+              <div class="ft-desc">Manager cash-up & reconciliation — all cashiers in one view</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-badge" style="color:var(--gold-dark);background:rgba(245,158,11,.12)">
+              <i class="fas fa-gift" style="margin-right:3px"></i> Free with POS
+            </span>
+            <span class="ft-price" style="color:var(--success)">Included</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- SECTION: Business Modules -->
+        <div class="feature-section-label">Business Modules</div>
+
+        <!-- FunctionsAI -->
+        <div class="ft-card" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+              <i class="fas fa-glass-cheers"></i>
+            </div>
+            <div>
+              <div class="ft-name">FunctionsAI — Events Manager</div>
+              <div class="ft-desc">Full event management — menus, beverages, invoicing & client bookings</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R449/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- Production Manager -->
+        <div class="ft-card" data-feature="production" data-price="449" data-setup-hrs="2" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+              <i class="fas fa-industry"></i>
+            </div>
+            <div>
+              <div class="ft-name">Production Manager</div>
+              <div class="ft-desc">Bulk production — recipe scaling, ingredient deduction & cost tracking</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R449/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- HR Module -->
+        <div class="ft-card" data-feature="hr_module" data-price="349" data-setup-hrs="2" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)">
+              <i class="fas fa-users-cog"></i>
+            </div>
+            <div>
+              <div class="ft-name">HR Module</div>
+              <div class="ft-desc">Staff management — clock in/out, leave, schedules & payslips</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R349/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
+        <!-- SECTION: AI -->
+        <div class="feature-section-label">AI & Intelligence</div>
+
+        <!-- AI Brain + Nikki -->
+        <div class="ft-card" data-feature="ai_brain" data-price="499" data-setup-hrs="1" onclick="toggleFeature(this)">
+          <div class="ft-left">
+            <div class="ft-icon" style="background:linear-gradient(135deg,#0d9488,#0d4a5c)">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div>
+              <div class="ft-name">AI Brain + Nikki Voice Bot</div>
+              <div class="ft-desc">Say "Hey Nikki" — AI assistant that knows your data, multilingual</div>
+            </div>
+          </div>
+          <div class="ft-right">
+            <span class="ft-price">R499/mo</span>
+            <div class="ft-toggle"></div>
+          </div>
+        </div>
+
       </div>
+      <!-- END FEATURE TOGGLES -->
 
       <!-- SELECTED CHIPS -->
       <div class="selected-summary">
@@ -551,7 +691,7 @@ body {
       <div class="price-summary">
         <div class="price-summary-title"><i class="fas fa-receipt"></i> Your Price Breakdown</div>
         <div class="ps-section-label">Monthly Subscription</div>
-        <div class="ps-line"><span>Web App B.O.H</span><span class="ps-val">R799.00/mo</span></div>
+        <div class="ps-line"><span>Web App B.O.H (Base — flat fee)</span><span class="ps-val">R799.00/mo</span></div>
         <div id="ps-feature-details"></div>
         <div class="ps-line"><span>Entities (<span id="ps-ent-count">1</span> × R599)</span><span class="ps-val" id="ps-entities">R599.00/mo</span></div>
         <hr class="ps-divider">
@@ -596,69 +736,123 @@ body {
   </div>
 
 </div>
-
 <script>
 // ============================================================
 // CONFIG — LIVE PAYSTACK KEY
 // ============================================================
 var PAYSTACK_PUBLIC_KEY = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
+var PROXY_URL_MAIL = 'https://bold-dust-c51b.cidraism.workers.dev/';
 
+// ============================================================
+// FEATURE PRICES — All features including new ones
+// ============================================================
 var FEATURE_PRICES = {
-    web_boh:          799,
-    mobile_app:       349,
-    procure_ai:       399,
-    pos_system:       799,
-    menu_master:      349,
-    functions_ai:     449,
-    retail_pos:       999,
-    invoice_scanner:  499
+    web_boh:         799,
+    mobile_app:      349,
+    procure_ai:      399,
+    pos_system:      799,
+    menu_master:     349,
+    functions_ai:    449,
+    retail_pos:      999,
+    production:      449,
+    hr_module:       349,
+    invoice_scanner: 499,
+    ai_brain:        499,
+    pos_builder:     0,
+    cashup_pro:      0
 };
 
+// ============================================================
+// FEATURE NAMES
+// ============================================================
 var FEATURE_NAMES = {
-    web_boh:          'Web App B.O.H',
-    mobile_app:       'Mobile App',
-    procure_ai:       'ProcureAI App',
-    pos_system:       'P.O.S System',
-    menu_master:      'Menu Master',
-    functions_ai:     'FunctionsAI',
-    retail_pos:       'Retail POS',
-    invoice_scanner:  'Invoice Scanner App'
+    web_boh:         'Web App B.O.H',
+    mobile_app:      'Mobile App',
+    procure_ai:      'ProcureAI App',
+    pos_system:      'P.O.S System',
+    menu_master:     'Menu Master',
+    functions_ai:    'FunctionsAI',
+    retail_pos:      'Retail POS',
+    production:      'Production Manager',
+    hr_module:       'HR Module',
+    invoice_scanner: 'Invoice Scanner App',
+    ai_brain:        'AI Brain + Nikki Voice Bot',
+    pos_builder:     'POS Builder',
+    cashup_pro:      'CashUp-Pro'
 };
 
+// ============================================================
+// SETUP HOURS PER FEATURE — locked, not editable by customer
+// ============================================================
 var SETUP_HOURS = {
-    web_boh:          12,
-    mobile_app:       1,
-    procure_ai:       1,
-    pos_system:       8,
-    menu_master:      1,
-    functions_ai:     1,
-    retail_pos:       12,
-    invoice_scanner:  2
+    web_boh:         12,
+    mobile_app:      1,
+    procure_ai:      1,
+    pos_system:      8,
+    menu_master:     1,
+    functions_ai:    1,
+    retail_pos:      12,
+    production:      2,
+    hr_module:       2,
+    invoice_scanner: 2,
+    ai_brain:        1,
+    pos_builder:     2,
+    cashup_pro:      1
 };
 
-var ENTITY_RATE   = 599;
-var TECH_RATE     = 450;
-var TRAINING_BASE = 1500;
+var ENTITY_RATE    = 599;
+var TECH_RATE      = 450;
+var TRAINING_BASE  = 1500;
 var TRAINING_EXTRA = 750;
 
 // ============================================================
-// TOGGLE FEATURES
+// TOGGLE FEATURES ON/OFF
 // ============================================================
 function toggleFeature(el) {
     if (el.classList.contains('locked')) return;
     el.classList.toggle('selected');
+
+    // Auto-show/hide POS Builder & CashUp-Pro
+    var hasPOS    = document.querySelector('.ft-card[data-feature="pos_system"].selected') !== null;
+    var hasRetail = document.querySelector('.ft-card[data-feature="retail_pos"].selected') !== null;
+    var hasEither = hasPOS || hasRetail;
+
+    var posbCard   = document.getElementById('ft-pos-builder');
+    var cashupCard = document.getElementById('ft-cashup-pro');
+    if (posbCard)   posbCard.style.display  = hasEither ? '' : 'none';
+    if (cashupCard) cashupCard.style.display = hasEither ? '' : 'none';
+
     calcSignup();
     updateChips();
 }
 
+// ============================================================
+// UPDATE SELECTED FEATURE CHIPS
+// ============================================================
 function updateChips() {
     var container = document.getElementById('selected-chips');
     var html = '<span class="selected-chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>';
+
+    // Paid selected features
     document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
-        var key  = card.getAttribute('data-feature');
-        var name = FEATURE_NAMES[key] || key;
-        html += '<span class="selected-chip"><i class="fas fa-check"></i> ' + name + '</span>';
+        var key   = card.getAttribute('data-feature');
+        var price = FEATURE_PRICES[key] || 0;
+        var name  = FEATURE_NAMES[key] || key;
+        if (price > 0) {
+            html += '<span class="selected-chip"><i class="fas fa-check"></i> ' + name + '</span>';
+        }
     });
+
+    // Free features (show if POS or Retail POS selected)
+    var hasPOS    = document.querySelector('.ft-card[data-feature="pos_system"].selected') !== null;
+    var hasRetail = document.querySelector('.ft-card[data-feature="retail_pos"].selected') !== null;
+    if (hasPOS || hasRetail) {
+        html += '<span class="selected-chip" style="background:rgba(245,158,11,.1);color:var(--gold-dark);border-color:rgba(245,158,11,.2)">' +
+            '<i class="fas fa-gift"></i> POS Builder (Free)</span>';
+        html += '<span class="selected-chip" style="background:rgba(245,158,11,.1);color:var(--gold-dark);border-color:rgba(245,158,11,.2)">' +
+            '<i class="fas fa-gift"></i> CashUp-Pro (Free)</span>';
+    }
+
     container.innerHTML = html;
 }
 
@@ -666,31 +860,55 @@ function updateChips() {
 // CALCULATE PRICING
 // ============================================================
 function calcSignup() {
-    // Features
-    var featureTotal = FEATURE_PRICES.web_boh;
-    var selectedFeatures = ['web_boh'];
-    var totalSetupHrs = SETUP_HOURS.web_boh;
+    // Step 1 — Collect selected features
+    var featureTotal       = FEATURE_PRICES.web_boh; // Base always R799 flat
+    var selectedFeatures   = ['web_boh'];
+    var totalSetupHrs      = SETUP_HOURS.web_boh;
     var featureDetailsHTML = '';
 
     document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
         var key   = card.getAttribute('data-feature');
-        var price = parseInt(card.getAttribute('data-price'));
+        var price = FEATURE_PRICES[key] || 0;
         var hrs   = parseInt(card.getAttribute('data-setup-hrs')) || 0;
-        featureTotal += price;
+
+        if (price > 0) featureTotal += price;
         totalSetupHrs += hrs;
         selectedFeatures.push(key);
-        featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) + '</span><span class="ps-val">R' + price.toLocaleString() + '.00/mo</span></div>';
+
+        if (price > 0) {
+            featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) +
+                '</span><span class="ps-val">R' + price.toLocaleString() + '.00/mo</span></div>';
+        } else {
+            featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) +
+                '</span><span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+        }
     });
 
-    // Entities
+    // Auto-add free features if POS selected
+    var hasPOS    = selectedFeatures.indexOf('pos_system') !== -1;
+    var hasRetail = selectedFeatures.indexOf('retail_pos') !== -1;
+    if (hasPOS || hasRetail) {
+        if (selectedFeatures.indexOf('pos_builder') === -1) {
+            selectedFeatures.push('pos_builder');
+            totalSetupHrs += (SETUP_HOURS.pos_builder || 2);
+        }
+        if (selectedFeatures.indexOf('cashup_pro') === -1) {
+            selectedFeatures.push('cashup_pro');
+            totalSetupHrs += (SETUP_HOURS.cashup_pro || 1);
+        }
+        featureDetailsHTML += '<div class="ps-line sub"><span>POS Builder</span><span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+        featureDetailsHTML += '<div class="ps-line sub"><span>CashUp-Pro</span><span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+    }
+
+    // Step 2 — Entities
     var entCount = parseInt(document.getElementById('su-entities').value) || 1;
     var entTotal = entCount * ENTITY_RATE;
     document.getElementById('su-entity-price').textContent = 'R' + entTotal.toLocaleString() + '.00';
-    document.getElementById('ps-ent-count').textContent = entCount;
-    document.getElementById('ps-entities').textContent = 'R' + entTotal.toLocaleString() + '.00/mo';
+    document.getElementById('ps-ent-count').textContent    = entCount;
+    document.getElementById('ps-entities').textContent     = 'R' + entTotal.toLocaleString() + '.00/mo';
     document.getElementById('ps-feature-details').innerHTML = featureDetailsHTML;
 
-    // Technician — multiplied by entity count
+    // Step 3 — Technician (multiplied by entity count)
     var techCheck   = document.getElementById('su-tech-check').checked;
     var techDetails = document.getElementById('su-tech-details');
     var techTotal   = 0;
@@ -704,16 +922,19 @@ function calcSignup() {
         selectedFeatures.forEach(function(key) {
             var hrs  = SETUP_HOURS[key] || 0;
             var name = FEATURE_NAMES[key] || key;
+            var price = FEATURE_PRICES[key] || 0;
+            var isFree = (price === 0 && key !== 'web_boh');
             breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:1px 0">' +
-                '<span>' + name + '</span>' +
-                '<span style="font-weight:700">' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'Included') + '</span>' +
+                '<span>' + name + (isFree ? ' <span style="color:var(--gold);font-size:.65rem">(Free)</span>' : '') + '</span>' +
+                '<span style="font-weight:700">' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'No setup') + '</span>' +
                 '</div>';
         });
         if (entCount > 1) {
-            breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:6px;border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700">' +
+            breakdownHTML +=
+                '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:6px;' +
+                'border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700">' +
                 '<span>× ' + entCount + ' entities</span>' +
-                '<span>' + totalHrsAllEntities + ' total hrs</span>' +
-                '</div>';
+                '<span>' + totalHrsAllEntities + ' total hrs</span></div>';
         }
 
         document.getElementById('su-tech-breakdown').innerHTML = breakdownHTML;
@@ -723,7 +944,7 @@ function calcSignup() {
         techDetails.classList.remove('visible');
     }
 
-    // Training
+    // Step 4 — Training
     var trainingCheck  = document.getElementById('su-training-check').checked;
     var trainingExtras = document.getElementById('su-training-extras');
     var trainingTotal  = 0;
@@ -738,9 +959,9 @@ function calcSignup() {
         trainingExtras.classList.remove('visible');
     }
 
-    // Totals
-    var monthlyTotal  = featureTotal + entTotal;
-    var onceOffTotal  = techTotal + trainingTotal;
+    // Step 5 — Totals
+    var monthlyTotal = featureTotal + entTotal;
+    var onceOffTotal = techTotal + trainingTotal;
 
     document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
 
@@ -754,21 +975,17 @@ function calcSignup() {
             techRow.style.display = 'flex';
             document.getElementById('ps-tech-hrs').textContent = totalHrsAllEntities;
             document.getElementById('ps-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
-        } else {
-            techRow.style.display = 'none';
-        }
+        } else { techRow.style.display = 'none'; }
         if (trainingCheck) {
             trainRow.style.display = 'flex';
             document.getElementById('ps-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
-        } else {
-            trainRow.style.display = 'none';
-        }
+        } else { trainRow.style.display = 'none'; }
         document.getElementById('ps-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
     } else {
         onceOffSection.style.display = 'none';
     }
 
-    // Pay button text
+    // Step 6 — Update pay button
     var btnText = 'Pay R' + monthlyTotal.toLocaleString() + '.00/mo';
     if (onceOffTotal > 0) {
         btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
@@ -834,6 +1051,16 @@ window.addEventListener('load', function() {
         if (extraInput) extraInput.value = extrastaff;
     }
 
+    // Check for POS/Retail selections from URL
+    var hasPOS    = features && features.indexOf('pos_system') !== -1;
+    var hasRetail = features && features.indexOf('retail_pos') !== -1;
+    if (hasPOS || hasRetail) {
+        var posbCard   = document.getElementById('ft-pos-builder');
+        var cashupCard = document.getElementById('ft-cashup-pro');
+        if (posbCard)   posbCard.style.display  = '';
+        if (cashupCard) cashupCard.style.display = '';
+    }
+
     setTimeout(function() {
         calcSignup();
         updateChips();
@@ -855,22 +1082,22 @@ function startPayment() {
         return;
     }
 
-    // Save to sessionStorage
-    sessionStorage.setItem('signup_email',            email);
-    sessionStorage.setItem('signup_features',         JSON.stringify(data.features));
-    sessionStorage.setItem('signup_feature_names',    JSON.stringify(data.features.map(function(f){ return FEATURE_NAMES[f] || f; })));
-    sessionStorage.setItem('signup_feature_total',    data.featureTotal.toString());
-    sessionStorage.setItem('signup_entities',         data.entities.toString());
-    sessionStorage.setItem('signup_entity_total',     data.entityTotal.toString());
-    sessionStorage.setItem('signup_monthly_total',    data.monthlyTotal.toString());
-    sessionStorage.setItem('signup_tech_included',    data.techIncluded.toString());
-    sessionStorage.setItem('signup_tech_hours',       data.techHours.toString());
-    sessionStorage.setItem('signup_tech_total',       data.techTotal.toString());
+    // Save all details to sessionStorage
+    sessionStorage.setItem('signup_email',             email);
+    sessionStorage.setItem('signup_features',          JSON.stringify(data.features));
+    sessionStorage.setItem('signup_feature_names',     JSON.stringify(data.features.map(function(f){ return FEATURE_NAMES[f] || f; })));
+    sessionStorage.setItem('signup_feature_total',     data.featureTotal.toString());
+    sessionStorage.setItem('signup_entities',          data.entities.toString());
+    sessionStorage.setItem('signup_entity_total',      data.entityTotal.toString());
+    sessionStorage.setItem('signup_monthly_total',     data.monthlyTotal.toString());
+    sessionStorage.setItem('signup_tech_included',     data.techIncluded.toString());
+    sessionStorage.setItem('signup_tech_hours',        data.techHours.toString());
+    sessionStorage.setItem('signup_tech_total',        data.techTotal.toString());
     sessionStorage.setItem('signup_training_included', data.trainingIncluded.toString());
-    sessionStorage.setItem('signup_extra_staff',      data.extraStaff.toString());
-    sessionStorage.setItem('signup_training_total',   data.trainingTotal.toString());
-    sessionStorage.setItem('signup_onceoff_total',    data.onceOffTotal.toString());
-    sessionStorage.setItem('signup_total_charge',     data.totalCharge.toString());
+    sessionStorage.setItem('signup_extra_staff',       data.extraStaff.toString());
+    sessionStorage.setItem('signup_training_total',    data.trainingTotal.toString());
+    sessionStorage.setItem('signup_onceoff_total',     data.onceOffTotal.toString());
+    sessionStorage.setItem('signup_total_charge',      data.totalCharge.toString());
 
     var featureLabels = data.features.map(function(f) { return FEATURE_NAMES[f] || f; });
 
@@ -896,11 +1123,11 @@ function startPayment() {
             onceOffTotal:  data.onceOffTotal,
             totalCharged:  data.totalCharge,
             custom_fields: [
-                { display_name: 'Features',       variable_name: 'features',       value: featureLabels.join(', ') },
-                { display_name: 'Entities',       variable_name: 'entities',       value: data.entities + ' entities' },
-                { display_name: 'Monthly',        variable_name: 'monthly',        value: 'R' + data.monthlyTotal + '/mo' },
-                { display_name: 'Once-off',       variable_name: 'onceoff',        value: 'R' + data.onceOffTotal },
-                { display_name: 'Total Charged',  variable_name: 'total_charged',  value: 'R' + data.totalCharge }
+                { display_name: 'Features',      variable_name: 'features',      value: featureLabels.join(', ') },
+                { display_name: 'Entities',      variable_name: 'entities',      value: data.entities + ' entities' },
+                { display_name: 'Monthly',       variable_name: 'monthly',       value: 'R' + data.monthlyTotal + '/mo' },
+                { display_name: 'Once-off',      variable_name: 'onceoff',       value: 'R' + data.onceOffTotal },
+                { display_name: 'Total Charged', variable_name: 'total_charged', value: 'R' + data.totalCharge }
             ]
         },
         onClose: function() {
@@ -927,11 +1154,48 @@ function startPayment() {
                 });
             }
 
-            // Send welcome email to customer
+            // Send welcome email
             sendWelcomeEmail(email, data, response.reference);
 
-            setProgress(3);
+            // Send AI Brain activation email if purchased
+            if (data.features.indexOf('ai_brain') !== -1) {
+                fetch(PROXY_URL_MAIL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Nikki AI Brain is Now Active — StockAI-Pro',
+                        html:
+                            '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;' +
+                            'border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
+                            '<div style="background:linear-gradient(135deg,#0d9488,#0d4a5c);padding:28px;text-align:center;">' +
+                            '<h1 style="color:#fff;margin:0;font-size:22px;">Nikki is Ready! 🤖</h1>' +
+                            '<p style="color:#5EEAD4;margin:8px 0 0;font-size:12px;">AI Brain + Nikki Voice Bot</p>' +
+                            '</div>' +
+                            '<div style="padding:28px;background:#fff;">' +
+                            '<p style="color:#0d4a5c;font-size:15px;">Hi there,</p>' +
+                            '<p style="color:#5a8a96;font-size:14px;line-height:1.7;">' +
+                            'Your <strong>AI Brain + Nikki Voice Bot</strong> is now active on StockAI-Pro!</p>' +
+                            '<div style="background:#f0f7f9;border-radius:10px;padding:18px;margin:20px 0;">' +
+                            '<p style="color:#0d4a5c;font-weight:700;margin:0 0 8px;">How to use Nikki:</p>' +
+                            '<p style="color:#5a8a96;font-size:13px;margin:0;line-height:1.8;">' +
+                            '• Just say <strong>"Hey Nikki"</strong> inside any app<br>' +
+                            '• Ask questions about your stock, food cost, sales<br>' +
+                            '• Nikki speaks multiple languages<br>' +
+                            '• Full voice control on mobile</p>' +
+                            '</div>' +
+                            '<div style="background:#fff8e1;border-left:4px solid #f59e0b;padding:14px;border-radius:8px;margin:0 0 20px;">' +
+                            '<p style="color:#92400e;font-size:13px;margin:0;">' +
+                            '<strong>Setup required:</strong> Add your OpenAI API key in Settings to enable AI Brain.</p>' +
+                            '</div>' +
+                            '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:0;">' +
+                            '&copy; 2025 StockAI-Pro &bull; 079 044 0508</p>' +
+                            '</div></div>'
+                    })
+                }).catch(function() {});
+            }
 
+            setProgress(3);
             setTimeout(function() {
                 window.location.href = 'setup.html';
             }, 1500);
@@ -948,47 +1212,80 @@ function sendWelcomeEmail(email, data, paymentRef) {
     console.log('📧 Sending welcome email to:', email);
 
     var featureList = (data.features || []).map(function(f) {
-        return '✅ ' + (FEATURE_NAMES[f] || f);
+        var price = FEATURE_PRICES[f] || 0;
+        var name  = FEATURE_NAMES[f] || f;
+        return price > 0 ? '✅ ' + name : '🎁 ' + name + ' (Free)';
     }).join('<br>');
 
     var html =
-        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
-        '<div style="background-color:#0d4a5c;padding:30px;text-align:center;">' +
-        '<h1 style="color:#ffffff;margin:0;font-size:24px;">StockAI-Pro</h1>' +
-        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:12px;letter-spacing:1px;">INTELLIGENCE A CLICK AWAY</p>' +
-        '<h2 style="color:#ffffff;margin:14px 0 0;font-size:18px;">Welcome to StockAI-Pro!</h2>' +
+        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;' +
+        'border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:30px;text-align:center;">' +
+        '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:2px;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:11px;letter-spacing:2px;">INTELLIGENCE A CLICK AWAY</p>' +
+        '<h2 style="color:#fff;margin:14px 0 0;font-size:20px;">Welcome to StockAI-Pro!</h2>' +
         '</div>' +
-        '<div style="padding:30px;background-color:#ffffff;">' +
-        '<p style="color:#0d4a5c;font-size:16px;">Your payment was successful!</p>' +
-        '<p style="color:#5a8a96;font-size:14px;line-height:1.6;">Thank you for joining StockAI-Pro. Your account is ready to be set up.</p>' +
-        '<div style="background-color:#0d4a5c;padding:20px;border-radius:8px;text-align:center;margin:20px 0;">' +
-        '<p style="color:#ffffff;margin:0;font-size:14px;">Payment Confirmed</p>' +
-        '<p style="color:#f59e0b;font-size:24px;font-weight:bold;margin:8px 0;">R' + (data.monthlyTotal || 0).toLocaleString() + '.00/mo</p>' +
-        '<p style="color:rgba(255,255,255,.7);font-size:12px;margin:0;">Reference: ' + paymentRef + '</p>' +
+
+        '<div style="padding:28px;background:#fff;">' +
+        '<p style="color:#0d4a5c;font-size:15px;margin:0 0 8px;">Your payment was successful!</p>' +
+        '<p style="color:#5a8a96;font-size:13px;line-height:1.7;margin:0 0 20px;">' +
+        'Thank you for joining StockAI-Pro. Your account is ready to set up.</p>' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:20px;' +
+        'border-radius:10px;text-align:center;margin:0 0 20px;">' +
+        '<p style="color:rgba(255,255,255,.75);font-size:12px;margin:0 0 4px;">Payment Confirmed</p>' +
+        '<p style="color:#f59e0b;font-size:22px;font-weight:900;margin:0;">R' + (data.monthlyTotal || 0).toLocaleString() + '.00/mo</p>' +
+        '<p style="color:rgba(255,255,255,.6);font-size:11px;margin:4px 0 0;">Reference: ' + paymentRef + '</p>' +
         '</div>' +
-        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
-        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">YOUR PACKAGE INCLUDES:</p>' +
+
+        '<div style="background:#f0f7f9;padding:16px;border-radius:10px;margin:0 0 20px;">' +
+        '<p style="color:#1a8ba8;font-size:11px;font-weight:700;text-transform:uppercase;' +
+        'letter-spacing:1px;margin:0 0 10px;">Your Package Includes:</p>' +
         '<p style="color:#0d4a5c;font-size:13px;line-height:2;margin:0;">' + featureList + '</p>' +
-        '<p style="color:#2a5f70;font-size:13px;margin:10px 0 0;"><strong>Entities:</strong> ' + (data.entities || 1) + ' location' + ((data.entities || 1) > 1 ? 's' : '') + '</p>' +
+        '<p style="color:#2a5f70;font-size:12px;margin:10px 0 0;">' +
+        '<strong>Entities:</strong> ' + (data.entities || 1) + ' location' + ((data.entities || 1) > 1 ? 's' : '') + '</p>' +
         '</div>' +
-        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
-        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">GETTING STARTED:</p>' +
-        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0;">1. Click the button below to set up your account<br>2. Add your suppliers and price lists<br>3. Create your stock items<br>4. Run your first stock count!</p>' +
+
+        '<div style="background:#f0f7f9;padding:16px;border-radius:10px;margin:0 0 24px;">' +
+        '<p style="color:#1a8ba8;font-size:11px;font-weight:700;text-transform:uppercase;' +
+        'letter-spacing:1px;margin:0 0 10px;">Getting Started:</p>' +
+        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0;">' +
+        '1. Click the button below to set up your account<br>' +
+        '2. Add your suppliers and download price lists<br>' +
+        '3. Create your stock items and set par levels<br>' +
+        '4. Run your first stock count — try voice counting!</p>' +
         '</div>' +
-        '<div style="text-align:center;margin:25px 0;">' +
-        '<a href="https://www.stockai-pro.co.za/setup.html?ref=' + paymentRef + '" style="background-color:#f59e0b;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:15px;">Set Up My Account Now</a>' +
+
+        '<div style="text-align:center;margin:0 0 24px;">' +
+        '<a href="https://www.stockai-pro.co.za/setup.html?ref=' + paymentRef + '" ' +
+        'style="display:inline-block;padding:15px 32px;' +
+        'background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;' +
+        'text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">' +
+        'Set Up My Account Now</a>' +
         '</div>' +
-        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:20px 0;">' +
-        '<div style="text-align:center;">' +
-        '<a href="https://wa.me/27790440508" style="color:#25D366;text-decoration:none;font-size:13px;margin:0 10px;">WhatsApp Support</a>' +
-        '<a href="tel:0790440508" style="color:#1a8ba8;text-decoration:none;font-size:13px;margin:0 10px;">079 044 0508</a>' +
+
+        '<div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;margin:0 0 20px;">' +
+        '<p style="color:#065f46;font-size:13px;font-weight:700;margin:0;">30-Day Money-Back Guarantee</p>' +
+        '<p style="color:#047857;font-size:11px;margin:4px 0 0;">Not satisfied? Full refund — no questions asked.</p>' +
         '</div>' +
-        '<p style="text-align:center;color:#8aabb5;font-size:12px;margin-top:16px;">© 2025 StockAI-Pro. Built with love in South Africa.</p>' +
+
+        '<div style="text-align:center;margin:0 0 16px;">' +
+        '<a href="https://wa.me/27790440508" style="display:inline-block;padding:10px 20px;' +
+        'background:#25D366;color:#fff;border-radius:8px;text-decoration:none;' +
+        'font-weight:700;margin:4px;font-size:13px;">WhatsApp Support</a>' +
+        '<a href="tel:0790440508" style="display:inline-block;padding:10px 20px;' +
+        'background:#1a8ba8;color:#fff;border-radius:8px;text-decoration:none;' +
+        'font-weight:700;margin:4px;font-size:13px;">Call Us</a>' +
+        '</div>' +
+
+        '<p style="text-align:center;color:#8aabb5;font-size:11px;margin:0;">' +
+        '&copy; 2025 StockAI-Pro &bull; 079 044 0508 &bull; support@stockai-pro.co.za</p>' +
         '</div></div>';
 
-    var PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
-
-    return fetch(PROXY_URL, {
+    return fetch(PROXY_URL_MAIL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -998,7 +1295,7 @@ function sendWelcomeEmail(email, data, paymentRef) {
         })
     })
     .then(function(res) {
-        if (res.ok) { console.log('✅ Welcome email sent'); }
+        if (res.ok) { console.log('✅ Welcome email sent to:', email); }
         else { console.warn('⚠️ Welcome email issue:', res.status); }
         return res;
     })
@@ -1009,7 +1306,7 @@ function sendWelcomeEmail(email, data, paymentRef) {
 }
 
 // ============================================================
-// PROGRESS BAR
+// UPDATE PROGRESS BAR
 // ============================================================
 function setProgress(step) {
     for (var i = 1; i <= 4; i++) {
@@ -1025,6 +1322,10 @@ function setProgress(step) {
         l.classList.toggle('done', j < step);
     }
 }
+
+console.log('✅ StockAI-Pro signup.html loaded');
+console.log('💳 Paystack LIVE key — active');
+console.log('🏗️ Build Your Base — ' + Object.keys(FEATURE_NAMES).length + ' features available');
 </script>
 </body>
 </html>
