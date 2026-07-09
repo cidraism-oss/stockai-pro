@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d4a5c">
+<meta name="mobile-web-app-capable" content="yes">
+<title>StockAI-Pro — Supplier Portal</title>
+<link rel="manifest" href="/supplier-manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary:#1a8ba8;
+    --primary-dark:#0d4a5c;
+    --primary-light:#4dbdd5;
+    --bg:#0d3d4f;
+    --bg-card:#0f4d62;
+    --bg-dark:#0b3344;
+    --bg-hover:#1a6070;
+    --text:#e0f4f8;
+    --text-mid:#a8d8e8;
+    --text-light:#7bb8c8;
+    --text-muted:#4a8a9a;
+    --gold:#f59e0b;
+    --gold-dark:#d97706;
+    --success:#2ea871;
+    --danger:#c94545;
+    --warning:#d4a017;
+    --info:#2b8eb3;
+    --border:#1a5a6e;
+    --shadow:0 2px 12px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.4);
+    --shadow-xl:0 20px 60px rgba(0,0,0,.5);
+    --r:14px;
+    --rs:8px;
+    --header-h:56px;
+    --nav-h:65px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);font-size:14px;user-select:none;-webkit-user-select:none;}
+.hidden{display:none!important;}
+input,textarea,select{user-select:text;-webkit-user-select:text;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:2px;}
+
+/* ── HEADER ── */
+.sup-header{
+    height:var(--header-h);
+    background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    display:flex;align-items:center;padding:0 16px;gap:12px;
+    flex-shrink:0;box-shadow:0 2px 16px rgba(0,0,0,.3);z-index:100;
+}
+.sup-header-logo{
+    width:36px;height:36px;background:rgba(255,255,255,.15);
+    border-radius:10px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1rem;overflow:hidden;flex-shrink:0;
+}
+.sup-header-logo img{width:100%;height:100%;object-fit:cover;}
+.sup-header-title{flex:1;}
+.sup-header-title .name{font-size:.88rem;font-weight:700;color:#fff;}
+.sup-header-title .sub{font-size:.62rem;color:rgba(255,255,255,.7);}
+.sup-hbtn{
+    width:36px;height:36px;background:rgba(255,255,255,.15);border:none;
+    border-radius:var(--rs);color:#fff;font-size:.9rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sup-hbtn:hover{background:rgba(255,255,255,.25);}
+
+/* ── SCREENS ── */
+#sup-login-screen,#sup-app{position:fixed;inset:0;display:flex;flex-direction:column;}
+#sup-app{background:var(--bg);}
+
+/* ── LOGIN ── */
+.sup-login-wrap{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    padding:24px;
+}
+.sup-login-card{
+    background:var(--bg-card);border-radius:24px;padding:40px 36px;
+    width:100%;max-width:420px;box-shadow:var(--shadow-xl);text-align:center;
+    position:relative;overflow:hidden;
+}
+.sup-login-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--primary-dark),var(--primary),var(--gold),var(--primary));
+    background-size:200% 100%;animation:loginBar 3s linear infinite;
+}
+@keyframes loginBar{0%{background-position:0%}100%{background-position:200%}}
+.sup-login-field{margin-bottom:16px;text-align:left;}
+.sup-login-field label{font-size:.78rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:5px;}
+.sup-input{
+    width:100%;padding:13px 16px;border:1.5px solid var(--border);
+    border-radius:var(--rs);font-size:.92rem;font-family:inherit;
+    color:var(--text);background:var(--bg-dark);transition:.2s;
+}
+.sup-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,139,168,.2);}
+.sup-btn{
+    width:100%;padding:15px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;border:none;border-radius:var(--rs);font-size:1rem;font-weight:700;
+    cursor:pointer;font-family:inherit;transition:.3s;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.sup-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,139,168,.4);}
+.sup-btn:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+.sup-error{
+    background:rgba(201,69,69,.15);border:1px solid rgba(201,69,69,.3);
+    color:var(--danger);padding:10px 14px;border-radius:var(--rs);
+    font-size:.82rem;margin-bottom:14px;display:none;
+}
+
+/* ── NAV ── */
+.sup-nav{
+    height:var(--nav-h);background:var(--bg-card);border-top:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-around;
+    flex-shrink:0;padding:0 8px 8px;z-index:50;
+}
+.sup-nav-btn{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:8px 10px;border-radius:var(--rs);cursor:pointer;min-width:56px;
+    color:var(--text-light);background:transparent;transition:.2s;
+}
+.sup-nav-btn.active{color:var(--primary);background:rgba(26,139,168,.08);}
+.sup-nav-btn i{font-size:1.1rem;}
+.sup-nav-btn span{font-size:.6rem;font-weight:600;}
+
+/* ── CONTENT ── */
+.sup-content{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+
+/* ── CARDS ── */
+.sup-card{
+    background:var(--bg-card);border-radius:var(--r);padding:16px;
+    box-shadow:var(--shadow);margin-bottom:12px;
+}
+.sup-card-header{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+}
+.sup-card-title{font-size:.9rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+
+/* ── STATUS BADGES ── */
+.sup-badge{
+    padding:3px 10px;border-radius:12px;font-size:.68rem;font-weight:600;display:inline-block;
+}
+.sup-badge.transit{background:rgba(26,139,168,.12);color:var(--primary);}
+.sup-badge.accepted{background:rgba(46,168,113,.12);color:var(--success);}
+.sup-badge.declined{background:rgba(201,69,69,.12);color:var(--danger);}
+.sup-badge.pending{background:rgba(245,158,11,.12);color:var(--gold);}
+
+/* ── STAT CARDS ── */
+.sup-stat{
+    background:var(--bg-card);border-radius:var(--r);padding:16px;
+    box-shadow:var(--shadow);text-align:center;border-left:4px solid var(--primary);
+}
+.sup-stat-label{font-size:.65rem;color:var(--text-light);text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.sup-stat-value{font-size:1.4rem;font-weight:800;color:var(--text);}
+
+/* ── TOAST ── */
+.sup-toast-wrap{
+    position:fixed;bottom:calc(var(--nav-h) + 10px);right:16px;z-index:9999;
+    display:flex;flex-direction:column;gap:8px;pointer-events:none;
+}
+.sup-toast{
+    padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:500;
+    animation:toastIn .3s ease;pointer-events:all;min-width:260px;max-width:340px;
+}
+@keyframes toastIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.sup-toast.success{background:rgba(46,168,113,.9);color:#fff;border-left:3px solid #1a7a4a;}
+.sup-toast.error{background:rgba(201,69,69,.9);color:#fff;border-left:3px solid #a83232;}
+.sup-toast.info{background:rgba(26,139,168,.9);color:#fff;border-left:3px solid #0d4a5c;}
+.sup-toast.warning{background:rgba(212,160,23,.9);color:#fff;border-left:3px solid #b8860b;}
+.sup-toast button{background:none;border:none;cursor:pointer;color:inherit;opacity:.7;margin-left:auto;}
+
+/* ── MODAL ── */
+.sup-modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+    z-index:800;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.sup-modal{
+    background:var(--bg-card);border-radius:20px;width:100%;max-width:520px;
+    max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-xl);
+    animation:modalIn .3s ease;border:1px solid var(--border);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.sup-modal-header{
+    padding:20px 24px;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;
+}
+.sup-modal-header h3{font-size:1rem;font-weight:700;color:var(--text);}
+.sup-modal-close{
+    width:32px;height:32px;border-radius:50%;background:var(--bg-dark);
+    border:none;color:var(--text-light);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+}
+.sup-modal-body{padding:24px;}
+.sup-modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── INSTALL BANNER ── */
+.sup-install-banner{
+    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    padding:12px 16px;display:flex;align-items:center;gap:12px;
+    border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.sup-install-banner span{flex:1;font-size:.78rem;color:#fff;font-weight:600;}
+.sup-install-btn{
+    padding:7px 14px;background:var(--gold);border:none;border-radius:var(--rs);
+    color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;
+}
+
+/* ── FILE UPLOAD ── */
+.sup-file-drop{
+    border:2px dashed var(--border);border-radius:var(--r);padding:30px;
+    text-align:center;cursor:pointer;transition:.2s;
+}
+.sup-file-drop:hover{border-color:var(--primary);}
+.sup-file-drop i{font-size:2rem;color:var(--text-muted);display:block;margin-bottom:10px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:380px){.sup-login-card{padding:30px 20px;}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- LOGIN SCREEN                            -->
+<!-- ═══════════════════════════════════════ -->
+<div id="sup-login-screen">
+    <div class="sup-login-wrap">
+        <div class="sup-login-card">
+
+            <!-- Logo -->
+            <div style="margin-bottom:20px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" width="140">
+                    <defs>
+                        <linearGradient id="sAiG" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#5EEAD4"/>
+                            <stop offset="50%" style="stop-color:#14B8A6"/>
+                            <stop offset="100%" style="stop-color:#0891B2"/>
+                        </linearGradient>
+                        <linearGradient id="sSG" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#5EEAD4"/>
+                            <stop offset="55%" style="stop-color:#99F6E4"/>
+                            <stop offset="100%" style="stop-color:#5EEAD4"/>
+                        </linearGradient>
+                        <linearGradient id="sUG" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
+                            <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
+                            <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
+                        </linearGradient>
+                        <filter id="sGl"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    </defs>
+                    <g transform="translate(225,22)">
+                        <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2" filter="url(#sGl)"/>
+                        <circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity=".7"/>
+                        <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#sGl)" opacity=".95"/>
+                    </g>
+                    <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI',Arial,sans-serif" font-size="50" letter-spacing="-1">
+                        <tspan fill="url(#sSG)" font-weight="900">Stock</tspan>
+                        <tspan fill="url(#sAiG)" font-weight="900">AI</tspan>
+                        <tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity=".75" font-weight="900">-Pro</tspan>
+                    </text>
+                    <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#sUG)" opacity=".85"/>
+                </svg>
+            </div>
+
+            <h2 style="font-size:1.4rem;font-weight:900;color:var(--text);margin-bottom:4px">Supplier Portal</h2>
+            <p style="font-size:.82rem;color:var(--text-light);margin-bottom:24px">Sign in to manage your orders & pricing</p>
+
+            <div id="sup-login-error" class="sup-error"></div>
+
+            <form id="sup-login-form">
+                <div class="sup-login-field">
+                    <label>Email Address</label>
+                    <input type="email" class="sup-input" id="sup-email" placeholder="your@company.com" autocomplete="email" required>
+                </div>
+                <div class="sup-login-field">
+                    <label>Password</label>
+                    <input type="password" class="sup-input" id="sup-password" placeholder="Enter your password" autocomplete="current-password" required>
+                </div>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:.82rem;color:var(--text-mid)">
+                    <input type="checkbox" id="sup-remember" style="width:18px;height:18px;accent-color:var(--primary)"> Remember me
+                </label>
+                <button type="submit" class="sup-btn" id="sup-login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <button onclick="supForgotPw()" style="background:none;border:none;color:var(--primary-light);font-size:.82rem;cursor:pointer;font-family:inherit;font-weight:600;display:block;text-align:center;margin-bottom:16px;width:100%">
+                <i class="fas fa-key"></i> Forgot password?
+            </button>
+
+            <!-- Install button -->
+            <div style="border-top:1px solid var(--border);padding-top:14px">
+                <button onclick="supShowInstall()" style="width:100%;padding:12px;background:var(--bg-dark);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text-mid);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+                    <i class="fas fa-mobile-alt"></i> Install App on Device
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MAIN APP                                -->
+<!-- ═══════════════════════════════════════ -->
+<div id="sup-app" class="hidden">
+
+    <!-- Install banner (shows if not installed) -->
+    <div class="sup-install-banner hidden" id="sup-install-banner">
+        <i class="fas fa-mobile-alt" style="color:var(--gold)"></i>
+        <span>Install Supplier Portal on your device for quick access</span>
+        <button class="sup-install-btn" onclick="supShowInstall()">Install</button>
+        <button onclick="document.getElementById('sup-install-banner').classList.add('hidden')" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:4px"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Header -->
+    <header class="sup-header">
+        <div class="sup-header-logo" id="sup-header-logo">
+            <i class="fas fa-truck"></i>
+        </div>
+        <div class="sup-header-title">
+            <div class="name" id="sup-company-name">Supplier Portal</div>
+            <div class="sub" id="sup-user-name">Loading...</div>
+        </div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.7);text-align:right" id="sup-header-time">
+            <strong style="display:block;font-size:.82rem;color:#fff">00:00:00</strong>
+            <span>Loading...</span>
+        </div>
+        <button class="sup-hbtn" onclick="supLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    </header>
+
+    <!-- Content -->
+    <div class="sup-content" id="sup-content"></div>
+
+    <!-- Bottom Nav -->
+    <nav class="sup-nav">
+        <div class="sup-nav-btn active" data-suppage="sup-dash" onclick="supNavigate('sup-dash')">
+            <i class="fas fa-chart-pie"></i><span>Dashboard</span>
+        </div>
+        <div class="sup-nav-btn" data-suppage="sup-orders" onclick="supNavigate('sup-orders')">
+            <i class="fas fa-file-invoice"></i><span>Orders</span>
+        </div>
+        <div class="sup-nav-btn" data-suppage="sup-prices" onclick="supNavigate('sup-prices')">
+            <i class="fas fa-tags"></i><span>Prices</span>
+        </div>
+        <div class="sup-nav-btn" data-suppage="sup-history" onclick="supNavigate('sup-history')">
+            <i class="fas fa-history"></i><span>History</span>
+        </div>
+        <div class="sup-nav-btn" data-suppage="sup-profile" onclick="supNavigate('sup-profile')">
+            <i class="fas fa-user-circle"></i><span>Profile</span>
+        </div>
+    </nav>
+
+</div>
+
+<!-- Toast -->
+<div class="sup-toast-wrap" id="sup-toast-wrap"></div>
+
+<!-- Modal -->
+<div id="sup-modal-container"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE
+// ============================================================
+var firebaseConfig = {
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946379",
+    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db   = firebase.firestore();
+
+// ============================================================
+// STATE
+// ============================================================
+var SUP = {
+    user:         null,
+    supplierName: '',
+    supplierData: null,
+    linkedAccounts: [],
+    pendingOrders:  [],
+    orderHistory:   [],
+    myItems:        [],
+    currentView:    'sup-dash'
+};
+
+// ============================================================
+// TOAST
+// ============================================================
+function supToast(type, msg) {
+    var ic = {success:'check-circle',error:'times-circle',info:'info-circle',warning:'exclamation-triangle'};
+    var t  = document.createElement('div');
+    t.className = 'sup-toast ' + type;
+    t.innerHTML = '<i class="fas fa-' + (ic[type]||'info-circle') + '"></i><span style="flex:1">' + msg + '</span>' +
+        '<button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+    var w = document.getElementById('sup-toast-wrap');
+    if (w) w.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+    }, 5000);
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function supShowModal(title, body, footer) {
+    var c = document.getElementById('sup-modal-container');
+    c.innerHTML = '<div class="sup-modal-overlay" id="sup-modal-overlay">' +
+        '<div class="sup-modal">' +
+        '<div class="sup-modal-header"><h3>' + title + '</h3>' +
+        '<button class="sup-modal-close" onclick="supCloseModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="sup-modal-body">' + body + '</div>' +
+        (footer ? '<div class="sup-modal-footer">' + footer + '</div>' : '') +
+        '</div></div>';
+    document.getElementById('sup-modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) supCloseModal();
+    });
+}
+function supCloseModal() {
+    document.getElementById('sup-modal-container').innerHTML = '';
+}
+
+// ============================================================
+// DOM READY
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('sup-login-form');
+    if (form) form.addEventListener('submit', function(e) { e.preventDefault(); supLogin(); });
+    supStartClock();
+    // Show install banner after 3s if not installed
+    setTimeout(function() {
+        if (!window.matchMedia('(display-mode: standalone)').matches) {
+            var banner = document.getElementById('sup-install-banner');
+            if (banner) banner.classList.remove('hidden');
+        }
+    }, 3000);
+    // Check existing session
+    supCheckAuth();
+});
+
+// ============================================================
+// AUTH
+// ============================================================
+function supCheckAuth() {
+    var remembered = localStorage.getItem('sup_remember');
+    var remEmail   = localStorage.getItem('sup_email');
+    if (remembered === 'yes' && remEmail) {
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                supToast('info', '🔄 Loading...');
+                supFindAccount(user.email, function(found) {
+                    if (found) {
+                        document.getElementById('sup-login-screen').classList.add('hidden');
+                        document.getElementById('sup-app').classList.remove('hidden');
+                        supNavigate('sup-dash');
+                    } else {
+                        supShowLoginScreen();
+                    }
+                });
+            } else {
+                supShowLoginScreen();
+            }
+        });
+    } else {
+        auth.signOut().catch(function() {});
+        supShowLoginScreen();
+    }
+}
+
+function supShowLoginScreen() {
+    document.getElementById('sup-login-screen').classList.remove('hidden');
+    document.getElementById('sup-app').classList.add('hidden');
+}
+
+function supShowLoginError(msg) {
+    var el = document.getElementById('sup-login-error');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+function supLogin() {
+    var email    = (document.getElementById('sup-email').value || '').trim().toLowerCase();
+    var password = (document.getElementById('sup-password').value || '').trim();
+    var remember = document.getElementById('sup-remember').checked;
+    var errorDiv = document.getElementById('sup-login-error');
+    errorDiv.style.display = 'none';
+
+    if (!email)    { supShowLoginError('Enter your email');    return; }
+    if (!password) { supShowLoginError('Enter your password'); return; }
+
+    var btn = document.getElementById('sup-login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+    var persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+    auth.setPersistence(persistence)
+        .then(function() { return auth.signInWithEmailAndPassword(email, password); })
+        .then(function() {
+            if (remember) {
+                localStorage.setItem('sup_remember', 'yes');
+                localStorage.setItem('sup_email', email);
+            }
+            supToast('info', '🔄 Loading your portal...');
+            supFindAccount(email, function(found) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                if (found) {
+                    document.getElementById('sup-login-screen').classList.add('hidden');
+                    document.getElementById('sup-app').classList.remove('hidden');
+                    supNavigate('sup-dash');
+                } else {
+                    supShowLoginError('No supplier account found for this email.');
+                    auth.signOut();
+                }
+            });
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            var msg = 'Login failed.';
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')
+                msg = 'Incorrect email or password.';
+            else if (err.code === 'auth/too-many-requests')
+                msg = 'Too many attempts. Try later.';
+            supShowLoginError(msg);
+        });
+}
+
+// ============================================================
+// FIND SUPPLIER ACCOUNT
+// ============================================================
+function supFindAccount(email, callback) {
+    SUP.linkedAccounts = [];
+    SUP.pendingOrders  = [];
+    SUP.orderHistory   = [];
+    SUP.myItems        = [];
+
+    // Search all accounts for this supplier email in suppliers array
+    db.collection('accounts').get().then(function(snap) {
+        var found = false;
+        var promises = [];
+
+        snap.forEach(function(doc) {
+            var data = doc.data();
+            var entities = data.entities || [];
+
+            entities.forEach(function(ent) {
+                var suppliers = (data.suppliers || {})[ent.id] || [];
+                var supplier  = suppliers.find(function(s) {
+                    return s.email && s.email.toLowerCase() === email.toLowerCase();
+                });
+
+                if (supplier) {
+                    found = true;
+                    SUP.supplierName = supplier.name;
+                    SUP.user         = { name: supplier.name, email: email };
+
+                    // Get purchases for this supplier
+                    var purchases = (data.purchases || {})[ent.id] || [];
+                    var myPOs = purchases.filter(function(p) {
+                        return p.supplier && p.supplier.toLowerCase() === supplier.name.toLowerCase();
+                    });
+
+                    // Get pending POs
+                    var pending = myPOs.filter(function(p) {
+                        return p.status === 'In Transit' || p.status === 'Processing' || p.status === 'Pending';
+                    });
+
+                    // Get history
+                    var history = myPOs.filter(function(p) {
+                        return p.status === 'Received' || p.status === 'Delivered';
+                    });
+
+                    // Get my items in inventory
+                    var inventory = (data.inventory || {})[ent.id] || [];
+                    var myItems   = inventory.filter(function(i) {
+                        return i.supplier && i.supplier.toLowerCase() === supplier.name.toLowerCase();
+                    });
+
+                    SUP.linkedAccounts.push({
+                        accountId:  doc.id,
+                        entityId:   ent.id,
+                        entityName: ent.name,
+                        supplier:   supplier,
+                        data:       data
+                    });
+                    SUP.pendingOrders = SUP.pendingOrders.concat(pending.map(function(p) {
+                        return Object.assign({}, p, { accountId: doc.id, entityId: ent.id, entityName: ent.name });
+                    }));
+                    SUP.orderHistory = SUP.orderHistory.concat(history.map(function(p) {
+                        return Object.assign({}, p, { accountId: doc.id, entityId: ent.id, entityName: ent.name });
+                    }));
+                    SUP.myItems = SUP.myItems.concat(myItems.map(function(i) {
+                        return Object.assign({}, i, { accountId: doc.id, entityId: ent.id, entityName: ent.name });
+                    }));
+                }
+            });
+        });
+
+        if (found) {
+            // Update header
+            var compEl = document.getElementById('sup-company-name');
+            var userEl = document.getElementById('sup-user-name');
+            if (compEl) compEl.textContent = SUP.supplierName;
+            if (userEl) userEl.textContent  = 'Supplier Portal';
+        }
+
+        if (callback) callback(found);
+    }).catch(function(err) {
+        console.error('Supplier lookup error:', err);
+        if (callback) callback(false);
+    });
+}
+
+// ============================================================
+// LOGOUT
+// ============================================================
+function supLogout() {
+    localStorage.removeItem('sup_remember');
+    localStorage.removeItem('sup_email');
+    auth.signOut().then(function() {
+        SUP.user = null;
+        SUP.linkedAccounts = [];
+        document.getElementById('sup-app').classList.add('hidden');
+        document.getElementById('sup-login-screen').classList.remove('hidden');
+        var ef = document.getElementById('sup-email');
+        var pf = document.getElementById('sup-password');
+        if (ef) ef.value = '';
+        if (pf) pf.value = '';
+        supToast('info', 'Logged out');
+    });
+}
+
+function supForgotPw() {
+    var email = (document.getElementById('sup-email').value || '').trim();
+    if (!email) { supShowLoginError('Enter your email first'); return; }
+    auth.sendPasswordResetEmail(email.toLowerCase())
+        .then(function() { supToast('success', '📧 Reset link sent'); })
+        .catch(function(err) { supToast('error', err.message); });
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function supStartClock() {
+    setInterval(function() {
+        var now = new Date();
+        var ts  = now.toLocaleTimeString('en-ZA', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        var ds  = now.toLocaleDateString('en-ZA', {day:'numeric',month:'short',year:'numeric'});
+        var el  = document.getElementById('sup-header-time');
+        if (el) el.innerHTML = '<strong style="display:block;font-size:.82rem;color:#fff">' + ts + '</strong><span>' + ds + '</span>';
+    }, 1000);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function supNavigate(page) {
+    SUP.currentView = page;
+    document.querySelectorAll('[data-suppage]').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.suppage === page);
+    });
+    var content = document.getElementById('sup-content');
+    if (!content) return;
+    content.scrollTop = 0;
+
+    if      (page === 'sup-dash')    content.innerHTML = supDashboard();
+    else if (page === 'sup-orders')  content.innerHTML = supOrders();
+    else if (page === 'sup-prices')  content.innerHTML = supPrices();
+    else if (page === 'sup-history') content.innerHTML = supHistory();
+    else if (page === 'sup-profile') content.innerHTML = supProfile();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function supDashboard() {
+    var pending  = SUP.pendingOrders.length;
+    var history  = SUP.orderHistory.length;
+    var totalVal = SUP.orderHistory.reduce(function(s, p) { return s + (p.total || 0); }, 0);
+    var items    = SUP.myItems.length;
+
+    var html = '';
+
+    // Welcome
+    html += '<div style="background:var(--bg-card);border-radius:var(--r);padding:20px;' +
+        'box-shadow:var(--shadow);margin-bottom:16px;border-left:4px solid var(--gold);' +
+        'display:flex;align-items:center;gap:16px">' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:800;flex-shrink:0">' +
+        (SUP.supplierName ? SUP.supplierName.charAt(0).toUpperCase() : 'S') + '</div>' +
+        '<div><h3 style="font-size:1rem;font-weight:800;color:var(--text)">Welcome, ' + (SUP.supplierName || 'Supplier') + '</h3>' +
+        '<p style="font-size:.75rem;color:var(--text-light)">Supplier Portal — ' +
+        SUP.linkedAccounts.length + ' linked client(s)</p></div></div>';
+
+    // Stats
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">' +
+        '<div class="sup-stat" style="border-left-color:var(--gold)">' +
+        '<div class="sup-stat-label">Pending Orders</div>' +
+        '<div class="sup-stat-value" style="color:var(--gold)">' + pending + '</div></div>' +
+        '<div class="sup-stat" style="border-left-color:var(--success)">' +
+        '<div class="sup-stat-label">Completed</div>' +
+        '<div class="sup-stat-value" style="color:var(--success)">' + history + '</div></div>' +
+        '<div class="sup-stat" style="border-left-color:var(--primary)">' +
+        '<div class="sup-stat-label">My Items Listed</div>' +
+        '<div class="sup-stat-value">' + items + '</div></div>' +
+        '<div class="sup-stat" style="border-left-color:var(--info)">' +
+        '<div class="sup-stat-label">Total Value Supplied</div>' +
+        '<div class="sup-stat-value" style="color:var(--info)">R' +
+        (totalVal >= 1000 ? (totalVal / 1000).toFixed(1) + 'K' : totalVal.toFixed(0)) + '</div></div></div>';
+
+    // Pending orders preview
+    if (pending > 0) {
+        html += '<div class="sup-card" style="border-left:4px solid var(--gold)">' +
+            '<div class="sup-card-header">' +
+            '<h4 class="sup-card-title"><i class="fas fa-exclamation-circle" style="color:var(--gold)"></i> Pending Orders (' + pending + ')</h4>' +
+            '<button onclick="supNavigate(\'sup-orders\')" style="padding:6px 12px;background:var(--primary);color:#fff;border:none;border-radius:var(--rs);font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit">View All</button></div>';
+
+        SUP.pendingOrders.slice(0, 3).forEach(function(po) {
+            html += '<div style="padding:10px;background:var(--bg);border-radius:var(--rs);margin-bottom:8px">' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:4px">' +
+                '<strong style="font-size:.85rem;color:var(--text)">' + po.id + '</strong>' +
+                '<span class="sup-badge transit">' + po.status + '</span></div>' +
+                '<div style="font-size:.72rem;color:var(--text-light)">' +
+                po.entityName + ' • ' + (Array.isArray(po.lineItems) ? po.lineItems.length : po.items) + ' items • R' + (po.total || 0).toFixed(2) + '</div></div>';
+        });
+        html += '</div>';
+    } else {
+        html += '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-check-circle" style="font-size:2rem;color:var(--success);display:block;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text);margin-bottom:6px">All Clear!</h3>' +
+            '<p style="font-size:.82rem">No pending purchase orders</p></div>';
+    }
+
+    return html;
+}
+
+// ============================================================
+// ORDERS PAGE
+// ============================================================
+function supOrders() {
+    var html = '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Pending Purchase Orders (' + SUP.pendingOrders.length + ')</div>';
+
+    if (SUP.pendingOrders.length === 0) {
+        return html + '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-inbox" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No pending orders</p></div>';
+    }
+
+    SUP.pendingOrders.forEach(function(po) {
+        var lineItems = po.lineItems || [];
+        html += '<div style="background:var(--bg-card);border-radius:var(--r);padding:16px;' +
+            'margin-bottom:12px;box-shadow:var(--shadow);border-left:4px solid var(--primary)">' +
+
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">' +
+            '<div><div style="font-size:.92rem;font-weight:700;color:var(--text)">' + po.id + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light)">' +
+            po.entityName + ' • ' + new Date(po.createdAt || po.date).toLocaleDateString('en-ZA') + '</div></div>' +
+            '<span class="sup-badge transit">Pending</span></div>' +
+
+            // Line items
+            '<div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">' +
+            '<div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;margin-bottom:8px">Order Items</div>' +
+            lineItems.map(function(item) {
+                return '<div style="display:flex;justify-content:space-between;align-items:center;' +
+                    'padding:8px 0;border-bottom:1px solid var(--border)">' +
+                    '<div style="flex:1">' +
+                    '<div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+                    '<div style="font-size:.68rem;color:var(--text-light)">' + item.qty + ' ' + item.unit + '</div></div>' +
+                    '<div style="text-align:right">' +
+                    '<div style="font-size:.85rem;font-weight:700;color:var(--primary)">R' + (item.total || 0).toFixed(2) + '</div>' +
+                    // Out of stock button per item
+                    '<button onclick="supMarkItemOutOfStock(\'' + po.id + '\',\'' + po.accountId + '\',\'' + po.entityId + '\',\'' + item.id + '\')" ' +
+                    'style="margin-top:4px;padding:2px 8px;background:rgba(201,69,69,.1);border:none;border-radius:4px;' +
+                    'color:var(--danger);font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+                    '<i class="fas fa-times"></i> Out of Stock</button></div></div>';
+            }).join('') +
+            '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.92rem;font-weight:800;color:var(--text)">' +
+            '<span>Total:</span><span style="color:var(--primary)">R' + (po.total || 0).toFixed(2) + '</span></div></div>' +
+
+            // Note input
+            '<div style="margin-bottom:12px">' +
+            '<label style="font-size:.75rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Add Note (optional)</label>' +
+            '<textarea id="po-note-' + po.id + '" placeholder="Add note before accepting..." ' +
+            'style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--rs);' +
+            'color:var(--text);background:var(--bg-dark);font-size:.82rem;font-family:inherit;resize:vertical;min-height:60px"></textarea></div>' +
+
+            // Actions
+            '<div style="display:flex;gap:8px">' +
+            '<button onclick="supAcceptOrder(\'' + po.id + '\',\'' + po.accountId + '\',\'' + po.entityId + '\')" ' +
+            'style="flex:1;padding:12px;background:var(--success);color:#fff;border:none;border-radius:var(--rs);' +
+            'font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">' +
+            '<i class="fas fa-check"></i> Accept Order</button>' +
+            '<button onclick="supDeclineOrder(\'' + po.id + '\',\'' + po.accountId + '\',\'' + po.entityId + '\')" ' +
+            'style="flex:1;padding:12px;background:var(--danger);color:#fff;border:none;border-radius:var(--rs);' +
+            'font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">' +
+            '<i class="fas fa-times"></i> Decline</button></div></div>';
+    });
+
+    return html;
+}
+
+// ============================================================
+// ACCEPT ORDER
+// ============================================================
+function supAcceptOrder(poId, accountId, entityId) {
+    var po   = SUP.pendingOrders.find(function(p) { return p.id === poId; });
+    if (!po) return;
+    var note = (document.getElementById('po-note-' + poId) || {}).value || '';
+
+    supToast('info', '🔄 Accepting order...');
+
+    db.collection('accounts').doc(accountId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var data      = doc.data();
+        var purchases = (data.purchases || {})[entityId] || [];
+        var updated   = purchases.map(function(p) {
+            if (p.id === poId) {
+                return Object.assign({}, p, {
+                    status:          'In Transit',
+                    supplierAccepted: true,
+                    supplierNote:    note,
+                    acceptedAt:      new Date().toISOString(),
+                    acceptedBy:      SUP.supplierName
+                });
+            }
+            return p;
+        });
+
+        var update = {};
+        update['purchases.' + entityId] = updated;
+        update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+
+        return db.collection('accounts').doc(accountId).set(update, { merge: true });
+    }).then(function() {
+        // Update local state
+        po.status          = 'In Transit';
+        po.supplierAccepted = true;
+        po.supplierNote    = note;
+        SUP.pendingOrders  = SUP.pendingOrders.filter(function(p) { return p.id !== poId; });
+        SUP.orderHistory.unshift(po);
+        supToast('success', '✅ Order ' + poId + ' accepted & returned to client ProcureAI');
+        supNavigate('sup-orders');
+    }).catch(function(err) {
+        supToast('error', 'Error: ' + err.message);
+    });
+}
+
+// ============================================================
+// DECLINE ORDER
+// ============================================================
+function supDeclineOrder(poId, accountId, entityId) {
+    if (!confirm('Decline this order?')) return;
+    var note = (document.getElementById('po-note-' + poId) || {}).value || '';
+
+    supToast('info', '🔄 Declining order...');
+
+    db.collection('accounts').doc(accountId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var data      = doc.data();
+        var purchases = (data.purchases || {})[entityId] || [];
+        var updated   = purchases.map(function(p) {
+            if (p.id === poId) {
+                return Object.assign({}, p, {
+                    status:          'Declined',
+                    supplierDeclined: true,
+                    supplierNote:    note,
+                    declinedAt:      new Date().toISOString(),
+                    declinedBy:      SUP.supplierName
+                });
+            }
+            return p;
+        });
+
+        var update = {};
+        update['purchases.' + entityId] = updated;
+        update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+        return db.collection('accounts').doc(accountId).set(update, { merge: true });
+    }).then(function() {
+        SUP.pendingOrders = SUP.pendingOrders.filter(function(p) { return p.id !== poId; });
+        supToast('info', 'Order declined');
+        supNavigate('sup-orders');
+    }).catch(function(err) {
+        supToast('error', 'Error: ' + err.message);
+    });
+}
+
+// ============================================================
+// MARK ITEM OUT OF STOCK
+// ============================================================
+function supMarkItemOutOfStock(poId, accountId, entityId, itemId) {
+    if (!confirm('Mark this item as out of stock? It will be removed from the PO and a new PO may be generated from the next cheapest supplier.')) return;
+
+    supToast('info', '🔄 Processing...');
+
+    db.collection('accounts').doc(accountId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var data      = doc.data();
+        var purchases = (data.purchases || {})[entityId] || [];
+
+        var updated = purchases.map(function(p) {
+            if (p.id === poId) {
+                var newItems = (p.lineItems || []).filter(function(li) { return li.id !== itemId; });
+                var newTotal = newItems.reduce(function(s, li) { return s + (li.total || 0); }, 0);
+                return Object.assign({}, p, {
+                    lineItems: newItems,
+                    items: newItems.length,
+                    total: parseFloat(newTotal.toFixed(2)),
+                    outOfStockItems: (p.outOfStockItems || []).concat([itemId])
+                });
+            }
+            return p;
+        });
+
+        // Remove from local state
+        var po = SUP.pendingOrders.find(function(p) { return p.id === poId; });
+        if (po) {
+            po.lineItems = (po.lineItems || []).filter(function(li) { return li.id !== itemId; });
+        }
+
+        var update = {};
+        update['purchases.' + entityId] = updated;
+        update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+        return db.collection('accounts').doc(accountId).set(update, { merge: true });
+    }).then(function() {
+        supToast('success', '✅ Item marked out of stock. Web app will re-order from next supplier.');
+        supNavigate('sup-orders');
+    }).catch(function(err) {
+        supToast('error', 'Error: ' + err.message);
+    });
+}
+
+// ============================================================
+// PRICES PAGE
+// ============================================================
+function supPrices() {
+    var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px">' +
+        'My Price List (' + SUP.myItems.length + ' items)</div>' +
+        '<button onclick="supUploadPriceFile()" style="padding:8px 14px;background:var(--primary);color:#fff;' +
+        'border:none;border-radius:var(--rs);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;gap:6px"><i class="fas fa-file-upload"></i> Upload Price File</button></div>';
+
+    html += '<div style="background:rgba(26,139,168,.08);border-left:3px solid var(--primary);padding:12px;' +
+        'border-radius:var(--rs);margin-bottom:14px;font-size:.78rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--primary)"></i> ' +
+        'Download a blank template, update your prices, and upload to auto-update all linked clients.</div>';
+
+    html += '<button onclick="supDownloadTemplate()" style="width:100%;padding:12px;background:transparent;' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text-mid);font-size:.85rem;' +
+        'font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">' +
+        '<i class="fas fa-file-download"></i> Download Price List Template</button>';
+
+    if (SUP.myItems.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-tags" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No items linked to your account yet</p></div>';
+        return html;
+    }
+
+    html += '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1.5px solid var(--border);' +
+        'border-radius:var(--r);padding:10px 14px;margin-bottom:12px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
+        '<input type="text" id="sup-price-search" placeholder="Search items..." oninput="supFilterPrices()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.88rem;font-family:inherit;color:var(--text);background:transparent"></div>';
+
+    html += '<div id="sup-price-list">';
+    SUP.myItems.forEach(function(item) {
+        html += '<div data-itemname="' + item.name.toLowerCase() + '" ' +
+            'style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);' +
+            'border-radius:var(--rs);margin-bottom:8px;box-shadow:var(--shadow);border-left:3px solid var(--primary)">' +
+            '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-light)">' +
+            (item.category || '') + ' • ' + item.unit + ' • ' + item.entityName + '</div></div>' +
+            '<div style="text-align:right">' +
+            '<div style="font-size:.95rem;font-weight:800;color:var(--primary)">R' + (item.cost || 0).toFixed(2) + '</div>' +
+            '<div style="font-size:.62rem;color:var(--text-muted)">' + item.unit + '</div>' +
+            '<button onclick="supUpdatePrice(\'' + item.id + '\',\'' + item.accountId + '\',\'' + item.entityId + '\',' + (item.cost || 0) + ')" ' +
+            'style="margin-top:4px;padding:3px 8px;background:rgba(26,139,168,.1);border:none;border-radius:4px;' +
+            'color:var(--primary);font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+            '<i class="fas fa-edit"></i> Update</button></div></div>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function supFilterPrices() {
+    var q = (document.getElementById('sup-price-search').value || '').toLowerCase();
+    document.querySelectorAll('#sup-price-list [data-itemname]').forEach(function(el) {
+        el.style.display = (el.dataset.itemname || '').includes(q) ? '' : 'none';
+    });
+}
+
+function supDownloadTemplate() {
+    // Build CSV template
+    var csv = 'Item Name,Unit,Current Price,New Price\n';
+    SUP.myItems.forEach(function(item) {
+        csv += '"' + item.name + '",' + item.unit + ',' + (item.cost || 0).toFixed(2) + ',\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = SUP.supplierName.replace(/\s/g, '_') + '_price_list.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    supToast('success', '📄 Template downloaded. Update "New Price" column and upload.');
+}
+
+function supUploadPriceFile() {
+    supShowModal(
+        '<i class="fas fa-file-upload" style="color:var(--primary)"></i> Upload Price File',
+        '<div style="background:rgba(26,139,168,.08);border-left:3px solid var(--primary);padding:12px;border-radius:var(--rs);margin-bottom:16px;font-size:.82rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--primary)"></i> ' +
+        'Upload your updated CSV price list. Prices will update automatically across all linked clients. ' +
+        'New items will be added to inventory.</div>' +
+        '<div class="sup-file-drop" onclick="document.getElementById(\'sup-price-file\').click()" ' +
+        'ondragover="event.preventDefault();this.style.borderColor=\'var(--primary)\'" ' +
+        'ondragleave="this.style.borderColor=\'var(--border)\'" ' +
+        'ondrop="event.preventDefault();supHandlePriceFile(event.dataTransfer.files[0])">' +
+        '<i class="fas fa-cloud-upload-alt"></i>' +
+        '<p style="color:var(--text-light);font-size:.85rem;font-weight:600">Drag & drop or tap to select</p>' +
+        '<p style="color:var(--text-muted);font-size:.72rem;margin-top:4px">CSV files only</p></div>' +
+        '<input type="file" id="sup-price-file" accept=".csv" style="display:none" onchange="supHandlePriceFile(this.files[0])">' +
+        '<div id="sup-price-upload-status" style="margin-top:12px"></div>',
+        '<button onclick="supCloseModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600;color:var(--text-mid)">Close</button>'
+    );
+}
+
+function supHandlePriceFile(file) {
+    if (!file) return;
+    if (!file.name.endsWith('.csv')) { supToast('error', 'Please upload a CSV file'); return; }
+
+    var statusEl = document.getElementById('sup-price-upload-status');
+    if (statusEl) statusEl.innerHTML = '<div style="text-align:center;padding:14px;color:var(--text-light)"><i class="fas fa-spinner fa-spin" style="color:var(--primary)"></i> Processing...</div>';
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var lines   = e.target.result.split('\n').filter(function(l) { return l.trim(); });
+        var headers = lines[0].split(',');
+        var nameIdx = headers.findIndex(function(h) { return h.toLowerCase().includes('name'); });
+        var priceIdx= headers.findIndex(function(h) { return h.toLowerCase().includes('new price'); });
+        var unitIdx = headers.findIndex(function(h) { return h.toLowerCase().includes('unit'); });
+
+        if (nameIdx === -1 || priceIdx === -1) {
+            if (statusEl) statusEl.innerHTML = '<div style="color:var(--danger);font-size:.82rem">Invalid CSV format. Use the template.</div>';
+            return;
+        }
+
+        var updates = [];
+        for (var i = 1; i < lines.length; i++) {
+            var cols = lines[i].split(',');
+            var name = (cols[nameIdx] || '').replace(/"/g, '').trim();
+            var newPrice = parseFloat(cols[priceIdx]);
+            if (name && !isNaN(newPrice) && newPrice > 0) {
+                updates.push({ name: name, newPrice: newPrice });
+            }
+        }
+
+        if (updates.length === 0) {
+            if (statusEl) statusEl.innerHTML = '<div style="color:var(--warning);font-size:.82rem">No valid price updates found.</div>';
+            return;
+        }
+
+        // Apply updates to all linked accounts
+        supApplyPriceUpdates(updates, statusEl);
+    };
+    reader.readAsText(file);
+}
+
+function supApplyPriceUpdates(updates, statusEl) {
+    var promises = [];
+    var updatedCount = 0;
+    var newCount = 0;
+
+    SUP.linkedAccounts.forEach(function(account) {
+        var inventory = (account.data.inventory || {})[account.entityId] || [];
+        var changed = false;
+
+        updates.forEach(function(upd) {
+            var invItem = inventory.find(function(i) {
+                return i.name.toLowerCase() === upd.name.toLowerCase();
+            });
+            if (invItem) {
+                invItem.lastCost = invItem.cost;
+                invItem.cost     = upd.newPrice;
+                invItem.value    = parseFloat((invItem.quantity * invItem.cost).toFixed(2));
+                invItem.lastUpdated = new Date().toISOString();
+                changed = true;
+                updatedCount++;
+            } else {
+                // New item — add to inventory
+                inventory.push({
+                    id:          'ITM-SUP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                    name:        upd.name,
+                    category:    'General',
+                    department:  'Procurement',
+                    unit:        'each',
+                    quantity:    0,
+                    cost:        upd.newPrice,
+                    lastCost:    0,
+                    value:       0,
+                    status:      'out-of-stock',
+                    parLevel:    0,
+                    reorder:     0,
+                    isVat:       true,
+                    supplier:    SUP.supplierName,
+                    addedDate:   new Date().toISOString(),
+                    addedBy:     'Supplier Portal — ' + SUP.supplierName
+                });
+                changed = true;
+                newCount++;
+            }
+        });
+
+        if (changed) {
+            var update = {};
+            update['inventory.' + account.entityId] = inventory;
+            update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+            update.lastUpdatedBy = 'Supplier Portal — ' + SUP.supplierName;
+            promises.push(db.collection('accounts').doc(account.accountId).set(update, { merge: true }));
+        }
+    });
+
+    Promise.all(promises).then(function() {
+        if (statusEl) {
+            statusEl.innerHTML = '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);padding:12px;border-radius:var(--rs);font-size:.82rem;color:var(--text)">' +
+                '<i class="fas fa-check-circle" style="color:var(--success)"></i> ' +
+                '<strong>' + updatedCount + ' prices updated</strong>' +
+                (newCount > 0 ? ', <strong>' + newCount + ' new items added</strong>' : '') +
+                ' across ' + SUP.linkedAccounts.length + ' client(s)</div>';
+        }
+        supToast('success', '✅ Price file processed! ' + updatedCount + ' updated, ' + newCount + ' new items.');
+        // Refresh supplier data
+        if (auth.currentUser) supFindAccount(auth.currentUser.email, function() {});
+    }).catch(function(err) {
+        if (statusEl) statusEl.innerHTML = '<div style="color:var(--danger);font-size:.82rem">Error: ' + err.message + '</div>';
+    });
+}
+
+function supUpdatePrice(itemId, accountId, entityId, currentPrice) {
+    supShowModal(
+        '<i class="fas fa-edit" style="color:var(--primary)"></i> Update Item Price',
+        '<div style="margin-bottom:16px"><label style="font-size:.78rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:8px">New Price (R)</label>' +
+        '<input type="number" id="sup-new-price" value="' + currentPrice.toFixed(2) + '" step="0.01" min="0" ' +
+        'style="width:100%;padding:16px;background:var(--bg-dark);border:2px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);font-size:1.5rem;font-weight:700;text-align:center;font-family:inherit"></div>',
+        '<button onclick="supCloseModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600;color:var(--text-mid)">Cancel</button>' +
+        '<button onclick="supSaveItemPrice(\'' + itemId + '\',\'' + accountId + '\',\'' + entityId + '\')" ' +
+        'style="flex:1;padding:10px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700">Save Price</button>'
+    );
+}
+
+function supSaveItemPrice(itemId, accountId, entityId) {
+    var newPrice = parseFloat(document.getElementById('sup-new-price').value) || 0;
+    if (newPrice <= 0) { supToast('error', 'Enter valid price'); return; }
+
+    supToast('info', '🔄 Updating price...');
+    db.collection('accounts').doc(accountId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var data      = doc.data();
+        var inventory = (data.inventory || {})[entityId] || [];
+        inventory = inventory.map(function(item) {
+            if (item.id === itemId) {
+                return Object.assign({}, item, {
+                    lastCost:    item.cost,
+                    cost:        newPrice,
+                    value:       parseFloat((item.quantity * newPrice).toFixed(2)),
+                    lastUpdated: new Date().toISOString()
+                });
+            }
+            return item;
+        });
+        var update = {};
+        update['inventory.' + entityId] = inventory;
+        update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+        return db.collection('accounts').doc(accountId).set(update, { merge: true });
+    }).then(function() {
+        supCloseModal();
+        supToast('success', '✅ Price updated');
+        // Update local
+        var item = SUP.myItems.find(function(i) { return i.id === itemId; });
+        if (item) item.cost = newPrice;
+        supNavigate('sup-prices');
+    }).catch(function(err) {
+        supToast('error', 'Error: ' + err.message);
+    });
+}
+
+// ============================================================
+// HISTORY PAGE
+// ============================================================
+function supHistory() {
+    var html = '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Order History (' + SUP.orderHistory.length + ')</div>';
+
+    if (SUP.orderHistory.length === 0) {
+        return html + '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-history" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No order history yet</p></div>';
+    }
+
+    var sorted = SUP.orderHistory.slice().sort(function(a, b) {
+        return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
+    });
+
+    sorted.forEach(function(po) {
+        html += '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+            'margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid var(--success)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+            '<div><div style="font-size:.88rem;font-weight:700;color:var(--text)">' + po.id + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light)">' +
+            po.entityName + ' • ' + new Date(po.createdAt || po.date).toLocaleDateString('en-ZA') + '</div></div>' +
+            '<span class="sup-badge accepted">Received</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:.82rem">' +
+            '<span style="color:var(--text-light)">' +
+            (Array.isArray(po.lineItems) ? po.lineItems.length : po.items) + ' items</span>' +
+            '<strong style="color:var(--primary)">R' + (po.total || 0).toFixed(2) + '</strong></div>' +
+            (po.supplierNote ? '<div style="margin-top:8px;font-size:.72rem;color:var(--text-muted);font-style:italic">Note: ' + po.supplierNote + '</div>' : '') +
+            '</div>';
+    });
+
+    return html;
+}
+
+// ============================================================
+// PROFILE PAGE
+// ============================================================
+function supProfile() {
+    var supplier = SUP.linkedAccounts.length > 0 ? SUP.linkedAccounts[0].supplier : {};
+    return '<div style="max-width:500px;margin:0 auto">' +
+
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center">' +
+        '<div style="width:80px;height:80px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;' +
+        'display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:800;margin:0 auto 14px">' +
+        (SUP.supplierName ? SUP.supplierName.charAt(0).toUpperCase() : 'S') + '</div>' +
+        '<h2 style="font-size:1.2rem;font-weight:800;color:var(--text)">' + (SUP.supplierName || 'Supplier') + '</h2>' +
+        '<p style="font-size:.78rem;color:var(--text-light)">' + (supplier.type || 'General Supplier') + '</p>' +
+        '<p style="font-size:.75rem;color:var(--text-muted);margin-top:4px">' + (SUP.user ? SUP.user.email : '') + '</p></div>' +
+
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px">' +
+        '<h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px">' +
+        '<i class="fas fa-building" style="color:var(--primary)"></i> Linked Clients (' + SUP.linkedAccounts.length + ')</h3>' +
+        SUP.linkedAccounts.map(function(acc) {
+            return '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:var(--rs);margin-bottom:6px">' +
+                '<div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:700">' +
+                acc.entityName.charAt(0).toUpperCase() + '</div>' +
+                '<div><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + acc.entityName + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-light)">' + (acc.supplier.deliveryDays || []).join(', ') + '</div></div></div>';
+        }).join('') + '</div>' +
+
+        (supplier.phone || supplier.email ? '<div style="background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px">' +
+        '<h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px"><i class="fas fa-phone" style="color:var(--primary)"></i> Contact Info</h3>' +
+        (supplier.phone ? '<div style="font-size:.85rem;color:var(--text-mid);margin-bottom:6px"><i class="fas fa-phone" style="color:var(--primary);width:16px"></i> ' + supplier.phone + '</div>' : '') +
+        (supplier.email ? '<div style="font-size:.85rem;color:var(--text-mid)"><i class="fas fa-envelope" style="color:var(--primary);width:16px"></i> ' + supplier.email + '</div>' : '') +
+        '</div>' : '') +
+
+        '<button onclick="supLogout()" style="width:100%;padding:14px;background:rgba(201,69,69,.1);border:1.5px solid var(--danger);border-radius:var(--rs);color:var(--danger);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-sign-out-alt"></i> Logout</button></div>';
+}
+
+// ============================================================
+// INSTALL GUIDE
+// ============================================================
+function supShowInstall() {
+    var ua    = navigator.userAgent || '';
+    var isIOS = /iPad|iPhone|iPod/.test(ua);
+    var steps = isIOS
+        ? '<div style="font-size:.85rem;color:var(--text);line-height:2">' +
+          '<p>1. Open in <strong>Safari</strong></p>' +
+          '<p>2. Tap <strong>Share ⬆️</strong></p>' +
+          '<p>3. Tap <strong>Add to Home Screen</strong></p>' +
+          '<p>4. Tap <strong>Add</strong></p></div>'
+        : '<div style="font-size:.85rem;color:var(--text);line-height:2">' +
+          '<p>1. Tap <strong>⋮ menu</strong></p>' +
+          '<p>2. Tap <strong>Add to Home screen</strong></p>' +
+          '<p>3. Tap <strong>Add</strong></p></div>';
+    supShowModal('<i class="fas fa-mobile-alt" style="color:var(--primary)"></i> Install App',
+        '<div style="background:rgba(26,139,168,.08);border-left:3px solid var(--primary);padding:12px;border-radius:var(--rs);margin-bottom:14px;font-size:.82rem;color:var(--text-mid)">Install the Supplier Portal on your device for instant access without opening a browser.</div>' + steps,
+        '<button onclick="supCloseModal()" style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600;color:var(--text-mid)">Close</button>'
+    );
+}
+
+window.addEventListener('online',  function() { supToast('success', '✅ Back online'); });
+window.addEventListener('offline', function() { supToast('warning', '📵 No internet'); });
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+console.log('✅ StockAI-Pro Supplier Portal — Loaded');
+console.log('📦 Features: PO management, accept/decline orders,');
+console.log('   item out-of-stock marking, price file upload/download,');
+console.log('   individual price updates, order history, PWA installable');
+</script>
+
+</body>
+</html>
