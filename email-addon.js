@@ -1,1030 +1,671 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get Started — StockAI-Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<style>
-:root {
-  --teal-dark: #0d4a5c;
-  --teal-mid: #1a8ba8;
-  --teal-light: #4dbdd5;
-  --teal-pale: #a0e9f8;
-  --bg: #f0f7f9;
-  --bg-alt: #e4f1f5;
-  --white: #fff;
-  --text-dark: #0d4a5c;
-  --text-mid: #2a5f70;
-  --text-light: #5a8a96;
-  --text-muted: #8aabb5;
-  --gold: #f59e0b;
-  --gold-dark: #d97706;
-  --success: #2ea871;
-  --danger: #c94545;
-  --border: #c4dde4;
-  --shadow: 0 4px 20px rgba(13,74,92,.08);
-  --shadow-lg: 0 12px 50px rgba(13,74,92,.15);
-  --radius: 14px;
-  --radius-lg: 18px;
-}
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--text-dark);
-  min-height: 100vh;
-}
-
-/* HEADER */
-.header {
-  background: linear-gradient(90deg, var(--teal-dark), var(--teal-mid));
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 20px rgba(0,0,0,.15);
-}
-.logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-.logo svg { height: 40px; width: auto; }
-.header-back {
-  color: rgba(255,255,255,.85);
-  text-decoration: none;
-  font-size: .88rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
-  transition: color .2s ease;
-}
-.header-back:hover { color: #fff; }
-
-/* PROGRESS */
-.progress-bar { background: var(--bg-alt); padding: 16px 24px; border-bottom: 1px solid var(--border); }
-.progress-steps { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
-.progress-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.progress-step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; border: 2px solid var(--border); background: #fff; color: var(--text-light); transition: all .3s ease; }
-.progress-step.active .progress-step-circle { background: var(--teal-mid); border-color: var(--teal-mid); color: #fff; box-shadow: 0 4px 12px rgba(26,139,168,.3); }
-.progress-step.done .progress-step-circle { background: var(--success); border-color: var(--success); color: #fff; }
-.progress-step-label { font-size: .65rem; font-weight: 600; color: var(--text-light); text-align: center; white-space: nowrap; }
-.progress-step.active .progress-step-label { color: var(--teal-mid); font-weight: 700; }
-.progress-step.done .progress-step-label { color: var(--success); }
-.progress-line { flex: 1; height: 2px; background: var(--border); margin: 0 4px; margin-bottom: 20px; transition: background .3s ease; }
-.progress-line.done { background: var(--success); }
-
-/* PAGE HERO */
-.page-hero {
-  background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
-  padding: 40px 24px;
-  text-align: center;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.page-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(255,255,255,.06), transparent 50%); }
-.page-hero h1 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; position: relative; z-index: 1; }
-.page-hero p { font-size: .95rem; opacity: .9; max-width: 500px; margin: 0 auto; position: relative; z-index: 1; line-height: 1.6; }
-
-/* MAIN */
-.main { max-width: 820px; margin: 0 auto; padding: 40px 24px 60px; }
-
-/* BUILDER CARD */
-.builder-card {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  border: 2px solid var(--gold);
-  position: relative;
-  margin-bottom: 24px;
-}
-.builder-card::before {
-  content: '🚀 BUILD YOUR BASE';
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #fff;
-  padding: 5px 20px;
-  border-radius: 18px;
-  font-size: .7rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  z-index: 5;
-}
-.builder-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 30px 28px 22px; color: #fff; text-align: center; }
-.builder-header h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 6px; }
-.builder-header p { font-size: .88rem; opacity: .85; }
-.builder-body { padding: 28px; }
-
-/* FEATURE TOGGLE CARDS */
-.feature-toggles { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.ft-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
-  cursor: pointer;
-  user-select: none;
-  gap: 12px;
-}
-.ft-card:hover { border-color: var(--teal-light); box-shadow: var(--shadow); }
-.ft-card.selected { border-color: var(--teal-mid); background: rgba(26,139,168,.04); box-shadow: 0 0 0 3px rgba(26,139,168,.08); }
-.ft-card.locked { border-color: var(--success); background: rgba(46,168,113,.06); cursor: default; }
-.ft-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
-.ft-icon { width: 46px; height: 46px; border-radius: 11px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.15rem; flex-shrink: 0; }
-.ft-card.locked .ft-icon { background: linear-gradient(135deg, var(--success), #1a7a4a); }
-.ft-name { font-size: .95rem; font-weight: 700; color: var(--text-dark); }
-.ft-desc { font-size: .75rem; color: var(--text-light); margin-top: 2px; }
-.ft-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.ft-price { font-size: 1rem; font-weight: 800; color: var(--text-dark); white-space: nowrap; }
-.ft-badge { font-size: .6rem; font-weight: 700; color: var(--success); background: rgba(46,168,113,.1); padding: 3px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
-.ft-toggle { width: 46px; height: 26px; border-radius: 13px; background: var(--border); position: relative; transition: background .3s ease; flex-shrink: 0; }
-.ft-toggle::after { content: ''; width: 22px; height: 22px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform .3s ease; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
-.ft-card.selected .ft-toggle { background: var(--teal-mid); }
-.ft-card.selected .ft-toggle::after { transform: translateX(20px); }
-.ft-card.locked .ft-toggle { background: var(--success); }
-.ft-card.locked .ft-toggle::after { transform: translateX(20px); }
-
-/* SELECTED CHIPS */
-.selected-summary { background: var(--bg); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; border: 1px solid var(--border); }
-.selected-summary-title { font-size: .78rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
-.selected-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.selected-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600; background: rgba(26,139,168,.1); color: var(--teal-mid); border: 1px solid rgba(26,139,168,.2); }
-.selected-chip.locked { background: rgba(46,168,113,.1); color: var(--success); border-color: rgba(46,168,113,.2); }
-.selected-chip i { font-size: .65rem; }
-
-/* ADD-ONS */
-.addons-section { border-top: 1px solid var(--border); padding-top: 22px; margin-top: 6px; }
-.addons-title { font-size: .95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.addons-title i { color: var(--teal-mid); }
-.addon-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f7f9; gap: 16px; flex-wrap: wrap; }
-.addon-row:last-child { border-bottom: none; }
-.addon-label { flex: 1; min-width: 200px; }
-.addon-label strong { font-size: .88rem; color: var(--text-dark); display: block; margin-bottom: 3px; }
-.addon-label small { font-size: .75rem; color: var(--text-light); line-height: 1.5; }
-.addon-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.addon-controls select { padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; font-weight: 600; color: var(--text-dark); background: #fff; cursor: pointer; min-width: 130px; transition: border-color .3s ease; }
-.addon-controls select:focus { outline: none; border-color: var(--teal-mid); }
-.addon-controls input[type="number"] { padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; font-weight: 600; color: var(--text-dark); background: #fff; width: 75px; transition: border-color .3s ease; }
-.addon-controls input[type="number"]:focus { outline: none; border-color: var(--teal-mid); }
-.addon-price { font-weight: 700; font-size: .95rem; color: var(--teal-mid); min-width: 90px; text-align: right; }
-
-/* TECH BREAKDOWN */
-.tech-breakdown-box { display: none; background: var(--bg); border-radius: 10px; padding: 14px 16px; width: 100%; border: 1px solid var(--border); margin-top: 8px; }
-.tech-breakdown-box.visible { display: block; }
-.tech-breakdown-title { font-size: .78rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-.tech-breakdown-title i { color: var(--teal-mid); }
-.tech-breakdown-lines { font-size: .78rem; color: var(--text-mid); line-height: 2; }
-.tech-breakdown-total { display: flex; justify-content: space-between; padding: 8px 0; margin-top: 8px; border-top: 2px solid var(--border); font-weight: 700; font-size: .9rem; color: var(--text-dark); }
-.tech-breakdown-total span:last-child { color: var(--teal-mid); }
-
-/* TRAINING EXTRAS */
-.training-extras { display: none; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.training-extras.visible { display: flex; }
-
-/* PRICE SUMMARY */
-.price-summary { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); border-radius: 14px; padding: 24px; color: #fff; margin-top: 28px; }
-.price-summary-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .7; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.ps-section-label { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; opacity: .55; margin: 12px 0 4px; font-weight: 700; }
-.ps-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: .88rem; opacity: .85; }
-.ps-line.sub { padding-left: 14px; font-size: .8rem; opacity: .65; }
-.ps-line.sub::before { content: '• '; opacity: .6; }
-.ps-divider { border: none; border-top: 1px solid rgba(255,255,255,.15); margin: 12px 0; }
-.ps-line.monthly { font-size: 1.3rem; font-weight: 900; opacity: 1; padding: 12px 0 4px; }
-.ps-line.monthly .ps-val { color: var(--gold); }
-.ps-line.onceoff { font-size: 1rem; font-weight: 700; opacity: .9; }
-.ps-line.onceoff .ps-val { color: #fcd34d; }
-.ps-vat { font-size: .72rem; opacity: .5; text-align: right; margin-top: 8px; }
-
-/* PAYMENT */
-.payment-section { text-align: center; padding: 28px 0 10px; }
-.btn-pay { display: inline-flex; align-items: center; gap: 12px; padding: 18px 40px; background: linear-gradient(135deg, var(--success), #1a7a4a); color: #fff; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 8px 25px rgba(46,168,113,.35); max-width: 100%; }
-.btn-pay:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(46,168,113,.45); }
-.btn-pay:disabled { opacity: .5; transform: none; cursor: not-allowed; box-shadow: none; }
-.payment-note { font-size: .82rem; color: var(--text-light); margin-top: 16px; line-height: 1.75; max-width: 480px; margin-left: auto; margin-right: auto; }
-.payment-icons { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; opacity: .45; }
-.payment-icons i { font-size: 1.8rem; color: var(--text-light); }
-
-/* GUARANTEE */
-.guarantee { background: #fff; border-radius: var(--radius); padding: 24px 28px; box-shadow: var(--shadow); text-align: center; margin-top: 24px; border-left: 4px solid var(--success); }
-.guarantee h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
-.guarantee p { font-size: .85rem; color: var(--text-light); max-width: 500px; margin: 0 auto; line-height: 1.6; }
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .page-hero h1 { font-size: 1.5rem; }
-  .builder-body { padding: 20px 16px; }
-  .btn-pay { padding: 16px 28px; font-size: .95rem; }
-  .ft-card { flex-wrap: wrap; }
-  .ft-right { width: 100%; justify-content: space-between; }
-  .addon-row { flex-direction: column; align-items: flex-start; }
-  .addon-controls { width: 100%; justify-content: flex-start; }
-  .logo svg { height: 34px; }
-  .ps-line.monthly { font-size: 1.1rem; }
-}
-@media (max-width: 480px) {
-  .logo svg { height: 30px; }
-  .builder-header h2 { font-size: 1.2rem; }
-  .ft-price { font-size: .9rem; }
-  .progress-step-label { font-size: .58rem; }
-}
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="header">
-  <a href="index.html" class="logo">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="40">
-      <defs>
-        <linearGradient id="sAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-          <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-          <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
-        </linearGradient>
-        <linearGradient id="sStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-          <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
-          <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-        </linearGradient>
-        <linearGradient id="sUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
-          <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-          <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-          <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-          <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
-        </linearGradient>
-        <filter id="sGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="sGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="sGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <g transform="translate(225,22)">
-        <circle cx="55" cy="52" r="48" fill="#5EEAD4" opacity="0.06" filter="url(#sGlowLarge)"/>
-        <g opacity="0.5"><polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#2DD4BF" stroke-width="1.5"/><polygon points="55,16 85,31 55,46 25,31" fill="#2DD4BF" opacity="0.14"/></g>
-        <g filter="url(#sGlowSoft)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/><polygon points="55,56 80,43 80,68 55,81" fill="#14B8A6" opacity="0.16"/><polygon points="55,56 30,43 30,68 55,81" fill="#2DD4BF" opacity="0.10"/></g>
-        <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/>
-        <circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/>
-        <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#sGlowMed)" opacity="0.95"/>
-        <line x1="55" y1="49" x2="55" y2="22" stroke="#5EEAD4" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/><circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#sGlowSoft)"/>
-        <line x1="62" y1="53" x2="88" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="90" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#sGlowSoft)"/>
-        <line x1="48" y1="53" x2="22" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="20" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#sGlowSoft)"/>
-        <line x1="48" y1="63" x2="25" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="23" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#sGlowSoft)"/>
-        <line x1="62" y1="63" x2="85" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="87" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#sGlowSoft)"/>
-        <g filter="url(#sGlowMed)"><circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/><circle cx="75" cy="24" r="0.9" fill="#5EEAD4" opacity="0.55"/><circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/><circle cx="20" cy="56" r="0.9" fill="#5EEAD4" opacity="0.45"/><circle cx="55" cy="91" r="1" fill="#2DD4BF" opacity="0.35"/></g>
-        <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#sUnderlineGrad)" opacity="0.55" filter="url(#sGlowSoft)"/>
-      </g>
-      <g>
-        <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
-          <tspan fill="url(#sStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#sAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
-        </text>
-        <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#sUnderlineGrad)" filter="url(#sGlowMed)" opacity="0.85"/>
-        <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
-      </g>
-    </svg>
-  </a>
-  <a href="index.html" class="header-back"><i class="fas fa-arrow-left"></i> Back to Website</a>
-</header>
-
-<!-- PROGRESS -->
-<div class="progress-bar">
-  <div class="progress-steps">
-    <div class="progress-step active" id="step-1">
-      <div class="progress-step-circle">1</div>
-      <div class="progress-step-label">Build Package</div>
-    </div>
-    <div class="progress-line" id="line-1"></div>
-    <div class="progress-step" id="step-2">
-      <div class="progress-step-circle">2</div>
-      <div class="progress-step-label">Payment</div>
-    </div>
-    <div class="progress-line" id="line-2"></div>
-    <div class="progress-step" id="step-3">
-      <div class="progress-step-circle">3</div>
-      <div class="progress-step-label">Setup Account</div>
-    </div>
-    <div class="progress-line" id="line-3"></div>
-    <div class="progress-step" id="step-4">
-      <div class="progress-step-circle">4</div>
-      <div class="progress-step-label">Start Using</div>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE HERO -->
-<div class="page-hero">
-  <h1><i class="fas fa-tools" style="margin-right:10px;opacity:.85"></i> Build Your Base Platform</h1>
-  <p>Select the features you need, add your entities, and pay securely. Only pay for what you use.</p>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="builder-card">
-    <div class="builder-header">
-      <h2>Select Your Features</h2>
-      <p>Web App B.O.H is always included. Toggle additional features on or off below.</p>
-    </div>
-    <div class="builder-body">
-
-      <!-- FEATURE TOGGLES -->
-      <div class="feature-toggles">
-
-        <!-- LOCKED: Web App BOH -->
-        <div class="ft-card locked" data-feature="web_boh" data-price="799" data-setup-hrs="12">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-laptop-code"></i></div>
-            <div>
-              <div class="ft-name">Web App B.O.H</div>
-              <div class="ft-desc">Full back-of-house management — always included</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-badge"><i class="fas fa-lock" style="margin-right:3px"></i> Always Included</span>
-            <span class="ft-price">R799/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- Mobile App -->
-        <div class="ft-card" data-feature="mobile_app" data-price="349" data-setup-hrs="1" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-mobile-alt"></i></div>
-            <div>
-              <div class="ft-name">Mobile App</div>
-              <div class="ft-desc">Full PWA — stock counts, approvals, AI chat on any mobile device</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R349/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- ProcureAI -->
-        <div class="ft-card" data-feature="procure_ai" data-price="399" data-setup-hrs="1" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-shopping-basket"></i></div>
-            <div>
-              <div class="ft-name">ProcureAI App</div>
-              <div class="ft-desc">Chef ordering app — auto-splits orders to cheapest suppliers</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R399/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- POS System -->
-        <div class="ft-card" data-feature="pos_system" data-price="799" data-setup-hrs="8" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-cash-register"></i></div>
-            <div>
-              <div class="ft-name">P.O.S System</div>
-              <div class="ft-desc">Point of sale — menu builder, table payments & auto stock deduction</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R799/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- Menu Master -->
-        <div class="ft-card" data-feature="menu_master" data-price="349" data-setup-hrs="01" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon"><i class="fas fa-utensils"></i></div>
-            <div>
-              <div class="ft-name">Menu Master</div>
-              <div class="ft-desc">Menu & recipe costing — ingredient linking & live cost pricing</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R349/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- FunctionsAI -->
-        <div class="ft-card" data-feature="functions_ai" data-price="449" data-setup-hrs="1" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-              <i class="fas fa-glass-cheers"></i>
-            </div>
-            <div>
-              <div class="ft-name">FunctionsAI — Events Manager</div>
-              <div class="ft-desc">Full event management — menus, beverages, invoicing & client bookings</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R449/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- Retail POS -->
-        <div class="ft-card" data-feature="retail_pos" data-price="999" data-setup-hrs="12" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
-              <i class="fas fa-store"></i>
-            </div>
-            <div>
-              <div class="ft-name">Retail POS</div>
-              <div class="ft-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R999/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-        <!-- Invoice Scanner -->
-        <div class="ft-card" data-feature="invoice_scanner" data-price="499" data-setup-hrs="2" onclick="toggleFeature(this)">
-          <div class="ft-left">
-            <div class="ft-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
-              <i class="fas fa-file-invoice"></i>
-            </div>
-            <div>
-              <div class="ft-name">Invoice Scanner App</div>
-              <div class="ft-desc">Scan invoices — auto-updates inventory, pricing & completes GRV entries</div>
-            </div>
-          </div>
-          <div class="ft-right">
-            <span class="ft-price">R499/mo</span>
-            <div class="ft-toggle"></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- SELECTED CHIPS -->
-      <div class="selected-summary">
-        <div class="selected-summary-title">
-          <i class="fas fa-check-circle" style="color:var(--success)"></i>
-          Your Selected Features
-        </div>
-        <div class="selected-chips" id="selected-chips">
-          <span class="selected-chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>
-        </div>
-      </div>
-
-      <!-- ADD-ONS -->
-      <div class="addons-section">
-        <div class="addons-title"><i class="fas fa-building"></i> Entities & Services</div>
-
-        <!-- ENTITIES -->
-        <div class="addon-row">
-          <div class="addon-label">
-            <strong>Number of Entities / Locations</strong>
-            <small>R599/month per entity — each branch, store or outlet counts as one entity</small>
-          </div>
-          <div class="addon-controls">
-            <select id="su-entities" onchange="calcSignup()">
-              <option value="1">1 Entity</option>
-              <option value="2">2 Entities</option>
-              <option value="3">3 Entities</option>
-              <option value="4">4 Entities</option>
-              <option value="5">5 Entities</option>
-              <option value="6">6 Entities</option>
-              <option value="7">7 Entities</option>
-              <option value="8">8 Entities</option>
-              <option value="9">9 Entities</option>
-              <option value="10">10 Entities</option>
-            </select>
-            <span class="addon-price" id="su-entity-price">R599.00</span>
-          </div>
-        </div>
-
-        <!-- TECHNICIAN -->
-        <div class="addon-row">
-          <div class="addon-label">
-            <strong>Technician Setup & Configuration</strong>
-            <small>R450/hour — hours automatically calculated from selected features and multiplied by number of entities</small>
-          </div>
-          <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:380px">
-            <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
-              <input type="checkbox" id="su-tech-check" onchange="calcSignup()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
-              Include technician setup
-            </label>
-            <div class="tech-breakdown-box" id="su-tech-details">
-              <div class="tech-breakdown-title"><i class="fas fa-clock"></i> Setup Hours Per Feature</div>
-              <div class="tech-breakdown-lines" id="su-tech-breakdown">Loading...</div>
-              <div class="tech-breakdown-total">
-                <span>Total: <span id="su-tech-hrs-display">12</span> @ R450/hr</span>
-                <span id="su-tech-price">R5,400.00</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TRAINING -->
-        <div class="addon-row">
-          <div class="addon-label">
-            <strong>Staff Training</strong>
-            <small>Standard: R1,500 includes up to 5 staff members • Additional staff: R750 each</small>
-          </div>
-          <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:10px;width:100%;max-width:380px">
-            <label style="display:flex;align-items:center;gap:10px;font-size:.88rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
-              <input type="checkbox" id="su-training-check" onchange="calcSignup()" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal-mid)">
-              Include staff training (R1,500 for up to 5 staff)
-            </label>
-            <div class="training-extras" id="su-training-extras">
-              <span style="font-size:.85rem;color:var(--text-light)">Additional staff:</span>
-              <input type="number" id="su-extra-staff" value="0" min="0" max="50" onchange="calcSignup()" oninput="calcSignup()">
-              <span class="addon-price" id="su-training-price">R1,500.00</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- PRICE SUMMARY -->
-      <div class="price-summary">
-        <div class="price-summary-title"><i class="fas fa-receipt"></i> Your Price Breakdown</div>
-        <div class="ps-section-label">Monthly Subscription</div>
-        <div class="ps-line"><span>Web App B.O.H</span><span class="ps-val">R799.00/mo</span></div>
-        <div id="ps-feature-details"></div>
-        <div class="ps-line"><span>Entities (<span id="ps-ent-count">1</span> × R599)</span><span class="ps-val" id="ps-entities">R599.00/mo</span></div>
-        <hr class="ps-divider">
-        <div class="ps-line monthly"><span>Monthly Total</span><span class="ps-val" id="ps-monthly">R1,398.00</span></div>
-        <div id="ps-onceoff-section" style="display:none">
-          <div class="ps-section-label" style="margin-top:14px">Once-off Charges</div>
-          <div class="ps-line" id="ps-tech-row" style="display:none"><span>Technician Setup (<span id="ps-tech-hrs">0</span> hrs × R450)</span><span class="ps-val" id="ps-tech">R0.00</span></div>
-          <div class="ps-line" id="ps-train-row" style="display:none"><span>Staff Training</span><span class="ps-val" id="ps-training">R0.00</span></div>
-          <hr class="ps-divider">
-          <div class="ps-line onceoff"><span>Once-off Total</span><span class="ps-val" id="ps-onceoff">R0.00</span></div>
-        </div>
-        <div class="ps-vat">All prices include 15% VAT</div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- PAYMENT BUTTON -->
-  <div class="payment-section">
-    <button class="btn-pay" id="payBtn" onclick="startPayment()">
-      <i class="fas fa-lock"></i>
-      <span id="payBtnText">Pay R1,398.00/mo — Get Started</span>
-    </button>
-    <div class="payment-note">
-      <i class="fas fa-shield-alt" style="color:var(--success);margin-right:4px"></i>
-      Secured by Paystack &bull; SSL Encrypted &bull; POPIA Compliant<br>
-      Your first month is charged immediately. Once-off charges (if any) are included in the first payment.<br>
-      Cancel anytime with 30 days notice.
-    </div>
-    <div class="payment-icons">
-      <i class="fab fa-cc-visa"></i>
-      <i class="fab fa-cc-mastercard"></i>
-      <i class="fas fa-university"></i>
-      <i class="fas fa-mobile-alt"></i>
-    </div>
-  </div>
-
-  <!-- GUARANTEE -->
-  <div class="guarantee">
-    <h3>✅ 30-Day Money-Back Guarantee</h3>
-    <p>Not happy within your first 30 days? We'll give you a full refund — no questions asked. Zero risk.</p>
-  </div>
-
-</div>
-
-<script>
 // ============================================================
-// CONFIG — LIVE PAYSTACK KEY
+// email-addon.js — StockAI-Pro
+// Sends emails via Cloudflare Worker proxy
 // ============================================================
-var PAYSTACK_PUBLIC_KEY = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
 
-var FEATURE_PRICES = {
-    web_boh:          799,
-    mobile_app:       349,
-    procure_ai:       399,
-    pos_system:       799,
-    menu_master:      349,
-    functions_ai:     449,
-    retail_pos:       999,
-    invoice_scanner:  499
+var PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
+
+// ============================================================
+// FEATURE MAPS — All 8 features
+// ============================================================
+var ADDON_FEATURE_MAP = {
+    web_boh:         'Web App B.O.H',
+    mobile_app:      'Mobile App',
+    procure_ai:      'ProcureAI App',
+    pos_system:      'P.O.S System',
+    menu_master:     'Menu Master',
+    functions_ai:    'FunctionsAI',
+    retail_pos:      'Retail POS',
+    invoice_scanner: 'Invoice Scanner App'
 };
 
-var FEATURE_NAMES = {
-    web_boh:          'Web App B.O.H',
-    mobile_app:       'Mobile App',
-    procure_ai:       'ProcureAI App',
-    pos_system:       'P.O.S System',
-    menu_master:      'Menu Master',
-    functions_ai:     'FunctionsAI',
-    retail_pos:       'Retail POS',
-    invoice_scanner:  'Invoice Scanner App'
+var ADDON_FEATURE_PRICES = {
+    web_boh:         799,
+    mobile_app:      349,
+    procure_ai:      399,
+    pos_system:      799,
+    menu_master:     349,
+    functions_ai:    449,
+    retail_pos:      999,
+    invoice_scanner: 499
 };
 
-var SETUP_HOURS = {
-    web_boh:          12,
-    mobile_app:       1,
-    procure_ai:       1,
-    pos_system:       8,
-    menu_master:      1,
-    functions_ai:     1,
-    retail_pos:       12,
-    invoice_scanner:  2
+var ADDON_SETUP_HOURS = {
+    web_boh:         12,
+    mobile_app:      1,
+    procure_ai:      1,
+    pos_system:      8,
+    menu_master:     1,
+    functions_ai:    1,
+    retail_pos:      12,
+    invoice_scanner: 1
 };
 
-var ENTITY_RATE   = 599;
-var TECH_RATE     = 450;
-var TRAINING_BASE = 1500;
-var TRAINING_EXTRA = 750;
+var ENTITY_RATE  = 599;
+var ADMIN_EMAIL  = 'cidraism@gmail.com';
 
 // ============================================================
-// TOGGLE FEATURES
+// CORE SEND FUNCTION
 // ============================================================
-function toggleFeature(el) {
-    if (el.classList.contains('locked')) return;
-    el.classList.toggle('selected');
-    calcSignup();
-    updateChips();
-}
-
-function updateChips() {
-    var container = document.getElementById('selected-chips');
-    var html = '<span class="selected-chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>';
-    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
-        var key  = card.getAttribute('data-feature');
-        var name = FEATURE_NAMES[key] || key;
-        html += '<span class="selected-chip"><i class="fas fa-check"></i> ' + name + '</span>';
+function sendViaProxy(to, subject, html) {
+    var recipients = Array.isArray(to) ? to : [to];
+    recipients = recipients.filter(function(e) {
+        return e && typeof e === 'string' && e.indexOf('@') !== -1;
     });
-    container.innerHTML = html;
-}
-
-// ============================================================
-// CALCULATE PRICING
-// ============================================================
-function calcSignup() {
-    // Features
-    var featureTotal = FEATURE_PRICES.web_boh;
-    var selectedFeatures = ['web_boh'];
-    var totalSetupHrs = SETUP_HOURS.web_boh;
-    var featureDetailsHTML = '';
-
-    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
-        var key   = card.getAttribute('data-feature');
-        var price = parseInt(card.getAttribute('data-price'));
-        var hrs   = parseInt(card.getAttribute('data-setup-hrs')) || 0;
-        featureTotal += price;
-        totalSetupHrs += hrs;
-        selectedFeatures.push(key);
-        featureDetailsHTML += '<div class="ps-line sub"><span>' + (FEATURE_NAMES[key] || key) + '</span><span class="ps-val">R' + price.toLocaleString() + '.00/mo</span></div>';
-    });
-
-    // Entities
-    var entCount = parseInt(document.getElementById('su-entities').value) || 1;
-    var entTotal = entCount * ENTITY_RATE;
-    document.getElementById('su-entity-price').textContent = 'R' + entTotal.toLocaleString() + '.00';
-    document.getElementById('ps-ent-count').textContent = entCount;
-    document.getElementById('ps-entities').textContent = 'R' + entTotal.toLocaleString() + '.00/mo';
-    document.getElementById('ps-feature-details').innerHTML = featureDetailsHTML;
-
-    // Technician — multiplied by entity count
-    var techCheck   = document.getElementById('su-tech-check').checked;
-    var techDetails = document.getElementById('su-tech-details');
-    var techTotal   = 0;
-    var totalHrsAllEntities = totalSetupHrs * entCount;
-
-    if (techCheck) {
-        techDetails.classList.add('visible');
-        techTotal = totalHrsAllEntities * TECH_RATE;
-
-        var breakdownHTML = '';
-        selectedFeatures.forEach(function(key) {
-            var hrs  = SETUP_HOURS[key] || 0;
-            var name = FEATURE_NAMES[key] || key;
-            breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:1px 0">' +
-                '<span>' + name + '</span>' +
-                '<span style="font-weight:700">' + (hrs > 0 ? hrs + ' hr' + (hrs > 1 ? 's' : '') : 'Included') + '</span>' +
-                '</div>';
-        });
-        if (entCount > 1) {
-            breakdownHTML += '<div style="display:flex;justify-content:space-between;padding:4px 0;margin-top:6px;border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700">' +
-                '<span>× ' + entCount + ' entities</span>' +
-                '<span>' + totalHrsAllEntities + ' total hrs</span>' +
-                '</div>';
-        }
-
-        document.getElementById('su-tech-breakdown').innerHTML = breakdownHTML;
-        document.getElementById('su-tech-hrs-display').textContent = totalHrsAllEntities + ' hrs @ R450';
-        document.getElementById('su-tech-price').textContent = 'R' + techTotal.toLocaleString() + '.00';
-    } else {
-        techDetails.classList.remove('visible');
+    if (recipients.length === 0) {
+        console.warn('No valid recipients');
+        return Promise.resolve({ ok: false });
     }
-
-    // Training
-    var trainingCheck  = document.getElementById('su-training-check').checked;
-    var trainingExtras = document.getElementById('su-training-extras');
-    var trainingTotal  = 0;
-    var extraStaff     = 0;
-
-    if (trainingCheck) {
-        trainingExtras.classList.add('visible');
-        extraStaff    = parseInt(document.getElementById('su-extra-staff').value) || 0;
-        trainingTotal = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
-        document.getElementById('su-training-price').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
-    } else {
-        trainingExtras.classList.remove('visible');
-    }
-
-    // Totals
-    var monthlyTotal  = featureTotal + entTotal;
-    var onceOffTotal  = techTotal + trainingTotal;
-
-    document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
-
-    var onceOffSection = document.getElementById('ps-onceoff-section');
-    var techRow        = document.getElementById('ps-tech-row');
-    var trainRow       = document.getElementById('ps-train-row');
-
-    if (onceOffTotal > 0) {
-        onceOffSection.style.display = 'block';
-        if (techCheck && techTotal > 0) {
-            techRow.style.display = 'flex';
-            document.getElementById('ps-tech-hrs').textContent = totalHrsAllEntities;
-            document.getElementById('ps-tech').textContent = 'R' + techTotal.toLocaleString() + '.00';
-        } else {
-            techRow.style.display = 'none';
-        }
-        if (trainingCheck) {
-            trainRow.style.display = 'flex';
-            document.getElementById('ps-training').textContent = 'R' + trainingTotal.toLocaleString() + '.00';
-        } else {
-            trainRow.style.display = 'none';
-        }
-        document.getElementById('ps-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
-    } else {
-        onceOffSection.style.display = 'none';
-    }
-
-    // Pay button text
-    var btnText = 'Pay R' + monthlyTotal.toLocaleString() + '.00/mo';
-    if (onceOffTotal > 0) {
-        btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
-    }
-    btnText += ' — Get Started';
-    document.getElementById('payBtnText').textContent = btnText;
-
-    return {
-        features:          selectedFeatures,
-        featureTotal:      featureTotal,
-        entities:          entCount,
-        entityTotal:       entTotal,
-        techIncluded:      techCheck,
-        techHours:         techCheck ? totalHrsAllEntities : 0,
-        techTotal:         techTotal,
-        trainingIncluded:  trainingCheck,
-        extraStaff:        extraStaff,
-        trainingTotal:     trainingTotal,
-        monthlyTotal:      monthlyTotal,
-        onceOffTotal:      onceOffTotal,
-        totalCharge:       monthlyTotal + onceOffTotal
-    };
-}
-
-// ============================================================
-// INIT ON PAGE LOAD
-// ============================================================
-window.addEventListener('load', function() {
-    var params   = new URLSearchParams(window.location.search);
-    var features = params.get('features');
-    if (features) {
-        features.split(',').forEach(function(f) {
-            var card = document.querySelector('.ft-card[data-feature="' + f.trim() + '"]');
-            if (card && !card.classList.contains('locked')) {
-                card.classList.add('selected');
-            }
-        });
-    }
-
-    var entities = params.get('entities');
-    if (entities) {
-        var sel = document.getElementById('su-entities');
-        if (sel && parseInt(entities) >= 1 && parseInt(entities) <= 10) {
-            sel.value = entities;
-        }
-    }
-
-    var tech = params.get('tech');
-    if (tech === 'yes') {
-        var techCheck = document.getElementById('su-tech-check');
-        if (techCheck) techCheck.checked = true;
-    }
-
-    var training = params.get('training');
-    if (training === 'yes') {
-        var trainCheck = document.getElementById('su-training-check');
-        if (trainCheck) trainCheck.checked = true;
-    }
-
-    var extrastaff = params.get('extrastaff');
-    if (extrastaff && parseInt(extrastaff) > 0) {
-        var extraInput = document.getElementById('su-extra-staff');
-        if (extraInput) extraInput.value = extrastaff;
-    }
-
-    setTimeout(function() {
-        calcSignup();
-        updateChips();
-    }, 100);
-});
-
-// ============================================================
-// START PAYMENT — LIVE PAYSTACK
-// ============================================================
-function startPayment() {
-    var data = calcSignup();
-
-    var email = prompt('Please enter your email address to continue:');
-    if (!email || !email.trim()) return;
-    email = email.trim().toLowerCase();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert('Please enter a valid email address.');
-        return;
-    }
-
-    // Save to sessionStorage
-    sessionStorage.setItem('signup_email',            email);
-    sessionStorage.setItem('signup_features',         JSON.stringify(data.features));
-    sessionStorage.setItem('signup_feature_names',    JSON.stringify(data.features.map(function(f){ return FEATURE_NAMES[f] || f; })));
-    sessionStorage.setItem('signup_feature_total',    data.featureTotal.toString());
-    sessionStorage.setItem('signup_entities',         data.entities.toString());
-    sessionStorage.setItem('signup_entity_total',     data.entityTotal.toString());
-    sessionStorage.setItem('signup_monthly_total',    data.monthlyTotal.toString());
-    sessionStorage.setItem('signup_tech_included',    data.techIncluded.toString());
-    sessionStorage.setItem('signup_tech_hours',       data.techHours.toString());
-    sessionStorage.setItem('signup_tech_total',       data.techTotal.toString());
-    sessionStorage.setItem('signup_training_included', data.trainingIncluded.toString());
-    sessionStorage.setItem('signup_extra_staff',      data.extraStaff.toString());
-    sessionStorage.setItem('signup_training_total',   data.trainingTotal.toString());
-    sessionStorage.setItem('signup_onceoff_total',    data.onceOffTotal.toString());
-    sessionStorage.setItem('signup_total_charge',     data.totalCharge.toString());
-
-    var featureLabels = data.features.map(function(f) { return FEATURE_NAMES[f] || f; });
-
-    setProgress(2);
-
-    var handler = PaystackPop.setup({
-        key:      PAYSTACK_PUBLIC_KEY,
-        email:    email,
-        amount:   data.totalCharge * 100,
-        currency: 'ZAR',
-        ref:      'STOCKAI-' + Date.now(),
-        metadata: {
-            plan:          'StockAI-Pro Custom Build',
-            features:      data.features.join(', '),
-            featureLabels: featureLabels.join(', '),
-            entities:      data.entities,
-            monthlyTotal:  data.monthlyTotal,
-            techHours:     data.techHours,
-            techTotal:     data.techTotal,
-            trainingIncluded: data.trainingIncluded,
-            extraStaff:    data.extraStaff,
-            trainingTotal: data.trainingTotal,
-            onceOffTotal:  data.onceOffTotal,
-            totalCharged:  data.totalCharge,
-            custom_fields: [
-                { display_name: 'Features',       variable_name: 'features',       value: featureLabels.join(', ') },
-                { display_name: 'Entities',       variable_name: 'entities',       value: data.entities + ' entities' },
-                { display_name: 'Monthly',        variable_name: 'monthly',        value: 'R' + data.monthlyTotal + '/mo' },
-                { display_name: 'Once-off',       variable_name: 'onceoff',        value: 'R' + data.onceOffTotal },
-                { display_name: 'Total Charged',  variable_name: 'total_charged',  value: 'R' + data.totalCharge }
-            ]
-        },
-        onClose: function() {
-            setProgress(1);
-            alert('Payment was cancelled. You can try again anytime.');
-        },
-        callback: function(response) {
-            sessionStorage.setItem('signup_ref',  response.reference);
-            sessionStorage.setItem('signup_paid', 'true');
-
-            // Send admin notification
-            if (typeof window.sendSignupNotificationToAdmin === 'function') {
-                window.sendSignupNotificationToAdmin({
-                    ref:           response.reference,
-                    email:         email,
-                    features:      data.features,
-                    featureLabels: featureLabels,
-                    entities:      data.entities,
-                    monthlyTotal:  data.monthlyTotal,
-                    techTotal:     data.techTotal,
-                    trainingTotal: data.trainingTotal,
-                    onceOffTotal:  data.onceOffTotal,
-                    totalCharged:  data.totalCharge
-                });
-            }
-
-            // Send welcome email to customer
-            sendWelcomeEmail(email, data, response.reference);
-
-            setProgress(3);
-
-            setTimeout(function() {
-                window.location.href = 'setup.html';
-            }, 1500);
-        }
-    });
-
-    handler.openIframe();
-}
-
-// ============================================================
-// WELCOME EMAIL AFTER PAYMENT
-// ============================================================
-function sendWelcomeEmail(email, data, paymentRef) {
-    console.log('📧 Sending welcome email to:', email);
-
-    var featureList = (data.features || []).map(function(f) {
-        return '✅ ' + (FEATURE_NAMES[f] || f);
-    }).join('<br>');
-
-    var html =
-        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden;">' +
-        '<div style="background-color:#0d4a5c;padding:30px;text-align:center;">' +
-        '<h1 style="color:#ffffff;margin:0;font-size:24px;">StockAI-Pro</h1>' +
-        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:12px;letter-spacing:1px;">INTELLIGENCE A CLICK AWAY</p>' +
-        '<h2 style="color:#ffffff;margin:14px 0 0;font-size:18px;">Welcome to StockAI-Pro!</h2>' +
-        '</div>' +
-        '<div style="padding:30px;background-color:#ffffff;">' +
-        '<p style="color:#0d4a5c;font-size:16px;">Your payment was successful!</p>' +
-        '<p style="color:#5a8a96;font-size:14px;line-height:1.6;">Thank you for joining StockAI-Pro. Your account is ready to be set up.</p>' +
-        '<div style="background-color:#0d4a5c;padding:20px;border-radius:8px;text-align:center;margin:20px 0;">' +
-        '<p style="color:#ffffff;margin:0;font-size:14px;">Payment Confirmed</p>' +
-        '<p style="color:#f59e0b;font-size:24px;font-weight:bold;margin:8px 0;">R' + (data.monthlyTotal || 0).toLocaleString() + '.00/mo</p>' +
-        '<p style="color:rgba(255,255,255,.7);font-size:12px;margin:0;">Reference: ' + paymentRef + '</p>' +
-        '</div>' +
-        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
-        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">YOUR PACKAGE INCLUDES:</p>' +
-        '<p style="color:#0d4a5c;font-size:13px;line-height:2;margin:0;">' + featureList + '</p>' +
-        '<p style="color:#2a5f70;font-size:13px;margin:10px 0 0;"><strong>Entities:</strong> ' + (data.entities || 1) + ' location' + ((data.entities || 1) > 1 ? 's' : '') + '</p>' +
-        '</div>' +
-        '<div style="background-color:#f0f7f9;padding:16px;border-radius:8px;margin:20px 0;">' +
-        '<p style="color:#1a8ba8;font-size:13px;font-weight:bold;margin:0 0 10px;">GETTING STARTED:</p>' +
-        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0;">1. Click the button below to set up your account<br>2. Add your suppliers and price lists<br>3. Create your stock items<br>4. Run your first stock count!</p>' +
-        '</div>' +
-        '<div style="text-align:center;margin:25px 0;">' +
-        '<a href="https://www.stockai-pro.co.za/setup.html?ref=' + paymentRef + '" style="background-color:#f59e0b;color:#ffffff;padding:15px 30px;text-decoration:none;border-radius:8px;font-weight:bold;display:inline-block;font-size:15px;">Set Up My Account Now</a>' +
-        '</div>' +
-        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:20px 0;">' +
-        '<div style="text-align:center;">' +
-        '<a href="https://wa.me/27790440508" style="color:#25D366;text-decoration:none;font-size:13px;margin:0 10px;">WhatsApp Support</a>' +
-        '<a href="tel:0790440508" style="color:#1a8ba8;text-decoration:none;font-size:13px;margin:0 10px;">079 044 0508</a>' +
-        '</div>' +
-        '<p style="text-align:center;color:#8aabb5;font-size:12px;margin-top:16px;">© 2025 StockAI-Pro. Built with love in South Africa.</p>' +
-        '</div></div>';
-
-    var PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
-
+    console.log('📧 Sending email to:', recipients.join(', '));
     return fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            to:      email,
-            subject: 'Welcome to StockAI-Pro — Your Account is Ready!',
-            html:    html
-        })
+        body: JSON.stringify({ to: recipients, subject: subject, html: html })
     })
     .then(function(res) {
-        if (res.ok) { console.log('✅ Welcome email sent'); }
-        else { console.warn('⚠️ Welcome email issue:', res.status); }
+        if (res.ok) {
+            console.log('✅ Email sent to:', recipients.join(', '));
+        } else {
+            console.error('❌ Email failed. Status:', res.status);
+        }
         return res;
     })
     .catch(function(err) {
-        console.warn('Welcome email error:', err.message);
+        console.error('❌ Email error:', err.message || err);
         return { ok: false };
     });
 }
 
 // ============================================================
-// PROGRESS BAR
+// HELPER — Format Rand amount
 // ============================================================
-function setProgress(step) {
-    for (var i = 1; i <= 4; i++) {
-        var s = document.getElementById('step-' + i);
-        if (!s) continue;
-        s.classList.remove('active', 'done');
-        if (i < step) s.classList.add('done');
-        else if (i === step) s.classList.add('active');
+function fmtR(amount) {
+    return 'R' + Number(amount || 0).toLocaleString('en-ZA', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// ============================================================
+// EMAIL 11 — QUOTE TO CUSTOMER
+// ============================================================
+function sendQuoteEmailToCustomer(data) {
+    console.log('📧 sendQuoteEmailToCustomer called');
+
+    if (!data || !data.customer || !data.customer.email) {
+        console.error('No customer email');
+        return Promise.resolve({ ok: false });
     }
-    for (var j = 1; j <= 3; j++) {
-        var l = document.getElementById('line-' + j);
-        if (!l) continue;
-        l.classList.toggle('done', j < step);
+
+    var features   = data.features || [];
+    var entities   = data.entities || 1;
+    var entityTotal = entities * ENTITY_RATE;
+
+    // ── Build feature rows ──
+    // Web App BOH is always a FLAT fee — not per entity
+    // All other features are also flat monthly fees
+    var featureRows = '';
+
+    features.forEach(function(f, i) {
+        var price = ADDON_FEATURE_PRICES[f];
+        // Make sure we get the price — fallback to 0 only if truly unknown
+        if (price === undefined || price === null) {
+            price = 0;
+            console.warn('⚠️ Unknown feature price for:', f);
+        }
+        var name = ADDON_FEATURE_MAP[f] || (data.featureLabels && data.featureLabels[i]) || f;
+        var isBase = (f === 'web_boh');
+
+        featureRows +=
+            '<tr>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:13px;color:#2a5f70;">' +
+            (isBase
+                ? '<span style="background:#e4f1f5;color:#1a8ba8;font-size:10px;font-weight:700;' +
+                  'padding:2px 8px;border-radius:6px;margin-right:6px;">BASE</span>'
+                : '<span style="background:#f0f7f9;color:#5a8a96;font-size:10px;font-weight:700;' +
+                  'padding:2px 8px;border-radius:6px;margin-right:6px;">ADD-ON</span>') +
+            name +
+            '</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:13px;' +
+            'color:#0d4a5c;text-align:right;font-weight:700;">' +
+            fmtR(price) + '/mo' +
+            '</td>' +
+            '</tr>';
+    });
+
+    // Entity row — clearly shown as per-location fee
+    featureRows +=
+        '<tr>' +
+        '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:13px;color:#2a5f70;">' +
+        '<span style="background:#fef3c7;color:#d97706;font-size:10px;font-weight:700;' +
+        'padding:2px 8px;border-radius:6px;margin-right:6px;">ENTITIES</span>' +
+        entities + ' Location' + (entities > 1 ? 's' : '') + ' x R' + ENTITY_RATE.toLocaleString('en-ZA') + '/mo' +
+        '</td>' +
+        '<td style="padding:10px 14px;border-bottom:1px solid #e4f1f5;font-size:13px;' +
+        'color:#0d4a5c;text-align:right;font-weight:700;">' +
+        fmtR(entityTotal) + '/mo' +
+        '</td>' +
+        '</tr>';
+
+    // ── Pre-selection URL ──
+    var getStartedUrl = 'https://www.stockai-pro.co.za/signup.html' +
+        '?features=' + features.join(',') +
+        '&entities=' + entities +
+        (data.techIncluded     ? '&tech=yes'                       : '') +
+        (data.trainingIncluded ? '&training=yes'                   : '') +
+        (data.extraStaff > 0  ? '&extrastaff=' + data.extraStaff  : '');
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;' +
+        'border:1px solid #e4f1f5;border-radius:14px;overflow:hidden;">' +
+
+        // ── Header ──
+        '<div style="background:linear-gradient(135deg,#0d4a5c 0%,#1a8ba8 100%);padding:32px;text-align:center;">' +
+        '<div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:2px;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<div style="font-size:10px;color:#5EEAD4;letter-spacing:4px;margin-top:5px;opacity:.85;">' +
+        'INTELLIGENCE A CLICK AWAY</div>' +
+        '<div style="margin-top:18px;background:rgba(255,255,255,.1);border-radius:10px;padding:14px;">' +
+        '<div style="color:rgba(255,255,255,.75);font-size:12px;margin-bottom:4px;">YOUR CUSTOM QUOTATION</div>' +
+        '<div style="color:#f59e0b;font-size:11px;font-weight:600;">' +
+        'Ref: ' + (data.quoteRef || '—') + ' &nbsp;|&nbsp; ' + (data.quoteDate || '—') +
+        '</div></div>' +
+        '</div>' +
+
+        // ── Body ──
+        '<div style="padding:28px;background:#ffffff;">' +
+
+        // Greeting
+        '<p style="color:#0d4a5c;font-size:15px;margin:0 0 8px;">Hi <strong>' +
+        (data.customer.name || 'there') + '</strong>,</p>' +
+        '<p style="color:#5a8a96;font-size:13px;line-height:1.7;margin:0 0 24px;">' +
+        'Thank you for using our quote builder! Here is your custom quotation. ' +
+        'Click the button at the bottom to start your setup with these selections pre-filled.</p>' +
+
+        // Customer details box
+        '<div style="background:#f0f7f9;border-radius:10px;padding:16px;margin:0 0 24px;">' +
+        '<div style="font-size:11px;font-weight:700;color:#1a8ba8;text-transform:uppercase;' +
+        'letter-spacing:1px;margin-bottom:10px;">Your Details</div>' +
+        '<table style="width:100%;border-collapse:collapse;">' +
+        '<tr><td style="padding:5px 0;font-size:12px;color:#5a8a96;width:35%;">Name</td>' +
+        '<td style="padding:5px 0;font-size:13px;color:#0d4a5c;font-weight:600;">' + data.customer.name + '</td></tr>' +
+        '<tr><td style="padding:5px 0;font-size:12px;color:#5a8a96;">Business</td>' +
+        '<td style="padding:5px 0;font-size:13px;color:#0d4a5c;font-weight:600;">' + data.customer.business + '</td></tr>' +
+        '<tr><td style="padding:5px 0;font-size:12px;color:#5a8a96;">Phone</td>' +
+        '<td style="padding:5px 0;font-size:13px;color:#0d4a5c;font-weight:600;">' + data.customer.phone + '</td></tr>' +
+        '<tr><td style="padding:5px 0;font-size:12px;color:#5a8a96;">Email</td>' +
+        '<td style="padding:5px 0;font-size:13px;color:#0d4a5c;font-weight:600;">' + data.customer.email + '</td></tr>' +
+        '</table></div>' +
+
+        // Feature table
+        '<div style="font-size:11px;font-weight:700;color:#1a8ba8;text-transform:uppercase;' +
+        'letter-spacing:1px;margin:0 0 10px;">Monthly Subscription (incl. VAT)</div>' +
+        '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;">' +
+        '<thead><tr style="background:#0d4a5c;">' +
+        '<th style="padding:10px 14px;text-align:left;font-size:11px;color:#fff;font-weight:700;">DESCRIPTION</th>' +
+        '<th style="padding:10px 14px;text-align:right;font-size:11px;color:#fff;font-weight:700;">MONTHLY</th>' +
+        '</tr></thead>' +
+        '<tbody>' + featureRows + '</tbody>' +
+        '</table>' +
+
+        // Monthly total box
+        '<div style="background:#e4f1f5;padding:16px;text-align:right;border-radius:10px;margin:0 0 16px;">' +
+        '<div style="font-size:12px;color:#5a8a96;margin-bottom:4px;">TOTAL MONTHLY SUBSCRIPTION (incl. VAT)</div>' +
+        '<div style="font-size:20px;font-weight:900;color:#0d4a5c;">' + fmtR(data.monthlyTotal || 0) + '/mo</div>' +
+        '</div>' +
+
+        // Once-off charges
+        (data.onceOffTotal > 0 ?
+            '<div style="font-size:11px;font-weight:700;color:#d97706;text-transform:uppercase;' +
+            'letter-spacing:1px;margin:0 0 10px;">Once-off Charges (incl. VAT)</div>' +
+            '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;">' +
+            '<thead><tr style="background:#d97706;">' +
+            '<th style="padding:10px 14px;text-align:left;font-size:11px;color:#fff;font-weight:700;">DESCRIPTION</th>' +
+            '<th style="padding:10px 14px;text-align:right;font-size:11px;color:#fff;font-weight:700;">ONCE-OFF</th>' +
+            '</tr></thead><tbody>' +
+            (data.techIncluded && data.techHours > 0 ?
+                '<tr><td style="padding:10px 14px;border-bottom:1px solid #fef3c7;font-size:13px;color:#2a5f70;">' +
+                'Technician Setup (' + data.techHours + ' hrs x R450/hr)</td>' +
+                '<td style="padding:10px 14px;border-bottom:1px solid #fef3c7;font-size:13px;' +
+                'color:#0d4a5c;text-align:right;font-weight:700;">' + fmtR(data.techTotal || 0) + '</td></tr>'
+            : '') +
+            (data.trainingIncluded ?
+                '<tr><td style="padding:10px 14px;border-bottom:1px solid #fef3c7;font-size:13px;color:#2a5f70;">' +
+                'Staff Training (5 staff' + (data.extraStaff > 0 ? ' + ' + data.extraStaff + ' additional' : '') + ')</td>' +
+                '<td style="padding:10px 14px;border-bottom:1px solid #fef3c7;font-size:13px;' +
+                'color:#0d4a5c;text-align:right;font-weight:700;">' + fmtR(data.trainingTotal || 0) + '</td></tr>'
+            : '') +
+            '</tbody></table>' +
+            '<div style="background:#fef3c7;padding:14px;text-align:right;border-radius:10px;margin:0 0 16px;">' +
+            '<div style="font-size:12px;color:#a16207;margin-bottom:4px;">ONCE-OFF TOTAL (incl. VAT)</div>' +
+            '<div style="font-size:18px;font-weight:900;color:#d97706;">' + fmtR(data.onceOffTotal || 0) + '</div>' +
+            '</div>'
+        : '') +
+
+        // Guarantee
+        '<div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;margin:0 0 24px;">' +
+        '<div style="font-size:13px;font-weight:700;color:#065f46;">30-Day Money-Back Guarantee</div>' +
+        '<div style="font-size:11px;color:#047857;margin-top:4px;">' +
+        'Not satisfied within 30 days? Full refund — no questions asked.</div>' +
+        '</div>' +
+
+        // CTA
+        '<div style="text-align:center;margin:0 0 24px;">' +
+        '<a href="' + getStartedUrl + '" style="display:inline-block;padding:16px 36px;' +
+        'background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;' +
+        'border-radius:10px;font-size:15px;font-weight:700;">Start Your Setup Now</a>' +
+        '<div style="font-size:11px;color:#8aabb5;margin-top:8px;">' +
+        'Your selections will be pre-filled on the next page.</div>' +
+        '</div>' +
+
+        // Footer
+        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:0 0 16px;">' +
+        '<p style="text-align:center;color:#8aabb5;font-size:11px;margin:0;">' +
+        'StockAI-Pro &bull; 079 044 0508 &bull; support@stockai-pro.co.za &bull; ' +
+        '<a href="https://www.stockai-pro.co.za" style="color:#1a8ba8;text-decoration:none;">' +
+        'www.stockai-pro.co.za</a></p>' +
+        '<p style="text-align:center;color:#8aabb5;font-size:10px;margin:8px 0 0;">' +
+        'This quotation is valid for 30 days from the date of issue.</p>' +
+        '</div></div>';
+
+    return sendViaProxy(
+        data.customer.email,
+        'Your StockAI-Pro Quotation — ' + (data.quoteRef || ''),
+        html
+    );
+}
+
+// ============================================================
+// EMAIL 12 — QUOTE NOTIFICATION TO ADMIN
+// ============================================================
+function sendQuoteNotificationToAdmin(data) {
+    console.log('📧 sendQuoteNotificationToAdmin called');
+
+    var features    = data.features || [];
+    var entities    = data.entities || 1;
+    var entityTotal = entities * ENTITY_RATE;
+
+    var featureList = features.map(function(f) {
+        var price = ADDON_FEATURE_PRICES[f];
+        if (price === undefined || price === null) price = 0;
+        return (ADDON_FEATURE_MAP[f] || f) + ' — ' + fmtR(price) + '/mo';
+    }).join('<br>');
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto">' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:28px;' +
+        'text-align:center;border-radius:12px 12px 0 0">' +
+        '<div style="font-size:22px;font-weight:900;color:#fff;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<div style="font-size:10px;color:#5EEAD4;letter-spacing:3px;margin-top:4px;">INTELLIGENCE A CLICK AWAY</div>' +
+        '<h2 style="color:#fff;margin:14px 0 0;font-size:16px;">New Quote Request</h2>' +
+        '</div>' +
+
+        '<div style="background:#fff;padding:28px;border:1px solid #e4f1f5;' +
+        'border-top:none;border-radius:0 0 12px 12px;">' +
+        '<p style="color:#5a8a96;margin:0 0 16px;font-size:13px;">A new quote was requested on the website:</p>' +
+
+        '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;">' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;width:35%">Quote Ref</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.quoteRef || '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Date</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.quoteDate || '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Name</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.customer ? data.customer.name : '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Business</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.customer ? data.customer.business : '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Phone</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.customer ? data.customer.phone : '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Email</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (data.customer ? data.customer.email : '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;vertical-align:top;">Features</td>' +
+        '<td style="padding:8px 12px;font-size:12px;color:#0d4a5c;font-weight:600;line-height:1.8;">' + featureList + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Entities</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' +
+        entities + ' location' + (entities > 1 ? 's' : '') + ' x ' + fmtR(ENTITY_RATE) + ' = ' + fmtR(entityTotal) + '/mo' +
+        '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Technician</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' +
+        (data.techIncluded
+            ? 'Yes — ' + (data.techHours || 0) + ' hrs = ' + fmtR(data.techTotal || 0)
+            : 'Not requested') +
+        '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Training</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' +
+        (data.trainingIncluded
+            ? 'Yes — ' + fmtR(data.trainingTotal || 0) +
+              (data.extraStaff > 0 ? ' (' + data.extraStaff + ' extra staff)' : ' (5 staff)')
+            : 'Not requested') +
+        '</td></tr>' +
+        '<tr style="background:#e4f1f5;">' +
+        '<td style="padding:12px;font-weight:900;color:#0d4a5c;font-size:14px;">Monthly Total</td>' +
+        '<td style="padding:12px;font-weight:900;color:#1a8ba8;font-size:16px;">' + fmtR(data.monthlyTotal || 0) + '/mo</td></tr>' +
+        '<tr style="background:#fef3c7;">' +
+        '<td style="padding:12px;font-weight:900;color:#0d4a5c;font-size:14px;">Once-off Total</td>' +
+        '<td style="padding:12px;font-weight:900;color:#d97706;font-size:16px;">' + fmtR(data.onceOffTotal || 0) + '</td></tr>' +
+        '</table>' +
+
+        '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:0;">' +
+        'StockAI-Pro — www.stockai-pro.co.za</p>' +
+        '</div></div>';
+
+    return sendViaProxy(
+        ADMIN_EMAIL,
+        'New Quote: ' + (data.customer ? data.customer.business : 'Unknown') +
+        ' — ' + fmtR(data.monthlyTotal || 0) + '/mo',
+        html
+    );
+}
+
+// ============================================================
+// EMAIL 13 — BOOKING CONFIRMATION TO CUSTOMER
+// ============================================================
+function sendBookingConfirmationToCustomer(booking) {
+    console.log('📧 sendBookingConfirmationToCustomer called');
+
+    var dateFormatted = booking.date;
+    try {
+        dateFormatted = new Date(booking.date + 'T00:00:00').toLocaleDateString('en-ZA', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    } catch(e) { console.warn('Date format error:', e); }
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;' +
+        'border:1px solid #e4f1f5;border-radius:14px;overflow:hidden;">' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;text-align:center;">' +
+        '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:2px;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<div style="font-size:10px;color:#5EEAD4;letter-spacing:4px;margin-top:5px;">INTELLIGENCE A CLICK AWAY</div>' +
+        '<h2 style="color:#fff;margin:16px 0 0;font-size:20px;">Presentation Confirmed!</h2>' +
+        '</div>' +
+
+        '<div style="padding:28px;background:#ffffff;">' +
+        '<p style="color:#0d4a5c;font-size:15px;margin:0 0 8px;">Hi <strong>' +
+        (booking.customer.name || 'there') + '</strong>,</p>' +
+        '<p style="color:#5a8a96;font-size:13px;line-height:1.7;margin:0 0 24px;">' +
+        'Your StockAI-Pro presentation has been confirmed! We look forward to showing you what we can do for your business.</p>' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;' +
+        'padding:24px;color:#fff;margin:0 0 24px;text-align:center;">' +
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:10px;">Your Booking</div>' +
+        '<div style="font-size:18px;font-weight:800;margin-bottom:6px;">' + dateFormatted + '</div>' +
+        '<div style="font-size:15px;font-weight:700;color:#5EEAD4;">' + booking.slotLabel + '</div>' +
+        '</div>' +
+
+        '<table style="width:100%;border-collapse:collapse;margin:0 0 20px;">' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;width:35%;">Booking ID</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.id + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Name</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.name + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Business</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.business + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Phone</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.phone + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Address</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (booking.customer.address || '—') + '</td></tr>' +
+        '</table>' +
+
+        '<div style="background:#d1fae5;border:1px solid #a7f3d0;border-radius:10px;' +
+        'padding:14px;margin:0 0 24px;text-align:center;">' +
+        '<div style="font-size:13px;font-weight:700;color:#065f46;">Booking Confirmed</div>' +
+        '<div style="font-size:12px;color:#047857;margin-top:4px;">' +
+        'Need to reschedule? Contact us at least 24 hours in advance.</div>' +
+        '</div>' +
+
+        '<div style="text-align:center;margin:0 0 24px;">' +
+        '<a href="https://wa.me/27790440508" style="display:inline-block;padding:12px 22px;' +
+        'background:#25D366;color:#fff;border-radius:8px;text-decoration:none;' +
+        'font-weight:700;margin:4px;font-size:13px;">WhatsApp Us</a>' +
+        '<a href="tel:0790440508" style="display:inline-block;padding:12px 22px;' +
+        'background:#1a8ba8;color:#fff;border-radius:8px;text-decoration:none;' +
+        'font-weight:700;margin:4px;font-size:13px;">Call Us</a>' +
+        '</div>' +
+
+        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:0 0 16px;">' +
+        '<p style="text-align:center;color:#8aabb5;font-size:11px;margin:0;">' +
+        '&copy; 2025 StockAI-Pro &bull; 079 044 0508 &bull; support@stockai-pro.co.za</p>' +
+        '</div></div>';
+
+    return sendViaProxy(
+        booking.customer.email,
+        'Presentation Confirmed — ' + dateFormatted + ' — StockAI-Pro',
+        html
+    );
+}
+
+// ============================================================
+// EMAIL 14 — BOOKING NOTIFICATION TO ADMIN
+// ============================================================
+function sendBookingEmailToAdmin(booking) {
+    console.log('📧 sendBookingEmailToAdmin called');
+
+    var dateFormatted = booking.date;
+    try {
+        dateFormatted = new Date(booking.date + 'T00:00:00').toLocaleDateString('en-ZA', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    } catch(e) { console.warn('Date format error:', e); }
+
+    var bookedAt = '—';
+    try { bookedAt = new Date(booking.timestamp).toLocaleString('en-ZA'); }
+    catch(e) { console.warn('Timestamp error:', e); }
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;' +
+        'border:1px solid #e4f1f5;border-radius:14px;overflow:hidden;">' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;text-align:center;">' +
+        '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:2px;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<div style="font-size:10px;color:#5EEAD4;letter-spacing:4px;margin-top:5px;">INTELLIGENCE A CLICK AWAY</div>' +
+        '<h2 style="color:#fff;margin:16px 0 0;font-size:18px;">New Presentation Booking!</h2>' +
+        '</div>' +
+
+        '<div style="padding:28px;background:#ffffff;">' +
+        '<p style="color:#5a8a96;margin:0 0 20px;font-size:13px;">A new presentation has been booked. Please add this to your calendar!</p>' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);border-radius:12px;' +
+        'padding:20px;color:#fff;margin:0 0 20px;text-align:center;">' +
+        '<div style="font-size:18px;font-weight:800;margin-bottom:6px;">' + dateFormatted + '</div>' +
+        '<div style="font-size:15px;font-weight:700;color:#5EEAD4;">' + booking.slotLabel + '</div>' +
+        '</div>' +
+
+        '<table style="width:100%;border-collapse:collapse;margin:0 0 16px;">' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;width:35%;">Booking ID</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.id + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Date</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + dateFormatted + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Time Slot</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.slotLabel + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Name</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.name + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Business</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.business + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Phone</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.phone + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Email</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + booking.customer.email + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Address</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + (booking.customer.address || '—') + '</td></tr>' +
+        '<tr><td style="padding:8px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;">Booked At</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#0d4a5c;font-weight:600;">' + bookedAt + '</td></tr>' +
+        '</table>' +
+
+        '<div style="background:#fff8e1;border-left:4px solid #f59e0b;padding:14px;border-radius:8px;margin:0 0 20px;">' +
+        '<p style="color:#5a4a17;font-size:13px;margin:0 0 6px;">' +
+        '<strong>Add to your calendar:</strong> ' + dateFormatted + ' — ' + booking.slotLabel + '</p>' +
+        '<p style="color:#5a4a17;font-size:13px;margin:0;">' +
+        '<strong>Address:</strong> ' + (booking.customer.address || 'Not provided') + '</p>' +
+        '</div>' +
+
+        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:0 0 16px;">' +
+        '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:0;">' +
+        '&copy; 2025 StockAI-Pro</p>' +
+        '</div></div>';
+
+    return sendViaProxy(
+        ADMIN_EMAIL,
+        'New Booking: ' + booking.customer.business + ' — ' + dateFormatted,
+        html
+    );
+}
+
+// ============================================================
+// EMAIL 15 — DAILY QUOTE ANALYSIS TO ADMIN
+// ============================================================
+function sendDailyQuoteAnalysis() {
+    console.log('📊 sendDailyQuoteAnalysis called');
+
+    var quotes = [];
+    try {
+        quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]');
+    } catch(e) {
+        console.warn('localStorage read error:', e);
+        return Promise.resolve({ ok: false });
+    }
+
+    var today = new Date().toISOString().split('T')[0];
+    var todayQuotes = quotes.filter(function(q) {
+        return q.timestamp && q.timestamp.startsWith(today);
+    });
+
+    if (todayQuotes.length === 0) {
+        console.log('📊 No quotes today — not sending');
+        return Promise.resolve({ ok: true });
+    }
+
+    var totalMonthly = 0;
+    var totalOnceOff = 0;
+    todayQuotes.forEach(function(q) {
+        totalMonthly += (q.monthlyTotal || 0);
+        totalOnceOff += (q.onceOffTotal || 0);
+    });
+
+    var rows = todayQuotes.map(function(q, i) {
+        var bg = i % 2 === 0 ? '#f8fcfd' : '#fff';
+        return '<tr style="background:' + bg + ';">' +
+            '<td style="padding:8px 10px;font-size:12px;color:#2a5f70;border-bottom:1px solid #e4f1f5;">' + (q.quoteRef || '—') + '</td>' +
+            '<td style="padding:8px 10px;font-size:12px;color:#2a5f70;border-bottom:1px solid #e4f1f5;">' + (q.customer ? q.customer.name : '—') + '</td>' +
+            '<td style="padding:8px 10px;font-size:12px;color:#2a5f70;border-bottom:1px solid #e4f1f5;">' + (q.customer ? q.customer.business : '—') + '</td>' +
+            '<td style="padding:8px 10px;font-size:12px;color:#2a5f70;border-bottom:1px solid #e4f1f5;">' + (q.customer ? q.customer.phone : '—') + '</td>' +
+            '<td style="padding:8px 10px;font-size:12px;color:#1a8ba8;font-weight:700;border-bottom:1px solid #e4f1f5;">' + fmtR(q.monthlyTotal || 0) + '/mo</td>' +
+            '</tr>';
+    }).join('');
+
+    var html =
+        '<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;' +
+        'border:1px solid #e4f1f5;border-radius:14px;overflow:hidden;">' +
+
+        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:32px;text-align:center;">' +
+        '<div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:2px;">' +
+        '<span style="color:#5EEAD4;">Stock</span><span style="color:#2DD4BF;">AI</span>' +
+        '<span style="color:rgba(255,255,255,.75);">-Pro</span></div>' +
+        '<div style="font-size:10px;color:#5EEAD4;letter-spacing:4px;margin-top:5px;">INTELLIGENCE A CLICK AWAY</div>' +
+        '<h2 style="color:#fff;margin:14px 0 0;font-size:18px;">Daily Quote Analysis</h2>' +
+        '<p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:13px;">' +
+        todayQuotes.length + ' quote' + (todayQuotes.length > 1 ? 's' : '') +
+        ' today — ' + fmtR(totalMonthly) + '/mo potential</p>' +
+        '</div>' +
+
+        '<div style="padding:28px;background:#ffffff;">' +
+
+        // Stats
+        '<table style="width:100%;border-collapse:collapse;margin:0 0 24px;">' +
+        '<tr>' +
+        '<td style="padding:16px;background:#e4f1f5;border-radius:8px;text-align:center;width:32%;">' +
+        '<div style="font-size:30px;font-weight:900;color:#1a8ba8;">' + todayQuotes.length + '</div>' +
+        '<div style="font-size:11px;color:#5a8a96;font-weight:600;margin-top:4px;">Quotes Today</div>' +
+        '</td>' +
+        '<td style="width:2%;"></td>' +
+        '<td style="padding:16px;background:#d1fae5;border-radius:8px;text-align:center;width:32%;">' +
+        '<div style="font-size:16px;font-weight:900;color:#065f46;">' + fmtR(totalMonthly) + '</div>' +
+        '<div style="font-size:11px;color:#047857;font-weight:600;margin-top:4px;">Monthly Value</div>' +
+        '</td>' +
+        '<td style="width:2%;"></td>' +
+        '<td style="padding:16px;background:#fef3c7;border-radius:8px;text-align:center;width:32%;">' +
+        '<div style="font-size:16px;font-weight:900;color:#92400e;">' + fmtR(totalOnceOff) + '</div>' +
+        '<div style="font-size:11px;color:#a16207;font-weight:600;margin-top:4px;">Once-off Value</div>' +
+        '</td>' +
+        '</tr>' +
+        '</table>' +
+
+        // Table
+        '<table style="width:100%;border-collapse:collapse;">' +
+        '<thead><tr style="background:#0d4a5c;">' +
+        '<th style="padding:10px;text-align:left;font-size:11px;color:#fff;">Ref</th>' +
+        '<th style="padding:10px;text-align:left;font-size:11px;color:#fff;">Name</th>' +
+        '<th style="padding:10px;text-align:left;font-size:11px;color:#fff;">Business</th>' +
+        '<th style="padding:10px;text-align:left;font-size:11px;color:#fff;">Phone</th>' +
+        '<th style="padding:10px;text-align:left;font-size:11px;color:#fff;">Monthly</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>' +
+
+        '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:20px 0 0;">' +
+        '&copy; 2025 StockAI-Pro — www.stockai-pro.co.za</p>' +
+        '</div></div>';
+
+    return sendViaProxy(
+        ADMIN_EMAIL,
+        'Daily Quotes: ' + todayQuotes.length + ' — ' + fmtR(totalMonthly) + '/mo potential',
+        html
+    );
+}
+
+// ============================================================
+// AUTO DAILY TRIGGER
+// ============================================================
+function checkAndSendDailyAnalysis() {
+    var lastSent = '';
+    try { lastSent = localStorage.getItem('stockai_daily_analysis_sent') || ''; }
+    catch(e) { console.warn('localStorage read error:', e); return; }
+
+    var today = new Date().toISOString().split('T')[0];
+    if (lastSent === today) return;
+
+    var quotes = [];
+    try { quotes = JSON.parse(localStorage.getItem('stockai_quotes') || '[]'); }
+    catch(e) { console.warn('localStorage parse error:', e); return; }
+
+    var todayQuotes = quotes.filter(function(q) {
+        return q.timestamp && q.timestamp.startsWith(today);
+    });
+
+    if (todayQuotes.length > 0) {
+        sendDailyQuoteAnalysis().then(function() {
+            try { localStorage.setItem('stockai_daily_analysis_sent', today); }
+            catch(e) { console.warn('localStorage write error:', e); }
+            console.log('📊 Daily analysis sent');
+        });
     }
 }
-</script>
-</body>
-</html>
+
+setTimeout(function() {
+    if (new Date().getHours() >= 17) { checkAndSendDailyAnalysis(); }
+}, 5000);
+
+// ============================================================
+// REGISTER ALL FUNCTIONS ON WINDOW
+// ============================================================
+window.sendQuoteEmailToCustomer          = sendQuoteEmailToCustomer;
+window.sendQuoteNotificationToAdmin      = sendQuoteNotificationToAdmin;
+window.sendBookingConfirmationToCustomer = sendBookingConfirmationToCustomer;
+window.sendBookingEmailToAdmin           = sendBookingEmailToAdmin;
+window.sendDailyQuoteAnalysis            = sendDailyQuoteAnalysis;
+window.checkAndSendDailyAnalysis         = checkAndSendDailyAnalysis;
+
+// ============================================================
+// CONFIRM LOADED
+// ============================================================
+console.log('✅ email-addon.js loaded successfully');
+console.log('📧 Proxy URL:', PROXY_URL);
+console.log('📧 sendQuoteEmailToCustomer:', typeof window.sendQuoteEmailToCustomer);
+console.log('📧 sendQuoteNotificationToAdmin:', typeof window.sendQuoteNotificationToAdmin);
+console.log('📧 sendBookingConfirmationToCustomer:', typeof window.sendBookingConfirmationToCustomer);
+console.log('📧 sendBookingEmailToAdmin:', typeof window.sendBookingEmailToAdmin);
+console.log('📧 sendDailyQuoteAnalysis:', typeof window.sendDailyQuoteAnalysis);
