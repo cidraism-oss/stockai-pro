@@ -4017,81 +4017,275 @@ function deeNavigate(page) {
 // HOME PAGE
 // ============================================================
 function deeHomePage() {
-    var now     = new Date();
-    var hour    = now.getHours();
+    var now      = new Date();
+    var hour     = now.getHours();
     var greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
-    var name    = DEE.user ? DEE.user.name : 'there';
+    var name     = DEE.user ? DEE.user.name : 'there';
 
+    // ── Build 7-day calendar ──
+    var calDays = '';
+    for (var d = 0; d < 7; d++) {
+        var date    = new Date(now);
+        date.setDate(now.getDate() + d);
+        var isToday = d === 0;
+        var dayName = date.toLocaleDateString('en-ZA', {weekday:'short'});
+        var dayNum  = date.getDate();
+        var monthName = date.toLocaleDateString('en-ZA', {month:'short'});
+
+        // Check if any meetings on this day
+        var dayMeetings = DEE.meetings.filter(function(m) {
+            return new Date(m.date).toDateString() === date.toDateString();
+        });
+        var hasMeeting = dayMeetings.length > 0;
+
+        // Meeting preview for this day
+        var meetPreview = '';
+        if (hasMeeting) {
+            meetPreview = dayMeetings.map(function(m) {
+                return '<div style="font-size:.62rem;color:#a78bfa;white-space:nowrap;overflow:hidden;' +
+                    'text-overflow:ellipsis;max-width:100%;margin-top:2px">• ' + m.time + ' ' + (m.title||'').substring(0,15) + '</div>';
+            }).join('');
+        }
+
+        calDays += '<div onclick="deeCalendarDayTap(\'' + date.toISOString().split('T')[0] + '\')" ' +
+            'style="flex:1;min-width:0;padding:10px 6px;text-align:center;cursor:pointer;' +
+            'border-radius:12px;transition:.2s;position:relative;' +
+            'background:' + (isToday ? 'linear-gradient(135deg,#7c3aed,#4f46e5)' : 'rgba(255,255,255,.04)') + ';' +
+            'border:1px solid ' + (isToday ? 'rgba(124,58,237,.6)' : (hasMeeting ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.06)')) + '" ' +
+            'onmouseover="if(!' + isToday + ')this.style.background=\'rgba(124,58,237,.15)\';this.style.borderColor=\'rgba(124,58,237,.4)\'" ' +
+            'onmouseout="if(!' + isToday + ')this.style.background=\'rgba(255,255,255,.04)\';this.style.borderColor=\'' + (hasMeeting?'rgba(124,58,237,.3)':'rgba(255,255,255,.06)') + '\'">' +
+            '<div style="font-size:.6rem;font-weight:600;color:' + (isToday ? 'rgba(255,255,255,.8)' : 'rgba(255,255,255,.4)') + ';' +
+            'text-transform:uppercase;letter-spacing:.5px">' + dayName + '</div>' +
+            '<div style="font-size:1.2rem;font-weight:800;color:' + (isToday ? '#fff' : 'rgba(255,255,255,.7)') + ';margin:4px 0 2px">' + dayNum + '</div>' +
+            '<div style="font-size:.55rem;color:' + (isToday ? 'rgba(255,255,255,.7)' : 'rgba(255,255,255,.3)') + '">' + monthName + '</div>' +
+            (hasMeeting ? '<div style="width:6px;height:6px;background:#a78bfa;border-radius:50%;' +
+            'margin:4px auto 0;box-shadow:0 0 6px rgba(167,139,250,.6)"></div>' : '') +
+            meetPreview +
+            '</div>';
+    }
+
+    // ── Build recent notes ──
+    var recentNotes = DEE.notes.slice(-3).reverse();
+    var notesHtml   = '';
+    if (recentNotes.length === 0) {
+        notesHtml = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,.25)">' +
+            '<i class="fas fa-sticky-note" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.5"></i>' +
+            '<p style="font-size:.78rem">No notes yet</p>' +
+            '<p style="font-size:.68rem;margin-top:4px">Say "Add note: your text" or tap New Note</p></div>';
+    } else {
+        notesHtml = recentNotes.map(function(note) {
+            return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);' +
+                'border-radius:10px;padding:12px;margin-bottom:8px">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+                '<span style="font-size:.62rem;color:rgba(255,255,255,.3)">' +
+                new Date(note.createdAt).toLocaleString('en-ZA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) + '</span>' +
+                '<span style="font-size:.55rem;background:rgba(124,58,237,.2);color:#a78bfa;padding:2px 6px;border-radius:4px">Note</span></div>' +
+                '<div style="font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.5;' +
+                'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' +
+                note.text + '</div></div>';
+        }).join('');
+    }
+
+    // ── Today's meetings list ──
     var todayMeetings = DEE.meetings.filter(function(m) {
-        var mDate = new Date(m.date);
-        return mDate.toDateString() === now.toDateString();
+        return new Date(m.date).toDateString() === now.toDateString();
+    }).sort(function(a, b) {
+        return (a.time || '').localeCompare(b.time || '');
     });
 
+    var todayMeetingsHtml = '';
+    if (todayMeetings.length > 0) {
+        todayMeetingsHtml = '<div style="margin-bottom:16px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+            '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px">' +
+            '📅 Today\'s Meetings (' + todayMeetings.length + ')</div></div>' +
+            todayMeetings.map(function(m) {
+                var isPast = false;
+                if (m.time) {
+                    var parts = m.time.split(':');
+                    var mHour = parseInt(parts[0]) || 0;
+                    var mMin  = parseInt(parts[1]) || 0;
+                    isPast    = now.getHours() > mHour || (now.getHours() === mHour && now.getMinutes() > mMin);
+                }
+                return '<div style="display:flex;align-items:center;gap:12px;padding:12px;' +
+                    'background:rgba(255,255,255,.04);border:1px solid ' + (isPast ? 'rgba(255,255,255,.06)' : 'rgba(124,58,237,.3)') + ';' +
+                    'border-radius:12px;margin-bottom:8px;opacity:' + (isPast ? '.5' : '1') + '">' +
+                    '<div style="width:44px;height:44px;background:' + (isPast ? 'rgba(255,255,255,.1)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)') + ';' +
+                    'border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">' +
+                    '<div style="font-size:.6rem;color:rgba(255,255,255,.7)">' + (isPast ? 'Done' : m.time.split(':')[0] > 11 ? 'PM' : 'AM') + '</div>' +
+                    '<div style="font-size:.88rem;font-weight:800;color:#fff">' + m.time + '</div></div>' +
+                    '<div style="flex:1;min-width:0">' +
+                    '<div style="font-size:.85rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + m.title + '</div>' +
+                    (m.clientName ? '<div style="font-size:.72rem;color:#a78bfa"><i class="fas fa-user" style="font-size:.6rem;margin-right:4px"></i>' + m.clientName + '</div>' : '') +
+                    (m.location ? '<div style="font-size:.68rem;color:rgba(255,255,255,.4)"><i class="fas fa-map-marker-alt" style="font-size:.55rem;margin-right:4px"></i>' + m.location + '</div>' : '') +
+                    '</div>' +
+                    (isPast ? '<span style="font-size:.6rem;color:rgba(255,255,255,.3);font-weight:600">DONE</span>' :
+                    '<span style="font-size:.6rem;background:rgba(46,168,113,.2);color:#2ea871;padding:3px 8px;border-radius:6px;font-weight:600">UPCOMING</span>') +
+                    '</div>';
+            }).join('') + '</div>';
+    }
+
+    // ── Upcoming meetings (next 3 after today) ──
     var upcomingMeetings = DEE.meetings.filter(function(m) {
-        return new Date(m.date) >= now;
-    }).sort(function(a, b) { return new Date(a.date) - new Date(b.date); }).slice(0, 3);
+        return new Date(m.date) > now && new Date(m.date).toDateString() !== now.toDateString();
+    }).sort(function(a, b) {
+        return new Date(a.date) - new Date(b.date);
+    }).slice(0, 3);
 
-    return '<div style="padding:20px">' +
-
-        // Greeting card
-        '<div style="background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(79,70,229,.2));' +
-        'border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:24px;margin-bottom:20px;text-align:center">' +
-        '<div style="font-size:3rem;margin-bottom:10px">🤖</div>' +
-        '<h2 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px">' + greeting + ', ' + name + '!</h2>' +
-        '<p style="font-size:.82rem;color:rgba(255,255,255,.6)">' +
-        now.toLocaleDateString('en-ZA', {weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</p>' +
-        '<p style="font-size:.85rem;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">' +
-        '"Say <strong style="color:#a78bfa">Hey DEE</strong> or tap 🎤 to talk to me"</p>' +
-        '</div>' +
-
-        // Quick stats
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">' +
-        deeStatCard('📅', 'Today', todayMeetings.length + ' meetings', '#7c3aed') +
-        deeStatCard('📝', 'Notes', DEE.notes.length + ' saved', '#4f46e5') +
-        deeStatCard('🗓️', 'Upcoming', upcomingMeetings.length + ' events', '#6d28d9') +
-        '</div>' +
-
-        // Quick actions
-        '<div style="margin-bottom:20px">' +
-        '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Quick Actions</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-        deeQuickBtn('📅 Book Meeting', "deeNavigate('dee-meetings')", '#7c3aed') +
-        deeQuickBtn('📝 Add Note', "deeNavigate('dee-notes')", '#4f46e5') +
-        deeQuickBtn('💬 Ask DEE', "deeNavigate('dee-chat')", '#6d28d9') +
-        deeQuickBtn('📆 Calendar', "deeNavigate('dee-calendar')", '#5b21b6') +
-        '</div></div>' +
-
-        // Upcoming meetings
-        (upcomingMeetings.length > 0 ?
-            '<div style="margin-bottom:20px">' +
-            '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Upcoming Meetings</div>' +
+    var upcomingHtml = '';
+    if (upcomingMeetings.length > 0) {
+        upcomingHtml = '<div style="margin-bottom:16px">' +
+            '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' +
+            '🗓️ Coming Up</div>' +
             upcomingMeetings.map(function(m) {
-                return '<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);' +
-                    'border-radius:12px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px">' +
-                    '<div style="width:40px;height:40px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-                    'border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📅</div>' +
-                    '<div style="flex:1"><div style="font-size:.88rem;font-weight:700;color:#fff">' + m.title + '</div>' +
-                    '<div style="font-size:.72rem;color:rgba(255,255,255,.5)">' +
-                    new Date(m.date).toLocaleDateString('en-ZA', {weekday:'short',day:'numeric',month:'short'}) +
-                    ' at ' + m.time + (m.clientName ? ' • ' + m.clientName : '') + '</div></div></div>';
-            }).join('') + '</div>'
-        : '') +
+                var daysUntil = Math.ceil((new Date(m.date) - now) / 86400000);
+                return '<div style="display:flex;align-items:center;gap:12px;padding:10px;' +
+                    'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);' +
+                    'border-radius:10px;margin-bottom:6px">' +
+                    '<div style="width:38px;height:38px;background:rgba(124,58,237,.15);border-radius:8px;' +
+                    'display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">' +
+                    '<div style="font-size:.88rem;font-weight:800;color:#a78bfa">' + new Date(m.date).getDate() + '</div>' +
+                    '<div style="font-size:.5rem;color:rgba(255,255,255,.4)">' +
+                    new Date(m.date).toLocaleDateString('en-ZA',{month:'short'}) + '</div></div>' +
+                    '<div style="flex:1;min-width:0">' +
+                    '<div style="font-size:.82rem;font-weight:600;color:rgba(255,255,255,.8)">' + m.title + '</div>' +
+                    '<div style="font-size:.68rem;color:rgba(255,255,255,.4)">' + m.time +
+                    (m.clientName ? ' • ' + m.clientName : '') + '</div></div>' +
+                    '<span style="font-size:.62rem;color:rgba(255,255,255,.3);font-weight:600">' +
+                    daysUntil + 'd</span></div>';
+            }).join('') + '</div>';
+    }
 
-        // DEE tip
-        '<div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);' +
-        'border-radius:12px;padding:14px;text-align:center">' +
-        '<div style="font-size:.78rem;color:rgba(255,255,255,.5);font-style:italic">' +
-        '💡 Try saying: <strong style="color:#a78bfa">"Book me a meeting with Mark for Tuesday at 10am"</strong></div></div>' +
+    // ── Build the full dashboard ──
+    return '<div style="padding:16px">' +
+
+        // ── Greeting + Back to Hub ──
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+        '<button onclick="closeEmbeddedApp()" ' +
+        'style="display:flex;align-items:center;gap:6px;padding:8px 14px;' +
+        'background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);' +
+        'border-radius:8px;color:rgba(255,255,255,.6);font-size:.78rem;font-weight:600;' +
+        'cursor:pointer;font-family:inherit">' +
+        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="font-size:.72rem;color:rgba(255,255,255,.4)">' +
+        now.toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + '</div></div>' +
+
+        // ── Greeting card ──
+        '<div style="background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(79,70,229,.15));' +
+        'border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:20px;margin-bottom:16px;' +
+        'display:flex;align-items:center;gap:14px">' +
+        '<div style="width:56px;height:56px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
+        'border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;' +
+        'flex-shrink:0;box-shadow:0 0 20px rgba(124,58,237,.5)">🤖</div>' +
+        '<div><h2 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:2px">' +
+        greeting + ', ' + name + '!</h2>' +
+        '<p style="font-size:.78rem;color:rgba(255,255,255,.5)">' +
+        'Say <strong style="color:#a78bfa">"Hey DEE"</strong> or tap 🎤 to talk to me</p></div></div>' +
+
+        // ── Quick action buttons ──
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">' +
+        deeQuickAction('📅', 'Meeting', "deeNavigate('dee-meetings')") +
+        deeQuickAction('📝', 'Note', "deeShowAddNote()") +
+        deeQuickAction('💬', 'Chat', "deeNavigate('dee-chat')") +
+        deeQuickAction('🗓️', 'Calendar', "deeNavigate('dee-calendar')") +
+        '</div>' +
+
+        // ── 7-Day Calendar Strip ──
+        '<div style="margin-bottom:16px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px">' +
+        '📆 Next 7 Days</div>' +
+        '<button onclick="deeNavigate(\'dee-calendar\')" style="background:none;border:none;' +
+        'color:#a78bfa;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+        'Full Calendar <i class="fas fa-chevron-right" style="font-size:.6rem"></i></button></div>' +
+        '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch">' +
+        calDays + '</div>' +
+
+        // ── Day detail area ──
+        '<div id="dee-day-detail"></div>' +
+        '</div>' +
+
+        // ── Today's meetings ──
+        todayMeetingsHtml +
+
+        // ── Upcoming meetings ──
+        upcomingHtml +
+
+        // ── Notes section ──
+        '<div style="margin-bottom:16px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px">' +
+        '📝 Recent Notes</div>' +
+        '<div style="display:flex;gap:6px">' +
+        '<button onclick="deeShowAddNote()" style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);' +
+        'border-radius:6px;color:#a78bfa;font-size:.68rem;font-weight:600;cursor:pointer;' +
+        'font-family:inherit;padding:4px 10px"><i class="fas fa-plus" style="font-size:.6rem;margin-right:4px"></i>New</button>' +
+        '<button onclick="deeNavigate(\'dee-notes\')" style="background:none;border:none;' +
+        'color:#a78bfa;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+        'All Notes <i class="fas fa-chevron-right" style="font-size:.6rem"></i></button></div></div>' +
+        notesHtml +
+        '</div>' +
+
+        // ── Voice tip ──
+        '<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.15);' +
+        'border-radius:12px;padding:14px;text-align:center;margin-bottom:80px">' +
+        '<div style="font-size:.75rem;color:rgba(255,255,255,.4);line-height:1.6">' +
+        '🎤 Try saying:<br>' +
+        '<span style="color:#a78bfa;font-weight:600">"Book me a meeting with Mark for Tuesday at 10am"</span><br>' +
+        '<span style="color:#a78bfa;font-weight:600">"Add note: Follow up with supplier about pricing"</span><br>' +
+        '<span style="color:#a78bfa;font-weight:600">"What meetings do I have today?"</span>' +
+        '</div></div>' +
 
         '</div>';
 }
 
-function deeStatCard(icon, label, value, color) {
-    return '<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);' +
-        'border-radius:12px;padding:14px;text-align:center">' +
-        '<div style="font-size:1.5rem;margin-bottom:4px">' + icon + '</div>' +
-        '<div style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;font-weight:600">' + label + '</div>' +
-        '<div style="font-size:.88rem;font-weight:700;color:#fff;margin-top:2px">' + value + '</div></div>';
+function deeQuickAction(icon, label, onclick) {
+    return '<button onclick="' + onclick + '" ' +
+        'style="padding:14px 6px;background:rgba(255,255,255,.04);' +
+        'border:1px solid rgba(255,255,255,.08);border-radius:12px;' +
+        'cursor:pointer;text-align:center;font-family:inherit;transition:.2s" ' +
+        'onmouseover="this.style.background=\'rgba(124,58,237,.15)\';this.style.borderColor=\'rgba(124,58,237,.3)\'" ' +
+        'onmouseout="this.style.background=\'rgba(255,255,255,.04)\';this.style.borderColor=\'rgba(255,255,255,.08)\'">' +
+        '<div style="font-size:1.3rem;margin-bottom:4px">' + icon + '</div>' +
+        '<div style="font-size:.62rem;font-weight:600;color:rgba(255,255,255,.5)">' + label + '</div></button>';
+}
+
+function deeCalendarDayTap(dateStr) {
+    var selected     = new Date(dateStr);
+    var dayMeetings  = DEE.meetings.filter(function(m) {
+        return new Date(m.date).toDateString() === selected.toDateString();
+    });
+    var detail = document.getElementById('dee-day-detail');
+    if (!detail) return;
+
+    var dayLabel = selected.toLocaleDateString('en-ZA', {weekday:'long', day:'numeric', month:'long'});
+
+    if (dayMeetings.length === 0) {
+        detail.innerHTML = '<div style="margin-top:10px;padding:12px;background:rgba(255,255,255,.03);' +
+            'border:1px solid rgba(255,255,255,.06);border-radius:10px;text-align:center">' +
+            '<div style="font-size:.78rem;color:rgba(255,255,255,.5)">' + dayLabel + '</div>' +
+            '<div style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:4px">No meetings scheduled</div>' +
+            '<button onclick="deeShowBookMeeting({date:\'' + dateStr + '\'})" ' +
+            'style="margin-top:8px;padding:6px 14px;background:rgba(124,58,237,.2);' +
+            'border:1px solid rgba(124,58,237,.3);border-radius:6px;color:#a78bfa;' +
+            'font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+            '<i class="fas fa-plus"></i> Book for this day</button></div>';
+    } else {
+        detail.innerHTML = '<div style="margin-top:10px">' +
+            '<div style="font-size:.75rem;font-weight:700;color:#a78bfa;margin-bottom:8px">' + dayLabel + '</div>' +
+            dayMeetings.map(function(m) {
+                return '<div style="display:flex;align-items:center;gap:10px;padding:10px;' +
+                    'background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);' +
+                    'border-radius:10px;margin-bottom:6px">' +
+                    '<div style="font-size:.85rem;font-weight:700;color:#a78bfa;flex-shrink:0;width:50px;text-align:center">' +
+                    m.time + '</div>' +
+                    '<div style="flex:1;min-width:0">' +
+                    '<div style="font-size:.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+                    m.title + '</div>' +
+                    (m.clientName ? '<div style="font-size:.68rem;color:rgba(255,255,255,.5)">' + m.clientName + '</div>' : '') +
+                    '</div></div>';
+            }).join('') + '</div>';
+    }
 }
 
 function deeQuickBtn(label, onclick, color) {
