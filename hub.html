@@ -1084,6 +1084,13 @@ function playWelcomeExperience() {
     if (_welcomeAudioPlayed) return;
     _welcomeAudioPlayed = true;
 
+// Play tone and voice at the same time — no waiting
+    playStartupTone(null); // Don't wait for callback
+    setTimeout(function() {
+        speakWelcomeMessage();
+    }, 800); // Start speaking 0.8s after tone starts (overlapping)
+}
+
     // Step 1 — Play startup tone first
     playStartupTone(function() {
         // Step 2 — After tone finishes, speak the welcome message
@@ -1277,12 +1284,13 @@ document.addEventListener('DOMContentLoaded', function() {
     startHubClock();
 
 // ── Auto-play welcome experience after animations settle ──
+// ── Play welcome IMMEDIATELY — no wait ──
 setTimeout(function() {
     var welcomeScreen = document.getElementById('welcome-screen');
     if (welcomeScreen && welcomeScreen.style.display !== 'none') {
         playWelcomeExperience();
     }
-}, 3800); // Wait for welcome screen animations to finish first
+}, 500); // Just 0.5 second to let page render// Wait for welcome screen animations to finish first
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
         if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
@@ -4055,34 +4063,62 @@ function deeLogout() {
 // ============================================================
 // NAVIGATION
 // ============================================================
-function deeNavigate(page) {
-    DEE.currentView = page;
+function deeStartWakeWord() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
 
-    // Update nav buttons
-    document.querySelectorAll('[data-deepage]').forEach(function(btn) {
-        var isActive = btn.dataset.deepage === page;
-        btn.style.color      = isActive ? '#a78bfa' : 'rgba(255,255,255,.35)';
-        btn.style.background = isActive ? 'rgba(124,58,237,.15)' : 'transparent';
-    });
+    // ── Only ask once — if user denied, don't keep asking ──
+    if (DEE._wakeDenied) return;
+    DEE.wakeActive = true;
 
-    var content = document.getElementById('dee-content');
-    if (!content) return;
-    content.scrollTop = 0;
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    _deeWakeRecognition = new SpeechRecognition();
+    _deeWakeRecognition.continuous    = true;
+    _deeWakeRecognition.interimResults = true;
+    _deeWakeRecognition.lang          = DEE.lang;
+
+    _deeWakeRecognition.onresult = function(event) {
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+            var t = event.results[i][0].transcript.toLowerCase().trim();
+            if (t.indexOf('hey dee') !== -1 || t.indexOf('hey d') !== -1) {
+                deeStopWakeWord();
+                deeSpeak('Yes ' + (DEE.user ? DEE.user.name : '') + '? I\'m listening!');
+                setTimeout(deeStartListening, 1200);
+                return;
+            }
+        }
+    };
+
+    _deeWakeRecognition.onend = function() {
+        // ── Only restart if still active AND logged in — with longer delay ──
+        if (DEE.wakeActive && DEE.loggedIn && !DEE._wakeDenied) {
+            setTimeout(function() {
+                if (DEE.wakeActive && DEE.loggedIn) deeStartWakeWord();
+            }, 5000); // 5 second delay instead of 1 second
+        }
+    };
+
+    _deeWakeRecognition.onerror = function(event) {
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+            // ── User denied — stop asking completely ──
+            DEE._wakeDenied = true;
+            DEE.wakeActive  = false;
+            console.log('🎤 Mic permission denied — wake word disabled');
+            return;
+        }
+        if (event.error !== 'no-speech' && event.error !== 'aborted') {
+            // ── Other error — wait 10 seconds before retry ──
+            setTimeout(function() {
+                if (DEE.wakeActive && DEE.loggedIn && !DEE._wakeDenied) deeStartWakeWord();
+            }, 10000);
+        }
+    };
 
     try {
-        if      (page === 'dee-home')     content.innerHTML = deeHomePage();
-        else if (page === 'dee-chat')     content.innerHTML = deeChat();
-        else if (page === 'dee-calendar') content.innerHTML = deeCalendarPage();
-        else if (page === 'dee-notes')    content.innerHTML = deeNotesPage();
-        else if (page === 'dee-meetings') content.innerHTML = deeMeetingsPage();
+        _deeWakeRecognition.start();
     } catch(e) {
-        console.error('DEE navigate error:', e);
-        content.innerHTML = '<div style="padding:20px;text-align:center;color:rgba(255,255,255,.4)">' +
-            '<i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:10px"></i>' +
-            '<p>Something went wrong loading this page.</p>' +
-            '<button onclick="deeNavigate(\'dee-home\')" style="margin-top:10px;padding:8px 16px;' +
-            'background:#7c3aed;border:none;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit">' +
-            'Go Home</button></div>';
+        // ── If start fails — stop trying ──
+        DEE._wakeDenied = true;
+        console.warn('Wake word start failed:', e);
     }
 }
 
@@ -4943,6 +4979,142 @@ function deeStopWakeWord() {
 // ============================================================
 function deeProcessCommand(text) {
     var lower = text.toLowerCase();
+    // ── Check if DEE is waiting for a follow-up answer ──
+    if (DEE.pendingAction) {
+        var action = DEE.pendingAction;
+
+        // ── Meeting: waiting for WHO ──
+        if (action.type === 'meeting_who') {
+            action.data.clientName = text.trim();
+            action.data.title     = 'Meeting with ' + text.trim();
+            DEE.pendingAction = { type: 'meeting_date', data: action.data };
+            var askD = 'Meeting with ' + text.trim() + '. What day should I book it?';
+            deeAddChatMessage('dee', '📅 ' + askD);
+            deeSpeak(askD);
+            return;
+        }
+
+        // ── Meeting: waiting for DATE ──
+        if (action.type === 'meeting_date') {
+            var lower2 = text.toLowerCase();
+            var today2 = new Date();
+            var days2 = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+
+            if (lower2.includes('tomorrow')) {
+                var tom = new Date(today2); tom.setDate(today2.getDate()+1);
+                action.data.date = tom.toISOString().split('T')[0];
+            } else if (lower2.includes('today')) {
+                action.data.date = today2.toISOString().split('T')[0];
+            } else {
+                days2.forEach(function(day) {
+                    if (lower2.includes(day)) {
+                        var targetDay = days2.indexOf(day)+1;
+                        var currentDay = today2.getDay()===0?7:today2.getDay();
+                        var diff = targetDay - currentDay;
+                        if (diff<=0) diff+=7;
+                        var md = new Date(today2); md.setDate(today2.getDate()+diff);
+                        action.data.date = md.toISOString().split('T')[0];
+                    }
+                });
+            }
+
+            if (!action.data.date) {
+                // Try to parse a date
+                try {
+                    var parsed = new Date(text);
+                    if (!isNaN(parsed.getTime())) action.data.date = parsed.toISOString().split('T')[0];
+                } catch(e) {}
+            }
+
+            if (action.data.date) {
+                DEE.pendingAction = { type: 'meeting_time', data: action.data };
+                var askT = 'Got it! ' + new Date(action.data.date).toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'}) +
+                    '. What time should the meeting be?';
+                deeAddChatMessage('dee', '📅 ' + askT);
+                deeSpeak(askT);
+            } else {
+                deeSpeak('I didn\'t catch the day. Could you say it again? For example, Tuesday, or tomorrow.');
+                deeAddChatMessage('dee', '📅 Could you repeat the day? Say something like "Tuesday" or "tomorrow".');
+            }
+            return;
+        }
+
+        // ── Meeting: waiting for TIME ──
+        if (action.type === 'meeting_time') {
+            var tMatch = text.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+            if (tMatch) {
+                var hrs = parseInt(tMatch[1]);
+                var min = tMatch[2] ? parseInt(tMatch[2]) : 0;
+                var per = tMatch[3] ? tMatch[3].toLowerCase() : null;
+                if (per === 'pm' && hrs < 12) hrs += 12;
+                if (per === 'am' && hrs === 12) hrs = 0;
+                if (!per && hrs < 8) hrs += 12;
+                action.data.time = ('0'+hrs).slice(-2)+':'+('0'+min).slice(-2);
+            }
+
+            if (action.data.time) {
+                var dateStr2 = new Date(action.data.date).toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'});
+                DEE.pendingAction = { type: 'meeting_email', data: action.data };
+                var askE = 'Perfect! Meeting with ' + action.data.clientName + ' on ' + dateStr2 + ' at ' + action.data.time +
+                    '. What\'s ' + action.data.clientName + '\'s email address? Or say "no email" to skip.';
+                deeAddChatMessage('dee', '📅 ' + askE);
+                deeSpeak(askE);
+            } else {
+                deeSpeak('What time? Say something like "10 am" or "2:30 pm".');
+                deeAddChatMessage('dee', '📅 What time? Say "10 am" or "2:30 pm".');
+            }
+            return;
+        }
+
+        // ── Meeting: waiting for EMAIL ──
+        if (action.type === 'meeting_email') {
+            var skipEmail = lower.includes('no email') || lower.includes('skip') || lower.includes('no');
+            var emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+
+            if (emailMatch) {
+                action.data.clientEmail = emailMatch[0].toLowerCase();
+            }
+
+            // ── Book the meeting automatically ──
+            var meeting = {
+                id:          'MTG-' + Date.now(),
+                title:       action.data.title || 'Meeting with ' + action.data.clientName,
+                date:        action.data.date,
+                time:        action.data.time,
+                clientName:  action.data.clientName || '',
+                clientEmail: action.data.clientEmail || '',
+                location:    '',
+                notes:       '',
+                createdAt:   new Date().toISOString(),
+                emailSent:   false
+            };
+
+            DEE.meetings.push(meeting);
+            localStorage.setItem('dee_meetings', JSON.stringify(DEE.meetings));
+            DEE.pendingAction = null;
+
+            // Send emails if we have an email
+            if (meeting.clientEmail || !skipEmail) {
+                try { deeSendMeetingEmails(meeting); } catch(e) {}
+            }
+
+            var dateStr3 = new Date(meeting.date).toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'});
+            var confirm2 = '✅ Done! Meeting booked with ' + meeting.clientName + ' on ' + dateStr3 + ' at ' + meeting.time + '.';
+            if (meeting.clientEmail) confirm2 += ' Email invite sent to ' + meeting.clientEmail + '!';
+            else if (!skipEmail) confirm2 += ' No email sent.';
+            confirm2 += ' Email notification sent to you.';
+
+            deeAddChatMessage('dee', confirm2);
+            deeSpeak(confirm2);
+
+            // Refresh dashboard if on home
+            if (DEE.currentView === 'dee-home') setTimeout(function(){ deeNavigate('dee-home'); }, 2000);
+            return;
+        }
+
+        // Clear pending if we get here
+        DEE.pendingAction = null;
+    }
 
     // ── Local commands first (no API needed) ──
 
@@ -5005,10 +5177,12 @@ function deeProcessCommand(text) {
 }
 
 function deeHandleBookMeeting(text) {
-    // Extract info from natural language
+    var lower = text.toLowerCase();
+
+    // ── Extract info from voice command ──
     var prefill = { title: '' };
 
-    // Extract name
+    // Extract name (e.g. "meeting with Mark" or "appointment with Sarah Jones")
     var withMatch = text.match(/(?:with|for)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
     if (withMatch) {
         prefill.clientName = withMatch[1];
@@ -5018,39 +5192,99 @@ function deeHandleBookMeeting(text) {
     // Extract day
     var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     var today = new Date();
-    days.forEach(function(day) {
-        if (text.toLowerCase().includes(day)) {
-            var targetDay = days.indexOf(day);
-            var currentDay = today.getDay() === 0 ? 6 : today.getDay() - 1;
-            var diff = targetDay - currentDay;
-            if (diff <= 0) diff += 7;
-            var meetDate = new Date(today);
-            meetDate.setDate(today.getDate() + diff);
-            prefill.date = meetDate.toISOString().split('T')[0];
-        }
-    });
 
-    // Extract time
-    var timeMatch = text.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    // Handle "tomorrow"
+    if (lower.includes('tomorrow')) {
+        var tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        prefill.date = tomorrow.toISOString().split('T')[0];
+    }
+    // Handle "today"
+    else if (lower.includes('today')) {
+        prefill.date = today.toISOString().split('T')[0];
+    }
+    // Handle day names
+    else {
+        days.forEach(function(day) {
+            if (lower.includes(day)) {
+                var targetDay  = days.indexOf(day) + 1; // 1=Mon, 7=Sun
+                var currentDay = today.getDay() === 0 ? 7 : today.getDay();
+                var diff = targetDay - currentDay;
+                if (diff <= 0) diff += 7;
+                var meetDate = new Date(today);
+                meetDate.setDate(today.getDate() + diff);
+                prefill.date = meetDate.toISOString().split('T')[0];
+            }
+        });
+    }
+
+    // Extract time (e.g. "at 10am", "at 2:30 pm", "at 14:00")
+    var timeMatch = text.match(/(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
     if (timeMatch) {
         var hours   = parseInt(timeMatch[1]);
         var minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
         var period  = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
         if (period === 'pm' && hours < 12) hours += 12;
         if (period === 'am' && hours === 12) hours = 0;
+        if (!period && hours < 8) hours += 12; // Assume PM for low numbers
         prefill.time = ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2);
     }
 
-    deeNavigate('dee-meetings');
-    setTimeout(function() { deeShowBookMeeting(prefill); }, 300);
+    // ── Check what info we have vs what we need ──
+    var missingInfo = [];
+    if (!prefill.clientName) missingInfo.push('who');
+    if (!prefill.date)       missingInfo.push('when');
+    if (!prefill.time)       missingInfo.push('what time');
 
-    var confirmText = 'Sure! Let me open the booking form' +
-        (prefill.clientName ? ' for your meeting with ' + prefill.clientName : '') +
-        (prefill.date ? ' on ' + new Date(prefill.date).toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'}) : '') +
-        (prefill.time ? ' at ' + prefill.time : '') + '. Please fill in any remaining details.';
+    // ── If we have everything — ask for email and book directly ──
+    if (missingInfo.length === 0) {
+        var dateStr = new Date(prefill.date).toLocaleDateString('en-ZA', {weekday:'long', day:'numeric', month:'long'});
+        var response = 'Got it! Meeting with ' + prefill.clientName + ' on ' + dateStr + ' at ' + prefill.time + '. ';
+        response += 'What\'s ' + prefill.clientName + '\'s email address? Or say "no email" to skip.';
 
-    deeSpeak(confirmText);
-    deeAddChatMessage('dee', '📅 ' + confirmText);
+        DEE.pendingAction = {
+            type: 'meeting_email',
+            data: prefill
+        };
+
+        deeAddChatMessage('dee', '📅 ' + response);
+        deeSpeak(response);
+        return;
+    }
+
+    // ── If we have partial info — ask for the missing parts ──
+    if (prefill.clientName && !prefill.date) {
+        DEE.pendingAction = {
+            type: 'meeting_date',
+            data: prefill
+        };
+        var askDate = 'Sure, meeting with ' + prefill.clientName + '! What day should I book it for?';
+        deeAddChatMessage('dee', '📅 ' + askDate);
+        deeSpeak(askDate);
+        return;
+    }
+
+    if (prefill.clientName && prefill.date && !prefill.time) {
+        DEE.pendingAction = {
+            type: 'meeting_time',
+            data: prefill
+        };
+        var askTime = 'Meeting with ' + prefill.clientName + ' on ' +
+            new Date(prefill.date).toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'}) +
+            '. What time?';
+        deeAddChatMessage('dee', '📅 ' + askTime);
+        deeSpeak(askTime);
+        return;
+    }
+
+    // ── If we have very little info — ask who ──
+    DEE.pendingAction = {
+        type: 'meeting_who',
+        data: prefill
+    };
+    var askWho = 'Sure! Who would you like the meeting with?';
+    deeAddChatMessage('dee', '📅 ' + askWho);
+    deeSpeak(askWho);
 }
 
 // ── OpenAI API call ──
