@@ -653,7 +653,7 @@ input,textarea,select{ user-select:text; -webkit-user-select:text; }
         <div class="w-pill" style="--delay:3.8s"><i class="fas fa-mobile-alt"></i> All Devices</div>
     </div>
 
-    <button id="welcome-enter">
+    <button id="welcome-enter" onclick="handleWelcomeEnter()">
         <span>E N T E R</span>
         <div class="enter-arrow"><i class="fas fa-arrow-right"></i></div>
     </button>
@@ -1269,62 +1269,34 @@ function playWelcomeBrowserVoice(text) {
 // ============================================================
 // DOM READY
 // ============================================================
+function handleWelcomeEnter() {
+    console.log('✅ ENTER BUTTON CLICKED');
+
+    // Stop any welcome speech still playing
+    try {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    } catch(e) {}
+
+    var screen = document.getElementById('welcome-screen');
+
+    if (screen) {
+        screen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        screen.style.opacity = '0';
+        screen.style.transform = 'scale(1.03)';
+        screen.style.pointerEvents = 'none';
+
+        setTimeout(function() {
+            screen.style.display = 'none';
+            screen.classList.add('hidden');
+            checkHubAuth();
+        }, 600);
+    } else {
+        checkHubAuth();
+    }
+}
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ════════════════════════════════════════
-    // ENTER BUTTON — Direct onclick approach
-    // ════════════════════════════════════════
-    var enterBtn = document.getElementById('welcome-enter');
-    if (enterBtn) {
-        // Remove any existing listeners
-        var newBtn = enterBtn.cloneNode(true);
-        enterBtn.parentNode.replaceChild(newBtn, enterBtn);
-        enterBtn = newBtn;
-
-        // Force button to be clickable
-        enterBtn.style.pointerEvents = 'all';
-        enterBtn.style.zIndex = '99999';
-        enterBtn.style.cursor = 'pointer';
-        enterBtn.style.position = 'relative';
-
-        // Direct onclick
-        enterBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log('✅ ENTER BUTTON CLICKED');
-
-            // Stop any audio
-            try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch(x) {}
-
-            // Disable button
-            this.style.pointerEvents = 'none';
-            this.style.opacity = '0.5';
-
-            // Hide welcome screen
-            var screen = document.getElementById('welcome-screen');
-            if (screen) {
-                screen.style.transition = 'opacity 0.6s ease';
-                screen.style.opacity = '0';
-                screen.style.pointerEvents = 'none';
-                setTimeout(function() {
-                    screen.style.display = 'none';
-                    screen.classList.add('hidden');
-                    console.log('✅ Welcome screen hidden, calling checkHubAuth');
-                    checkHubAuth();
-                }, 600);
-            } else {
-                console.log('⚠️ Welcome screen not found, calling checkHubAuth directly');
-                checkHubAuth();
-            }
-        };
-
-        console.log('✅ Enter button onclick attached');
-    } else {
-        console.log('❌ Enter button not found!');
-    }
-
-    // ════════════════════════════════════════
+     // ════════════════════════════════════════
     // WELCOME AUDIO — Startup tone + Voice
     // ════════════════════════════════════════
     var _audioUnlocked = false;
