@@ -833,18 +833,15 @@ input,textarea,select{ user-select:text; -webkit-user-select:text; }
 <!-- ═══════════════════════════════════════════════════════════
      FIREBASE + CORE SCRIPTS
 ═══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════
+     FIREBASE + CORE SCRIPTS
+═══════════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="/email-templates.js"></script>
 
 <script>
-<script>
-
-var firebaseConfig = {
-    apiKey: "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
-    ...
-// ── Initialize Firebase FIRST before anything else ──
 var firebaseConfig = {
     apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
     authDomain:        "stockai-pro-b232e.firebaseapp.com",
@@ -853,18 +850,34 @@ var firebaseConfig = {
     messagingSenderId: "424200946359",
     appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
 };
-
-// Only initialize if not already done
-if (!firebase.apps || !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db   = firebase.firestore();
-
 console.log('✅ Firebase initialized');
 </script>
 
+<script>
+function handleWelcomeEnter() {
+    console.log('✅ ENTER BUTTON CLICKED');
+    try {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    } catch(e) {}
+    var screen = document.getElementById('welcome-screen');
+    if (screen) {
+        screen.style.transition    = 'opacity 0.6s ease, transform 0.6s ease';
+        screen.style.opacity       = '0';
+        screen.style.transform     = 'scale(1.03)';
+        screen.style.pointerEvents = 'none';
+        setTimeout(function() {
+            screen.style.display = 'none';
+            screen.classList.add('hidden');
+            checkHubAuth();
+        }, 600);
+    } else {
+        checkHubAuth();
+    }
+}
+</script>
 // ============================================================
 // GLOBAL STATE
 // ============================================================
