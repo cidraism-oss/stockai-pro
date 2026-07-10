@@ -1896,7 +1896,7 @@ function navigate(page) {
     if (page === 'grv')             try{ renderGRVSection(); }     catch(e){}
     if (page === 'cashup')          try{ loadCashup(); }           catch(e){}
     if (page === 'day-end')         try{ loadDayEnd(); }           catch(e){}
-    if (page === 'pos-builder')     try{ renderPOSItems(); }       catch(e){}
+    if (page === 'pos-builder')     try{ renderPOSItems(); renderLivePOSItems(); } catch(e){}
     if (page === 'transfers')       try{ renderTransfers(); }      catch(e){}
     if (page === 'production')      try{ renderProduction(); }     catch(e){}
     if (page === 'retail-pos')      try{ renderRetailPOS(); }      catch(e){}
@@ -3664,7 +3664,41 @@ function loadDayEnd() {
     var todayPurch=getPurch().filter(function(p){ return p.grvDate&&fmtDate(p.grvDate)===fmtDate(date); })
         .reduce(function(s,p){ return s+(p.grvTotal||p.total||0); },0)/(1+VAT_RATE);
     el=document.getElementById('de-purchases'); if(el) el.textContent='R'+fmtNum(todayPurch);
-    renderDayEndSellers();
+        // Add retail sales to day end summary
+    var retailSalesDay = getRetailSales().filter(function(s){
+        return s.date && s.date.startsWith(date);
+    });
+    var retailTotal = retailSalesDay.reduce(function(sum,s){ return sum+(s.totalIncl||0)/(1+VAT_RATE); },0);
+
+    var retailCashupsDay = getRetailCashups().filter(function(c){
+        return c.dateStr === date || (c.date && c.date.startsWith(date));
+    });
+    var retailVariance = retailCashupsDay.reduce(function(sum,c){ return sum+(c.totalVariance||0); },0);
+
+    // Inject retail info into day end card
+    var deStockEl = document.getElementById('de-stock');
+    if (deStockEl && retailTotal > 0) {
+        var retailInfoEl = document.getElementById('de-retail-info');
+        if (!retailInfoEl) {
+            var infoDiv = document.createElement('div');
+            infoDiv.id = 'de-retail-info';
+            infoDiv.style.cssText = 'margin-top:12px;padding:12px;background:rgba(245,158,11,.08);' +
+                'border-left:3px solid var(--gold);border-radius:var(--radius-sm)';
+            infoDiv.innerHTML =
+                '<div style="font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:8px">' +
+                '<i class="fas fa-store"></i> Retail POS Data</div>' +
+                '<div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--text-mid);padding:4px 0">' +
+                '<span>Retail Sales (excl.)</span><strong style="color:var(--gold)">R' + retailTotal.toFixed(2) + '</strong></div>' +
+                '<div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--text-mid);padding:4px 0">' +
+                '<span>Retail Transactions</span><strong>' + retailSalesDay.length + '</strong></div>' +
+                '<div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--text-mid);padding:4px 0">' +
+                '<span>Cash Variance</span><strong style="color:' + (retailVariance < 0 ? 'var(--danger)' : 'var(--success)') + '">' +
+                (retailVariance >= 0 ? '+' : '') + 'R' + retailVariance.toFixed(2) + '</strong></div>';
+            var dayendCard = deStockEl.closest('.dayend-card');
+            if (dayendCard) dayendCard.appendChild(infoDiv);
+        }
+    }
+        renderDayEndSellers();
 }
 
 function renderDayEndSellers() {
@@ -3857,7 +3891,76 @@ function pagePOSMenuBuilder() {
         '<div id="pos-items-display"></div></div>' +
         '<div class="form-card" style="margin-top:18px">' +
         '<h3 class="block-title"><i class="fas fa-eye" style="color:var(--accent)"></i> POS Screen Preview</h3>' +
-        '<div id="pos-preview" style="background:#1a1a2e;border-radius:var(--radius-sm);padding:16px;min-height:200px"></div></div>';
+        '<div id="pos-preview" style="background:#1a1a2e;border-radius:var(--radius-sm);padding:16px;min-height:200px"></div></div>' +
+
+// POS Live Items from hub POS apps
+'<div class="form-card" style="margin-top:18px;border-left-color:var(--info)">' +
+'<h3 class="block-title"><i class="fas fa-broadcast-tower" style="color:var(--info)"></i> ' +
+'Live POS Items (from all POS apps)</h3>' +
+'<p style="font-size:.78rem;color:var(--text-light);margin-bottom:12px">' +
+'These items are currently active on your POS systems. ' +
+'Changes made in hub POS apps appear here automatically.</p>' +
+'<div id="live-pos-items-grid"></div></div>';
+}
+
+function renderLivePOSItems() {
+    var el = document.getElementById('live-pos-items-grid');
+    if (!el) return;
+
+    if (!S._accountId || !eid()) {
+        el.innerHTML = '<p style="color:var(--text-light);font-size:.82rem">No data</p>';
+        return;
+    }
+
+    db.collection('accounts').doc(S._accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) return;
+            var data     = doc.data();
+            var posItems = (data.posItems       || {})[eid()] || [];
+            var posCats  = (data.posCategories  || {})[eid()] || [];
+
+            if (posItems.length === 0) {
+                el.innerHTML = '<p style="color:var(--text-light);font-size:.82rem;padding:14px;text-align:center">' +
+                    'No live POS items yet. Configure them in the hub POS apps.</p>';
+                return;
+            }
+
+            // Group by category
+            var byCategory = {};
+            posItems.forEach(function(item) {
+                var cat = posCats.find(function(c){ return c.id === item.categoryId; });
+                var catName = cat ? cat.name : 'Uncategorized';
+                if (!byCategory[catName]) byCategory[catName] = [];
+                byCategory[catName].push(item);
+            });
+
+            var html = '';
+            Object.keys(byCategory).forEach(function(catName) {
+                html += '<div style="margin-bottom:14px">' +
+                    '<div style="font-size:.72rem;font-weight:700;color:var(--text-muted);' +
+                    'text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + catName + '</div>' +
+                    '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
+                    byCategory[catName].map(function(item){
+                        var typeColor = item.posType === 'retail' ? 'var(--gold)' : 'var(--accent)';
+                        return '<div style="padding:8px 14px;background:var(--bg);border-radius:var(--radius-sm);' +
+                            'border:1px solid var(--border);display:flex;align-items:center;gap:8px">' +
+                            '<div style="width:8px;height:8px;border-radius:50%;background:' + typeColor + '"></div>' +
+                            '<div>' +
+                            '<div style="font-size:.82rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+                            '<div style="font-size:.65rem;color:var(--text-muted)">' +
+                            'R' + (item.price||0).toFixed(2) + ' • ' + (item.posType||'restaurant') +
+                            (item.barcode ? ' • ' + item.barcode : '') + '</div></div>' +
+                            '<span class="status-badge ' + (item.status==='live'?'in-stock':'pending') + '" style="margin-left:auto">' +
+                            (item.status||'live') + '</span></div>';
+                    }).join('') +
+                    '</div></div>';
+            });
+
+            html += '<div style="margin-top:10px;font-size:.72rem;color:var(--text-muted)">' +
+                posItems.length + ' total items across ' + Object.keys(byCategory).length + ' categories</div>';
+            el.innerHTML = html;
+        })
+        .catch(function(err){ console.warn('POS items load error:',err); });
 }
 
 function renderPOSItems() {
@@ -5141,7 +5244,9 @@ function renderSuppliers() {
             '<div class="card-actions">' +
             '<button class="btn-outline" onclick="editSupplier(\''+s.id+'\')"><i class="fas fa-edit"></i> Edit</button>' +
             '<button class="btn-outline" onclick="downloadSupplierPriceList(\''+s.id+'\')"><i class="fas fa-download"></i> Price List</button>' +
-            '<button class="btn-outline" onclick="showSupplierPriceUpload(\''+s.id+'\')"><i class="fas fa-upload"></i> Upload</button>' +
+            '<button class="btn-outline" onclick="showSupplierPriceUpload(\'' + s.id + '\')"><i class="fas fa-upload"></i> Upload</button>' +
+'<button class="btn-outline" onclick="shareSupplierPortal(\'' + s.id + '\')" title="Share Portal Link" style="flex:none;padding:8px">' +
+'<i class="fas fa-share-alt"></i></button>' +
             '</div></div>';
     }).join('');
 }
@@ -5320,6 +5425,59 @@ function downloadSupplierPriceList(supId) {
     w.document.write(html); w.document.close();
     setTimeout(function(){ w.print(); },500);
     toast('success','📄 Price list for '+sup.name);
+}
+
+function shareSupplierPortal(supId) {
+    var sup     = getSups().find(function(s){ return s.id === supId; });
+    if (!sup) return;
+    var ent     = S.entities[S.activeEntity] || {};
+    var portalUrl = 'https://www.stockai-pro.co.za/supplier.html';
+    var waMsg   = 'Hi ' + sup.name + ',\n\n' +
+        'Please use this link to manage your orders and pricing with ' + ent.name + ':\n\n' +
+        portalUrl + '\n\n' +
+        'You can log in with your email address.\n\n' +
+        'Thank you,\n' + ent.name;
+    var emailSubject = 'Supplier Portal Access — ' + ent.name;
+    var emailBody    = 'Hi ' + sup.name + ',\n\n' +
+        'Please use this link to manage your orders:\n' + portalUrl + '\n\n' +
+        'Log in with your email address.\n\nThank you,\n' + ent.name;
+
+    showModal('<i class="fas fa-share-alt" style="color:var(--accent)"></i> Share Portal — ' + sup.name,
+        '<div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">' +
+        '<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px">Portal URL</div>' +
+        '<div style="font-family:monospace;font-size:.85rem;color:var(--accent);word-break:break-all">' +
+        portalUrl + '</div></div>' +
+        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:14px">' +
+        'Share the supplier portal link with <strong>' + sup.name + '</strong> so they can ' +
+        'manage orders, upload price lists, and view purchase orders.</p>' +
+        '<div style="display:flex;flex-direction:column;gap:10px">' +
+
+        // Copy link
+        '<button onclick="navigator.clipboard.writeText(\'' + portalUrl + '\').then(function(){ toast(\'success\',\'✅ Link copied to clipboard\'); closeModal(); })" ' +
+        'class="btn-outline" style="justify-content:flex-start">' +
+        '<i class="fas fa-copy"></i> Copy Link to Clipboard</button>' +
+
+        // WhatsApp
+        (sup.phone ?
+            '<a href="https://wa.me/' + sup.phone.replace(/\D/g,'') + '?text=' +
+            encodeURIComponent(waMsg) + '" target="_blank" class="btn-success" ' +
+            'style="padding:9px 18px;text-decoration:none;border-radius:var(--radius-sm);' +
+            'font-weight:600;font-size:.85rem;display:inline-flex;align-items:center;gap:8px">' +
+            '<i class="fab fa-whatsapp"></i> Send via WhatsApp (' + sup.phone + ')</a>' : '') +
+
+        // Email
+        (sup.email ?
+            '<a href="mailto:' + sup.email + '?subject=' + encodeURIComponent(emailSubject) +
+            '&body=' + encodeURIComponent(emailBody) + '" class="btn-outline" ' +
+            'style="padding:9px 18px;text-decoration:none;border-radius:var(--radius-sm);' +
+            'font-weight:600;font-size:.85rem;display:inline-flex;align-items:center;gap:8px">' +
+            '<i class="fas fa-envelope"></i> Send via Email (' + sup.email + ')</a>' : '') +
+
+        '</div>' +
+        '<div style="margin-top:14px;font-size:.72rem;color:var(--text-muted)">' +
+        'Suppliers log in with their email address. ' +
+        'Their access is controlled through their email registration.</div>',
+        '<button class="btn-outline" onclick="closeModal()">Close</button>');
 }
 
 function showSupplierPriceUpload(supId) {
@@ -6676,6 +6834,23 @@ function pageSettings() {
         'placeholder="4560123456"></div>' +
         '<div class="form-field"><label>Food Cost Target (%)</label>' +
         '<input type="number" id="set-fc-target" value="'+(ent.foodCostTarget||28)+'" onchange="saveEntitySettings()"></div></div>' +
+        '<div class="form-row">' +
+'<div class="form-field"><label>Brand Name (white label)</label>' +
+'<input type="text" id="set-brand-name" value="'+(ent.brandName||'')+'" ' +
+'placeholder="e.g. Smiths Restaurant" onchange="saveEntitySettings()"></div>' +
+'<div class="form-field"><label>Brand Color</label>' +
+'<input type="color" id="set-brand-color" value="'+(ent.brandColor||'#1a8ba8')+'" ' +
+'onchange="saveEntitySettings()" style="height:42px;padding:4px"></div></div>' +
+
+'<div class="form-row">' +
+'<div class="form-field"><label>Brand Logo URL</label>' +
+'<input type="text" id="set-brand-logo" value="'+(ent.brandLogo||'')+'" ' +
+'placeholder="https://yourwebsite.com/logo.png" onchange="saveEntitySettings()"></div></div>' +
+
+'<div style="background:rgba(245,158,11,.08);border-left:3px solid var(--gold);' +
+'padding:12px;border-radius:var(--radius-sm);margin-bottom:14px;font-size:.82rem;color:var(--text-mid)">' +
+'<i class="fas fa-info-circle" style="color:var(--gold)"></i> ' +
+'Brand fields are used by the Retail POS and other apps for white-label receipts and screens.</div>' +
         '<div class="form-actions">' +
         '<button class="btn-primary" onclick="saveEntitySettings()"><i class="fas fa-save"></i> Save Entity</button></div></div>' +
 
@@ -6713,31 +6888,46 @@ function pageSettings() {
         '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:14px">' +
         'Staff use their password (hospitality) or PIN (retail) to clock in and out.</p>' +
         '<button class="btn-primary" onclick="showClockInOutModal()">' +
-        '<i class="fas fa-clock"></i> Open Clock In/Out</button></div>';
+'<i class="fas fa-clock"></i> Open Clock In/Out</button>' +
+'<button class="btn-outline" onclick="showHRModal()" style="margin-left:8px">' +
+'<i class="fas fa-users-cog"></i> HR Dashboard</button></div>';
 }
 
 function saveEntitySettings() {
     var ent = S.entities[S.activeEntity];
     if (!ent) return;
+
+    // Standard fields
     var nameEl    = document.getElementById('set-ent-name');
     var contactEl = document.getElementById('set-ent-contact');
     var phoneEl   = document.getElementById('set-ent-phone');
     var addressEl = document.getElementById('set-ent-address');
     var vatEl     = document.getElementById('set-ent-vat');
     var fcEl      = document.getElementById('set-fc-target');
-    if (nameEl)    ent.name          = nameEl.value.trim();
-    if (contactEl) ent.contact       = contactEl.value.trim();
-    if (phoneEl)   ent.phone         = phoneEl.value.trim();
-    if (addressEl) ent.address       = addressEl.value.trim();
-    if (vatEl)     ent.vatNumber     = vatEl.value.trim();
-    if (fcEl)      ent.foodCostTarget = parseFloat(fcEl.value) || 28;
+
+    // Brand fields (for white label)
+    var brandNameEl  = document.getElementById('set-brand-name');
+    var brandColorEl = document.getElementById('set-brand-color');
+    var brandLogoEl  = document.getElementById('set-brand-logo');
+
+    if (nameEl)       ent.name           = nameEl.value.trim();
+    if (contactEl)    ent.contact        = contactEl.value.trim();
+    if (phoneEl)      ent.phone          = phoneEl.value.trim();
+    if (addressEl)    ent.address        = addressEl.value.trim();
+    if (vatEl)        ent.vatNumber      = vatEl.value.trim();
+    if (fcEl)         ent.foodCostTarget = parseFloat(fcEl.value) || 28;
+
+    // Brand fields
+    if (brandNameEl)  ent.brandName  = brandNameEl.value.trim();
+    if (brandColorEl) ent.brandColor = brandColorEl.value;
+    if (brandLogoEl)  ent.brandLogo  = brandLogoEl.value.trim();
+
     document.getElementById('sidebar-entity-name').textContent = ent.name;
     document.getElementById('header-entity-name').textContent  = ent.name;
     logAction('Settings Updated', ent.name);
     debouncedSave();
     toast('success','✅ Entity settings saved');
 }
-
 function renderFeatureWidget() {
     var features = ['web_boh'];
     var cached   = localStorage.getItem('stockai_user_features');
@@ -7455,6 +7645,110 @@ function printClientInvoice(id) {
     w.document.write(html); w.document.close();
     setTimeout(function(){ w.print(); },500);
     logAction('Print','Invoice '+inv.invoiceNumber+' printed');
+}
+
+// ============================================================
+// HR MODULE — Clock records & Leave management
+// ============================================================
+function getHRData() {
+    if (!eid() || !S._accountId) return { clockRecords:[], leaveRequests:[] };
+    return S.hrData ? (S.hrData[eid()] || { clockRecords:[], leaveRequests:[] }) :
+        { clockRecords:[], leaveRequests:[] };
+}
+
+function loadHRData(callback) {
+    if (!S._accountId || !eid()) { if(callback) callback(); return; }
+    db.collection('accounts').doc(S._accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) { if(callback) callback(); return; }
+            var data = doc.data();
+            if (!S.hrData) S.hrData = {};
+            S.hrData[eid()] = (data.hrData || {})[eid()] || { clockRecords:[], leaveRequests:[] };
+            if (callback) callback();
+        })
+        .catch(function(err){ console.warn('HR load error:',err); if(callback) callback(); });
+}
+
+function approveLeave(leaveId, approve) {
+    loadHRData(function() {
+        var hr = getHRData();
+        var req = (hr.leaveRequests||[]).find(function(r){ return r.id === leaveId; });
+        if (!req) { toast('error','Leave request not found'); return; }
+        req.status     = approve ? 'approved' : 'denied';
+        req.approvedBy = S.user ? S.user.name : 'Unknown';
+        req.approvedAt = new Date().toISOString();
+
+        var update = {};
+        update['hrData.' + eid()] = hr;
+        update.lastUpdated       = firebase.firestore.FieldValue.serverTimestamp();
+        update.lastUpdatedBy     = S.user ? S.user.name : 'Web App';
+        update.lastUpdatedDevice = 'Web App';
+
+        db.collection('accounts').doc(S._accountId)
+            .set(update, { merge:true })
+            .then(function(){
+                toast('success', approve ? '✅ Leave approved' : '❌ Leave denied');
+                logAction('Leave ' + (approve?'Approved':'Denied'), req.name + ' — ' + req.type);
+                showHRModal();
+            })
+            .catch(function(err){ toast('error','Error: '+err.message); });
+    });
+}
+
+function showHRModal() {
+    loadHRData(function() {
+        var hr           = getHRData();
+        var clockRecords = hr.clockRecords  || [];
+        var leaveReqs    = hr.leaveRequests || [];
+        var today        = new Date().toISOString().split('T')[0];
+
+        // Today's clock records
+        var todayClocks = clockRecords.filter(function(c){ return c.date === today; });
+        var pending     = leaveReqs.filter(function(r){ return r.status === 'pending'; });
+
+        var body =
+            // Today's attendance
+            '<h4 style="font-size:.88rem;color:var(--text);margin-bottom:10px">' +
+            '🕐 Today\'s Attendance (' + todayClocks.length + ' staff)</h4>' +
+            (todayClocks.length === 0
+                ? '<p style="color:var(--text-light);font-size:.82rem;margin-bottom:14px">No clock records for today</p>'
+                : '<div class="table-wrap" style="margin-bottom:18px"><table class="data-table"><thead><tr>' +
+                  '<th>Name</th><th>Role</th><th>Clock In</th><th>Clock Out</th><th>Hours</th>' +
+                  '</tr></thead><tbody>' +
+                  todayClocks.map(function(c){
+                      return '<tr><td><strong>'+c.name+'</strong></td>' +
+                          '<td>'+c.role+'</td>' +
+                          '<td>'+new Date(c.clockIn).toLocaleTimeString('en-ZA')+'</td>' +
+                          '<td>'+(c.clockOut?new Date(c.clockOut).toLocaleTimeString('en-ZA'):'<span style="color:var(--success)">Still in</span>')+'</td>' +
+                          '<td>'+(c.hoursWorked?c.hoursWorked.toFixed(2)+' hrs':'—')+'</td></tr>';
+                  }).join('') +
+                  '</tbody></table></div>') +
+
+            // Pending leave requests
+            '<h4 style="font-size:.88rem;color:var(--text);margin-bottom:10px">' +
+            '📋 Pending Leave Requests (' + pending.length + ')</h4>' +
+            (pending.length === 0
+                ? '<p style="color:var(--text-light);font-size:.82rem">No pending leave requests</p>'
+                : pending.map(function(r){
+                    return '<div style="background:var(--bg);border-radius:var(--radius-sm);' +
+                        'padding:12px;margin-bottom:8px;border-left:3px solid var(--warning)">' +
+                        '<div style="display:flex;align-items:center;gap:10px">' +
+                        '<div style="flex:1">' +
+                        '<strong>' + r.name + '</strong>' +
+                        '<div style="font-size:.72rem;color:var(--text-light)">' + r.type + ' • ' +
+                        r.startDate + ' to ' + r.endDate + '</div></div>' +
+                        '<button class="btn-success btn-sm" onclick="approveLeave(\''+r.id+'\',true)">' +
+                        '<i class="fas fa-check"></i> Approve</button>' +
+                        '<button class="btn-danger btn-sm" onclick="approveLeave(\''+r.id+'\',false)">' +
+                        '<i class="fas fa-times"></i> Deny</button>' +
+                        '</div></div>';
+                  }).join(''));
+
+        showModal('<i class="fas fa-users-cog" style="color:var(--accent)"></i> HR — Staff Hours & Leave',
+            body,
+            '<button class="btn-outline" onclick="closeModal()">Close</button>' +
+            '<button class="btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Print</button>');
+    });
 }
 
 console.log('✅ Users (dual tabs + PINs + payslips) + Reports + Settings + Transfers + Month End + Invoicing loaded');
