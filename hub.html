@@ -839,9 +839,7 @@ input,textarea,select{ user-select:text; -webkit-user-select:text; }
 <script src="/email-templates.js"></script>
 
 <script>
-// ============================================================
-// FIREBASE INIT
-// ============================================================
+// ── Initialize Firebase FIRST before anything else ──
 var firebaseConfig = {
     apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
     authDomain:        "stockai-pro-b232e.firebaseapp.com",
@@ -850,9 +848,17 @@ var firebaseConfig = {
     messagingSenderId: "424200946359",
     appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
 };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+// Only initialize if not already done
+if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 var auth = firebase.auth();
 var db   = firebase.firestore();
+
+console.log('✅ Firebase initialized');
+</script>
 
 // ============================================================
 // GLOBAL STATE
