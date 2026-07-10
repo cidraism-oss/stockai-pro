@@ -179,6 +179,9 @@ input,textarea,select{ user-select:text; -webkit-user-select:text; }
     letter-spacing:6px; cursor:pointer; font-family:inherit;
     opacity:0; animation:wFadeUp .8s ease 3.5s both;
     position:relative; overflow:hidden; transition:all .4s ease;
+    z-index:10;
+    pointer-events:all;
+    -webkit-tap-highlight-color:transparent;
 }
 #welcome-enter:hover{
     border-color:var(--gold); box-shadow:0 0 40px rgba(245,158,11,.4);
@@ -1250,19 +1253,40 @@ function speakWelcomeFallback(text) {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     var enterBtn = document.getElementById('welcome-enter');
-    if (enterBtn) {
-        enterBtn.addEventListener('click', function() {
-            var screen = document.getElementById('welcome-screen');
-            screen.style.transition    = 'opacity 1s ease, transform 1s ease';
-            screen.style.opacity       = '0';
-            screen.style.transform     = 'scale(1.05)';
-            screen.style.pointerEvents = 'none';
-            setTimeout(function() {
-                screen.style.display = 'none';
-                checkHubAuth();
-            }, 1000);
-        });
-    }
+if (enterBtn) {
+    enterBtn.addEventListener('click', function() {
+        // Stop welcome audio if still playing
+        try {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        } catch(e) {}
+
+        var screen = document.getElementById('welcome-screen');
+        if (!screen) { checkHubAuth(); return; }
+
+        // Disable button immediately to prevent double clicks
+        enterBtn.disabled = true;
+        enterBtn.style.pointerEvents = 'none';
+
+        screen.style.transition    = 'opacity 0.8s ease, transform 0.8s ease';
+        screen.style.opacity       = '0';
+        screen.style.transform     = 'scale(1.05)';
+        screen.style.pointerEvents = 'none';
+
+        setTimeout(function() {
+            screen.style.display = 'none';
+            screen.classList.add('hidden');
+            checkHubAuth();
+        }, 800);
+    });
+
+    // Also allow SPACE and ENTER keyboard key
+    enterBtn.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            enterBtn.click();
+        }
+    });
+}
 
     var loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', function(e) { e.preventDefault(); hubLogin(); });
@@ -1284,13 +1308,51 @@ document.addEventListener('DOMContentLoaded', function() {
     startHubClock();
 
 // ── Auto-play welcome experience after animations settle ──
-// ── Play welcome IMMEDIATELY — no wait ──
-setTimeout(function() {
+// ── Welcome experience — plays on first interaction (browser requires this) ──
+var _welcomeTriggered = false;
+
+function triggerWelcome() {
+    if (_welcomeTriggered) return;
+    _welcomeTriggered = true;
     var welcomeScreen = document.getElementById('welcome-screen');
     if (welcomeScreen && welcomeScreen.style.display !== 'none') {
         playWelcomeExperience();
     }
-}, 500); // Just 0.5 second to let page render// Wait for welcome screen animations to finish first
+    // Remove listeners after first trigger
+    document.removeEventListener('click', triggerWelcome);
+    document.removeEventListener('touchstart', triggerWelcome);
+    document.removeEventListener('mousemove', triggerWelcomeDelayed);
+    document.removeEventListener('scroll', triggerWelcome);
+}
+
+function triggerWelcomeDelayed() {
+    setTimeout(triggerWelcome, 200);
+}
+
+// ── Try multiple ways to trigger as early as possible ──
+// Method 1: On any click/touch (most reliable)
+document.addEventListener('click', triggerWelcome);
+document.addEventListener('touchstart', triggerWelcome);
+
+// Method 2: On mouse movement (desktop — triggers very quickly)
+document.addEventListener('mousemove', triggerWelcomeDelayed);
+
+// Method 3: On scroll
+document.addEventListener('scroll', triggerWelcome);
+
+// Method 4: If user interacted with page before (e.g. refreshed)
+// Check if AudioContext can be created without error
+setTimeout(function() {
+    try {
+        var testCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (testCtx.state === 'running') {
+            // Browser already allows audio — play immediately!
+            triggerWelcome();
+        } else {
+            testCtx.close();
+        }
+    } catch(e) {}
+}, 300); // Just 0.5 second to let page render// Wait for welcome screen animations to finish first
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
         if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
