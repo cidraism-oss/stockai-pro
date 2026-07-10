@@ -1078,120 +1078,109 @@ function hubOpenWhatsApp(featureKey, featureName, price) {
     closeHubModal();
 }
 
+//  ============================================================
+// WELCOME STARTUP — Tone + Nova Voice
 // ============================================================
-// WELCOME SCREEN — Startup tone + Nova voice welcome
-// ============================================================
-var _welcomeAudioPlayed = false;
+function playWelcomeStartup() {
+    console.log('🎵 playWelcomeStartup called');
 
-function playWelcomeExperience() {
-    if (_welcomeAudioPlayed) return;
-    _welcomeAudioPlayed = true;
-
-// Play tone and voice at the same time — no waiting
-    playStartupTone(null); // Don't wait for callback
-    setTimeout(function() {
-        speakWelcomeMessage();
-    }, 800); // Start speaking 0.8s after tone starts (overlapping)
-}
-
-    // Step 1 — Play startup tone first
-    playStartupTone(function() {
-        // Step 2 — After tone finishes, speak the welcome message
-        setTimeout(function() {
-            speakWelcomeMessage();
-        }, 400);
-    });
-}
-
-// ── Startup Tone — cinematic rising tone ──
-function playStartupTone(onComplete) {
+    // ── Step 1: Play cinematic tone ──
     try {
-        var ctx  = new (window.AudioContext || window.webkitAudioContext)();
-        var duration = 2.8; // seconds
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Create a cinematic rising chord
-        var notes = [
-            { freq: 220,  gain: 0.08, start: 0,    end: 1.2  },
-            { freq: 277,  gain: 0.06, start: 0.2,  end: 1.6  },
-            { freq: 330,  gain: 0.07, start: 0.4,  end: 2.0  },
-            { freq: 440,  gain: 0.09, start: 0.6,  end: 2.4  },
-            { freq: 554,  gain: 0.06, start: 0.8,  end: 2.8  },
-            { freq: 659,  gain: 0.05, start: 1.0,  end: 3.0  },
-            { freq: 880,  gain: 0.04, start: 1.4,  end: 3.2  }
-        ];
-
-        notes.forEach(function(note) {
-            var osc  = ctx.createOscillator();
-            var gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.type      = 'sine';
-            osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start);
-            // Rising frequency slide
-            osc.frequency.linearRampToValueAtTime(note.freq * 1.005, ctx.currentTime + note.end);
-
-            gain.gain.setValueAtTime(0, ctx.currentTime + note.start);
-            gain.gain.linearRampToValueAtTime(note.gain, ctx.currentTime + note.start + 0.3);
-            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + note.end);
-
-            osc.start(ctx.currentTime + note.start);
-            osc.stop(ctx.currentTime + note.end + 0.1);
-        });
-
-        // Add a deep bass pulse
-        var bass = ctx.createOscillator();
-        var bassGain = ctx.createGain();
-        bass.connect(bassGain);
-        bassGain.connect(ctx.destination);
-        bass.type = 'sine';
-        bass.frequency.setValueAtTime(55, ctx.currentTime);
-        bass.frequency.linearRampToValueAtTime(110, ctx.currentTime + duration);
-        bassGain.gain.setValueAtTime(0, ctx.currentTime);
-        bassGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.5);
-        bassGain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
-        bass.start(ctx.currentTime);
-        bass.stop(ctx.currentTime + duration + 0.1);
-
-        // Add a shimmer high frequency
-        var shimmer = ctx.createOscillator();
-        var shimmerGain = ctx.createGain();
-        shimmer.connect(shimmerGain);
-        shimmerGain.connect(ctx.destination);
-        shimmer.type = 'sine';
-        shimmer.frequency.setValueAtTime(1760, ctx.currentTime + 1.0);
-        shimmer.frequency.linearRampToValueAtTime(2093, ctx.currentTime + 3.0);
-        shimmerGain.gain.setValueAtTime(0, ctx.currentTime + 1.0);
-        shimmerGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 1.5);
-        shimmerGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3.0);
-        shimmer.start(ctx.currentTime + 1.0);
-        shimmer.stop(ctx.currentTime + 3.1);
-
-        // Callback after tone completes
-        setTimeout(function() {
-            if (onComplete) onComplete();
-        }, (duration + 0.5) * 1000);
-
+        // Resume context if suspended (Chrome policy)
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(function() {
+                buildTone(ctx);
+            });
+        } else {
+            buildTone(ctx);
+        }
     } catch(e) {
-        console.warn('Startup tone error:', e);
-        if (onComplete) onComplete();
+        console.warn('Audio context error:', e);
     }
+
+    // ── Step 2: Speak welcome after short delay ──
+    setTimeout(function() {
+        playWelcomeVoice();
+    }, 1200);
 }
 
-// ── Nova voice welcome message ──
-function speakWelcomeMessage() {
+function buildTone(ctx) {
+    var now = ctx.currentTime;
+
+    // Deep rising bass
+    var bass = ctx.createOscillator();
+    var bassGain = ctx.createGain();
+    bass.connect(bassGain);
+    bassGain.connect(ctx.destination);
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(55, now);
+    bass.frequency.linearRampToValueAtTime(110, now + 2.5);
+    bassGain.gain.setValueAtTime(0, now);
+    bassGain.gain.linearRampToValueAtTime(0.1, now + 0.5);
+    bassGain.gain.linearRampToValueAtTime(0, now + 2.5);
+    bass.start(now);
+    bass.stop(now + 2.6);
+
+    // Rising chord notes
+    var notes = [
+        {freq:220, start:0,   end:1.5, vol:0.06},
+        {freq:277, start:0.2, end:1.8, vol:0.05},
+        {freq:330, start:0.4, end:2.0, vol:0.06},
+        {freq:440, start:0.6, end:2.2, vol:0.07},
+        {freq:554, start:0.8, end:2.4, vol:0.05},
+        {freq:659, start:1.0, end:2.6, vol:0.04},
+        {freq:880, start:1.2, end:2.8, vol:0.03}
+    ];
+
+    notes.forEach(function(n) {
+        var osc  = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(n.freq, now + n.start);
+        gain.gain.setValueAtTime(0, now + n.start);
+        gain.gain.linearRampToValueAtTime(n.vol, now + n.start + 0.3);
+        gain.gain.linearRampToValueAtTime(0, now + n.end);
+        osc.start(now + n.start);
+        osc.stop(now + n.end + 0.1);
+    });
+
+    // High shimmer
+    var shimmer = ctx.createOscillator();
+    var shimGain = ctx.createGain();
+    shimmer.connect(shimGain);
+    shimGain.connect(ctx.destination);
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(1760, now + 1.2);
+    shimmer.frequency.linearRampToValueAtTime(2093, now + 2.8);
+    shimGain.gain.setValueAtTime(0, now + 1.2);
+    shimGain.gain.linearRampToValueAtTime(0.025, now + 1.6);
+    shimGain.gain.linearRampToValueAtTime(0, now + 2.8);
+    shimmer.start(now + 1.2);
+    shimmer.stop(now + 2.9);
+
+    console.log('🎵 Startup tone playing');
+}
+
+function playWelcomeVoice() {
     var welcomeText = "Welcome to StockAI-Pro. The world's first automated AI procurement and stock control system. Designed by professionals, for professionals. Press Enter now to get started!";
 
-    // Try OpenAI Nova TTS first (best quality)
-    var openAIKey = localStorage.getItem('stockai_openai_key') || '';
+    console.log('🎙️ Attempting welcome voice...');
 
-    if (openAIKey && openAIKey.startsWith('sk-')) {
-        // Use Nova voice via OpenAI TTS
+    // Try OpenAI Nova TTS
+    var apiKey = localStorage.getItem('stockai_openai_key') || '';
+
+    if (apiKey && apiKey.startsWith('sk-')) {
+        console.log('🎙️ Using OpenAI Nova voice');
+
         fetch('https://api.openai.com/v1/audio/speech', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + openAIKey
+                'Authorization': 'Bearer ' + apiKey
             },
             body: JSON.stringify({
                 model: 'tts-1',
@@ -1200,92 +1189,213 @@ function speakWelcomeMessage() {
                 speed: 0.92
             })
         })
-        .then(function(r) { return r.arrayBuffer(); })
+        .then(function(r) {
+            if (!r.ok) throw new Error('TTS API error: ' + r.status);
+            return r.arrayBuffer();
+        })
         .then(function(buffer) {
             var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx.decodeAudioData(buffer).then(function(audioData) {
                 var source = audioCtx.createBufferSource();
                 source.buffer = audioData;
                 source.connect(audioCtx.destination);
                 source.start(0);
-                console.log('🎙️ Nova voice welcome played');
+                console.log('🎙️ Nova voice playing!');
             });
         })
-        .catch(function() {
-            // Fallback to browser TTS
-            speakWelcomeFallback(welcomeText);
+        .catch(function(err) {
+            console.warn('Nova TTS failed, using browser fallback:', err.message);
+            playWelcomeBrowserVoice(welcomeText);
         });
+
     } else {
-        // No API key — use browser TTS as fallback
-        speakWelcomeFallback(welcomeText);
+        console.log('🎙️ No API key — using browser voice');
+        playWelcomeBrowserVoice(welcomeText);
     }
 }
 
-// ── Browser TTS fallback (if no OpenAI key yet) ──
-function speakWelcomeFallback(text) {
-    if (!('speechSynthesis' in window)) return;
+function playWelcomeBrowserVoice(text) {
+    if (!('speechSynthesis' in window)) {
+        console.warn('Speech synthesis not supported');
+        return;
+    }
+
+    // Cancel any existing speech
     window.speechSynthesis.cancel();
 
-    var utterance    = new SpeechSynthesisUtterance(text);
-    utterance.rate   = 0.88;
-    utterance.pitch  = 1.1;
-    utterance.volume = 0.95;
-    utterance.lang   = 'en-ZA';
+    // Wait for voices to load
+    function speak() {
+        var utterance    = new SpeechSynthesisUtterance(text);
+        utterance.rate   = 0.88;
+        utterance.pitch  = 1.1;
+        utterance.volume = 0.95;
+        utterance.lang   = 'en-ZA';
 
-    // Try to find a good female voice
-    var voices = window.speechSynthesis.getVoices();
-    var preferred = voices.find(function(v) {
-        return v.name.toLowerCase().includes('samantha') ||
-               v.name.toLowerCase().includes('victoria') ||
-               v.name.toLowerCase().includes('karen') ||
-               v.name.toLowerCase().includes('moira');
-    }) || voices.find(function(v) {
-        return v.lang.startsWith('en') && !v.name.toLowerCase().includes('male');
-    }) || voices[0];
+        var voices    = window.speechSynthesis.getVoices();
+        var preferred = voices.find(function(v) {
+            var n = v.name.toLowerCase();
+            return n.includes('samantha') || n.includes('victoria') ||
+                   n.includes('karen') || n.includes('moira') ||
+                   n.includes('fiona') || n.includes('tessa');
+        }) || voices.find(function(v) {
+            return v.lang.startsWith('en');
+        }) || voices[0];
 
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.speak(utterance);
-    console.log('🎙️ Browser TTS welcome played (fallback)');
+        if (preferred) utterance.voice = preferred;
+
+        window.speechSynthesis.speak(utterance);
+        console.log('🎙️ Browser voice playing (voice: ' + (preferred ? preferred.name : 'default') + ')');
+    }
+
+    // Voices may not be loaded yet
+    if (window.speechSynthesis.getVoices().length > 0) {
+        speak();
+    } else {
+        window.speechSynthesis.onvoiceschanged = function() {
+            speak();
+        };
+        // Fallback — just try after short delay
+        setTimeout(speak, 500);
+    }
 }
 
 // ============================================================
 // DOM READY
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
+
+    // ════════════════════════════════════════
+    // ENTER BUTTON — Direct onclick approach
+    // ════════════════════════════════════════
     var enterBtn = document.getElementById('welcome-enter');
-if (enterBtn) {
-    enterBtn.addEventListener('click', function() {
-        // Stop welcome audio if still playing
-        try {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        } catch(e) {}
+    if (enterBtn) {
+        // Remove any existing listeners
+        var newBtn = enterBtn.cloneNode(true);
+        enterBtn.parentNode.replaceChild(newBtn, enterBtn);
+        enterBtn = newBtn;
 
-        var screen = document.getElementById('welcome-screen');
-        if (!screen) { checkHubAuth(); return; }
+        // Force button to be clickable
+        enterBtn.style.pointerEvents = 'all';
+        enterBtn.style.zIndex = '99999';
+        enterBtn.style.cursor = 'pointer';
+        enterBtn.style.position = 'relative';
 
-        // Disable button immediately to prevent double clicks
-        enterBtn.disabled = true;
-        enterBtn.style.pointerEvents = 'none';
-
-        screen.style.transition    = 'opacity 0.8s ease, transform 0.8s ease';
-        screen.style.opacity       = '0';
-        screen.style.transform     = 'scale(1.05)';
-        screen.style.pointerEvents = 'none';
-
-        setTimeout(function() {
-            screen.style.display = 'none';
-            screen.classList.add('hidden');
-            checkHubAuth();
-        }, 800);
-    });
-
-    // Also allow SPACE and ENTER keyboard key
-    enterBtn.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
+        // Direct onclick
+        enterBtn.onclick = function(e) {
             e.preventDefault();
-            enterBtn.click();
-        }
+            e.stopPropagation();
+
+            console.log('✅ ENTER BUTTON CLICKED');
+
+            // Stop any audio
+            try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch(x) {}
+
+            // Disable button
+            this.style.pointerEvents = 'none';
+            this.style.opacity = '0.5';
+
+            // Hide welcome screen
+            var screen = document.getElementById('welcome-screen');
+            if (screen) {
+                screen.style.transition = 'opacity 0.6s ease';
+                screen.style.opacity = '0';
+                screen.style.pointerEvents = 'none';
+                setTimeout(function() {
+                    screen.style.display = 'none';
+                    screen.classList.add('hidden');
+                    console.log('✅ Welcome screen hidden, calling checkHubAuth');
+                    checkHubAuth();
+                }, 600);
+            } else {
+                console.log('⚠️ Welcome screen not found, calling checkHubAuth directly');
+                checkHubAuth();
+            }
+        };
+
+        console.log('✅ Enter button onclick attached');
+    } else {
+        console.log('❌ Enter button not found!');
+    }
+
+    // ════════════════════════════════════════
+    // WELCOME AUDIO — Startup tone + Voice
+    // ════════════════════════════════════════
+    var _audioUnlocked = false;
+    var _welcomePlayed  = false;
+
+    function unlockAndPlay() {
+        if (_audioUnlocked) return;
+        _audioUnlocked = true;
+
+        // Small delay to let audio context initialize
+        setTimeout(function() {
+            if (!_welcomePlayed) {
+                _welcomePlayed = true;
+                var ws = document.getElementById('welcome-screen');
+                if (ws && ws.style.display !== 'none' && !ws.classList.contains('hidden')) {
+                    console.log('🎵 Playing welcome experience');
+                    playWelcomeStartup();
+                }
+            }
+        }, 300);
+
+        // Remove all unlock listeners
+        ['click','touchstart','touchend','mousedown','mousemove','keydown'].forEach(function(evt) {
+            document.removeEventListener(evt, unlockAndPlay);
+        });
+    }
+
+    // Attach to EVERY possible interaction
+    ['click','touchstart','touchend','mousedown','mousemove','keydown'].forEach(function(evt) {
+        document.addEventListener(evt, unlockAndPlay, { once: false, passive: true });
     });
+
+    // ════════════════════════════════════════
+    // OTHER INIT — Login, buttons, clock etc
+    // ════════════════════════════════════════
+    var loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.addEventListener('submit', function(e) { e.preventDefault(); hubLogin(); });
+
+    var forgotBtn = document.getElementById('hub-forgot-btn');
+    if (forgotBtn) forgotBtn.addEventListener('click', hubForgotPw);
+
+    var logoutBtn = document.getElementById('hub-logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', hubLogout);
+
+    var adminLogout = document.getElementById('admin-logout-btn');
+    if (adminLogout) adminLogout.addEventListener('click', hubLogout);
+
+    var notifBtn = document.getElementById('hub-notif-btn');
+    if (notifBtn) notifBtn.addEventListener('click', showHubNotifications);
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').catch(function() {});
+        });
+    }
+
+    startHubClock();
+
+    setTimeout(function() {
+        var sel = document.getElementById('hub-lang-selector');
+        if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
+    }, 300);
+
+    setTimeout(function() {
+        var saved = localStorage.getItem('stockai_currency');
+        if (saved && typeof CURRENCIES !== 'undefined' && CURRENCIES[saved]) DISPLAY_CURRENCY = saved;
+    }, 100);
+
+    setTimeout(function() {
+        try { if (typeof fetchLiveRates === 'function') fetchLiveRates(); } catch(e) {}
+    }, 2000);
+
+    setTimeout(function() {
+        try { if (typeof nikkiStartWakeWordListener === 'function') nikkiStartWakeWordListener(); } catch(e) {}
+    }, 3000);
+
+});
 }
 
     var loginForm = document.getElementById('login-form');
