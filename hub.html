@@ -3706,141 +3706,153 @@ var DEE_USERS = [
 function getDEEHTML() {
     return '<div id="dee-root" style="position:fixed;inset:0;display:flex;flex-direction:column;' +
         'background:linear-gradient(135deg,#1a0533 0%,#2d1065 40%,#1a0533 100%);' +
-        'font-family:\'Poppins\',sans-serif">' +
+        'font-family:\'Poppins\',sans-serif;overflow:hidden">' +
 
-        // Animated background particles
-        '<div id="dee-particles" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0">' +
-        deeParticles() +
+        // ── Animated background ──
+        '<div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0">' +
+        '<div style="position:absolute;width:300px;height:300px;border-radius:50%;' +
+        'background:radial-gradient(circle,rgba(124,58,237,.2),transparent);top:-100px;right:-80px;' +
+        'animation:wOrb 6s ease-in-out infinite"></div>' +
+        '<div style="position:absolute;width:200px;height:200px;border-radius:50%;' +
+        'background:radial-gradient(circle,rgba(79,70,229,.15),transparent);bottom:-60px;left:-60px;' +
+        'animation:wOrb 8s ease-in-out infinite 2s"></div>' +
         '</div>' +
 
-        // Login screen (shown first)
-        '<div id="dee-login" style="position:absolute;inset:0;z-index:100;display:flex;' +
-        'align-items:center;justify-content:center;padding:24px;' +
-        'background:linear-gradient(135deg,#0f0025,#1a0533,#0f0025)">' +
-        '<div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);' +
-        'border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:40px;' +
-        'width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+        // ── HEADER — always visible ──
+        '<div style="position:relative;z-index:10;height:56px;background:rgba(0,0,0,.4);' +
+        'backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);' +
+        'display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0">' +
 
-        // DEE Logo
-        '<div style="width:90px;height:90px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-        'border-radius:50%;display:flex;align-items:center;justify-content:center;' +
-        'margin:0 auto 20px;font-size:2.5rem;' +
-        'box-shadow:0 0 40px rgba(124,58,237,.6),0 0 80px rgba(124,58,237,.2)">' +
+        '<button onclick="closeEmbeddedApp()" ' +
+        'style="display:flex;align-items:center;gap:6px;padding:8px 14px;' +
+        'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);' +
+        'border-radius:8px;color:#fff;font-size:.78rem;font-weight:600;' +
+        'cursor:pointer;font-family:inherit;flex-shrink:0">' +
+        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+
+        '<div style="flex:1;display:flex;align-items:center;gap:10px">' +
+        '<div style="width:32px;height:32px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
+        'border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem">' +
         '🤖</div>' +
+        '<div>' +
+        '<div style="font-size:.88rem;font-weight:800;color:#fff;line-height:1">DEE</div>' +
+        '<div style="font-size:.6rem;color:rgba(255,255,255,.5)" id="dee-user-label">Personal Assistant</div>' +
+        '</div></div>' +
 
-        '<h1 style="font-size:2rem;font-weight:900;color:#fff;margin-bottom:4px;' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div id="dee-status-dot" style="width:8px;height:8px;background:#2ea871;border-radius:50%;' +
+        'box-shadow:0 0 6px rgba(46,168,113,.8)"></div>' +
+        '<span id="dee-status-text" style="font-size:.68rem;color:rgba(255,255,255,.5)">Online</span>' +
+        '<button onclick="deeLogout()" style="width:30px;height:30px;background:rgba(255,255,255,.08);' +
+        'border:none;border-radius:6px;color:rgba(255,255,255,.4);cursor:pointer;' +
+        'display:flex;align-items:center;justify-content:center;font-size:.75rem">' +
+        '<i class="fas fa-sign-out-alt"></i></button>' +
+        '</div></div>' +
+
+        // ── MAIN AREA — switches between login and app ──
+        '<div id="dee-main" style="flex:1;overflow:hidden;position:relative;z-index:1;display:flex;flex-direction:column">' +
+
+        // ── LOGIN PANEL ──
+        '<div id="dee-login" style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto">' +
+        '<div style="background:rgba(255,255,255,.06);backdrop-filter:blur(20px);' +
+        'border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:36px 28px;' +
+        'width:100%;max-width:380px;text-align:center">' +
+
+        '<div style="width:80px;height:80px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
+        'border-radius:50%;display:flex;align-items:center;justify-content:center;' +
+        'margin:0 auto 16px;font-size:2.2rem;' +
+        'box-shadow:0 0 30px rgba(124,58,237,.6)">🤖</div>' +
+
+        '<h1 style="font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:4px;' +
         'text-shadow:0 0 20px rgba(124,58,237,.8)">DEE</h1>' +
-        '<p style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:28px;font-style:italic">' +
+        '<p style="font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:24px;font-style:italic">' +
         'Your Personal AI Assistant</p>' +
 
         '<div id="dee-login-error" style="background:rgba(201,69,69,.2);border:1px solid rgba(201,69,69,.4);' +
-        'color:#f87171;padding:10px;border-radius:8px;font-size:.82rem;margin-bottom:14px;display:none"></div>' +
+        'color:#f87171;padding:10px;border-radius:8px;font-size:.8rem;margin-bottom:12px;display:none"></div>' +
 
-        '<input type="email" id="dee-email" placeholder="Email address" ' +
-        'style="width:100%;padding:13px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);' +
-        'border-radius:10px;color:#fff;font-size:.92rem;font-family:inherit;margin-bottom:12px;outline:none" ' +
+        '<input type="email" id="dee-email" placeholder="Email address" autocomplete="email" ' +
+        'style="width:100%;padding:12px 14px;background:rgba(255,255,255,.08);' +
+        'border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;' +
+        'font-size:.88rem;font-family:inherit;margin-bottom:10px;outline:none;' +
+        '-webkit-user-select:text;user-select:text" ' +
         'onkeydown="if(event.key===\'Enter\')deeLogin()">' +
 
-        '<input type="password" id="dee-password" placeholder="Password" ' +
-        'style="width:100%;padding:13px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);' +
-        'border-radius:10px;color:#fff;font-size:.92rem;font-family:inherit;margin-bottom:14px;outline:none" ' +
+        '<input type="password" id="dee-password" placeholder="Password" autocomplete="current-password" ' +
+        'style="width:100%;padding:12px 14px;background:rgba(255,255,255,.08);' +
+        'border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;' +
+        'font-size:.88rem;font-family:inherit;margin-bottom:14px;outline:none;' +
+        '-webkit-user-select:text;user-select:text" ' +
         'onkeydown="if(event.key===\'Enter\')deeLogin()">' +
 
         '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;' +
-        'font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:20px;justify-content:center">' +
-        '<input type="checkbox" id="dee-remember" style="width:16px;height:16px;accent-color:#7c3aed"> ' +
+        'font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:18px;justify-content:center">' +
+        '<input type="checkbox" id="dee-remember" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer"> ' +
         'Remember me on this device</label>' +
 
-        '<button onclick="deeLogin()" ' +
+        '<button onclick="deeLogin()" id="dee-login-btn" ' +
         'style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-        'color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;' +
+        'color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;' +
         'cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(124,58,237,.4);' +
-        'transition:.3s" onmouseover="this.style.transform=\'translateY(-2px)\'" ' +
-        'onmouseout="this.style.transform=\'translateY(0)\'">' +
-        '✨ Sign In to DEE</button>' +
+        'display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-sign-in-alt"></i> Sign In to DEE</button>' +
 
-        '<button onclick="closeEmbeddedApp()" ' +
-'style="width:100%;padding:10px;background:transparent;border:none;' +
-'color:rgba(255,255,255,.4);font-size:.82rem;cursor:pointer;' +
-'font-family:inherit;margin-top:10px">' +
-'<i class="fas fa-arrow-left"></i> Back to Hub</button>' +
-
-'<div style="margin-top:20px;border-top:1px solid rgba(255,255,255,.08);padding-top:16px">' +
-'<button id="dee-install-btn" onclick="deeInstallApp()" ' +
-'style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(79,70,229,.2));' +
-'border:1px solid rgba(124,58,237,.4);border-radius:10px;color:#a78bfa;' +
-'font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;' +
-'display:flex;align-items:center;justify-content:center;gap:8px;transition:.3s" ' +
-'onmouseover="this.style.background=\'linear-gradient(135deg,rgba(124,58,237,.5),rgba(79,70,229,.4))\'" ' +
-'onmouseout="this.style.background=\'linear-gradient(135deg,rgba(124,58,237,.3),rgba(79,70,229,.2))\'">' +
-'<i class="fas fa-download"></i> Install DEE on My Device</button>' +
-'<p style="font-size:.68rem;color:rgba(255,255,255,.3);text-align:center;margin-top:8px">' +
-'Install as an app — no browser needed</p>' +
-'</div>'
         '</div></div>' +
 
-        // Main app (hidden until login)
-        '<div id="dee-app" style="display:none;flex-direction:column;height:100%;position:relative;z-index:1">' +
-
-        // Header
-        '<div style="padding:14px 20px;display:flex;align-items:center;gap:12px;' +
-        'background:rgba(0,0,0,.3);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);' +
-        'flex-shrink:0;z-index:50">' +
-        '<button onclick="closeEmbeddedApp()" style="width:36px;height:36px;background:rgba(255,255,255,.1);' +
-        'border:none;border-radius:8px;color:#fff;cursor:pointer;display:flex;align-items:center;' +
-        'justify-content:center;font-size:.9rem"><i class="fas fa-arrow-left"></i></button>' +
-        '<div style="flex:1">' +
-        '<div style="font-size:.95rem;font-weight:800;color:#fff">DEE</div>' +
-        '<div style="font-size:.62rem;color:rgba(255,255,255,.5)" id="dee-user-label">Personal Assistant</div>' +
-        '</div>' +
-        '<div id="dee-status-dot" style="width:10px;height:10px;background:#2ea871;border-radius:50%;' +
-        'box-shadow:0 0 8px rgba(46,168,113,.8)"></div>' +
-        '<span id="dee-status-text" style="font-size:.72rem;color:rgba(255,255,255,.6)">Online</span>' +
-        '<button onclick="deeLogout()" style="width:32px;height:32px;background:rgba(255,255,255,.08);' +
-        'border:none;border-radius:8px;color:rgba(255,255,255,.5);cursor:pointer;' +
-        'display:flex;align-items:center;justify-content:center;font-size:.8rem">' +
-        '<i class="fas fa-sign-out-alt"></i></button>' +
-        '</div>' +
-
-        // Bottom nav
-        '<div style="height:60px;background:rgba(0,0,0,.4);backdrop-filter:blur(10px);' +
-        'border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;' +
-        'justify-content:space-around;flex-shrink:0;order:3;padding:0 8px 6px;z-index:50">' +
-        deeNavBtn('dee-home',     'fa-home',        'Home',      true)  +
-        deeNavBtn('dee-chat',     'fa-comment-dots','Chat',      false) +
-        deeNavBtn('dee-calendar', 'fa-calendar-alt','Calendar',  false) +
-        deeNavBtn('dee-notes',    'fa-sticky-note', 'Notes',     false) +
-        deeNavBtn('dee-meetings', 'fa-users',       'Meetings',  false) +
-        '</div>' +
+        // ── APP PANEL (hidden until login) ──
+        '<div id="dee-app" style="display:none;flex-direction:column;flex:1;overflow:hidden">' +
 
         // Content area
-        '<div id="dee-content" style="flex:1;overflow-y:auto;order:2;' +
-        '-webkit-overflow-scrolling:touch;padding-bottom:20px"></div>' +
+        '<div id="dee-content" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>' +
 
-        // DEE floating mic button
-        '<button id="dee-mic-btn" onclick="deeMicToggle()" ' +
-        'style="position:fixed;bottom:80px;right:20px;z-index:999;' +
-        'width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;' +
-        'background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'box-shadow:0 4px 20px rgba(124,58,237,.6);transition:.3s;font-size:1.4rem">' +
-        '🎤</button>' +
-
-        // DEE speaking indicator
-        '<div id="dee-speaking-bar" style="display:none;position:fixed;bottom:155px;' +
-        'left:50%;transform:translateX(-50%);background:rgba(124,58,237,.9);' +
-        'border-radius:20px;padding:10px 20px;display:flex;align-items:center;gap:10px;' +
-        'z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.4)">' +
-        '<div style="display:flex;gap:3px;align-items:center" id="dee-wave">' +
-        deeWaveBars() +
-        '</div>' +
-        '<span style="font-size:.78rem;color:#fff;font-weight:600" id="dee-speaking-text">DEE is speaking...</span>' +
+        // Bottom nav
+        '<div style="height:60px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);' +
+        'border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;' +
+        'justify-content:space-around;flex-shrink:0;padding:0 8px 6px">' +
+        deeNavBtn2('dee-home',     'fa-home',         'Home',     true)  +
+        deeNavBtn2('dee-chat',     'fa-comment-dots', 'Chat',     false) +
+        deeNavBtn2('dee-calendar', 'fa-calendar-alt', 'Calendar', false) +
+        deeNavBtn2('dee-notes',    'fa-sticky-note',  'Notes',    false) +
+        deeNavBtn2('dee-meetings', 'fa-users',        'Meetings', false) +
         '</div>' +
 
         '</div>' + // end dee-app
-        '</div>';  // end dee-root
+
+        '</div>' + // end dee-main
+
+        // ── Floating mic button ──
+        '<button id="dee-mic-btn" onclick="deeMicToggle()" ' +
+        'style="position:fixed;bottom:76px;right:16px;z-index:999;' +
+        'width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;' +
+        'background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'box-shadow:0 4px 20px rgba(124,58,237,.6);font-size:1.3rem;' +
+        'transition:.3s">🎤</button>' +
+
+        // ── Speaking bar ──
+        '<div id="dee-speaking-bar" style="display:none;position:fixed;bottom:144px;' +
+        'left:50%;transform:translateX(-50%);background:rgba(124,58,237,.95);' +
+        'border-radius:20px;padding:10px 20px;' +
+        'z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.4);' +
+        'align-items:center;gap:10px;white-space:nowrap">' +
+        '<span style="font-size:.78rem;color:#fff;font-weight:600" id="dee-speaking-text">DEE is speaking...</span>' +
+        '</div>' +
+
+        // ── Modal container ──
+        '<div id="dee-modal-container"></div>' +
+
+        '</div>'; // end dee-root
 }
 
+function deeNavBtn2(page, icon, label, active) {
+    return '<div data-deepage="' + page + '" onclick="deeNavigate(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;' +
+        'padding:6px 10px;border-radius:8px;cursor:pointer;min-width:50px;' +
+        'color:' + (active ? '#a78bfa' : 'rgba(255,255,255,.35)') + ';' +
+        'background:' + (active ? 'rgba(124,58,237,.15)' : 'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:.95rem"></i>' +
+        '<span style="font-size:.52rem;font-weight:600">' + label + '</span></div>';
+}
 function deeParticles() {
     var html = '';
     for (var i = 0; i < 20; i++) {
@@ -3899,15 +3911,21 @@ function deeNavBtn(page, icon, label, active) {
 function initDEE() {
     DEE.apiKey    = localStorage.getItem('stockai_openai_key') || '';
     DEE.ttsApiKey = localStorage.getItem('stockai_openai_key') || '';
-    DEE.notes     = JSON.parse(localStorage.getItem('dee_notes')    || '[]');
-    DEE.meetings  = JSON.parse(localStorage.getItem('dee_meetings') || '[]');
+    DEE.notes     = [];
+    DEE.meetings  = [];
+
+    // Load saved data safely
+    try { DEE.notes    = JSON.parse(localStorage.getItem('dee_notes')    || '[]'); } catch(e) { DEE.notes = []; }
+    try { DEE.meetings = JSON.parse(localStorage.getItem('dee_meetings') || '[]'); } catch(e) { DEE.meetings = []; }
 
     // Check remember me
     var remembered = localStorage.getItem('dee_remember');
     var remEmail   = localStorage.getItem('dee_email');
-    var remName    = localStorage.getItem('dee_user_name');
+
     if (remembered === 'yes' && remEmail) {
-        var user = DEE_USERS.find(function(u) { return u.email === remEmail; });
+        var user = DEE_USERS.find(function(u) {
+            return u.email.toLowerCase() === remEmail.toLowerCase();
+        });
         if (user) {
             DEE.user    = user;
             DEE.loggedIn = true;
@@ -3916,80 +3934,122 @@ function initDEE() {
         }
     }
 
-    // Style the inputs after render
+    // Show login — make sure it's visible
+    var loginEl = document.getElementById('dee-login');
+    var appEl   = document.getElementById('dee-app');
+    if (loginEl) loginEl.style.display = 'flex';
+    if (appEl)   appEl.style.display   = 'none';
+
+    // Focus email field
     setTimeout(function() {
-        var inputs = document.querySelectorAll('#dee-login input[type="email"], #dee-login input[type="password"]');
-        inputs.forEach(function(inp) {
-            inp.addEventListener('focus', function() { this.style.borderColor = 'rgba(124,58,237,.6)'; this.style.boxShadow = '0 0 0 3px rgba(124,58,237,.15)'; });
-            inp.addEventListener('blur', function() { this.style.borderColor = 'rgba(255,255,255,.15)'; this.style.boxShadow = 'none'; });
-        });
-    }, 200);
+        var emailEl = document.getElementById('dee-email');
+        if (emailEl) emailEl.focus();
+    }, 300);
 }
 
 function deeLogin() {
-    var email    = (document.getElementById('dee-email').value || '').trim().toLowerCase();
-    var password = (document.getElementById('dee-password').value || '').trim();
-    var remember = document.getElementById('dee-remember').checked;
-    var errorDiv = document.getElementById('dee-login-error');
-    errorDiv.style.display = 'none';
+    var emailEl    = document.getElementById('dee-email');
+    var passwordEl = document.getElementById('dee-password');
+    var rememberEl = document.getElementById('dee-remember');
+    var errorEl    = document.getElementById('dee-login-error');
+    var btnEl      = document.getElementById('dee-login-btn');
+
+    if (!emailEl || !passwordEl) return;
+
+    var email    = (emailEl.value    || '').trim().toLowerCase();
+    var password = (passwordEl.value || '').trim();
+    var remember = rememberEl ? rememberEl.checked : false;
+
+    if (errorEl) errorEl.style.display = 'none';
+
+    if (!email)    { if (errorEl) { errorEl.textContent = 'Please enter your email'; errorEl.style.display = 'block'; } return; }
+    if (!password) { if (errorEl) { errorEl.textContent = 'Please enter your password'; errorEl.style.display = 'block'; } return; }
+
+    // Disable button
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...'; }
 
     var user = DEE_USERS.find(function(u) {
         return u.email.toLowerCase() === email && u.password === password;
     });
 
-    if (!user) {
-        errorDiv.textContent = 'Invalid email or password.';
-        errorDiv.style.display = 'block';
-        return;
-    }
+    setTimeout(function() {
+        if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to DEE'; }
 
-    if (remember) {
-        localStorage.setItem('dee_remember', 'yes');
-        localStorage.setItem('dee_email', user.email);
-        localStorage.setItem('dee_user_name', user.name);
-    } else {
-        localStorage.removeItem('dee_remember');
-        localStorage.removeItem('dee_email');
-        localStorage.removeItem('dee_user_name');
-    }
+        if (!user) {
+            if (errorEl) { errorEl.textContent = 'Invalid email or password. Please try again.'; errorEl.style.display = 'block'; }
+            return;
+        }
 
-    DEE.user     = user;
-    DEE.loggedIn = true;
-    showDEEApp(user);
+        if (remember) {
+            localStorage.setItem('dee_remember', 'yes');
+            localStorage.setItem('dee_email', user.email);
+            localStorage.setItem('dee_user_name', user.name);
+        } else {
+            localStorage.removeItem('dee_remember');
+            localStorage.removeItem('dee_email');
+            localStorage.removeItem('dee_user_name');
+        }
+
+        DEE.user     = user;
+        DEE.loggedIn = true;
+        showDEEApp(user);
+
+    }, 600); // Small delay for UX
 }
 
 function showDEEApp(user) {
     var loginEl = document.getElementById('dee-login');
     var appEl   = document.getElementById('dee-app');
+
     if (loginEl) loginEl.style.display = 'none';
-    if (appEl)   appEl.style.display   = 'flex';
+    if (appEl)   { appEl.style.display = 'flex'; }
 
     var labelEl = document.getElementById('dee-user-label');
-    if (labelEl) labelEl.textContent = 'Hello, ' + user.name + ' 👋';
+    if (labelEl) labelEl.textContent = 'Hey ' + user.name + ' 👋';
 
-    deeNavigate('dee-home');
-
-    // Start wake word
-    setTimeout(function() { deeStartWakeWord(); }, 1000);
-
-    // Greet user
+    // Load to home page
     setTimeout(function() {
-        deeSpeak('Hey ' + user.name + '! I\'m DEE, your personal assistant. Just say "Hey DEE" anytime, or tap the mic button. How can I help you today?');
+        deeNavigate('dee-home');
+    }, 100);
+
+    // Start wake word listener
+    setTimeout(function() {
+        try { deeStartWakeWord(); } catch(e) { console.warn('Wake word error:', e); }
+    }, 1000);
+
+    // Greet user with voice
+    setTimeout(function() {
+        try {
+            deeSpeak('Hey ' + user.name + '! I\'m DEE. Say Hey DEE anytime or tap the mic. How can I help you today?');
+        } catch(e) { console.warn('DEE speak error:', e); }
     }, 1500);
 }
 
 function deeLogout() {
     DEE.loggedIn = false;
     DEE.user     = null;
-    deeStopWakeWord();
-    deeStopListening();
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    DEE.chatHistory = [];
+
+    try { deeStopWakeWord(); }    catch(e) {}
+    try { deeStopListening(); }   catch(e) {}
+    try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch(e) {}
+
+    localStorage.removeItem('dee_remember');
+    localStorage.removeItem('dee_email');
+    localStorage.removeItem('dee_user_name');
+
     var loginEl = document.getElementById('dee-login');
     var appEl   = document.getElementById('dee-app');
-    if (loginEl) loginEl.style.display = 'flex';
-    if (appEl)   appEl.style.display   = 'none';
-    document.getElementById('dee-email').value    = '';
-    document.getElementById('dee-password').value = '';
+    var labelEl = document.getElementById('dee-user-label');
+
+    if (loginEl) { loginEl.style.display = 'flex'; }
+    if (appEl)   { appEl.style.display   = 'none';  }
+    if (labelEl) { labelEl.textContent   = 'Personal Assistant'; }
+
+    var emailEl    = document.getElementById('dee-email');
+    var passwordEl = document.getElementById('dee-password');
+    if (emailEl)    emailEl.value    = '';
+    if (passwordEl) passwordEl.value = '';
 }
 
 // ============================================================
@@ -3997,20 +4057,33 @@ function deeLogout() {
 // ============================================================
 function deeNavigate(page) {
     DEE.currentView = page;
+
+    // Update nav buttons
     document.querySelectorAll('[data-deepage]').forEach(function(btn) {
         var isActive = btn.dataset.deepage === page;
-        btn.style.color      = isActive ? '#a78bfa' : 'rgba(255,255,255,.4)';
+        btn.style.color      = isActive ? '#a78bfa' : 'rgba(255,255,255,.35)';
         btn.style.background = isActive ? 'rgba(124,58,237,.15)' : 'transparent';
     });
+
     var content = document.getElementById('dee-content');
     if (!content) return;
     content.scrollTop = 0;
 
-    if      (page === 'dee-home')     content.innerHTML = deeHomePage();
-    else if (page === 'dee-chat')     content.innerHTML = deeChat();
-    else if (page === 'dee-calendar') content.innerHTML = deeCalendarPage();
-    else if (page === 'dee-notes')    content.innerHTML = deeNotesPage();
-    else if (page === 'dee-meetings') content.innerHTML = deeMeetingsPage();
+    try {
+        if      (page === 'dee-home')     content.innerHTML = deeHomePage();
+        else if (page === 'dee-chat')     content.innerHTML = deeChat();
+        else if (page === 'dee-calendar') content.innerHTML = deeCalendarPage();
+        else if (page === 'dee-notes')    content.innerHTML = deeNotesPage();
+        else if (page === 'dee-meetings') content.innerHTML = deeMeetingsPage();
+    } catch(e) {
+        console.error('DEE navigate error:', e);
+        content.innerHTML = '<div style="padding:20px;text-align:center;color:rgba(255,255,255,.4)">' +
+            '<i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:10px"></i>' +
+            '<p>Something went wrong loading this page.</p>' +
+            '<button onclick="deeNavigate(\'dee-home\')" style="margin-top:10px;padding:8px 16px;' +
+            'background:#7c3aed;border:none;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit">' +
+            'Go Home</button></div>';
+    }
 }
 
 // ============================================================
