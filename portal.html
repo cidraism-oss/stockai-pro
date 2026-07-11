@@ -1187,6 +1187,11 @@ function renderEntityCards() {
 // ============================================================
 // MANAGE FEATURES MODAL — ALL 13 FEATURES
 // ============================================================
+// ============================================================
+// MANAGE FEATURES MODAL
+// Admin = instant toggle
+// Customer = purchase flow for inactive features
+// ============================================================
 function showManageFeaturesModal(idx) {
     var ent = P.entities[idx];
     if (!ent) return;
@@ -1194,47 +1199,116 @@ function showManageFeaturesModal(idx) {
     var entFeatures = ent.features ? ent.features.slice() : ['web_boh'];
     if (entFeatures.indexOf('web_boh') === -1) entFeatures.unshift('web_boh');
 
-    function calcFeatureTotal(features) {
+    var isAdmin = isMasterPortal();
+
+    // ── All 13 optional features ──
+    var optionalFeatures = [
+        { key: 'mobile_app',      icon: 'fa-mobile-alt',       iconClass: 'teal',   price: 349,  desc: 'Native mobile app for iOS and Android' },
+        { key: 'procure_ai',      icon: 'fa-shopping-basket',  iconClass: 'teal',   price: 399,  desc: 'AI-powered procurement and purchase orders' },
+        { key: 'pos_system',      icon: 'fa-cash-register',    iconClass: 'teal',   price: 799,  desc: 'Full point-of-sale system with reporting' },
+        { key: 'menu_master',     icon: 'fa-utensils',         iconClass: 'teal',   price: 349,  desc: 'Menu management with recipe costing' },
+        { key: 'functions_ai',    icon: 'fa-glass-cheers',     iconClass: 'gold',   price: 449,  desc: 'Events and functions management with AI' },
+        { key: 'retail_pos',      icon: 'fa-store',            iconClass: 'cyan',   price: 999,  desc: 'Retail POS with barcode scanning' },
+        { key: 'production',      icon: 'fa-industry',         iconClass: 'teal',   price: 449,  desc: 'Production and manufacturing management' },
+        { key: 'hr_module',       icon: 'fa-users-cog',        iconClass: 'purple', price: 349,  desc: 'HR and staff management module' },
+        { key: 'invoice_scanner', icon: 'fa-file-invoice',     iconClass: 'green',  price: 499,  desc: 'AI invoice scanning and digitisation' },
+        { key: 'ai_brain',        icon: 'fa-robot',            iconClass: 'cyan',   price: 499,  desc: 'AI Brain + Nikki Voice Bot assistant' },
+        { key: 'pos_builder',     icon: 'fa-tools',            iconClass: 'indigo', price: 199,  desc: 'Custom POS builder (free with POS)' },
+        { key: 'cashup_pro',      icon: 'fa-calculator',       iconClass: 'green',  price: 0,    desc: 'Advanced cashup system (free with POS)' }
+    ];
+
+    // ── Calculate current monthly total ──
+    function calcTotal(features) {
         var total = 0;
         features.forEach(function(f) { total += (FEATURE_PRICES[f] || 0); });
         return total;
     }
 
-    // ── ALL 13 optional features ──
-    var optionalFeatures = [
-        { key: 'mobile_app',      icon: 'fa-mobile-alt',      iconClass: 'teal',   price: 349 },
-        { key: 'procure_ai',      icon: 'fa-shopping-basket',  iconClass: 'teal',   price: 399 },
-        { key: 'pos_system',      icon: 'fa-cash-register',    iconClass: 'teal',   price: 799 },
-        { key: 'menu_master',     icon: 'fa-utensils',         iconClass: 'teal',   price: 349 },
-        { key: 'functions_ai',    icon: 'fa-glass-cheers',     iconClass: 'gold',   price: 449 },
-        { key: 'retail_pos',      icon: 'fa-store',            iconClass: 'cyan',   price: 999 },
-        { key: 'production',      icon: 'fa-industry',         iconClass: 'teal',   price: 449 },
-        { key: 'hr_module',       icon: 'fa-users-cog',        iconClass: 'purple', price: 349 },
-        { key: 'invoice_scanner', icon: 'fa-file-invoice',     iconClass: 'green',  price: 499 },
-        { key: 'ai_brain',        icon: 'fa-robot',            iconClass: 'cyan',   price: 499 },
-        { key: 'pos_builder',     icon: 'fa-tools',            iconClass: 'indigo', price: 199 },
-        { key: 'cashup_pro',      icon: 'fa-calculator',       iconClass: 'green',  price: 0   }
-    ];
-
-    function buildFeatureRowsHTML(features) {
+    // ── Build feature rows ──
+    function buildRows(features) {
         return optionalFeatures.map(function(f) {
             var isActive = features.indexOf(f.key) !== -1;
             var isFree   = f.price === 0;
+
             var priceLabel = isFree
                 ? '<span style="font-size:.65rem;color:#2ea871;font-weight:700;' +
-                  'background:rgba(46,168,113,.12);padding:2px 8px;border-radius:6px">FREE</span>'
-                : 'R' + f.price + '/mo';
+                  'background:rgba(46,168,113,.12);padding:2px 8px;border-radius:6px">' +
+                  'FREE with POS</span>'
+                : 'R' + f.price.toLocaleString() + '/mo';
+
+            // ── Action button — different for admin vs customer ──
+            var actionBtn = '';
+
+            if (isActive) {
+                // ── Both admin and customer can see it is active ──
+                // ── But only admin can disable instantly ──
+                if (isAdmin) {
+                    actionBtn =
+                        '<button class="feature-btn disable" ' +
+                            'id="fm-btn-' + f.key + '" ' +
+                            'onclick="toggleEntityFeature(' + idx + ',\'' + f.key + '\')">' +
+                            '🔒 Disable' +
+                        '</button>';
+                } else {
+                    // Customer sees active badge — cannot remove (must contact support)
+                    actionBtn =
+                        '<span style="font-size:.72rem;color:#2ea871;font-weight:700;' +
+                            'padding:6px 12px;border-radius:8px;' +
+                            'background:rgba(46,168,113,.12)">' +
+                            '✅ Active' +
+                        '</span>';
+                }
+            } else {
+                // ── Feature is NOT active ──
+                if (isAdmin) {
+                    // Admin can enable instantly
+                    actionBtn =
+                        '<button class="feature-btn enable" ' +
+                            'id="fm-btn-' + f.key + '" ' +
+                            'onclick="toggleEntityFeature(' + idx + ',\'' + f.key + '\')">' +
+                            '✅ Enable' +
+                        '</button>';
+                } else {
+                    // Customer must purchase
+                    actionBtn =
+                        '<button ' +
+                            'onclick="closeModal();openUpgradeWindow(' + idx + ')" ' +
+                            'style="padding:8px 14px;border:none;border-radius:8px;' +
+                                'font-size:.75rem;font-weight:700;cursor:pointer;' +
+                                'font-family:inherit;transition:all .2s;' +
+                                'background:linear-gradient(135deg,#f59e0b,#d97706);' +
+                                'color:#fff;display:flex;align-items:center;gap:6px">' +
+                            '<i class="fas fa-shopping-cart"></i> Add — R' +
+                            f.price.toLocaleString() + '/mo' +
+                        '</button>';
+                }
+            }
+
+            // ── Free features show differently for customers ──
+            if (!isAdmin && !isActive && isFree) {
+                actionBtn =
+                    '<span style="font-size:.72rem;color:#5a8a96;font-weight:600;' +
+                        'padding:6px 12px;border-radius:8px;' +
+                        'background:rgba(90,138,150,.1)">' +
+                        'Free with POS' +
+                    '</span>';
+            }
 
             return '<div class="feature-row" id="fm-row-' + f.key + '" ' +
                 'style="border-color:' + (isActive ? '#2ea871' : '#1a5a6e') + ';' +
-                'opacity:' + (isActive ? '1' : '0.75') + ';margin-bottom:8px">' +
+                'opacity:' + (isActive ? '1' : '0.8') + ';margin-bottom:8px">' +
                 '<div class="feature-row-left">' +
                     '<div class="feature-icon ' + f.iconClass + '">' +
                         '<i class="fas ' + f.icon + '"></i>' +
                     '</div>' +
                     '<div>' +
-                        '<div class="feature-name">' + (FEATURE_NAMES[f.key] || f.key) + '</div>' +
+                        '<div class="feature-name">' +
+                            (FEATURE_NAMES[f.key] || f.key) +
+                        '</div>' +
                         '<div class="feature-price">' + priceLabel + '</div>' +
+                        '<div style="font-size:.68rem;color:#5a8a96;margin-top:2px">' +
+                            f.desc +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="feature-row-right">' +
@@ -1242,37 +1316,99 @@ function showManageFeaturesModal(idx) {
                         'id="fm-status-' + f.key + '">' +
                         (isActive ? 'ACTIVE' : 'INACTIVE') +
                     '</span>' +
-                    '<button class="feature-btn ' + (isActive ? 'disable' : 'enable') + '" ' +
-                        'id="fm-btn-' + f.key + '" ' +
-                        'onclick="toggleEntityFeature(' + idx + ',\'' + f.key + '\')">' +
-                        (isActive ? '🔒 Disable' : '✅ Enable') +
-                    '</button>' +
+                    actionBtn +
                 '</div>' +
             '</div>';
         }).join('');
     }
 
-    var total = calcFeatureTotal(entFeatures);
+    var total = calcTotal(entFeatures);
+
+    // ── Admin header banner ──
+    var adminBanner = isAdmin
+        ? '<div style="background:linear-gradient(135deg,rgba(245,158,11,.15),' +
+            'rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.3);' +
+            'border-radius:10px;padding:12px 16px;margin-bottom:16px;' +
+            'display:flex;align-items:center;gap:10px">' +
+            '<i class="fas fa-shield-alt" style="color:#f59e0b;font-size:1.1rem"></i>' +
+            '<div>' +
+                '<div style="font-size:.82rem;font-weight:700;color:#f59e0b">' +
+                    'Admin Override Mode' +
+                '</div>' +
+                '<div style="font-size:.72rem;color:#7bb8c8">' +
+                    'You can toggle any feature instantly without payment' +
+                '</div>' +
+            '</div>' +
+          '</div>'
+        : '<div style="background:rgba(26,139,168,.08);border:1px solid rgba(26,139,168,.2);' +
+            'border-radius:10px;padding:12px 16px;margin-bottom:16px;' +
+            'display:flex;align-items:center;gap:10px">' +
+            '<i class="fas fa-info-circle" style="color:#1a8ba8;font-size:1.1rem"></i>' +
+            '<div>' +
+                '<div style="font-size:.82rem;font-weight:700;color:#e0f4f8">' +
+                    'Your Active Features' +
+                '</div>' +
+                '<div style="font-size:.72rem;color:#7bb8c8">' +
+                    'Click Add to purchase new features for this entity' +
+                '</div>' +
+            '</div>' +
+          '</div>';
+
+    // ── Customer upgrade prompt at bottom ──
+    var upgradePrompt = !isAdmin
+        ? '<div style="background:linear-gradient(135deg,rgba(245,158,11,.12),' +
+            'rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.25);' +
+            'border-radius:10px;padding:16px;margin-top:16px;text-align:center">' +
+            '<div style="font-size:.88rem;font-weight:700;color:#f59e0b;margin-bottom:6px">' +
+                '<i class="fas fa-rocket" style="margin-right:6px"></i>' +
+                'Want to add more features?' +
+            '</div>' +
+            '<div style="font-size:.78rem;color:#7bb8c8;margin-bottom:12px">' +
+                'Click any feature above or use the button below to go to the upgrade store.' +
+            '</div>' +
+            '<button onclick="closeModal();openUpgradeWindow(' + idx + ')" ' +
+                'style="padding:10px 24px;background:linear-gradient(135deg,#f59e0b,#d97706);' +
+                'color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;' +
+                'cursor:pointer;font-family:inherit;display:inline-flex;' +
+                'align-items:center;gap:8px">' +
+                '<i class="fas fa-shopping-cart"></i> Open Feature Store' +
+            '</button>' +
+          '</div>'
+        : '';
 
     document.getElementById('modal-container').innerHTML =
-        '<div class="modal-overlay"><div class="modal-box" style="max-width:640px">' +
+        '<div class="modal-overlay"><div class="modal-box" style="max-width:660px">' +
+
+        // ── Modal Header ──
         '<div class="modal-header" style="background:linear-gradient(135deg,' +
             'var(--teal-mid),var(--teal-dark));color:#fff;' +
             'border-radius:var(--radius) var(--radius) 0 0">' +
             '<h2 style="color:#fff">' +
-                '<i class="fas fa-puzzle-piece"></i> Manage Features — ' + ent.name +
+                '<i class="fas fa-puzzle-piece"></i> ' +
+                (isAdmin ? 'Manage Features — ' : 'Your Features — ') +
+                ent.name +
             '</h2>' +
             '<button class="modal-close" onclick="closeModal()" style="color:#fff">' +
                 '<i class="fas fa-times"></i>' +
             '</button>' +
         '</div>' +
+
+        // ── Modal Body ──
         '<div class="modal-body">' +
             '<div class="feature-panel">' +
                 '<div class="feature-panel-title">' +
-                    '<h4><i class="fas fa-puzzle-piece"></i> Site Features</h4>' +
-                    '<span class="feature-panel-subtitle">Changes take effect immediately</span>' +
+                    '<h4><i class="fas fa-puzzle-piece"></i> ' +
+                        (isAdmin ? 'All Features' : 'Feature Access') +
+                    '</h4>' +
+                    '<span class="feature-panel-subtitle">' +
+                        (isAdmin ? 'Admin override — instant changes' : 'Tap Add to purchase') +
+                    '</span>' +
                 '</div>' +
-                '<!-- Always On -->' +
+
+                // ── Admin / Customer banner ──
+                adminBanner +
+
+                // ── Always On ──
                 '<div class="feature-row always-on" style="margin-bottom:10px">' +
                     '<div class="feature-row-left">' +
                         '<div class="feature-icon green">' +
@@ -1280,45 +1416,59 @@ function showManageFeaturesModal(idx) {
                         '</div>' +
                         '<div>' +
                             '<div class="feature-name">Web App B.O.H</div>' +
-                            '<div class="feature-price">Always included</div>' +
+                            '<div class="feature-price">Always included — R799/mo</div>' +
+                            '<div style="font-size:.68rem;color:#5a8a96;margin-top:2px">' +
+                                'Full back-of-house management system' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                     '<div class="feature-row-right">' +
                         '<span class="feature-status always">ALWAYS ON</span>' +
-                        '<span style="font-size:.88rem;font-weight:700;color:#e0f4f8">' +
-                            'R799/mo' +
-                        '</span>' +
                     '</div>' +
                 '</div>' +
-                '<!-- Optional Features -->' +
+
+                // ── Optional Feature Rows ──
                 '<div id="fm-feature-list">' +
-                    buildFeatureRowsHTML(entFeatures) +
+                    buildRows(entFeatures) +
                 '</div>' +
-                '<!-- Monthly Total -->' +
+
+                // ── Monthly Total ──
                 '<div class="feature-total-bar">' +
                     '<div class="feature-total-label">' +
-                        '<i class="fas fa-receipt"></i> Monthly Feature Total (this entity)' +
+                        '<i class="fas fa-receipt"></i> ' +
+                        'Monthly Total — ' + ent.name +
                     '</div>' +
                     '<div class="feature-total-amount" id="fm-monthly-total">' +
                         'R' + total.toLocaleString() + '/mo' +
                     '</div>' +
                 '</div>' +
-                '<!-- Save Message -->' +
+
+                // ── Customer upgrade prompt ──
+                upgradePrompt +
+
+                // ── Save Message ──
                 '<div class="feature-save-msg" id="fm-save-msg">' +
                     '<i class="fas fa-check-circle" style="margin-right:6px"></i>' +
                     'Feature access updated successfully' +
                 '</div>' +
+
             '</div>' +
         '</div>' +
+
+        // ── Modal Footer ──
         '<div class="modal-footer" style="background:var(--bg);' +
             'border-radius:0 0 var(--radius) var(--radius)">' +
             '<button class="btn-portal outline" onclick="closeModal()">' +
                 '<i class="fas fa-times"></i> Close' +
             '</button>' +
-            '<button class="btn-portal gold" onclick="closeModal();openUpgradeWindow(' + idx + ')">' +
-                '<i class="fas fa-rocket"></i> Add More Features' +
-            '</button>' +
+            (isAdmin
+                ? ''
+                : '<button class="btn-portal gold" ' +
+                    'onclick="closeModal();openUpgradeWindow(' + idx + ')">' +
+                    '<i class="fas fa-rocket"></i> Add Features' +
+                  '</button>') +
         '</div>' +
+
         '</div></div>';
 }
 
