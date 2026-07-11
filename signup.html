@@ -7,6 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+        authDomain:        "stockai-pro-b232e.firebaseapp.com",
+        projectId:         "stockai-pro-b232e",
+        storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+        messagingSenderId: "424200946359",
+        appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
+    });
+}
+</script>
 <style>
 :root {
   --teal-dark: #0d4a5c;
@@ -711,6 +725,22 @@ body {
 
   <!-- PAYMENT BUTTON -->
   <div class="payment-section">
+<!-- PROMO CODE -->
+<div style="background:#fff;border-radius:14px;padding:20px 24px;box-shadow:var(--shadow);margin-bottom:20px;border:1px solid var(--border)">
+    <div style="font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <i class="fas fa-tag" style="color:var(--teal-mid)"></i> Promo Code
+    </div>
+    <div style="display:flex;gap:10px">
+        <input type="text" id="promo-code-input" placeholder="Enter promo code..." 
+            style="flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.92rem;font-family:inherit;color:var(--text-dark);background:#fff;transition:.2s;text-transform:uppercase"
+            oninput="this.value=this.value.toUpperCase()">
+        <button onclick="applyPromoCode()" id="promo-apply-btn"
+            style="padding:12px 20px;background:var(--teal-mid);color:#fff;border:none;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.3s">
+            Apply
+        </button>
+    </div>
+    <div id="promo-result" style="margin-top:10px;display:none"></div>
+</div>
     <button class="btn-pay" id="payBtn" onclick="startPayment()">
       <i class="fas fa-lock"></i>
       <span id="payBtnText">Pay R1,398.00/mo — Get Started</span>
@@ -801,6 +831,15 @@ var SETUP_HOURS = {
 };
 
 var ENTITY_RATE    = 599;
+// Promo code state
+var PROMO = {
+    code:        '',
+    discount:    0,
+    type:        'percent',
+    description: '',
+    applied:     false,
+    docId:       ''
+};
 var TECH_RATE      = 450;
 var TRAINING_BASE  = 1500;
 var TRAINING_EXTRA = 750;
@@ -859,6 +898,114 @@ function updateChips() {
 // ============================================================
 // CALCULATE PRICING
 // ============================================================
+function applyPromoCode() {
+    var code = (document.getElementById('promo-code-input').value || '').trim().toUpperCase();
+    var resultEl = document.getElementById('promo-result');
+    var applyBtn = document.getElementById('promo-apply-btn');
+
+    if (!code) {
+        showPromoResult('error', 'Please enter a promo code');
+        return;
+    }
+
+    // If removing existing code
+    if (PROMO.applied && code === PROMO.code) {
+        PROMO = { code:'', discount:0, type:'percent', description:'', applied:false, docId:'' };
+        showPromoResult('info', 'Promo code removed');
+        calcSignup();
+        return;
+    }
+
+    applyBtn.disabled = true;
+    applyBtn.textContent = 'Checking...';
+
+    // Check Firebase for promo code
+    firebase.firestore().collection('promoCodes').where('code', '==', code).get()
+        .then(function(snap) {
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+
+            if (snap.empty) {
+                showPromoResult('error', 'Invalid promo code. Please check and try again.');
+                return;
+            }
+
+            var doc = snap.docs[0];
+            var data = doc.data();
+
+            // Check if active
+            if (!data.active) {
+                showPromoResult('error', 'This promo code is no longer active.');
+                return;
+            }
+
+            // Check expiry
+            if (data.expiryDate) {
+                var expiry = new Date(data.expiryDate);
+                if (expiry < new Date()) {
+                    showPromoResult('error', 'This promo code has expired.');
+                    return;
+                }
+            }
+
+            // Check usage limit
+            if (data.usageLimit && data.usageLimit > 0 && data.usageCount >= data.usageLimit) {
+                showPromoResult('error', 'This promo code has reached its usage limit.');
+                return;
+            }
+
+            // Apply the code
+            PROMO.code        = data.code;
+            PROMO.discount    = data.discount || 0;
+            PROMO.type        = data.type || 'percent';
+            PROMO.description = data.description || '';
+            PROMO.applied     = true;
+            PROMO.docId       = doc.id;
+
+            var discountText = data.type === 'fixed'
+                ? 'R' + data.discount + ' off'
+                : data.discount + '% off';
+
+            showPromoResult('success', '✅ Code applied! ' + discountText + ' - ' + (data.description || ''));
+            calcSignup();
+        })
+        .catch(function(err) {
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+            showPromoResult('error', 'Error checking code. Please try again.');
+            console.error('Promo error:', err);
+        });
+}
+
+function removePromoCode() {
+    PROMO = { code:'', discount:0, type:'percent', description:'', applied:false, docId:'' };
+    document.getElementById('promo-code-input').value = '';
+    document.getElementById('promo-result').style.display = 'none';
+    calcSignup();
+}
+
+function showPromoResult(type, message) {
+    var el = document.getElementById('promo-result');
+    if (!el) return;
+    var colors = {
+        success: { bg:'rgba(46,168,113,.1)', border:'rgba(46,168,113,.3)', color:'#2ea871' },
+        error:   { bg:'rgba(201,69,69,.1)',   border:'rgba(201,69,69,.3)',   color:'#c94545' },
+        info:    { bg:'rgba(26,139,168,.1)',  border:'rgba(26,139,168,.3)',  color:'#1a8ba8' }
+    };
+    var c = colors[type] || colors.info;
+    el.style.display = 'block';
+    el.innerHTML = '<div style="padding:10px 14px;border-radius:8px;font-size:.82rem;font-weight:600;' +
+        'background:' + c.bg + ';border:1px solid ' + c.border + ';color:' + c.color + '">' + message +
+        (PROMO.applied ? '<button onclick="removePromoCode()" style="margin-left:12px;background:none;border:none;color:' + c.color + ';cursor:pointer;font-weight:700;font-size:.78rem;text-decoration:underline">Remove</button>' : '') +
+        '</div>';
+}
+
+function calcPromoDiscount(originalAmount) {
+    if (!PROMO.applied || PROMO.discount <= 0) return 0;
+    if (PROMO.type === 'fixed') return Math.min(PROMO.discount, originalAmount);
+    if (PROMO.type === 'percent') return parseFloat((originalAmount * PROMO.discount / 100).toFixed(2));
+    return 0;
+}
 function calcSignup() {
     // Step 1 — Collect selected features
     var featureTotal       = FEATURE_PRICES.web_boh; // Base always R799 flat
@@ -960,10 +1107,20 @@ function calcSignup() {
     }
 
     // Step 5 — Totals
-    var monthlyTotal = featureTotal + entTotal;
+    var monthlyTotal   = featureTotal + entTotal;
+    var promoDiscount  = calcPromoDiscount(monthlyTotal);
+    var discountedMonthly = Math.max(0, monthlyTotal - promoDiscount);
+    var totalCharge    = discountedMonthly + onceOffTotal;
     var onceOffTotal = techTotal + trainingTotal;
 
+    if (PROMO.applied && promoDiscount > 0) {
+    document.getElementById('ps-monthly').innerHTML =
+        '<span style="text-decoration:line-through;opacity:.5">R' + monthlyTotal.toLocaleString() + '</span> ' +
+        '<span style="color:var(--gold);font-weight:900">R' + discountedMonthly.toFixed(2) + '</span> ' +
+        '<span style="font-size:.75rem;color:var(--success)">(-R' + promoDiscount.toFixed(2) + ')</span>';
+} else {
     document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
+}
 
     var onceOffSection = document.getElementById('ps-onceoff-section');
     var techRow        = document.getElementById('ps-tech-row');
@@ -986,7 +1143,9 @@ function calcSignup() {
     }
 
     // Step 6 — Update pay button
-    var btnText = 'Pay R' + monthlyTotal.toLocaleString() + '.00/mo';
+    var btnText = PROMO.applied && promoDiscount > 0
+    ? 'Pay R' + discountedMonthly.toFixed(2) + '/mo (Save R' + promoDiscount.toFixed(2) + '!)'
+    : 'Pay R' + monthlyTotal.toLocaleString() + '/mo';
     if (onceOffTotal > 0) {
         btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
     }
@@ -1137,6 +1296,17 @@ function startPayment() {
         callback: function(response) {
             sessionStorage.setItem('signup_ref',  response.reference);
             sessionStorage.setItem('signup_paid', 'true');
+// Record promo code usage
+if (PROMO.applied && PROMO.docId) {
+    firebase.firestore().collection('promoCodes').doc(PROMO.docId).update({
+        usageCount: firebase.firestore.FieldValue.increment(1),
+        lastUsed:   new Date().toISOString(),
+        lastUsedBy: email
+    }).catch(function() {});
+    sessionStorage.setItem('signup_promo_code',     PROMO.code);
+    sessionStorage.setItem('signup_promo_discount',  PROMO.discount.toString());
+    sessionStorage.setItem('signup_promo_type',      PROMO.type);
+}
 
             // Send admin notification
             if (typeof window.sendSignupNotificationToAdmin === 'function') {
