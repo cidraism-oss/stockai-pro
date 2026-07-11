@@ -609,7 +609,9 @@ var ALL_APPS = [
     {id:'posbuilder',     name:'POS Builder',        icon:'fa-tools',           color:'#6366f1', desc:'Build & configure POS menus',       url:null,        embed:true},
     {id:'cashuppro',      name:'CashUp-Pro',         icon:'fa-calculator',      color:'#10b981', desc:'Manager cashup & reconciliation',   url:null,        embed:true},
     {id:'hrmodule',       name:'HR Module',          icon:'fa-users-cog',       color:'#8b5cf6', desc:'Staff management & payroll',        url:null,        embed:true},
-    {id:'dee',            name:'DEE Assistant',       icon:'fa-comment-dots',    color:'#7c3aed', desc:'Your personal AI assistant',        url:null,        embed:true}
+    {id:'dee',            name:'DEE Assistant',       icon:'fa-comment-dots',    color:'#7c3aed', desc:'Your personal AI assistant',        url:null,        embed:true},
+,
+    {id:'itempro', name:'ItemPro', icon:'fa-barcode', color:'#0891b2', desc:'Scan items, view details & order', url:null, embed:true}
 ];
 
 var ROLE_DEFAULTS = {
@@ -627,18 +629,18 @@ var ROLE_DEFAULTS = {
     'Floor Supervisor':   ['mobile','pos','cashuppro'],
     'Bar Supervisor':     ['pos'],
     'Retail Cashier':               ['retailpos','cashuppro'],
-    'Retail Supervisor':            ['retailpos','cashuppro'],
-    'Retail F.O.H Manager':        ['retailpos','cashuppro','posbuilder'],
-    'Retail Floor Manager':         ['retailpos','cashuppro','posbuilder'],
-    'Retail General Manager':       ['retailpos','boh','cashuppro','posbuilder','hrmodule'],
-    'Retail Merchandising Manager': ['retailpos','boh','cashuppro','posbuilder'],
-    'Retail Owner':                 ['retailpos','boh','procure','menumaster','cashuppro','posbuilder','hrmodule'],
+    'Retail Supervisor':            ['retailpos','cashuppro,'itempro''],
+    'Retail F.O.H Manager':        ['retailpos','cashuppro','posbuilder','itempro'],
+    'Retail Floor Manager':         ['retailpos','cashuppro','posbuilder','itempro'],
+    'Retail General Manager':       ['retailpos','boh','cashuppro','posbuilder','hrmodule','itempro'],
+    'Retail Merchandising Manager': ['retailpos','boh','cashuppro','posbuilder','itempro'],
+    'Retail Owner':                 ['retailpos','boh','procure','menumaster','cashuppro','posbuilder','hrmodule','itempro'],
     'Invoice Stock Controller':     ['invoicescanner'],
-    'Invoice Stores Supervisor':    ['invoicescanner'],
-    'Invoice Stores Manager':       ['invoicescanner','procure'],
-    'Invoice Receiving Manager':    ['invoicescanner','procure','boh'],
-    'Invoice General Manager':      ['invoicescanner','procure','boh'],
-    'Invoice Owner':                ['invoicescanner','procure','boh','menumaster']
+    'Invoice Stores Supervisor':    ['invoicescanner','itempro'],
+    'Invoice Stores Manager':       ['invoicescanner','procure','itempro'],
+    'Invoice Receiving Manager':    ['invoicescanner','procure','boh','itempro'],
+    'Invoice General Manager':      ['invoicescanner','procure','boh','itempro'],
+    'Invoice Owner':                ['invoicescanner','procure','boh','menumaster','itempro']
 };
 
 var HUB_FEATURE_MAP = {
@@ -646,19 +648,20 @@ var HUB_FEATURE_MAP = {
     'pos':'pos_system','menumaster':'menu_master','functions':'functions_ai',
     'retailpos':'retail_pos','invoicescanner':'invoice_scanner',
     'production':'production','posbuilder':'pos_builder',
-    'cashuppro':'cashup_pro','hrmodule':'hr_module','dee':'dee'
+    'cashuppro':'cashup_pro','hrmodule':'hr_module','dee':'dee','itempro':'item_pro'
 };
 
 var HUB_FEATURE_PRICES = {
     'web_boh':799,'mobile_app':0,'procure_ai':0,
     'pos_system':799,'menu_master':349,'functions_ai':449,
     'retail_pos':999,'invoice_scanner':499,'production':449,
-    'pos_builder':199,'hr_module':349,'ai_brain':499,'cashup_pro':0
+    'pos_builder':199,'hr_module':349,'ai_brain':499,'cashup_pro':0,'item_pro':0
 };
 
 var FREE_WITH_FEATURES = {
     'cashup_pro': ['pos_system','retail_pos'],
-    'pos_builder': ['pos_system','retail_pos']
+    'pos_builder': ['pos_system','retail_pos'],
+    'item_pro': ['retail_pos']
 };
 
 var ALWAYS_FREE_FEATURES = ['web_boh','mobile_app','procure_ai','cashup_pro'];
@@ -2213,6 +2216,7 @@ function openEmbeddedApp(appId) {
     else if(appId==='cashuppro'){frame.innerHTML=getCashUpProHTML();initCashUpPro();}
     else if(appId==='hrmodule'){frame.innerHTML=getHRModuleHTML();initHRModule();}
     else if(appId==='dee'){frame.innerHTML=getDEEHTML();initDEE();}
+    else if(appId==='itempro'){frame.innerHTML=getItemProHTML();initItemPro();}
     if(hubIsFeatureKeyPurchased('ai_brain')&&appId!=='dee'){nikkiShow(appId);}
 }
 
@@ -4444,6 +4448,566 @@ function deeInstallApp(){var ua=navigator.userAgent||'',isIOS=/iPad|iPhone|iPod/
 
 console.log('DEE Personal Assistant loaded');
 </script>
+
+<!-- ITEMPRO -->
+<script>
+var IPRO = {
+    user:      null,
+    accountId: null,
+    entityId:  null,
+    entityName:'',
+    inventory: [],
+    purchases: [],
+    suppliers: [],
+    basket:    [],
+    scanMode:  true,
+    currentView: 'scan'
+};
+
+var _iproScanBuffer = '';
+var _iproScanTimer  = null;
+
+function getItemProHTML() {
+    return '<div style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)">' +
+
+        '<header class="hub-header" style="background:linear-gradient(90deg,#0e7490,#0891b2)">' +
+        '<button class="return-hub-btn" onclick="closeEmbeddedApp()"><i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff">' +
+        '<i class="fas fa-barcode" style="font-size:1.2rem"></i>' +
+        '<div><div style="font-size:.88rem;font-weight:700">ItemPro</div>' +
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' + (HUB.entityName || 'Entity') + '</div></div></div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<button onclick="iproShowBasket()" id="ipro-basket-btn" style="position:relative;padding:6px 12px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">' +
+        '<i class="fas fa-shopping-basket"></i> Basket <span id="ipro-basket-count" style="background:#f59e0b;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700">0</span></button>' +
+        '<button class="hub-hbtn" onclick="iproRefresh()"><i class="fas fa-sync-alt"></i></button></div></header>' +
+
+        '<div id="ipro-content" style="flex:1;overflow-y:auto;padding:16px;padding-bottom:80px;-webkit-overflow-scrolling:touch"></div>' +
+
+        '<nav style="height:var(--nav-h);background:var(--bg-card);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+        iproNavBtn('ipro-scan',     'fa-barcode',        'Scan',     true)  +
+        iproNavBtn('ipro-search',   'fa-search',         'Search',   false) +
+        iproNavBtn('ipro-basket-p', 'fa-shopping-basket','Basket',   false) +
+        iproNavBtn('ipro-history',  'fa-history',        'History',  false) +
+        '</nav>' +
+
+        '<input type="text" id="ipro-barcode-input" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0" autocomplete="off" tabindex="-1">' +
+        '<div id="ipro-modal"></div></div>';
+}
+
+function iproNavBtn(page, icon, label, active) {
+    return '<div data-ipropage="' + page + '" onclick="iproNavigate(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;' +
+        'border-radius:var(--rs);cursor:pointer;min-width:56px;' +
+        'color:' + (active ? '#0891b2' : 'var(--text-light)') + ';' +
+        'background:' + (active ? 'rgba(8,145,178,.08)' : 'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:1.1rem"></i>' +
+        '<span style="font-size:.6rem;font-weight:600">' + label + '</span></div>';
+}
+
+function initItemPro() {
+    IPRO.user       = HUB.user;
+    IPRO.accountId  = HUB.accountId;
+    IPRO.entityId   = HUB.entityId;
+    IPRO.entityName = HUB.entityName || '';
+
+    // Load saved basket
+    try { IPRO.basket = JSON.parse(sessionStorage.getItem('ipro_basket_' + IPRO.entityId) || '[]'); } catch(e) { IPRO.basket = []; }
+
+    if (HUB.accountData) iproLoadData(HUB.accountData);
+
+    if (HUB.accountId) {
+        db.collection('accounts').doc(HUB.accountId).get().then(function(doc) {
+            if (doc.exists) { iproLoadData(doc.data()); iproNavigate('ipro-scan'); }
+        }).catch(function(err) { hubToast('error', 'Load error: ' + err.message); });
+    } else {
+        iproNavigate('ipro-scan');
+    }
+
+    iproSetupScanner();
+    iproUpdateBasketCount();
+}
+
+function iproLoadData(data) {
+    IPRO.inventory = (data.inventory  || {})[IPRO.entityId] || [];
+    IPRO.purchases = (data.purchases  || {})[IPRO.entityId] || [];
+    IPRO.suppliers = (data.suppliers  || {})[IPRO.entityId] || [];
+    HUB.accountData = data;
+}
+
+function iproRefresh() {
+    if (!HUB.accountId) return;
+    hubToast('info', 'Refreshing...');
+    db.collection('accounts').doc(HUB.accountId).get().then(function(doc) {
+        if (doc.exists) { iproLoadData(doc.data()); iproNavigate(IPRO.currentView || 'ipro-scan'); hubToast('success', 'Done'); }
+    });
+}
+
+function iproNavigate(page) {
+    IPRO.currentView = page;
+    document.querySelectorAll('[data-ipropage]').forEach(function(btn) {
+        var a = btn.dataset.ipropage === page;
+        btn.style.color      = a ? '#0891b2' : 'var(--text-light)';
+        btn.style.background = a ? 'rgba(8,145,178,.08)' : 'transparent';
+    });
+    var content = document.getElementById('ipro-content');
+    if (!content) return;
+    content.scrollTop = 0;
+    if      (page === 'ipro-scan')     content.innerHTML = iproScanPage();
+    else if (page === 'ipro-search')   content.innerHTML = iproSearchPage();
+    else if (page === 'ipro-basket-p') content.innerHTML = iproBasketPage();
+    else if (page === 'ipro-history')  content.innerHTML = iproHistoryPage();
+}
+
+function iproShowModal(title, body, footer) {
+    var c = document.getElementById('ipro-modal');
+    if (!c) { showHubModal(title, body, footer); return; }
+    c.innerHTML = '<div style="position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="position:absolute;inset:0;background:rgba(0,0,0,.7)" onclick="iproCloseModal()"></div>' +
+        '<div style="position:relative;background:var(--bg-card);border-radius:var(--r);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);border:1px solid var(--border)">' +
+        '<div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">' +
+        '<h3 style="font-size:1rem;font-weight:700;color:var(--text)">' + title + '</h3>' +
+        '<button onclick="iproCloseModal()" style="background:none;border:none;color:var(--text-mid);cursor:pointer;font-size:1rem"><i class="fas fa-times"></i></button></div>' +
+        '<div style="padding:24px">' + body + '</div>' +
+        (footer ? '<div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end">' + footer + '</div>' : '') +
+        '</div></div>';
+}
+function iproCloseModal() { var c = document.getElementById('ipro-modal'); if (c) c.innerHTML = ''; }
+
+// ── Barcode Scanner ──
+function iproSetupScanner() {
+    document.addEventListener('keydown', function(e) {
+        if (IPRO.currentView !== 'ipro-scan') return;
+        if (!document.getElementById('ipro-content')) return;
+        var active = document.activeElement;
+        if (active && active.tagName === 'INPUT' && active.id !== 'ipro-barcode-input' && active.id !== 'ipro-manual-input') return;
+        if (active && active.tagName === 'TEXTAREA') return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (_iproScanBuffer.length >= 4) iproProcessBarcode(_iproScanBuffer.trim());
+            _iproScanBuffer = '';
+            clearTimeout(_iproScanTimer);
+            return;
+        }
+        if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            _iproScanBuffer += e.key;
+            clearTimeout(_iproScanTimer);
+            _iproScanTimer = setTimeout(function() { _iproScanBuffer = ''; }, 100);
+        }
+    });
+}
+
+function iproProcessBarcode(barcode) {
+    if (!barcode) return;
+    var item = IPRO.inventory.find(function(i) { return i.barcode && i.barcode.toString() === barcode.toString(); });
+    if (!item) {
+        hubToast('warning', 'Barcode "' + barcode + '" not found');
+        return;
+    }
+    iproShowItemDetail(item);
+}
+
+// ── Scan Page ──
+function iproScanPage() {
+    return '<div style="max-width:500px;margin:0 auto">' +
+
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);text-align:center;margin-bottom:16px;border-left:4px solid #0891b2">' +
+        '<div style="width:70px;height:70px;background:linear-gradient(135deg,#0891b2,#0e7490);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;margin:0 auto 16px;box-shadow:0 0 20px rgba(8,145,178,.4)"><i class="fas fa-barcode"></i></div>' +
+        '<h2 style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:6px">Scan Item Barcode</h2>' +
+        '<p style="font-size:.78rem;color:var(--text-light);margin-bottom:20px">Point your USB scanner at an item barcode or enter manually below</p>' +
+
+        '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+        '<input type="text" id="ipro-manual-input" placeholder="Enter barcode manually..." ' +
+        'style="flex:1;padding:14px;background:var(--bg-dark);border:2px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);font-size:1rem;font-weight:700;text-align:center;font-family:inherit;letter-spacing:2px" ' +
+        'onkeydown="if(event.key===\'Enter\'){iproProcessBarcode(this.value.trim());this.value=\'\';}">' +
+        '<button onclick="var inp=document.getElementById(\'ipro-manual-input\');iproProcessBarcode(inp.value.trim());inp.value=\'\';" ' +
+        'style="padding:14px 20px;background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700;font-size:.92rem">' +
+        '<i class="fas fa-search"></i></button></div>' +
+
+        '<div style="display:flex;gap:8px;justify-content:center">' +
+        '<button onclick="iproScanCamera()" style="padding:10px 18px;background:rgba(8,145,178,.15);border:1px solid rgba(8,145,178,.3);border-radius:var(--rs);color:#0891b2;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="fas fa-camera"></i> Use Camera</button>' +
+        '</div>' +
+        '</div>' +
+
+        // Recently scanned
+        '<div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Quick Stats</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;text-align:center;border-left:3px solid #0891b2"><div style="font-size:.62rem;color:var(--text-light);font-weight:600;margin-bottom:3px">TOTAL ITEMS</div><div style="font-size:1.2rem;font-weight:800;color:var(--text)">' + IPRO.inventory.length + '</div></div>' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;text-align:center;border-left:3px solid var(--gold)"><div style="font-size:.62rem;color:var(--text-light);font-weight:600;margin-bottom:3px">IN BASKET</div><div style="font-size:1.2rem;font-weight:800;color:var(--gold)">' + IPRO.basket.length + '</div></div>' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;text-align:center;border-left:3px solid var(--success)"><div style="font-size:.62rem;color:var(--text-light);font-weight:600;margin-bottom:3px">WITH BARCODE</div><div style="font-size:1.2rem;font-weight:800;color:var(--success)">' + IPRO.inventory.filter(function(i) { return i.barcode; }).length + '</div></div>' +
+        '</div>' +
+
+        '<div style="background:rgba(8,145,178,.08);border-left:3px solid #0891b2;padding:12px;border-radius:var(--rs);font-size:.78rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:#0891b2"></i> Scan any item to see full details including supplier info, rate of sale, expiry and purchase history. Add items to your basket for quick ordering via ProcureAI.</div>' +
+
+        '</div>';
+}
+
+function iproScanCamera() {
+    hubToast('info', 'Camera scanning coming soon! Use USB scanner or manual entry for now.');
+}
+
+// ── Item Detail View ──
+function iproShowItemDetail(item) {
+    // Calculate rate of sale (average monthly sales)
+    var retailSales = HUB.accountData ? ((HUB.accountData.retailSales || {})[IPRO.entityId] || []) : [];
+    var now         = new Date();
+    var threeMonths = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    var itemSales   = retailSales.filter(function(s) {
+        if (!s.date || new Date(s.date) < threeMonths) return false;
+        return (s.items || []).some(function(si) { return si.id === item.id; });
+    });
+    var totalQtySold = 0;
+    itemSales.forEach(function(s) {
+        (s.items || []).forEach(function(si) {
+            if (si.id === item.id) totalQtySold += (si.qty || 0);
+        });
+    });
+    var monthsActive = Math.max(1, Math.round((now - threeMonths) / (30 * 24 * 60 * 60 * 1000)));
+    var rateOfSale   = (totalQtySold / monthsActive).toFixed(1);
+
+    // Find last purchase
+    var lastPurchase  = null;
+    var supplierName  = item.supplier || 'Not linked';
+    IPRO.purchases.forEach(function(po) {
+        if (po.status === 'Received' || po.status === 'Delivered') {
+            (po.lineItems || []).forEach(function(li) {
+                if (li.id === item.id || li.name === item.name) {
+                    if (!lastPurchase || new Date(po.receivedDate || po.createdAt) > new Date(lastPurchase.date)) {
+                        lastPurchase = {
+                            date:     po.receivedDate || po.createdAt,
+                            supplier: po.supplier,
+                            qty:      li.qty,
+                            cost:     li.cost
+                        };
+                    }
+                }
+            });
+        }
+    });
+    if (lastPurchase && lastPurchase.supplier) supplierName = lastPurchase.supplier;
+
+    // Find supplier details
+    var supplierInfo = IPRO.suppliers.find(function(s) { return s.name === supplierName; });
+
+    var statusColor = item.status === 'in-stock' ? 'var(--success)' : item.status === 'low-stock' ? 'var(--gold)' : 'var(--danger)';
+    var statusText  = (item.status || '').split('-').map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+
+    var inBasket = IPRO.basket.some(function(b) { return b.id === item.id; });
+
+    var content = document.getElementById('ipro-content');
+    if (!content) return;
+
+    content.innerHTML = '<div style="max-width:500px;margin:0 auto">' +
+
+        '<button onclick="iproNavigate(\'ipro-scan\')" style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);color:var(--text-light);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px"><i class="fas fa-arrow-left"></i> Back to Scan</button>' +
+
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;border-top:4px solid #0891b2">' +
+
+        // Item header
+        '<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">' +
+        '<div style="width:56px;height:56px;background:linear-gradient(135deg,#0891b2,#0e7490);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;flex-shrink:0"><i class="fas fa-box"></i></div>' +
+        '<div style="flex:1"><div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + item.name + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">' + (item.category || '') + (item.department ? ' - ' + item.department : '') + '</div>' +
+        '<span style="display:inline-block;margin-top:4px;padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;background:rgba(0,0,0,.15);color:' + statusColor + '">' + statusText + '</span></div></div>' +
+
+        // Details grid
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">' +
+        iproDetailField('Barcode',        item.barcode || 'Not set') +
+        iproDetailField('Pack Size',      (item.packSize || item.unit || 'each')) +
+        iproDetailField('Current Stock',  (item.quantity || 0) + ' ' + (item.unit || '')) +
+        iproDetailField('Cost Price',     'R' + (item.cost || 0).toFixed(2)) +
+        iproDetailField('Retail Price',   'R' + (item.retailPrice || item.cost || 0).toFixed(2)) +
+        iproDetailField('Stock Value',    'R' + (item.value || 0).toFixed(2)) +
+        iproDetailField('Par Level',      (item.parLevel || 0) + ' ' + (item.unit || '')) +
+        iproDetailField('Reorder Qty',    (item.reorder || 0) + ' ' + (item.unit || '')) +
+        '</div>' +
+
+        // Rate of Sale
+        '<div style="background:linear-gradient(135deg,rgba(8,145,178,.1),rgba(8,145,178,.05));border:1px solid rgba(8,145,178,.2);border-radius:var(--rs);padding:14px;margin-bottom:16px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div><div style="font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Rate of Sale (Monthly Avg)</div>' +
+        '<div style="font-size:1.5rem;font-weight:900;color:#0891b2">' + rateOfSale + ' ' + (item.unit || 'units') + '/month</div></div>' +
+        '<div style="width:48px;height:48px;background:rgba(8,145,178,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#0891b2;font-size:1.2rem"><i class="fas fa-chart-line"></i></div></div></div>' +
+
+        // Supplier info
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:16px;border-left:3px solid var(--primary)">' +
+        '<div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px"><i class="fas fa-truck" style="color:var(--primary)"></i> Supplier Information</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        iproDetailField('Supplier', supplierName) +
+        iproDetailField('Type', supplierInfo ? (supplierInfo.type || 'General') : '-') +
+        iproDetailField('Phone', supplierInfo ? (supplierInfo.phone || '-') : '-') +
+        iproDetailField('Email', supplierInfo ? (supplierInfo.email || '-') : '-') +
+        '</div>' +
+        (supplierInfo && supplierInfo.deliveryDays ?
+            '<div style="margin-top:8px;font-size:.72rem;color:var(--text-mid)"><i class="fas fa-calendar-check" style="color:var(--primary);font-size:.6rem"></i> Delivery: ' + (supplierInfo.deliveryDays || []).join(', ') + '</div>' : '') +
+        '</div>' +
+
+        // Purchase history
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:16px;border-left:3px solid var(--gold)">' +
+        '<div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px"><i class="fas fa-history" style="color:var(--gold)"></i> Last Purchase</div>' +
+        (lastPurchase
+            ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+              iproDetailField('Date', new Date(lastPurchase.date).toLocaleDateString('en-ZA', {day:'numeric',month:'short',year:'numeric'})) +
+              iproDetailField('Supplier', lastPurchase.supplier) +
+              iproDetailField('Quantity', (lastPurchase.qty || 0) + ' ' + (item.unit || '')) +
+              iproDetailField('Cost', 'R' + (lastPurchase.cost || 0).toFixed(2) + '/' + (item.unit || 'each')) +
+              '</div>'
+            : '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:.82rem">No purchase history found</div>') +
+        '</div>' +
+
+        // Expiry
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:16px;border-left:3px solid ' + (item.expiryDate ? 'var(--warning)' : 'var(--text-muted)') + '">' +
+        '<div style="font-size:.72rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px"><i class="fas fa-calendar-times" style="color:var(--warning)"></i> Expiry Date</div>' +
+        '<div style="font-size:1rem;font-weight:700;color:var(--text)">' + (item.expiryDate ? new Date(item.expiryDate).toLocaleDateString('en-ZA', {day:'numeric',month:'long',year:'numeric'}) : 'Not set') + '</div>' +
+        '</div>' +
+
+        // Action buttons
+        '<div style="display:flex;gap:10px">' +
+        (inBasket
+            ? '<button onclick="iproRemoveFromBasket(\'' + item.id + '\')" style="flex:1;padding:14px;background:rgba(201,69,69,.15);border:1px solid rgba(201,69,69,.3);color:var(--danger);border-radius:var(--r);font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fas fa-minus-circle"></i> Remove from Basket</button>'
+            : '<button onclick="iproAddToBasket(\'' + item.id + '\')" style="flex:1;padding:14px;background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;border:none;border-radius:var(--r);font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fas fa-shopping-basket"></i> Add to Basket</button>') +
+        '<button onclick="iproNavigate(\'ipro-scan\')" style="padding:14px 20px;background:transparent;color:var(--text-mid);border:1px solid var(--border);border-radius:var(--r);font-size:.92rem;font-weight:600;cursor:pointer;font-family:inherit"><i class="fas fa-barcode"></i> Scan Next</button>' +
+        '</div></div></div>';
+}
+
+function iproDetailField(label, value) {
+    return '<div style="padding:8px;background:var(--bg-card);border-radius:var(--rs)">' +
+        '<div style="font-size:.58rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:2px">' + label + '</div>' +
+        '<div style="font-size:.82rem;font-weight:600;color:var(--text)">' + value + '</div></div>';
+}
+
+// ── Basket Functions ──
+function iproAddToBasket(itemId) {
+    var item = IPRO.inventory.find(function(i) { return i.id === itemId; });
+    if (!item) return;
+    if (IPRO.basket.some(function(b) { return b.id === itemId; })) {
+        hubToast('info', 'Already in basket');
+        return;
+    }
+    IPRO.basket.push({
+        id:       item.id,
+        name:     item.name,
+        unit:     item.unit || 'each',
+        cost:     item.cost || 0,
+        qty:      Math.max((item.parLevel || 5) * 2, 1),
+        supplier: item.supplier || '',
+        barcode:  item.barcode || ''
+    });
+    iproSaveBasket();
+    iproUpdateBasketCount();
+    hubToast('success', item.name + ' added to basket');
+    iproShowItemDetail(item);
+}
+
+function iproRemoveFromBasket(itemId) {
+    IPRO.basket = IPRO.basket.filter(function(b) { return b.id !== itemId; });
+    iproSaveBasket();
+    iproUpdateBasketCount();
+    var item = IPRO.inventory.find(function(i) { return i.id === itemId; });
+    if (item) iproShowItemDetail(item);
+    else hubToast('info', 'Removed from basket');
+}
+
+function iproSaveBasket() {
+    sessionStorage.setItem('ipro_basket_' + IPRO.entityId, JSON.stringify(IPRO.basket));
+}
+
+function iproUpdateBasketCount() {
+    var el = document.getElementById('ipro-basket-count');
+    if (el) el.textContent = IPRO.basket.length;
+}
+
+// ── Search Page ──
+function iproSearchPage() {
+    return '<div style="max-width:500px;margin:0 auto">' +
+        '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:14px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
+        '<input type="text" id="ipro-search-input" placeholder="Search items by name..." oninput="iproFilterSearch()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.88rem;font-family:inherit;color:var(--text);background:transparent"></div>' +
+        '<div id="ipro-search-results">' +
+        IPRO.inventory.slice(0, 20).map(function(item) { return iproSearchCard(item); }).join('') +
+        '</div></div>';
+}
+
+function iproFilterSearch() {
+    var q = (document.getElementById('ipro-search-input').value || '').toLowerCase();
+    var results = IPRO.inventory.filter(function(i) {
+        return i.name.toLowerCase().includes(q) || (i.barcode || '').includes(q) || (i.category || '').toLowerCase().includes(q);
+    });
+    var container = document.getElementById('ipro-search-results');
+    if (container) {
+        container.innerHTML = results.length === 0
+            ? '<div style="text-align:center;padding:30px;color:var(--text-light)"><p>No items found</p></div>'
+            : results.slice(0, 30).map(function(item) { return iproSearchCard(item); }).join('');
+    }
+}
+
+function iproSearchCard(item) {
+    var bc = item.status === 'in-stock' ? 'var(--success)' : item.status === 'low-stock' ? 'var(--gold)' : 'var(--danger)';
+    return '<div onclick="iproProcessBarcode(\'' + (item.barcode || item.id) + '\')" ' +
+        'style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;border-left:3px solid ' + bc + '">' +
+        '<div style="width:40px;height:40px;background:rgba(8,145,178,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#0891b2;flex-shrink:0"><i class="fas fa-box"></i></div>' +
+        '<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + item.name + '</div>' +
+        '<div style="font-size:.68rem;color:var(--text-light)">' + (item.barcode || 'No barcode') + ' - ' + (item.quantity || 0) + ' ' + (item.unit || '') + ' - R' + (item.cost || 0).toFixed(2) + '</div></div>' +
+        '<i class="fas fa-chevron-right" style="color:var(--text-muted);font-size:.8rem"></i></div>';
+}
+
+// ── Basket Page ──
+function iproBasketPage() {
+    if (IPRO.basket.length === 0) {
+        return '<div style="text-align:center;padding:60px;color:var(--text-light)">' +
+            '<i class="fas fa-shopping-basket" style="font-size:3rem;opacity:.3;display:block;margin-bottom:14px"></i>' +
+            '<h3 style="color:var(--text);margin-bottom:6px">Basket is Empty</h3>' +
+            '<p style="font-size:.82rem">Scan items and add them to your basket for quick ordering</p></div>';
+    }
+
+    var total = IPRO.basket.reduce(function(s, b) { return s + (b.qty * b.cost); }, 0);
+
+    var html = '<div style="max-width:500px;margin:0 auto">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px">' +
+        '<i class="fas fa-shopping-basket" style="color:#0891b2"></i> Order Basket (' + IPRO.basket.length + ')</div>' +
+        '<button onclick="iproClearBasket()" style="padding:6px 12px;background:rgba(201,69,69,.1);border:1px solid rgba(201,69,69,.3);border-radius:6px;color:var(--danger);font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit"><i class="fas fa-trash"></i> Clear</button></div>';
+
+    IPRO.basket.forEach(function(item, idx) {
+        html += '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;box-shadow:var(--shadow);border-left:3px solid #0891b2">' +
+            '<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-light)">' + (item.supplier || 'Unknown') + ' - R' + (item.cost || 0).toFixed(2) + '/' + item.unit + '</div></div>' +
+            '<input type="number" value="' + item.qty + '" min="1" step="1" ' +
+            'onchange="iproUpdateBasketQty(' + idx + ',this.value)" ' +
+            'style="width:55px;padding:8px 4px;text-align:center;border:2px solid var(--border);border-radius:var(--rs);font-size:.88rem;font-weight:700;color:var(--text);background:var(--bg-dark);font-family:inherit">' +
+            '<div style="text-align:right;min-width:70px"><div style="font-size:.82rem;font-weight:700;color:#0891b2">R' + (item.qty * item.cost).toFixed(2) + '</div></div>' +
+            '<button onclick="iproRemoveFromBasketByIdx(' + idx + ')" style="width:28px;height:28px;background:rgba(201,69,69,.1);border:none;border-radius:50%;color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0"><i class="fas fa-times"></i></button></div>';
+    });
+
+    html += '<div style="background:var(--bg-card);border-radius:var(--rs);padding:14px;margin-top:12px;border-top:2px solid #0891b2">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:.82rem;color:var(--text-light)"><span><strong>' + IPRO.basket.length + ' items</strong></span><span>Est: <strong style="color:#0891b2">R' + total.toFixed(2) + '</strong></span></div>' +
+        '<div style="display:flex;gap:10px">' +
+        '<button onclick="iproSendToProcure()" style="flex:1;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;border:none;border-radius:var(--r);font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fas fa-paper-plane"></i> Send to ProcureAI</button>' +
+        '</div></div></div>';
+
+    return html;
+}
+
+function iproUpdateBasketQty(idx, val) {
+    var qty = parseInt(val) || 1;
+    if (IPRO.basket[idx]) {
+        IPRO.basket[idx].qty = qty;
+        iproSaveBasket();
+        iproNavigate('ipro-basket-p');
+    }
+}
+
+function iproRemoveFromBasketByIdx(idx) {
+    IPRO.basket.splice(idx, 1);
+    iproSaveBasket();
+    iproUpdateBasketCount();
+    iproNavigate('ipro-basket-p');
+}
+
+function iproClearBasket() {
+    if (IPRO.basket.length === 0) return;
+    if (!confirm('Clear entire basket?')) return;
+    IPRO.basket = [];
+    iproSaveBasket();
+    iproUpdateBasketCount();
+    iproNavigate('ipro-basket-p');
+    hubToast('info', 'Basket cleared');
+}
+
+function iproShowBasket() {
+    iproNavigate('ipro-basket-p');
+}
+
+// ── Send Basket to ProcureAI ──
+function iproSendToProcure() {
+    if (IPRO.basket.length === 0) { hubToast('error', 'Basket is empty'); return; }
+
+    // Transfer basket items to procCart (ProcureAI cart)
+    if (typeof procCart === 'undefined') {
+        window.procCart = [];
+    }
+
+    IPRO.basket.forEach(function(item) {
+        // Check if already in procure cart
+        var existing = procCart.find(function(c) { return c.id === item.id; });
+        if (!existing) {
+            procCart.push({
+                id:       item.id,
+                name:     item.name,
+                unit:     item.unit,
+                cost:     item.cost,
+                qty:      item.qty,
+                supplier: item.supplier
+            });
+        }
+    });
+
+    // Clear basket
+    var itemCount = IPRO.basket.length;
+    IPRO.basket = [];
+    iproSaveBasket();
+    iproUpdateBasketCount();
+
+    hubToast('success', itemCount + ' items sent to ProcureAI basket!');
+
+    // Open ProcureAI new order page
+    setTimeout(function() {
+        closeEmbeddedApp();
+        setTimeout(function() {
+            openHubApp('procure');
+            setTimeout(function() {
+                if (typeof procNav === 'function') procNav('proc-new');
+            }, 500);
+        }, 300);
+    }, 1000);
+}
+
+// ── History Page ──
+function iproHistoryPage() {
+    var retailSales = HUB.accountData ? ((HUB.accountData.retailSales || {})[IPRO.entityId] || []) : [];
+    var recentSales = retailSales.slice(0, 20);
+
+    if (recentSales.length === 0) {
+        return '<div style="text-align:center;padding:60px;color:var(--text-light)">' +
+            '<i class="fas fa-history" style="font-size:3rem;opacity:.3;display:block;margin-bottom:14px"></i>' +
+            '<h3 style="color:var(--text);margin-bottom:6px">No Sales History</h3>' +
+            '<p style="font-size:.82rem">Sales data will appear here as items are sold</p></div>';
+    }
+
+    // Get top selling items
+    var itemSales = {};
+    retailSales.forEach(function(s) {
+        (s.items || []).forEach(function(si) {
+            if (!itemSales[si.id]) itemSales[si.id] = { name: si.name, qty: 0, revenue: 0 };
+            itemSales[si.id].qty     += si.qty || 0;
+            itemSales[si.id].revenue += si.lineTotal || 0;
+        });
+    });
+
+    var topItems = Object.keys(itemSales).map(function(id) {
+        return { id: id, name: itemSales[id].name, qty: itemSales[id].qty, revenue: itemSales[id].revenue };
+    }).sort(function(a, b) { return b.qty - a.qty; }).slice(0, 10);
+
+    var html = '<div style="max-width:500px;margin:0 auto">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px"><i class="fas fa-trophy" style="color:var(--gold)"></i> Top Selling Items</div>';
+
+    topItems.forEach(function(item, idx) {
+        html += '<div onclick="var inv=IPRO.inventory.find(function(i){return i.id===\'' + item.id + '\'});if(inv)iproShowItemDetail(inv);" ' +
+            'style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;cursor:pointer;border-left:3px solid ' + (idx < 3 ? 'var(--gold)' : '#0891b2') + '">' +
+            '<div style="width:32px;height:32px;background:' + (idx < 3 ? 'linear-gradient(135deg,var(--gold),var(--gold-dark))' : 'rgba(8,145,178,.15)') + ';border-radius:50%;display:flex;align-items:center;justify-content:center;color:' + (idx < 3 ? '#fff' : '#0891b2') + ';font-size:.78rem;font-weight:700;flex-shrink:0">' + (idx + 1) + '</div>' +
+            '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-light)">' + item.qty + ' sold - R' + item.revenue.toFixed(2) + ' revenue</div></div></div>';
+    });
+
+    html += '</div>';
+    return html;
+}
+
+console.log('ItemPro loaded');
+</script>
+
 <!-- MULTI-CURRENCY -->
 <script>
 var CURRENCIES={ZAR:{code:'ZAR',symbol:'R',name:'South African Rand',flag:'ZA',rate:1},USD:{code:'USD',symbol:'$',name:'US Dollar',flag:'US',rate:0.055},GBP:{code:'GBP',symbol:'L',name:'British Pound',flag:'GB',rate:0.044},EUR:{code:'EUR',symbol:'E',name:'Euro',flag:'EU',rate:0.051},ZWL:{code:'ZWL',symbol:'ZWL',name:'Zimbabwe Dollar',flag:'ZW',rate:18.5},MZN:{code:'MZN',symbol:'MT',name:'Mozambique Metical',flag:'MZ',rate:3.5},BWP:{code:'BWP',symbol:'P',name:'Botswana Pula',flag:'BW',rate:0.75},NAD:{code:'NAD',symbol:'N$',name:'Namibian Dollar',flag:'NA',rate:1},KES:{code:'KES',symbol:'KSh',name:'Kenyan Shilling',flag:'KE',rate:8.5},NGN:{code:'NGN',symbol:'N',name:'Nigerian Naira',flag:'NG',rate:85}};
