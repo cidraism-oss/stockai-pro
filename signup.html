@@ -920,18 +920,17 @@ function applyPromoCode() {
     applyBtn.textContent = 'Checking...';
 
     // Check Firebase for promo code
-    firebase.firestore().collection('promoCodes').where('code', '==', code).get()
-        .then(function(snap) {
-            applyBtn.disabled = false;
-            applyBtn.textContent = 'Apply';
+    firebase.firestore().collection('promoCodes').doc(code).get()
+    .then(function(doc) {
+        applyBtn.disabled = false;
+        applyBtn.textContent = 'Apply';
 
-            if (snap.empty) {
-                showPromoResult('error', 'Invalid promo code. Please check and try again.');
-                return;
-            }
+        if (!doc.exists) {
+            showPromoResult('error', 'Invalid promo code. Please check and try again.');
+            return;
+        }
 
-            var doc = snap.docs[0];
-            var data = doc.data();
+        var data = doc.data();
 
             // Check if active
             if (!data.active) {
