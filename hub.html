@@ -1037,7 +1037,8 @@ var ALL_APPS = [
         icon:'fa-desktop', color:'#0d4a5c',
         desc:'Back of house system',
         url:'app.html', embed:false,
-        featureKey:'web_boh'
+        featureKey:'web_boh',
+        targetPage:'dashboard'
     },
     {
         id:'mobile', name:'MobileAI',
@@ -1626,46 +1627,89 @@ function checkHubAuth() {
     // Check if returning from external app (POS, App etc)
     var isReturn = sessionStorage.getItem('hub_return') === 'true';
     if (isReturn) {
-        sessionStorage.removeItem('hub_return');
-        var welcomeEl = document.getElementById('welcome-screen');
-        var loginEl   = document.getElementById('login-screen');
-        if (welcomeEl) welcomeEl.style.display = 'none';
-        if (loginEl)   loginEl.classList.add('hidden');
+    sessionStorage.removeItem('hub_return');
 
-        if (restoreSessionCache()) {
-            // Refresh account data silently
-            if (HUB.accountId) {
-                db.collection('accounts').doc(HUB.accountId).get()
-                    .then(function(doc) {
-                        if (doc.exists) {
-                            HUB.accountData = doc.data();
-                            HUB.entities    = doc.data().entities || [];
-                            if (HUB.entityId) {
-                                var ent = HUB.entities.find(function(e) {
-                                    return e.id === HUB.entityId;
-                                });
-                                if (ent) {
-                                    HUB.entity     = ent;
-                                    HUB.features   = HUBLINK
-                                        ? HUBLINK.getEntityFeatures(
-                                            HUB.accountData, HUB.entityId)
-                                        : [];
-                                }
-                            }
-                            startHubSync();
-                            hubLoadBranding();
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
+    var welcomeEl = document.getElementById('welcome-screen');
+    var loginEl   = document.getElementById('login-screen');
+    if (welcomeEl) welcomeEl.style.display = 'none';
+    if (loginEl)   loginEl.classList.add('hidden');
+
+    if (restoreSessionCache()) {
+
+        // Read any updated session data written back by app.html
+        try {
+            var rawSSO = sessionStorage.getItem('sso_session');
+            if (rawSSO) {
+                var sso = JSON.parse(rawSSO);
+                if (sso && sso.valid) {
+                    if (sso.features && sso.features.length) {
+                        HUB.features = sso.features;
+                        if (typeof cacheUserFeatures === 'function') {
+                            cacheUserFeatures(sso.features);
                         }
-                    })
-                    .catch(function() { routeAfterLogin(); });
-            } else {
-                routeAfterLogin();
+                    }
+                }
             }
-            return;
+        } catch(e) {}
+
+        // Refresh account data from Firestore
+        if (HUB.accountId) {
+            db.collection('accounts').doc(HUB.accountId).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        HUB.accountData = doc.data();
+                        HUB.entities    = doc.data().entities || [];
+
+                        if (HUB.entityId) {
+                            var ent = HUB.entities.find(function(e) {
+                                return e.id === HUB.entityId;
+                            });
+                            if (ent) {
+                                HUB.entity   = ent;
+                                HUB.features = getEntityFeatures(
+                                    HUB.accountData,
+                                    HUB.entityId);
+                            }
+                        }
+                        startHubSync();
+                        hubLoadBranding();
+                        hubLoadWeather();
+                        routeAfterLogin();
+                    } else {
+                        showLoginScreen();
+                    }
+                })
+                .catch(function() {
+                    if (HUB.user && HUB.accountId) {
+                        routeAfterLogin();
+                    } else {
+                        showLoginScreen();
+                    }
+                });
+        } else {
+            routeAfterLogin();
         }
+        return;
     }
+
+    // No cached session — check Firebase auth
+    var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
+        unsubReturn();
+        if (firebaseUser) {
+            findHubAccount(firebaseUser.email, function(found) {
+                if (found) {
+                    saveSessionCache();
+                    routeAfterLogin();
+                } else {
+                    showLoginScreen();
+                }
+            });
+        } else {
+            showLoginScreen();
+        }
+    });
+    return;
+}
 
     // Normal auth check — remember me
     var remembered = localStorage.getItem('stockai_remember');
@@ -1900,31 +1944,52 @@ function hubLogin() {
 ============================================================ */
 function writeSharedSession() {
     if (!HUB.user || !HUB.accountId) return;
+
     var ssoData = {
-        accountId:   HUB.accountId,
-        entityId:    HUB.entityId,
-        entityName:  HUB.entityName,
-        userName:    HUB.user.name,
-        userEmail:   HUB.user.email,
-        userRole:    HUB.user.role,
-        features:    HUB.features,
-        isMaster:    HUB.isMaster,
+        valid:       true,
+        accountId:   HUB.accountId       || '',
+        entityId:    HUB.entityId        || '',
+        entityName:  HUB.entityName      || '',
+        userName:    HUB.user.name       || '',
+        userEmail:   HUB.user.email      || '',
+        userRole:    HUB.user.role       || '',
+        features:    HUB.features        || [],
+        isMaster:    HUB.isMaster        || false,
         loggedInAt:  new Date().toISOString(),
-        valid:       true
+        timestamp:   Date.now()
     };
+
     try {
-        // sessionStorage — cleared when browser closes
-        sessionStorage.setItem('sso_session', JSON.stringify(ssoData));
-        sessionStorage.setItem('hub_account_id',  HUB.accountId);
-        sessionStorage.setItem('hub_entity_id',   HUB.entityId   || '');
-        sessionStorage.setItem('hub_entity_name', HUB.entityName || '');
-        sessionStorage.setItem('hub_user_name',   HUB.user.name  || '');
-        sessionStorage.setItem('hub_user_email',  HUB.user.email || '');
-        sessionStorage.setItem('hub_user_role',   HUB.user.role  || '');
+        // Full session object
+        sessionStorage.setItem('sso_session',
+            JSON.stringify(ssoData));
+
+        // Individual keys that app.html reads
+        sessionStorage.setItem('hub_account_id',
+            HUB.accountId       || '');
+        sessionStorage.setItem('hub_entity_id',
+            HUB.entityId        || '');
+        sessionStorage.setItem('hub_entity_name',
+            HUB.entityName      || '');
+        sessionStorage.setItem('hub_user_name',
+            HUB.user.name       || '');
+        sessionStorage.setItem('hub_user_email',
+            HUB.user.email      || '');
+        sessionStorage.setItem('hub_user_role',
+            HUB.user.role       || '');
         sessionStorage.setItem('hub_features',
-            JSON.stringify(HUB.features));
+            JSON.stringify(HUB.features || []));
         sessionStorage.setItem('hub_return', 'true');
-    } catch(e) {}
+
+        // Also save to localStorage for persistence
+        localStorage.setItem('stockai_account_id',
+            HUB.accountId || '');
+        localStorage.setItem('stockai_user_uid',
+            HUB.user && HUB.user.uid ? HUB.user.uid : '');
+
+    } catch(e) {
+        console.warn('SSO session write error:', e);
+    }
 }
 
 /* ============================================================
@@ -3981,23 +4046,60 @@ function openHubApp(appId) {
     var app = ALL_APPS.find(function(a) { return a.id === appId; });
     if (!app) return;
 
-    // Always refresh SSO session before launching
+    // Always refresh SSO before launching
     writeSharedSession();
 
     if (app.embed) {
         openEmbeddedApp(appId);
-    } else {
-        // External app — pass data via sessionStorage
-        sessionStorage.setItem('hub_account_id',  HUB.accountId  || '');
-        sessionStorage.setItem('hub_entity_id',   HUB.entityId   || '');
-        sessionStorage.setItem('hub_entity_name', HUB.entityName || '');
-        sessionStorage.setItem('hub_user_name',   HUB.user ? HUB.user.name  : '');
-        sessionStorage.setItem('hub_user_email',  HUB.user ? HUB.user.email : '');
-        sessionStorage.setItem('hub_user_role',   HUB.user ? HUB.user.role  : '');
-        sessionStorage.setItem('hub_features',    JSON.stringify(HUB.features));
-        sessionStorage.setItem('hub_return',      'true');
-        window.location.href = app.url;
+        return;
     }
+
+    // External app — set full session data
+    try {
+        var ssoData = {
+            valid:      true,
+            accountId:  HUB.accountId       || '',
+            entityId:   HUB.entityId        || '',
+            entityName: HUB.entityName      || '',
+            userName:   HUB.user ? HUB.user.name  : '',
+            userEmail:  HUB.user ? HUB.user.email : '',
+            userRole:   HUB.user ? HUB.user.role  : '',
+            features:   HUB.features        || [],
+            isMaster:   HUB.isMaster        || false,
+            timestamp:  Date.now()
+        };
+
+        sessionStorage.setItem('sso_session',
+            JSON.stringify(ssoData));
+        sessionStorage.setItem('hub_account_id',
+            HUB.accountId       || '');
+        sessionStorage.setItem('hub_entity_id',
+            HUB.entityId        || '');
+        sessionStorage.setItem('hub_entity_name',
+            HUB.entityName      || '');
+        sessionStorage.setItem('hub_user_name',
+            HUB.user ? HUB.user.name  : '');
+        sessionStorage.setItem('hub_user_email',
+            HUB.user ? HUB.user.email : '');
+        sessionStorage.setItem('hub_user_role',
+            HUB.user ? HUB.user.role  : '');
+        sessionStorage.setItem('hub_features',
+            JSON.stringify(HUB.features || []));
+        sessionStorage.setItem('hub_return', 'true');
+
+        // Tell app.html which page to open
+        if (app.targetPage) {
+            sessionStorage.setItem('hub_target_page',
+                app.targetPage);
+        } else {
+            sessionStorage.removeItem('hub_target_page');
+        }
+
+    } catch(e) {
+        console.warn('Session write error:', e);
+    }
+
+    window.location.href = app.url;
 }
 
 function openEmbeddedApp(appId) {
