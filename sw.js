@@ -1,26 +1,26 @@
 // ============================================================
-// StockAI-Pro 2.0 — Service Worker
-// Handles offline caching + background sync
+// StockAI-Pro — sw.js v4.0
 // ============================================================
 
-var CACHE_NAME = 'stockai-pro-v2';
-var CACHE_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
+var CACHE_NAME = 'stockai-pro-v4';
 
 var CACHE_FILES = [
-    '/hub.html',
-    '/app.html',
     '/index.html',
-    '/manifest.json',
+    '/portal.html',
+    '/quote-builder.html',
+    '/setup.html',
+    '/upgrade.html',
+    '/hub.html',
     '/email-templates.js',
+    '/feature-access.js',
+    '/manifest.json',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// ============================================================
-// INSTALL
-// ============================================================
+// ── INSTALL ──
 self.addEventListener('install', function(e) {
-    console.log('📦 StockAI-Pro 2.0 Service Worker installing...');
+    console.log('📦 StockAI-Pro v4 Service Worker installing...');
     e.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
             return Promise.allSettled(
@@ -36,15 +36,13 @@ self.addEventListener('install', function(e) {
     );
 });
 
-// ============================================================
-// ACTIVATE
-// ============================================================
+// ── ACTIVATE ──
 self.addEventListener('activate', function(e) {
-    console.log('✅ StockAI-Pro 2.0 Service Worker activated');
+    console.log('✅ StockAI-Pro v4 Service Worker activated');
     e.waitUntil(
-        caches.keys().then(function(cacheNames) {
+        caches.keys().then(function(names) {
             return Promise.all(
-                cacheNames.map(function(name) {
+                names.map(function(name) {
                     if (name !== CACHE_NAME) {
                         console.log('🗑️ Deleting old cache:', name);
                         return caches.delete(name);
@@ -57,25 +55,21 @@ self.addEventListener('activate', function(e) {
     );
 });
 
-// ============================================================
-// FETCH — Network first, fall back to cache
-// ============================================================
+// ── FETCH ──
 self.addEventListener('fetch', function(e) {
     var url = e.request.url;
 
+    // Skip non-GET and external API calls
     if (e.request.method !== 'GET') return;
+    if (url.includes('firestore.googleapis.com')) return;
+    if (url.includes('firebase'))      return;
+    if (url.includes('identitytoolkit')) return;
+    if (url.includes('securetoken'))   return;
+    if (url.includes('paystack'))      return;
+    if (url.includes('resend.com'))    return;
+    if (url.includes('workers.dev'))   return;
 
-    // Skip Firebase requests
-    if (url.includes('firestore.googleapis.com') ||
-        url.includes('firebase') ||
-        url.includes('identitytoolkit') ||
-        url.includes('securetoken') ||
-        url.includes('resend.com') ||
-        url.includes('paystack')) {
-        return;
-    }
-
-    // HTML pages — network first
+    // HTML pages — network first, cache fallback
     if (e.request.headers.get('accept') &&
         e.request.headers.get('accept').includes('text/html')) {
         e.respondWith(
@@ -89,8 +83,7 @@ self.addEventListener('fetch', function(e) {
                 })
                 .catch(function() {
                     return caches.match(e.request).then(function(cached) {
-                        if (cached) return cached;
-                        return new Response(offlinePage(), {
+                        return cached || new Response(offlinePage(), {
                             headers: { 'Content-Type': 'text/html' }
                         });
                     });
@@ -99,7 +92,7 @@ self.addEventListener('fetch', function(e) {
         return;
     }
 
-    // Assets — cache first
+    // Assets — cache first, network fallback
     e.respondWith(
         caches.match(e.request).then(function(cached) {
             if (cached) return cached;
@@ -116,25 +109,22 @@ self.addEventListener('fetch', function(e) {
     );
 });
 
-// ============================================================
-// PUSH NOTIFICATIONS
-// ============================================================
+// ── PUSH NOTIFICATIONS ──
 self.addEventListener('push', function(e) {
     if (!e.data) return;
-    var data = e.data.json();
-    var title = data.title || 'StockAI-Pro';
+    var data    = e.data.json();
     var options = {
         body:    data.body    || 'You have a new notification',
-        icon:    '/manifest.json',
-        badge:   '/manifest.json',
         tag:     data.tag     || 'stockai-notif',
         data:    data.url     || '/hub.html',
         actions: [
-            { action: 'open',    title: 'Open App' },
-            { action: 'dismiss', title: 'Dismiss'  }
+            { action:'open',    title:'Open App' },
+            { action:'dismiss', title:'Dismiss'  }
         ]
     };
-    e.waitUntil(self.registration.showNotification(title, options));
+    e.waitUntil(
+        self.registration.showNotification(data.title || 'StockAI-Pro', options)
+    );
 });
 
 self.addEventListener('notificationclick', function(e) {
@@ -142,11 +132,10 @@ self.addEventListener('notificationclick', function(e) {
     if (e.action === 'dismiss') return;
     var url = e.notification.data || '/hub.html';
     e.waitUntil(
-        clients.matchAll({ type: 'window' }).then(function(clientList) {
-            for (var i = 0; i < clientList.length; i++) {
-                var client = clientList[i];
-                if (client.url.includes('hub.html') && 'focus' in client) {
-                    return client.focus();
+        clients.matchAll({ type:'window' }).then(function(list) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].url.includes('hub.html') && 'focus' in list[i]) {
+                    return list[i].focus();
                 }
             }
             if (clients.openWindow) return clients.openWindow(url);
@@ -154,18 +143,14 @@ self.addEventListener('notificationclick', function(e) {
     );
 });
 
-// ============================================================
-// BACKGROUND SYNC
-// ============================================================
+// ── BACKGROUND SYNC ──
 self.addEventListener('sync', function(e) {
     if (e.tag === 'stockai-sync') {
         console.log('🔄 Background sync triggered');
     }
 });
 
-// ============================================================
-// OFFLINE PAGE
-// ============================================================
+// ── OFFLINE PAGE ──
 function offlinePage() {
     return '<!DOCTYPE html><html><head>' +
         '<meta charset="UTF-8">' +
@@ -174,28 +159,25 @@ function offlinePage() {
         '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">' +
         '<style>' +
         'body{font-family:Poppins,sans-serif;background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'height:100vh;margin:0;text-align:center;padding:20px}' +
-        '.card{background:#fff;border-radius:24px;padding:40px 32px;' +
-        'max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}' +
-        '.logo{width:70px;height:70px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);' +
-        'border-radius:18px;display:flex;align-items:center;justify-content:center;' +
-        'font-size:1.8rem;color:#fff;margin:0 auto 16px}' +
-        'h1{color:#0d4a5c;font-size:1.4rem;font-weight:800;margin-bottom:8px}' +
-        'p{color:#5a8a96;font-size:.88rem;line-height:1.6;margin-bottom:24px}' +
+        'display:flex;align-items:center;justify-content:center;height:100vh;margin:0;padding:20px;box-sizing:border-box}' +
+        '.card{background:#fff;border-radius:20px;padding:36px 28px;max-width:360px;width:100%;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}' +
+        '.icon{font-size:3rem;margin-bottom:14px}' +
+        'h1{color:#0d4a5c;font-size:1.3rem;font-weight:800;margin-bottom:8px}' +
+        'p{color:#5a8a96;font-size:.86rem;line-height:1.6;margin-bottom:22px}' +
         'button{background:linear-gradient(135deg,#1a8ba8,#0d4a5c);color:#fff;' +
-        'border:none;padding:14px 28px;border-radius:10px;font-size:.95rem;' +
+        'border:none;padding:13px 28px;border-radius:10px;font-size:.92rem;' +
         'font-weight:700;cursor:pointer;width:100%;font-family:inherit}' +
-        '.status{margin-top:16px;font-size:.75rem;color:#8aabb5}' +
+        '.ver{margin-top:14px;font-size:.72rem;color:#8aabb5}' +
         '</style></head>' +
         '<body><div class="card">' +
-        '<div class="logo">📵</div>' +
+        '<div class="icon">📵</div>' +
         '<h1>No Internet Connection</h1>' +
         '<p>StockAI-Pro needs an internet connection to sync your data. ' +
         'Please check your connection and try again.</p>' +
         '<button onclick="window.location.reload()">🔄 Try Again</button>' +
-        '<div class="status">StockAI-Pro v2.0 • Offline Mode</div>' +
+        '<div class="ver">StockAI-Pro v4.0 • Offline Mode</div>' +
         '</div></body></html>';
 }
 
-console.log('✅ StockAI-Pro 2.0 Service Worker ready');
+console.log('✅ StockAI-Pro sw.js v4.0 ready');
