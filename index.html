@@ -1,969 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockAI-Pro | AI-Powered Stock Management | South Africa</title>
-<meta name="description" content="StockAI-Pro — AI-powered stock management, Retail POS, Restaurant POS, HR Module, Invoice Scanner, AI Voice Assistant (Nikki) and more. Built for South African businesses.">
-<meta name="keywords" content="stock management, POS system, retail POS, restaurant POS, AI assistant, voice bot, invoice scanner, HR management, South Africa, StockAI-Pro">
-<meta name="author" content="StockAI-Pro">
-<meta property="og:title" content="StockAI-Pro — AI-Powered Stock Management">
-<meta property="og:description" content="South Africa's smartest stock control platform. 13 AI-powered apps including Nikki voice bot.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://www.stockai-pro.co.za">
-<link rel="canonical" href="https://www.stockai-pro.co.za">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<style>
-:root {
-  --teal-dark: #0d4a5c;
-  --teal-mid: #1a8ba8;
-  --teal-light: #4dbdd5;
-  --teal-pale: #a0e9f8;
-  --bg: #f0f7f9;
-  --bg-alt: #e4f1f5;
-  --white: #fff;
-  --text-dark: #0d4a5c;
-  --text-mid: #2a5f70;
-  --text-light: #5a8a96;
-  --text-muted: #8aabb5;
-  --gold: #f59e0b;
-  --gold-dark: #d97706;
-  --success: #2ea871;
-  --danger: #c94545;
-  --border: #c4dde4;
-  --shadow: 0 4px 20px rgba(13,74,92,.08);
-  --shadow-lg: 0 12px 50px rgba(13,74,92,.15);
-  --radius: 14px;
-  --radius-lg: 18px;
-}
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background: var(--bg); line-height: 1.6; overflow-x: hidden; }
-img { max-width: 100%; display: block; }
-a { text-decoration: none; }
-
-/* SCROLL REVEAL */
-.reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s ease; }
-.reveal.active { opacity: 1; transform: translateY(0); }
-.reveal-left { opacity: 0; transform: translateX(-60px); transition: opacity .8s ease, transform .8s ease; }
-.reveal-left.active { opacity: 1; transform: translateX(0); }
-.reveal-right { opacity: 0; transform: translateX(60px); transition: opacity .8s ease, transform .8s ease; }
-.reveal-right.active { opacity: 1; transform: translateX(0); }
-.reveal-scale { opacity: 0; transform: scale(.85); transition: opacity .8s ease, transform .8s ease; }
-.reveal-scale.active { opacity: 1; transform: scale(1); }
-
-/* HEADER */
-.header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(13,74,92,.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 0; box-shadow: 0 2px 20px rgba(0,0,0,.15); transition: padding .3s ease; }
-.header.scrolled { padding: 6px 0; }
-.nav { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-.logo svg { height: 44px; width: auto; }
-.nav-links { display: flex; align-items: center; gap: 16px; flex-wrap: nowrap; }
-.nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-weight: 500; font-size: .82rem; transition: color .2s ease; position: relative; white-space: nowrap; }
-.nav-links a:hover { color: #fff; }
-.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width .3s ease; }
-.nav-links a:hover::after { width: 100%; }
-.btn-nav { padding: 9px 18px; background: var(--gold); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; }
-.btn-nav:hover { background: var(--gold-dark) !important; transform: translateY(-2px); }
-.btn-nav::after { display: none !important; }
-.btn-login-nav { padding: 9px 18px; background: rgba(255,255,255,.12); color: #fff !important; border-radius: 9px; font-weight: 600; border: 1px solid rgba(255,255,255,.3); transition: background .3s ease; white-space: nowrap; }
-.btn-login-nav:hover { background: rgba(255,255,255,.22) !important; }
-.btn-login-nav::after { display: none !important; }
-.btn-portal-nav { padding: 9px 18px; background: rgba(13,148,136,.8); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; border: 1px solid rgba(13,148,136,1); }
-.btn-portal-nav:hover { background: #0d9488 !important; transform: translateY(-2px); }
-.btn-portal-nav::after { display: none !important; }
-.btn-present-nav { padding: 9px 18px; background: rgba(46,168,113,.9); color: #fff !important; border-radius: 9px; font-weight: 700; transition: background .3s ease, transform .3s ease; white-space: nowrap; border: 1px solid rgba(46,168,113,1); }
-.btn-present-nav:hover { background: var(--success) !important; transform: translateY(-2px); }
-.btn-present-nav::after { display: none !important; }
-.menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: #fff; cursor: pointer; padding: 4px; flex-shrink: 0; }
-
-/* LAUNCH SPECIAL BANNER */
-#launch-special-banner {
-  background: linear-gradient(135deg, #7c3aed, #4f46e5);
-  padding: 12px 24px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin-top: 64px;
-}
-#launch-special-banner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 12px);
-}
-.launch-banner-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
-}
-.launch-badge {
-  background: var(--gold);
-  color: #fff;
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: .72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  animation: pulseBadge 2s ease-in-out infinite;
-}
-@keyframes pulseBadge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-.launch-text {
-  color: #fff;
-  font-size: .92rem;
-  font-weight: 600;
-}
-.launch-text strong { color: #fcd34d; font-size: 1.05rem; }
-.launch-spots {
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 8px;
-  padding: 4px 14px;
-  color: #fff;
-  font-size: .82rem;
-  font-weight: 700;
-}
-.launch-spots span { color: #fcd34d; }
-.launch-cta {
-  padding: 8px 20px;
-  background: #fff;
-  color: #4f46e5;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: .82rem;
-  text-decoration: none;
-  transition: transform .2s ease;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-}
-.launch-cta:hover { transform: translateY(-2px); }
-
-/* HERO */
-.hero { padding: 120px 24px 100px; background: linear-gradient(135deg, #071a22 0%, #0d4a5c 35%, #1a8ba8 65%, #0d4a5c 100%); position: relative; overflow: hidden; color: #fff; }
-.hero-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(77,189,213,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(77,189,213,.05) 1px, transparent 1px); background-size: 80px 80px; animation: heroGridMove 20s linear infinite; }
-@keyframes heroGridMove { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
-.hero-particle { position: absolute; border-radius: 50%; pointer-events: none; animation: heroFloat var(--dur, 8s) ease-in-out infinite var(--delay, 0s); }
-@keyframes heroFloat { 0% { opacity: 0; transform: translateY(80px) scale(0); } 20% { opacity: .6; } 80% { opacity: .3; } 100% { opacity: 0; transform: translateY(-120px) scale(0); } }
-.hero-star { position: absolute; width: 2px; background: linear-gradient(transparent, #f59e0b, transparent); opacity: 0; transform: rotate(35deg); animation: wStar var(--dur, 4s) ease-in infinite var(--delay, 0s); }
-@keyframes wStar { 0% { opacity: 0; transform: rotate(35deg) translateY(-150px); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(35deg) translateY(400px); } }
-.hero-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
-.hero-text h1 { font-size: 3.2rem; line-height: 1.1; font-weight: 900; margin-bottom: 18px; color: #fff; }
-.hero-text h1 .highlight { color: var(--gold); display: inline-block; position: relative; }
-.hero-text h1 .highlight::after { content: ''; position: absolute; bottom: 4px; left: 0; right: 0; height: 10px; background: rgba(245,158,11,.22); z-index: -1; border-radius: 6px; }
-.hero-tagline { font-size: 1.05rem; color: var(--teal-pale); margin-bottom: 10px; font-weight: 500; }
-.hero-desc { font-size: .95rem; color: rgba(255,255,255,.82); margin-bottom: 28px; max-width: 520px; line-height: 1.75; }
-.hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
-.btn-hero { padding: 15px 30px; border-radius: 12px; font-size: .95rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; text-decoration: none; font-family: inherit; border: none; white-space: nowrap; }
-.btn-hero-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; box-shadow: 0 6px 22px rgba(245,158,11,.4); }
-.btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(245,158,11,.5); }
-.btn-hero-secondary { background: rgba(255,255,255,.1); color: #fff; border: 2px solid rgba(255,255,255,.35); }
-.btn-hero-secondary:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.7); }
-.hero-stats { display: flex; gap: 36px; flex-wrap: wrap; align-items: center; }
-.hero-stat { text-align: center; }
-.hero-stat-value { font-size: 2rem; font-weight: 900; color: var(--gold); display: block; line-height: 1; }
-.hero-stat-label { font-size: .78rem; color: rgba(255,255,255,.7); margin-top: 5px; display: block; }
-.counter { display: inline-block; }
-.hero-visual { position: relative; }
-.hero-badge { position: absolute; padding: 8px 16px; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.18); display: flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 600; background: #fff; z-index: 3; white-space: nowrap; }
-.hero-badge.badge-ai { top: -20px; right: -10px; color: var(--success); animation: float 3s ease-in-out infinite; }
-.hero-badge.badge-rt { bottom: 60px; left: -25px; color: var(--gold); animation: float 3s ease-in-out infinite 1s; }
-.hero-badge.badge-vc { top: 50%; left: -30px; color: var(--teal-mid); animation: floatMid 3s ease-in-out infinite 2s; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-@keyframes floatMid { 0%, 100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 12px)); } }
-.hero-mockup { background: #1a1a2e; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.4); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
-.hero-mockup-bar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 10px 14px; display: flex; align-items: center; gap: 6px; }
-.mockup-dot { width: 8px; height: 8px; border-radius: 50%; }
-.mockup-dot.r { background: #ff5f57; } .mockup-dot.y { background: #ffbd2e; } .mockup-dot.g { background: #28c940; }
-.mockup-url { margin-left: 8px; font-size: .65rem; color: rgba(255,255,255,.6); background: rgba(0,0,0,.2); padding: 3px 10px; border-radius: 10px; flex: 1; }
-.hero-mockup-body { height: 280px; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #0f1923; }
-.mockup-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.mockup-stat { background: rgba(255,255,255,.05); border-radius: 8px; padding: 10px; }
-.mockup-stat.s1 { border-left: 3px solid var(--teal-mid); } .mockup-stat.s2 { border-left: 3px solid var(--gold); } .mockup-stat.s3 { border-left: 3px solid var(--success); } .mockup-stat.s4 { border-left: 3px solid var(--danger); }
-.mockup-stat-label { font-size: .5rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
-.mockup-stat-val { font-size: .88rem; font-weight: 800; color: #fff; margin-top: 2px; }
-.mockup-stat-val.green { color: var(--success); } .mockup-stat-val.red { color: var(--danger); }
-.mockup-chart { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
-.mockup-chart-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 70%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,8% 55%,16% 65%,24% 35%,32% 50%,40% 25%,48% 40%,56% 15%,64% 30%,72% 10%,80% 25%,88% 35%,96% 18%,100% 28%,100% 100%,0 100%); }
-.mockup-ai-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(46,168,113,.1); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; font-size: .68rem; color: rgba(255,255,255,.8); }
-.mockup-ai-bar i { color: var(--success); font-size: .75rem; flex-shrink: 0; }
-
-/* DEMO */
-.demo-section { padding: 90px 24px; background: linear-gradient(180deg, var(--bg-alt), var(--bg)); overflow: hidden; }
-.demo-container { max-width: 1200px; margin: 0 auto; }
-.demo-browser { background: #1a1a2e; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); max-width: 900px; margin: 0 auto; }
-.demo-toolbar { background: linear-gradient(90deg, #0d4a5c, #1a8ba8); padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
-.demo-dot { width: 10px; height: 10px; border-radius: 50%; }
-.demo-dot.r { background: #ff5f57; } .demo-dot.y { background: #ffbd2e; } .demo-dot.g { background: #28c940; }
-.demo-url { margin-left: 10px; font-size: .72rem; color: rgba(255,255,255,.7); background: rgba(0,0,0,.2); padding: 4px 14px; border-radius: 12px; flex: 1; }
-.demo-screen { height: 400px; position: relative; overflow: hidden; background: #0f1923; display: flex; flex-direction: column; padding: 20px; gap: 12px; }
-.demo-dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.demo-stat-card { background: rgba(255,255,255,.05); border-radius: 8px; padding: 12px; border-left: 3px solid var(--teal-mid); animation: demoFadeIn .6s ease both; }
-.demo-stat-card:nth-child(2) { animation-delay: .2s; border-left-color: var(--gold); }
-.demo-stat-card:nth-child(3) { animation-delay: .4s; border-left-color: var(--success); }
-.demo-stat-card:nth-child(4) { animation-delay: .6s; border-left-color: var(--danger); }
-@keyframes demoFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.demo-stat-label { font-size: .58rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .5px; }
-.demo-stat-value { font-size: 1.1rem; font-weight: 800; color: #fff; margin-top: 2px; }
-.demo-chart-area { flex: 1; background: rgba(255,255,255,.03); border-radius: 8px; position: relative; overflow: hidden; }
-.demo-chart-line { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: linear-gradient(180deg, rgba(26,139,168,.3), transparent); clip-path: polygon(0 80%,5% 60%,10% 70%,15% 40%,20% 50%,25% 30%,30% 45%,35% 20%,40% 35%,45% 15%,50% 25%,55% 10%,60% 20%,65% 30%,70% 15%,75% 25%,80% 35%,85% 20%,90% 30%,95% 15%,100% 25%,100% 100%,0 100%); animation: demoChartGrow 2s ease both; }
-@keyframes demoChartGrow { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); transform-origin: bottom; } }
-.demo-notif-stack { position: absolute; top: 100px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 5; }
-.demo-notif { padding: 10px 16px; background: rgba(46,168,113,.15); border: 1px solid rgba(46,168,113,.3); border-radius: 8px; color: #fff; font-size: .72rem; font-weight: 600; display: none; align-items: center; gap: 8px; animation: demoNotifSlide .5s ease both; max-width: 260px; }
-.demo-notif.warn { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.3); }
-.demo-notif.danger { background: rgba(201,69,69,.15); border-color: rgba(201,69,69,.3); }
-@keyframes demoNotifSlide { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.demo-voice-area { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(26,139,168,.1); border: 1px solid rgba(26,139,168,.3); border-radius: 10px; }
-.demo-voice-circle { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: .9rem; flex-shrink: 0; animation: demoPulse 2s ease-in-out infinite; }
-@keyframes demoPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(26,139,168,.4); } 50% { box-shadow: 0 0 0 10px rgba(26,139,168,0); } }
-.demo-voice-text { color: rgba(255,255,255,.8); font-size: .82rem; }
-.demo-voice-typed { display: inline; border-right: 2px solid var(--gold); animation: demoBlink .8s step-end infinite; }
-@keyframes demoBlink { 50% { border-color: transparent; } }
-
-/* SHARED */
-section { padding: 90px 24px; position: relative; }
-.container { max-width: 1200px; margin: 0 auto; }
-.section-header { text-align: center; margin-bottom: 54px; }
-.section-tag { display: inline-block; padding: 6px 18px; background: rgba(26,139,168,.1); color: var(--teal-mid); border-radius: 20px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
-.section-header h2 { font-size: 2.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; letter-spacing: -.5px; line-height: 1.2; }
-.section-header p { font-size: 1rem; color: var(--text-light); max-width: 600px; margin: 0 auto; line-height: 1.7; }
-
-/* INDUSTRIES */
-.industries { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
-.industries-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 16px; }
-.industry-card { background: #fff; border-radius: var(--radius); padding: 28px 16px; text-align: center; box-shadow: var(--shadow); transition: transform .4s ease, box-shadow .4s ease, border-bottom-color .4s ease; border-bottom: 3px solid transparent; cursor: default; }
-.industry-card:hover { transform: translateY(-8px); border-bottom-color: var(--teal-mid); box-shadow: var(--shadow-lg); }
-.industry-card i { font-size: 2.2rem; color: var(--teal-mid); margin-bottom: 12px; display: block; }
-.industry-card h4 { font-size: .88rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
-.industry-card p { font-size: .72rem; color: var(--text-light); }
-
-/* FEATURES — DARK */
-.features { background: linear-gradient(135deg, #071a22 0%, #0d3a4a 40%, #0d4a5c 70%, #0a3040 100%); }
-.features .section-header h2 { color: #fff; }
-.features .section-header p { color: rgba(255,255,255,.7); }
-.features .section-tag { background: rgba(255,255,255,.12); color: var(--teal-pale); }
-.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.feature { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 28px; border-radius: var(--radius); transition: transform .4s ease, box-shadow .4s ease, background .4s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-.feature::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--teal-light), var(--gold)); transform: scaleX(0); transform-origin: left; transition: transform .4s ease; }
-.feature:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,.3); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); }
-.feature:hover::before { transform: scaleX(1); }
-.feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--teal-light), var(--teal-mid)); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem; margin-bottom: 16px; flex-shrink: 0; box-shadow: 0 4px 15px rgba(26,139,168,.3); }
-.feature h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
-.feature p { color: rgba(255,255,255,.7); font-size: .88rem; line-height: 1.65; flex: 1; }
-.feature-tag { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: .68rem; font-weight: 700; margin-top: 12px; align-self: flex-start; }
-.feature-tag.ai { background: rgba(245,158,11,.2); color: #fcd34d; }
-.feature-tag.new { background: rgba(46,168,113,.2); color: #6ee7b7; }
-.feature-tag.free { background: rgba(245,158,11,.2); color: #fcd34d; }
-
-/* NIKKI SECTION */
-.nikki-section { background: linear-gradient(135deg, #071a22 0%, #0d3a4a 50%, #0d9488 100%); padding: 90px 24px; color: #fff; position: relative; overflow: hidden; }
-.nikki-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 50%, rgba(13,148,136,.3), transparent 60%); pointer-events: none; }
-.nikki-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
-.nikki-text .section-tag { background: rgba(255,255,255,.12); color: #5EEAD4; }
-.nikki-text h2 { font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1.2; }
-.nikki-text .powered { font-size: .88rem; color: #5EEAD4; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.nikki-text p { font-size: .95rem; color: rgba(255,255,255,.8); margin-bottom: 24px; line-height: 1.75; }
-.nikki-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
-.nikki-features li { display: flex; align-items: flex-start; gap: 12px; font-size: .9rem; color: rgba(255,255,255,.9); line-height: 1.5; }
-.nikki-features li i { color: #5EEAD4; font-size: .95rem; margin-top: 2px; flex-shrink: 0; }
-.nikki-price { display: inline-flex; align-items: center; gap: 12px; padding: 14px 24px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 12px; margin-bottom: 20px; }
-.nikki-price .amount { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
-.nikki-price .label { font-size: .82rem; color: rgba(255,255,255,.7); line-height: 1.4; }
-.nikki-demo { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 28px; }
-.nikki-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #0d4a5c); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2.2rem; box-shadow: 0 0 0 3px rgba(13,148,136,.3), 0 0 30px rgba(13,148,136,.4); animation: nikkiPulse 3s ease-in-out infinite; }
-@keyframes nikkiPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(13,148,136,.3), 0 0 30px rgba(13,148,136,.4); } 50% { box-shadow: 0 0 0 8px rgba(13,148,136,.1), 0 0 50px rgba(13,148,136,.6); } }
-.nikki-demo h4 { text-align: center; font-size: 1rem; font-weight: 700; color: #5EEAD4; margin-bottom: 4px; }
-.nikki-demo .nikki-sub { text-align: center; font-size: .78rem; color: rgba(255,255,255,.5); margin-bottom: 20px; }
-.nikki-convo { display: flex; flex-direction: column; gap: 10px; }
-.nikki-msg { padding: 10px 14px; border-radius: 12px; font-size: .82rem; max-width: 88%; line-height: 1.5; }
-.nikki-msg.user { background: rgba(255,255,255,.1); color: #fff; border-bottom-left-radius: 4px; }
-.nikki-msg.nikki { background: linear-gradient(135deg, rgba(13,148,136,.3), rgba(13,74,92,.3)); color: #5EEAD4; margin-left: auto; border-bottom-right-radius: 4px; font-weight: 600; }
-.nikki-wave { display: flex; gap: 3px; padding: 10px 14px; background: rgba(13,148,136,.2); border-radius: 12px; width: fit-content; align-items: center; }
-.nikki-wave span { width: 4px; background: #5EEAD4; border-radius: 2px; animation: nikkiWave 1s ease-in-out infinite; }
-.nikki-wave span:nth-child(1) { height: 8px; animation-delay: 0s; }
-.nikki-wave span:nth-child(2) { height: 16px; animation-delay: .1s; }
-.nikki-wave span:nth-child(3) { height: 12px; animation-delay: .2s; }
-.nikki-wave span:nth-child(4) { height: 20px; animation-delay: .3s; }
-.nikki-wave span:nth-child(5) { height: 8px; animation-delay: .4s; }
-@keyframes nikkiWave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.3); } }
-.nikki-langs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
-.nikki-lang { padding: 4px 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; font-size: .72rem; color: rgba(255,255,255,.7); }
-
-/* AI SECTION */
-.ai-section { background: linear-gradient(135deg, #0d4a5c, #1a8ba8); padding: 90px 24px; color: #fff; }
-.ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; }
-.ai-text h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; color: #fff; line-height: 1.2; }
-.ai-text p { font-size: .95rem; color: rgba(255,255,255,.85); margin-bottom: 22px; line-height: 1.75; }
-.ai-feature-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
-.ai-feature-list li { display: flex; align-items: flex-start; gap: 12px; font-size: .92rem; color: rgba(255,255,255,.9); line-height: 1.5; }
-.ai-feature-list li i { color: var(--gold); font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
-.ai-chat-demo { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; }
-.ai-chat-label { color: rgba(255,255,255,.6); font-size: .75rem; font-weight: 600; margin-bottom: 14px; }
-.ai-bubble { padding: 12px 16px; border-radius: 14px; font-size: .85rem; max-width: 88%; line-height: 1.55; margin-bottom: 10px; }
-.ai-bubble.bot { background: rgba(255,255,255,.12); color: #fff; border-bottom-left-radius: 4px; }
-.ai-bubble.user { background: var(--gold); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
-.ai-typing { display: flex; gap: 4px; padding: 12px 16px; background: rgba(255,255,255,.1); border-radius: 14px; width: fit-content; border-bottom-left-radius: 4px; }
-.ai-typing span { width: 8px; height: 8px; background: rgba(255,255,255,.5); border-radius: 50%; animation: aiTyping 1.4s infinite; }
-.ai-typing span:nth-child(2) { animation-delay: .2s; }
-.ai-typing span:nth-child(3) { animation-delay: .4s; }
-@keyframes aiTyping { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
-
-/* HOW IT WORKS */
-.how-it-works { background: var(--bg-alt); }
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px; margin-top: 10px; }
-.step { text-align: center; padding: 24px 16px; }
-.step-num { width: 64px; height: 64px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 18px; box-shadow: 0 8px 20px rgba(26,139,168,.3); transition: transform .3s ease; }
-.step:hover .step-num { transform: scale(1.1) rotate(5deg); }
-.step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--text-dark); }
-.step p { color: var(--text-light); font-size: .88rem; }
-
-/* GET STARTED FORM SECTION */
-.get-started-section { background: linear-gradient(135deg, #0d4a5c 0%, #0b3344 100%); padding: 90px 24px; }
-.get-started-section .section-header h2 { color: #fff; }
-.get-started-section .section-header p { color: rgba(255,255,255,.7); }
-.get-started-section .section-tag { background: rgba(255,255,255,.12); color: var(--teal-pale); }
-.gs-form-card { max-width: 680px; margin: 0 auto; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius-lg); padding: 40px; backdrop-filter: blur(6px); }
-.gs-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
-.gs-field { display: flex; flex-direction: column; gap: 6px; }
-.gs-field.full { grid-column: 1 / -1; }
-.gs-field label { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.75); }
-.gs-field input, .gs-field select, .gs-field textarea {
-  padding: 13px 16px;
-  border: 2px solid rgba(255,255,255,.15);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: .9rem;
-  color: #fff;
-  background: rgba(255,255,255,.08);
-  transition: border-color .3s ease, background .3s ease;
-}
-.gs-field input::placeholder, .gs-field textarea::placeholder { color: rgba(255,255,255,.35); }
-.gs-field input:focus, .gs-field select:focus, .gs-field textarea:focus { outline: none; border-color: var(--teal-light); background: rgba(255,255,255,.12); }
-.gs-field select { cursor: pointer; color: rgba(255,255,255,.85); }
-.gs-field select option { background: #0d4a5c; color: #fff; }
-.gs-field textarea { resize: vertical; min-height: 100px; }
-.gs-submit {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: transform .3s ease, box-shadow .3s ease;
-  box-shadow: 0 6px 20px rgba(245,158,11,.3);
-  margin-top: 8px;
-}
-.gs-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,158,11,.4); }
-.gs-submit:disabled { opacity: .6; transform: none; cursor: not-allowed; box-shadow: none; }
-.gs-note { font-size: .78rem; color: rgba(255,255,255,.5); text-align: center; margin-top: 14px; line-height: 1.6; }
-
-/* SUCCESS MESSAGE */
-.gs-success { display: none; text-align: center; padding: 40px 20px; }
-.gs-success-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(46,168,113,.2); border: 2px solid var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; animation: checkPop .5s ease; }
-@keyframes checkPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
-.gs-success h3 { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
-.gs-success p { color: rgba(255,255,255,.7); font-size: .92rem; line-height: 1.7; }
-
-/* SUPPLIER BANNER */
-.supplier-banner { background: linear-gradient(135deg, #0b3344, #0d4a5c); border-top: 1px solid rgba(77,189,213,.15); padding: 28px 24px; }
-.supplier-banner-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-.supplier-banner-left { display: flex; align-items: center; gap: 16px; }
-.supplier-banner-icon { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem; flex-shrink: 0; }
-.supplier-banner-text h4 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.supplier-banner-text p { font-size: .82rem; color: rgba(255,255,255,.65); }
-.supplier-banner-btn { padding: 12px 24px; background: var(--teal-mid); color: #fff; border-radius: 10px; font-weight: 700; font-size: .88rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background .3s ease, transform .3s ease; white-space: nowrap; }
-.supplier-banner-btn:hover { background: var(--teal-light); transform: translateY(-2px); }
-
-/* TESTIMONIALS */
-.testimonials { background: linear-gradient(180deg, var(--bg), var(--bg-alt)); }
-.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
-.testimonial { background: #fff; padding: 30px 28px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; transition: transform .3s ease, box-shadow .3s ease; display: flex; flex-direction: column; }
-.testimonial:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
-.testimonial::before { content: '"'; position: absolute; top: 10px; left: 20px; font-size: 4.5rem; color: var(--teal-pale); font-family: Georgia, serif; line-height: 1; }
-.testimonial p { color: var(--text-mid); font-size: .92rem; line-height: 1.65; margin-bottom: 20px; position: relative; z-index: 1; flex: 1; }
-.testimonial-author { display: flex; align-items: center; gap: 12px; }
-.testimonial-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
-.testimonial-info strong { display: block; color: var(--text-dark); font-size: .88rem; }
-.testimonial-info span { color: var(--text-light); font-size: .75rem; }
-.testimonial-stars { display: flex; gap: 3px; margin-bottom: 14px; position: relative; z-index: 1; }
-.testimonial-stars i { color: var(--gold); font-size: .85rem; }
-
-/* CTA */
-.cta { background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); color: #fff; text-align: center; padding: 90px 24px; position: relative; overflow: hidden; }
-.cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,.07), transparent 50%); pointer-events: none; }
-.cta h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 14px; position: relative; z-index: 1; line-height: 1.2; }
-.cta p { font-size: 1rem; opacity: .9; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; line-height: 1.7; }
-.cta .btn-hero { position: relative; z-index: 1; }
-
-/* FAQ */
-.faq { background: var(--bg-alt); }
-.faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-.faq-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color .3s ease, box-shadow .3s ease; }
-.faq-item:hover { border-color: var(--teal-mid); box-shadow: var(--shadow); }
-.faq-question { padding: 18px 22px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-dark); font-size: .95rem; gap: 12px; user-select: none; }
-.faq-question i { transition: transform .35s ease; color: var(--teal-mid); flex-shrink: 0; }
-.faq-item.open .faq-question i { transform: rotate(180deg); }
-.faq-answer { max-height: 0; overflow: hidden; transition: max-height .4s ease, padding .4s ease; padding: 0 22px; color: var(--text-light); font-size: .88rem; line-height: 1.75; }
-.faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
-
-/* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 24px; }
-.modal-overlay.active { display: flex; }
-.modal { background: #fff; border-radius: var(--radius-lg); max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: modalIn .4s ease; }
-@keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.modal-header { background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid)); padding: 24px 28px; color: #fff; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-.modal-header h3 { font-size: 1.2rem; font-weight: 800; }
-.modal-close { background: rgba(255,255,255,.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background .2s ease; }
-.modal-close:hover { background: rgba(255,255,255,.35); }
-.modal-body { padding: 28px; }
-.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.cal-header h4 { font-size: 1rem; font-weight: 700; color: var(--text-dark); }
-.cal-nav { background: none; border: 2px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--text-mid); font-family: inherit; transition: .2s; }
-.cal-nav:hover { border-color: var(--teal-mid); color: var(--teal-mid); }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 24px; }
-.cal-day-header { text-align: center; font-size: .7rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; padding: 6px 0; }
-.cal-day { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: .82rem; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease; color: var(--text-mid); }
-.cal-day:hover { background: var(--bg-alt); }
-.cal-day.today { background: rgba(26,139,168,.1); color: var(--teal-mid); }
-.cal-day.selected { background: var(--teal-mid); color: #fff; }
-.cal-day.disabled { color: var(--border); cursor: not-allowed; background: none; pointer-events: none; }
-.cal-day.empty { pointer-events: none; }
-.cal-day.has-booking { position: relative; }
-.cal-day.has-booking::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--danger); position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
-.time-slots-title { font-size: .92rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
-.time-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
-.time-slot { padding: 14px 16px; border: 2px solid var(--border); border-radius: 10px; text-align: center; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--text-mid); transition: .3s; user-select: none; }
-.time-slot:hover { border-color: var(--teal-mid); color: var(--teal-mid); }
-.time-slot.selected { background: var(--teal-mid); border-color: var(--teal-mid); color: #fff; }
-.time-slot.booked { background: #fef2f2; border-color: #fecaca; color: #bbb; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
-.booking-form-title { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; margin-top: 10px; }
-.booking-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-.booking-field { display: flex; flex-direction: column; gap: 4px; }
-.booking-field label { font-size: .78rem; font-weight: 600; color: var(--text-mid); }
-.booking-field input { padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: .9rem; color: var(--text-dark); transition: border-color .3s ease; }
-.booking-field input:focus { outline: none; border-color: var(--teal-mid); }
-.booking-submit { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--success), #1a7a4a); color: #fff; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .3s ease, box-shadow .3s ease; box-shadow: 0 6px 20px rgba(46,168,113,.3); }
-.booking-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(46,168,113,.4); }
-
-/* FOOTER */
-.footer { background: var(--text-dark); color: #fff; padding: 56px 24px 28px; }
-.footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
-.footer-logo { display: inline-block; margin-bottom: 14px; }
-.footer-logo svg { height: 55px; width: auto; }
-.footer-brand p { color: rgba(255,255,255,.7); font-size: .88rem; line-height: 1.7; margin-top: 10px; }
-.footer h4 { font-size: .88rem; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .5px; }
-.footer ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.footer ul li a { color: rgba(255,255,255,.65); text-decoration: none; font-size: .85rem; transition: color .2s ease; }
-.footer ul li a:hover { color: var(--gold); }
-.social-links { display: flex; gap: 10px; margin-top: 16px; }
-.social-links a { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: .85rem; transition: background .3s ease, transform .3s ease; }
-.social-links a:hover { background: var(--gold); transform: translateY(-3px); }
-.footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); text-align: center; color: rgba(255,255,255,.45); font-size: .78rem; line-height: 1.8; }
-.footer-bottom a { color: var(--gold); text-decoration: none; }
-
-/* STOCKY BOT */
-#stocky-container { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; pointer-events: none; height: 120px; }
-#stocky { position: absolute; bottom: 20px; right: 80px; width: 60px; height: 70px; cursor: pointer; pointer-events: all; animation: stockyBounce 2s ease-in-out infinite; transition: right 2s ease; }
-@keyframes stockyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.stocky-body { position: relative; width: 60px; height: 70px; }
-.stocky-head { width: 46px; height: 40px; background: linear-gradient(180deg, #1a8ba8, #0d4a5c); border-radius: 12px 12px 8px 8px; position: absolute; top: 0; left: 7px; border: 2px solid #4dbdd5; }
-.stocky-eye { width: 10px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 10px; animation: stockyBlink 4s ease-in-out infinite; }
-.stocky-eye.left { left: 8px; } .stocky-eye.right { right: 8px; }
-.stocky-eye::after { content: ''; width: 5px; height: 5px; background: #0d4a5c; border-radius: 50%; position: absolute; top: 3px; left: 3px; }
-@keyframes stockyBlink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.1); } }
-.stocky-mouth { width: 14px; height: 6px; border: 2px solid #4dbdd5; border-top: none; border-radius: 0 0 8px 8px; position: absolute; bottom: 8px; left: 14px; }
-.stocky-antenna { width: 3px; height: 12px; background: #4dbdd5; position: absolute; top: -10px; left: 20px; border-radius: 2px; }
-.stocky-antenna::after { content: ''; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; position: absolute; top: -6px; left: -2.5px; animation: stockyGlow 2s ease-in-out infinite; }
-@keyframes stockyGlow { 0%, 100% { box-shadow: 0 0 4px var(--gold); } 50% { box-shadow: 0 0 12px var(--gold); } }
-.stocky-torso { width: 40px; height: 22px; background: linear-gradient(180deg, #0d4a5c, #071a22); border-radius: 6px; position: absolute; top: 42px; left: 10px; border: 2px solid #1a8ba8; }
-.stocky-arm { width: 8px; height: 20px; background: #1a8ba8; border-radius: 4px; position: absolute; top: 44px; }
-.stocky-arm.left { left: 0; animation: stockyWave 3s ease-in-out infinite; transform-origin: top center; }
-.stocky-arm.right { right: 0; }
-@keyframes stockyWave { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-20deg); } 90% { transform: rotate(10deg); } }
-.stocky-leg { width: 10px; height: 10px; background: #0d4a5c; border-radius: 0 0 4px 4px; position: absolute; top: 62px; border: 1px solid #1a8ba8; }
-.stocky-leg.left { left: 14px; } .stocky-leg.right { right: 14px; }
-#stocky-bubble { position: absolute; bottom: 95px; right: 0; background: #fff; border-radius: 14px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.15); min-width: 220px; max-width: 260px; pointer-events: all; cursor: pointer; opacity: 0; transform: scale(.8) translateY(10px); transition: all .4s cubic-bezier(.68,-.55,.27,1.55); border: 2px solid var(--teal-mid); }
-#stocky-bubble.visible { opacity: 1; transform: scale(1) translateY(0); }
-#stocky-bubble::after { content: ''; position: absolute; bottom: -10px; right: 30px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #fff; }
-#stocky-bubble::before { content: ''; position: absolute; bottom: -13px; right: 28px; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 12px solid var(--teal-mid); }
-.stocky-bubble-text { font-size: .82rem; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
-.stocky-bubble-text i { color: var(--teal-mid); font-size: 1rem; }
-#stocky-chat { position: fixed; bottom: 100px; right: 20px; width: 340px; max-height: 450px; background: #fff; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.2); z-index: 9001; overflow: hidden; display: none; border: 2px solid var(--teal-mid); animation: stockyChatIn .4s ease; }
-@keyframes stockyChatIn { from { opacity: 0; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.stocky-chat-header { background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark)); padding: 14px 18px; display: flex; align-items: center; gap: 10px; color: #fff; }
-.stocky-chat-avatar { width: 36px; height: 36px; background: rgba(255,255,255,.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-.stocky-chat-header h4 { font-size: .88rem; font-weight: 700; flex: 1; }
-.stocky-chat-close { background: rgba(255,255,255,.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s ease; }
-.stocky-chat-close:hover { background: rgba(255,255,255,.35); }
-.stocky-chat-messages { height: 280px; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
-.stocky-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: .82rem; line-height: 1.5; }
-.stocky-msg.bot { align-self: flex-start; background: #fff; color: var(--text-dark); border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-.stocky-msg.user { align-self: flex-end; background: var(--teal-mid); color: #fff; border-bottom-right-radius: 4px; }
-.stocky-faq-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.stocky-faq-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; font-size: .72rem; color: var(--text-dark); cursor: pointer; font-family: inherit; transition: background .2s ease, color .2s ease, border-color .2s ease; }
-.stocky-faq-btn:hover { background: var(--teal-mid); color: #fff; border-color: var(--teal-mid); }
-
-/* POPUP ANIMATIONS */
-@keyframes popIn { from { opacity: 0; transform: scale(.7) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* RESPONSIVE */
-@media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 900px) {
-  .hero-content { grid-template-columns: 1fr; gap: 40px; }
-  .hero-text h1 { font-size: 2.2rem; }
-  .hero-visual { display: none; }
-  .ai-grid { grid-template-columns: 1fr; gap: 40px; }
-  .nikki-grid { grid-template-columns: 1fr; gap: 40px; }
-  .demo-dash-stats { grid-template-columns: repeat(2, 1fr); }
-  .section-header h2 { font-size: 1.9rem; }
-  .cta h2 { font-size: 2rem; }
-  .menu-toggle { display: block; }
-  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--teal-dark); flex-direction: column; padding: 20px 24px; gap: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
-  .nav-links.open { display: flex; }
-  .nav-links a { font-size: .95rem; }
-  #stocky-chat { width: 300px; right: 10px; }
-  .gs-form-grid { grid-template-columns: 1fr; }
-  .booking-form-grid { grid-template-columns: 1fr; }
-  .modal { max-width: 95%; }
-  .logo svg { height: 36px; }
-  .supplier-banner-inner { flex-direction: column; text-align: center; }
-  .launch-banner-inner { flex-direction: column; gap: 10px; }
-}
-@media (max-width: 600px) {
-  .hero-text h1 { font-size: 1.85rem; }
-  .hero-stats { gap: 22px; }
-  .hero-buttons { flex-direction: column; }
-  .btn-hero { justify-content: center; }
-  .section-header h2 { font-size: 1.65rem; }
-  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-  .cta h2 { font-size: 1.7rem; }
-  #stocky-chat { width: calc(100vw - 20px); right: 10px; }
-  .demo-dash-stats { grid-template-columns: 1fr 1fr; }
-  .time-slots { grid-template-columns: 1fr; }
-  .logo svg { height: 32px; }
-  .footer-logo svg { height: 45px; }
-  .gs-form-card { padding: 24px 20px; }
-  .nikki-convo { display: none; }
-}
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="header" id="site-header">
-  <nav class="nav">
-    <a href="#" class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="44">
-        <defs>
-          <linearGradient id="hAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/></linearGradient>
-          <linearGradient id="hStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/><stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/></linearGradient>
-          <linearGradient id="hUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
-          <filter id="hGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="hGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="hGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <g transform="translate(225,22)">
-          <circle cx="55" cy="52" r="48" fill="#14B8A6" opacity="0.08" filter="url(#hGlowLarge)"/>
-          <g opacity="0.5"><polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#0D9488" stroke-width="1.5"/><polygon points="55,16 85,31 55,46 25,31" fill="#0D9488" opacity="0.14"/></g>
-          <g filter="url(#hGlowSoft)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#2DD4BF" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#14B8A6" opacity="0.22"/><polygon points="55,56 80,43 80,68 55,81" fill="#0D9488" opacity="0.16"/><polygon points="55,56 30,43 30,68 55,81" fill="#14B8A6" opacity="0.10"/></g>
-          <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/><circle cx="55" cy="56" r="7" fill="none" stroke="#2DD4BF" stroke-width="1.5" opacity="0.7"/><circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#hGlowMed)" opacity="0.95"/>
-          <line x1="55" y1="49" x2="55" y2="22" stroke="#2DD4BF" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/><circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#hGlowSoft)"/>
-          <line x1="62" y1="53" x2="88" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="90" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#hGlowSoft)"/>
-          <line x1="48" y1="53" x2="22" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="20" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#hGlowSoft)"/>
-          <line x1="48" y1="63" x2="25" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="23" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#hGlowSoft)"/>
-          <line x1="62" y1="63" x2="85" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="87" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#hGlowSoft)"/>
-          <g filter="url(#hGlowMed)"><circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/><circle cx="75" cy="24" r="0.9" fill="#2DD4BF" opacity="0.55"/><circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/><circle cx="20" cy="56" r="0.9" fill="#2DD4BF" opacity="0.45"/><circle cx="55" cy="91" r="1" fill="#14B8A6" opacity="0.35"/></g>
-          <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#hUnderlineGrad)" opacity="0.55" filter="url(#hGlowSoft)"/>
-        </g>
-        <g>
-          <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
-            <tspan fill="url(#hStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#hAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#2DD4BF" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
-          </text>
-          <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#hUnderlineGrad)" filter="url(#hGlowMed)" opacity="0.85"/>
-          <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
-        </g>
-      </svg>
-    </a>
-    <div class="nav-links" id="navLinks">
-      <a href="#features">Features</a>
-      <a href="#nikki">Meet Nikki</a>
-      <a href="#demo-section">Live Demo</a>
-      <a href="#how">How It Works</a>
-      <a href="#get-started">Get Started</a>
-      <a href="#faq">FAQ</a>
-      <a href="javascript:void(0)" onclick="openBookingModal()" class="btn-present-nav"><i class="fas fa-calendar-check"></i> Book Demo</a>
-      <a href="hub.html" class="btn-login-nav"><i class="fas fa-user"></i> Login</a>
-      <a href="portal.html" class="btn-portal-nav"><i class="fas fa-shield-alt"></i> Portal</a>
-      <a href="#get-started" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
-    </div>
-    <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
-  </nav>
-</header>
-
-<!-- LAUNCH SPECIAL BANNER -->
-<div id="launch-special-banner">
-  <div class="launch-banner-inner">
-    <span class="launch-badge">🚀 Launch Special</span>
-    <div class="launch-text"><strong>30% OFF</strong> for the first 20 customers — limited time only!</div>
-    <div class="launch-spots">Only <span id="spots-remaining">--</span> spots left</div>
-    <button class="launch-cta" onclick="document.getElementById('get-started').scrollIntoView({behavior:'smooth'})">Claim My Spot</button>
-  </div>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-particle" style="width:6px;height:6px;background:#f59e0b;top:15%;left:10%;--dur:7s;--delay:0s"></div>
-  <div class="hero-particle" style="width:4px;height:4px;background:#4dbdd5;top:25%;right:15%;--dur:9s;--delay:1s"></div>
-  <div class="hero-particle" style="width:8px;height:8px;background:#f59e0b;bottom:20%;left:20%;--dur:6s;--delay:2s"></div>
-  <div class="hero-particle" style="width:5px;height:5px;background:#fff;top:50%;right:25%;--dur:8s;--delay:.5s"></div>
-  <div class="hero-particle" style="width:3px;height:3px;background:#4dbdd5;bottom:35%;left:35%;--dur:10s;--delay:3s"></div>
-  <div class="hero-star" style="height:80px;top:10%;left:15%;--dur:4s;--delay:0s"></div>
-  <div class="hero-star" style="height:60px;top:30%;left:55%;--dur:3.5s;--delay:1.5s"></div>
-  <div class="hero-star" style="height:100px;top:50%;left:80%;--dur:5s;--delay:3s"></div>
-  <div class="hero-star" style="height:70px;top:20%;left:70%;--dur:4.5s;--delay:2s"></div>
-  <div class="hero-content">
-    <div class="hero-text reveal-left">
-      <p class="hero-tagline">South Africa's smartest stock control platform</p>
-      <h1>The <span class="highlight">AI-Powered</span> Stock Management System for Every Business</h1>
-      <p class="hero-desc">Restaurants, retail, manufacturers — if you hold stock, StockAI-Pro saves you money. 13 AI-powered apps including Nikki your voice assistant, automated purchase orders, live food cost tracking, and real-time insights from anywhere.</p>
-      <div class="hero-buttons">
-        <a href="#get-started" class="btn-hero btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Now</a>
-        <a href="#demo-section" class="btn-hero btn-hero-secondary"><i class="fas fa-play-circle"></i> See It In Action</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="13">0</span></span><span class="hero-stat-label">Apps Available</span></div>
-        <div class="hero-stat"><span class="hero-stat-value">R<span class="counter" data-target="3200">0</span></span><span class="hero-stat-label">Avg Monthly Savings</span></div>
-        <div class="hero-stat"><span class="hero-stat-value"><span class="counter" data-target="5">0</span> min</span><span class="hero-stat-label">To Set Up</span></div>
-      </div>
-    </div>
-    <div class="hero-visual reveal-right">
-      <div class="hero-badge badge-ai"><i class="fas fa-check-circle"></i> AI Active</div>
-      <div class="hero-badge badge-rt"><i class="fas fa-microphone"></i> Hey Nikki</div>
-      <div class="hero-badge badge-vc"><i class="fas fa-bolt"></i> Real-time</div>
-      <div class="hero-mockup">
-        <div class="hero-mockup-bar"><div class="mockup-dot r"></div><div class="mockup-dot y"></div><div class="mockup-dot g"></div><div class="mockup-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div></div>
-        <div class="hero-mockup-body">
-          <div class="mockup-stats">
-            <div class="mockup-stat s1"><div class="mockup-stat-label">Stock Value</div><div class="mockup-stat-val">R125K</div></div>
-            <div class="mockup-stat s2"><div class="mockup-stat-label">Sales</div><div class="mockup-stat-val">R48K</div></div>
-            <div class="mockup-stat s3"><div class="mockup-stat-label">Food Cost</div><div class="mockup-stat-val green">27.4%</div></div>
-            <div class="mockup-stat s4"><div class="mockup-stat-label">Wastage</div><div class="mockup-stat-val red">R890</div></div>
-          </div>
-          <div class="mockup-chart"><div class="mockup-chart-fill"></div></div>
-          <div class="mockup-ai-bar"><i class="fas fa-robot"></i><span>Nikki: 3 items need reordering — PO generated automatically</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- LIVE DEMO -->
-<section class="demo-section" id="demo-section">
-  <div class="demo-container">
-    <div class="section-header reveal"><span class="section-tag">Live Demo</span><h2>See StockAI-Pro In Action</h2><p>Watch the system work in real-time — AI alerts, Nikki voice commands, and live stats</p></div>
-    <div class="demo-browser reveal-scale">
-      <div class="demo-toolbar"><div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div><div class="demo-url"><i class="fas fa-lock" style="font-size:.55rem;margin-right:4px"></i> stockai-pro.co.za/app</div></div>
-      <div class="demo-screen" id="demo-screen">
-        <div class="demo-dash-stats">
-          <div class="demo-stat-card"><div class="demo-stat-label">Stock Value</div><div class="demo-stat-value" id="demo-stock-val">R0</div></div>
-          <div class="demo-stat-card"><div class="demo-stat-label">Daily Sales</div><div class="demo-stat-value" id="demo-sales-val">R0</div></div>
-          <div class="demo-stat-card"><div class="demo-stat-label">Food Cost</div><div class="demo-stat-value" id="demo-fc-val" style="color:var(--success)">0%</div></div>
-          <div class="demo-stat-card"><div class="demo-stat-label">AI Orders</div><div class="demo-stat-value" id="demo-ai-val" style="color:var(--gold)">0</div></div>
-        </div>
-        <div class="demo-chart-area"><div class="demo-chart-line"></div></div>
-        <div class="demo-notif-stack">
-          <div class="demo-notif" id="demo-notif-1"><i class="fas fa-check-circle" style="color:var(--success)"></i>Stock count completed — 45 items</div>
-          <div class="demo-notif warn" id="demo-notif-2"><i class="fas fa-robot" style="color:var(--gold)"></i>Nikki: AI generated 3 purchase orders</div>
-          <div class="demo-notif danger" id="demo-notif-3"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>Low stock: Chicken Breast — 2kg</div>
-        </div>
-        <div class="demo-voice-area"><div class="demo-voice-circle"><i class="fas fa-microphone"></i></div><div class="demo-voice-text"><span class="demo-voice-typed" id="demo-typed"></span></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INDUSTRIES -->
-<section class="industries">
-  <div class="container">
-    <div class="section-header reveal"><span class="section-tag">Who We Serve</span><h2>Built for Any Business That Holds Stock</h2><p>StockAI-Pro works for any business that needs to track, manage, and optimise stock levels.</p></div>
-    <div class="industries-grid">
-      <div class="industry-card reveal"><i class="fas fa-utensils"></i><h4>Restaurants & Bars</h4><p>Full food cost control & AI reorders</p></div>
-      <div class="industry-card reveal"><i class="fas fa-hotel"></i><h4>Hotels & Resorts</h4><p>Multi-entity management across outlets</p></div>
-      <div class="industry-card reveal"><i class="fas fa-shopping-basket"></i><h4>Retail Stores</h4><p>Real-time stock levels & supplier management</p></div>
-      <div class="industry-card reveal"><i class="fas fa-store"></i><h4>Supermarkets</h4><p>High-volume tracking with AI forecasting</p></div>
-      <div class="industry-card reveal"><i class="fas fa-industry"></i><h4>Manufacturers</h4><p>Raw material tracking & supplier orders</p></div>
-      <div class="industry-card reveal"><i class="fas fa-coffee"></i><h4>Cafés & Bakeries</h4><p>Daily stock takes & ingredient costing</p></div>
-      <div class="industry-card reveal"><i class="fas fa-pills"></i><h4>Pharmacies</h4><p>Expiry tracking & reorder automation</p></div>
-      <div class="industry-card reveal"><i class="fas fa-warehouse"></i><h4>Warehouses</h4><p>Location-based stock & full audit trails</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="features" id="features">
-  <div class="container">
-    <div class="section-header reveal"><span class="section-tag">13 Powerful Apps</span><h2>Everything Your Business Needs</h2><p>AI-powered, cloud-based, mobile-ready — 13 apps built for South African businesses</p></div>
-    <div class="features-grid">
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI Stock Predictions</h3><p>Machine learning analyses your history to predict exactly what stock you need before you run out.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-microphone"></i></div><h3>Voice Stock Counting</h3><p>Walk through your store and speak your counts. "Chicken breast twenty five" — done. 70% faster than manual.</p><span class="feature-tag ai">🎤 Voice AI</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Auto Purchase Orders</h3><p>When stock hits reorder level, AI generates POs and emails them directly to suppliers. Just approve and go.</p><span class="feature-tag ai">🤖 AI Powered</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Live Food Cost</h3><p>Real-time food cost: (Opening + Purchases - Closing) / Sales. Always know exactly where you stand.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-utensils"></i></div><h3>Menu & Recipe Costing</h3><p>Link ingredients to recipes. Prices pulled automatically from your latest invoices. Know the cost of every dish.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-clipboard-check"></i></div><h3>GRV System</h3><p>Full Goods Received Voucher process. Costs only update when invoices are captured. Complete control.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-cash-register"></i></div><h3>Restaurant POS</h3><p>Full point of sale with menu builder, table payments & auto stock deduction on every sale.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-store"></i></div><h3>Retail POS</h3><p>A fully retail-ready Point of Sale system. Walk-in sales, stock deductions, receipts and retail reporting all in one place.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h3>Mobile App (PWA)</h3><p>Full mobile app installable on any phone. Stock counts, purchase approvals, AI chat — all on mobile.</p></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-shopping-basket"></i></div><h3>ProcureAI App</h3><p>Chefs place orders from their phone. Auto-splits to cheapest suppliers. Emailed automatically.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-glass-cheers"></i></div><h3>FunctionsAI — Events Manager</h3><p>Full function & event management. Book clients, select menus and beverages, auto-calculate costs, generate invoices with signature lines.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)"><i class="fas fa-industry"></i></div><h3>Production Manager</h3><p>Bulk production scheduling — recipe scaling, ingredient deduction & cost tracking for manufacturing operations.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)"><i class="fas fa-users-cog"></i></div><h3>HR Module</h3><p>Staff management — clock in/out, leave tracking, shift schedules and payslip generation all in one place.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-file-invoice"></i></div><h3>Invoice Scanner App</h3><p>Scan supplier invoices directly into the system. Automatically updates inventory, adjusts pricing and auto-completes GRV entries.</p><span class="feature-tag new">✨ New</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#0d9488,#0d4a5c)"><i class="fas fa-robot"></i></div><h3>AI Brain + Nikki Voice Bot</h3><p>Say "Hey Nikki" — your AI assistant powered by GPT-4o that knows your business data in real time. Multilingual voice control.</p><span class="feature-tag ai">🤖 GPT-4o</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-tools"></i></div><h3>POS Builder</h3><p>Build & configure your POS menus, categories and items. Posts live to POS instantly.</p><span class="feature-tag free">🎁 Free with POS</span></div>
-      <div class="feature reveal"><div class="feature-icon" style="background:linear-gradient(135deg,#10b981,#065f46)"><i class="fas fa-calculator"></i></div><h3>CashUp-Pro</h3><p>Manager cash-up & reconciliation — all cashiers in one view, day end reporting and variance tracking.</p><span class="feature-tag free">🎁 Free with POS</span></div>
-      <div class="feature reveal"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>6 Languages</h3><p>English, Afrikaans, isiZulu, Portuguese, Chinese, and French. Your whole team can work in their language.</p><span class="feature-tag new">✨ New</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- NIKKI SECTION -->
-<section class="nikki-section" id="nikki">
-  <div class="nikki-grid">
-    <div class="nikki-text reveal-left">
-      <span class="section-tag">AI Voice Assistant</span>
-      <h2>Meet Nikki — Your AI Business Assistant</h2>
-      <div class="powered"><i class="fas fa-brain"></i> Powered by OpenAI GPT-4o — same technology as ChatGPT</div>
-      <p>Nikki is not just a chatbot. She knows YOUR actual business data in real time. Ask her anything about your stock, sales, food cost or staff — and get an instant spoken answer.</p>
-      <ul class="nikki-features">
-        <li><i class="fas fa-microphone-alt"></i><span>Just say <strong>"Hey Nikki"</strong> to activate — completely hands-free</span></li>
-        <li><i class="fas fa-database"></i><span>Knows your actual live business data in real time</span></li>
-        <li><i class="fas fa-comments"></i><span>Ask: <em>"Show me today's low stock"</em> or <em>"What were yesterday's sales?"</em></span></li>
-        <li><i class="fas fa-file-alt"></i><span>Ask: <em>"Create a PO for Fresh Foods"</em> or <em>"Who is clocked in?"</em></span></li>
-        <li><i class="fas fa-volume-up"></i><span>Responds verbally in your language — no typing needed</span></li>
-        <li><i class="fas fa-globe"></i><span>Works in English, isiZulu, Afrikaans, Portuguese, French & Chinese</span></li>
-        <li><i class="fas fa-th-large"></i><span>Works inside every app — MobileAI, ProcureAI, CashUp-Pro and more</span></li>
-      </ul>
-      <div class="nikki-price">
-        <div><div class="amount">R499/mo</div></div>
-        <div class="label">AI Brain +<br>Nikki Voice Bot<br>combined package</div>
-      </div>
-      <a href="#get-started" class="btn-hero btn-hero-primary" style="display:inline-flex;margin-top:4px">
-        <i class="fas fa-robot"></i> Add Nikki to My Package
-      </a>
-    </div>
-    <div class="nikki-demo reveal-right">
-      <div class="nikki-avatar">🤖</div>
-      <h4>Nikki — AI Assistant</h4>
-      <div class="nikki-sub">Say "Hey Nikki" to activate</div>
-      <div class="nikki-convo">
-        <div class="nikki-msg user">"Hey Nikki, show me today's low stock items"</div>
-        <div class="nikki-msg nikki">🔴 3 items need attention: Beef Fillet — 2kg left, Olive Oil — 1L, Fresh Salmon — OUT OF STOCK. Shall I create purchase orders?</div>
-        <div class="nikki-msg user">"Yes, send to cheapest suppliers"</div>
-        <div class="nikki-msg nikki">✅ Done! 3 POs created and emailed — SA Meat, Cape Olive, Ocean Fresh. All split to cheapest suppliers automatically.</div>
-        <div class="nikki-wave"><span></span><span></span><span></span><span></span><span></span></div>
-      </div>
-      <div class="nikki-langs">
-        <span class="nikki-lang">🇿🇦 English</span>
-        <span class="nikki-lang">🇿🇦 isiZulu</span>
-        <span class="nikki-lang">🇿🇦 Afrikaans</span>
-        <span class="nikki-lang">🇵🇹 Portuguese</span>
-        <span class="nikki-lang">🇫🇷 French</span>
-        <span class="nikki-lang">🇨🇳 Chinese</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- AI SECTION -->
-<section class="ai-section">
-  <div class="ai-grid">
-    <div class="ai-text reveal-left">
-      <span class="section-tag" style="background:rgba(255,255,255,.15);color:var(--gold)">Artificial Intelligence</span>
-      <h2>AI Is At The Core of Everything</h2>
-      <p>StockAI-Pro isn't just stock management with AI added on. Artificial Intelligence is built into every feature, every decision, and every recommendation.</p>
-      <ul class="ai-feature-list">
-        <li><i class="fas fa-check-circle"></i><span><strong>Smart Reorder Points</strong> — AI adjusts reorder levels based on usage patterns and supplier lead times</span></li>
-        <li><i class="fas fa-check-circle"></i><span><strong>Cheapest Supplier Matching</strong> — Auto-splits orders to suppliers with the best prices per item</span></li>
-        <li><i class="fas fa-check-circle"></i><span><strong>Nikki Voice Assistant</strong> — Say "Hey Nikki" to get instant answers about your business data</span></li>
-        <li><i class="fas fa-check-circle"></i><span><strong>Live Food Cost</strong> — Real-time calculation keeps you informed every minute</span></li>
-        <li><i class="fas fa-check-circle"></i><span><strong>Invoice Scanner</strong> — AI reads and captures supplier invoices automatically</span></li>
-        <li><i class="fas fa-check-circle"></i><span><strong>Predictive Ordering</strong> — AI generates purchase orders before you even think about it</span></li>
-      </ul>
-    </div>
-    <div class="ai-chat-demo reveal-right">
-      <div class="ai-chat-label">💬 Nikki AI Assistant — Live Demo</div>
-      <div class="ai-bubble user">Hey Nikki, what items are running low?</div>
-      <div class="ai-bubble bot">🔴 <strong>3 items need attention:</strong><br>• Beef Fillet — 2kg left<br>• Olive Oil — 1L left<br>• Fresh Salmon — OUT OF STOCK<br><br>Shall I generate purchase orders?</div>
-      <div class="ai-bubble user">Yes, send to cheapest suppliers</div>
-      <div class="ai-bubble bot">✅ <strong>3 POs generated & emailed:</strong><br>• SA Meat → Beef (R249/kg)<br>• Cape Olive → Oil (R89/L)<br>• Ocean Fresh → Salmon (R299/kg)<br><br>Split to cheapest suppliers automatically!</div>
-      <div class="ai-typing"><span></span><span></span><span></span></div>
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="how-it-works" id="how">
-  <div class="container">
-    <div class="section-header reveal"><span class="section-tag">Simple Setup</span><h2>Up & Running in 5 Minutes</h2><p>No technical skills needed. No software to install. Works on any device.</p></div>
-    <div class="steps">
-      <div class="step reveal"><div class="step-num">1</div><h3>Fill In Your Details</h3><p>Submit your contact form and our team will reach out with a custom quote within 24 hours.</p></div>
-      <div class="step reveal"><div class="step-num">2</div><h3>Get Your Quote Link</h3><p>We'll send you a personalised setup link where you can select your features and pay securely.</p></div>
-      <div class="step reveal"><div class="step-num">3</div><h3>Add Your Stock</h3><p>Create items, link to suppliers, set par levels — done in minutes.</p></div>
-      <div class="step reveal"><div class="step-num">4</div><h3>AI Takes Over</h3><p>AI learns your patterns from day one. Predictions, alerts, and savings begin immediately.</p></div>
-      <div class="step reveal"><div class="step-num" style="background:linear-gradient(135deg,#0d9488,#0d4a5c);font-size:1.2rem;">🤖</div><h3>Nikki is Ready</h3><p>Say "Hey Nikki" on any device — she already knows your data and starts helping immediately.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- GET STARTED FORM -->
-<section class="get-started-section" id="get-started">
-  <div class="container">
-    <div class="section-header reveal">
-      <span class="section-tag">Contact Us</span>
-      <h2>Get Started with StockAI-Pro</h2>
-      <p>Fill in your details below and our team will send you a personalised quote link within 24 hours. No commitment required.</p>
-    </div>
-    <div class="gs-form-card reveal">
-      <div id="gs-form-wrap">
-        <div class="gs-form-grid">
-          <div class="gs-field">
-            <label>Full Name *</label>
-            <input type="text" id="gs-name" placeholder="John Smith" required>
-          </div>
-          <div class="gs-field">
-            <label>Contact Number *</label>
-            <input type="tel" id="gs-phone" placeholder="079 044 0508" required>
-          </div>
-          <div class="gs-field">
-            <label>Business Name *</label>
-            <input type="text" id="gs-business" placeholder="The Boma Restaurant" required>
-          </div>
-          <div class="gs-field">
-            <label>Email Address *</label>
-            <input type="email" id="gs-email" placeholder="you@business.co.za" required>
-          </div>
-          <div class="gs-field">
-            <label>Type of Business *</label>
-            <select id="gs-type">
-              <option value="" disabled selected>Select your business type</option>
-              <option value="Restaurant / Bar">Restaurant / Bar</option>
-              <option value="Hotel / Resort">Hotel / Resort</option>
-              <option value="Retail Store">Retail Store</option>
-              <option value="Supermarket">Supermarket</option>
-              <option value="Manufacturer">Manufacturer</option>
-              <option value="Café / Bakery">Café / Bakery</option>
-              <option value="Pharmacy">Pharmacy</option>
-              <option value="Warehouse">Warehouse</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="gs-field">
-            <label>Number of Locations / Entities *</label>
-            <select id="gs-entities">
-              <option value="1">1 Location</option>
-              <option value="2">2 Locations</option>
-              <option value="3">3 Locations</option>
-              <option value="4">4 Locations</option>
-              <option value="5">5 Locations</option>
-              <option value="6-10">6 to 10 Locations</option>
-              <option value="10+">More than 10</option>
-            </select>
-          </div>
-          <div class="gs-field full">
-            <label>Tell us about your needs (optional)</label>
-            <textarea id="gs-message" placeholder="e.g. We run a restaurant and need stock counting, food cost tracking and a POS system..."></textarea>
-          </div>
-        </div>
-        <button class="gs-submit" id="gs-submit-btn" onclick="submitGetStarted()">
-          <i class="fas fa-paper-plane"></i> Send My Details — Get a Quote
-        </button>
-        <p class="gs-note">
-          <i class="fas fa-shield-alt" style="color:var(--success);margin-right:4px"></i>
-          Your details are safe with us. We will never spam you or share your information.<br>
-          Response within 24 hours — usually much faster!
-        </p>
-      </div>
-      <div class="gs-success" id="gs-success">
-        <div class="gs-success-icon">✅</div>
-        <h3>Details Received!</h3>
-        <p>Thank you! We have received your information and will send you a personalised quote link within 24 hours.<br><br>In the meantime, feel free to book a presentation to see StockAI-Pro in action.</p>
-        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <a href="javascript:void(0)" onclick="openBookingModal()" style="padding:12px 24px;background:var(--gold);color:#fff;border-radius:10px;font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:8px"><i class="fas fa-calendar-check"></i> Book a Presentation</a>
-          <a href="https://wa.me/27790440508" target="_blank" style="padding:12px 24px;background:#25D366;color:#fff;border-radius:10px;font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:8px"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SUPPLIER BANNER -->
-<div class="supplier-banner">
-  <div class="supplier-banner-inner">
-    <div class="supplier-banner-left">
-      <div class="supplier-banner-icon"><i class="fas fa-truck"></i></div>
-      <div class="supplier-banner-text">
-        <h4>Are you a Supplier?</h4>
-        <p>Log in to your supplier portal to manage orders, update prices and view purchase orders from your clients.</p>
-      </div>
-    </div>
-    <a href="/supplier.html" class="supplier-banner-btn"><i class="fas fa-truck"></i> Supplier Portal</a>
-  </div>
-</div>
-
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-  <div class="container">
-    <div class="section-header reveal"><span class="section-tag">Happy Customers</span><h2>Businesses Love StockAI-Pro</h2><p>Real results from real South African businesses</p></div>
-    <div class="testimonials-grid">
-      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>StockAI-Pro cut our food cost from 34% to 27% in just 2 months. The AI reorder feature alone saves us thousands every month. Nikki is incredible — I just ask her and she knows everything.</p><div class="testimonial-author"><div class="testimonial-avatar">JM</div><div class="testimonial-info"><strong>James Mahlangu</strong><span>Owner, The Boma Restaurant</span></div></div></div>
-      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>The voice stock count is a game-changer. What used to take 3 hours now takes 45 minutes. My whole team loves it and the HR module has simplified our staff scheduling completely.</p><div class="testimonial-author"><div class="testimonial-avatar">SP</div><div class="testimonial-info"><strong>Sarah Pretorius</strong><span>GM, Vine & Olive Bistro</span></div></div></div>
-      <div class="testimonial reveal"><div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>The live food cost means I know exactly where we stand every day. FunctionsAI for our events is incredible. And the Retail POS handles our shop perfectly alongside the kitchen.</p><div class="testimonial-author"><div class="testimonial-avatar">PV</div><div class="testimonial-info"><strong>Pieter van der Merwe</strong><span>Director, Sunrise Hospitality Group</span></div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta">
-  <h2 class="reveal">Ready to Transform Your Stock Management?</h2>
-  <p class="reveal">Join South African businesses already saving thousands every month with AI-powered stock control and Nikki voice assistant.</p>
-  <a href="#get-started" class="btn-hero btn-hero-primary reveal" style="background:#fff;color:var(--text-dark)"><i class="fas fa-rocket"></i> Get Started Now — 30 Day Guarantee</a>
-</section>
-
-<!-- FAQ -->
-<section class="faq" id="faq">
-  <div class="container">
-    <div class="section-header reveal"><span class="section-tag">Questions?</span><h2>Frequently Asked Questions</h2><p>Everything you need to know before getting started</p></div>
-    <div class="faq-list">
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does the 30% launch special work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">The launch special gives the first 20 customers 30% off their monthly subscription. Once 20 customers have signed up, the special automatically falls away. Submit your details now to claim your spot.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How do I get started?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Simply fill in the form above with your details. Our team will review your requirements and send you a personalised quote link within 24 hours. No commitment required — just tell us what you need.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Do I need to install any software?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">No! StockAI-Pro runs entirely in your browser. The mobile app installs directly — no app store needed.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>How does Nikki work?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Just say "Hey Nikki" on any device. She is powered by OpenAI GPT-4o and has access to your actual live business data — stock levels, sales, food cost, staff clocked in and more. She responds verbally in your language.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is it only for restaurants?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Not at all! StockAI-Pro works for any business that holds stock — restaurants, retail, manufacturers, pharmacies, warehouses.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>What is POS Builder and CashUp-Pro?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">POS Builder lets you configure your POS menus and categories. CashUp-Pro handles manager cash-up and reconciliation. Both are included FREE when you purchase any POS system (Restaurant or Retail).</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Is my data safe?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Absolutely. Bank-level encryption, daily backups, POPIA compliant. Data stored securely in Google Firebase.</div></div>
-      <div class="faq-item reveal" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Can I cancel anytime?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes — no contracts. Cancel anytime with 30 days notice. 30-day money-back guarantee included.</div></div>
-    </div>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
@@ -971,33 +5,21 @@ section { padding: 90px 24px; position: relative; }
       <a href="#" class="footer-logo">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="55">
           <defs>
-            <linearGradient id="fAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/></linearGradient>
-            <linearGradient id="fStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/><stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/><stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/></linearGradient>
+            <linearGradient id="fAiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#0891B2"/></linearGradient>
+            <linearGradient id="fStockGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="55%" style="stop-color:#99F6E4"/><stop offset="100%" style="stop-color:#5EEAD4"/></linearGradient>
             <linearGradient id="fUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/><stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
-            <filter id="fGlowSoft"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             <filter id="fGlowMed"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <filter id="fGlowLarge"><feGaussianBlur stdDeviation="5.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
           <g transform="translate(225,22)">
-            <circle cx="55" cy="52" r="48" fill="#5EEAD4" opacity="0.06" filter="url(#fGlowLarge)"/>
-            <g opacity="0.5"><polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#2DD4BF" stroke-width="1.5"/><polygon points="55,16 85,31 55,46 25,31" fill="#2DD4BF" opacity="0.14"/></g>
-            <g filter="url(#fGlowSoft)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/><polygon points="55,56 80,43 80,68 55,81" fill="#14B8A6" opacity="0.16"/><polygon points="55,56 30,43 30,68 55,81" fill="#2DD4BF" opacity="0.10"/></g>
-            <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/><circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/><circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#fGlowMed)" opacity="0.95"/>
-            <line x1="55" y1="49" x2="55" y2="22" stroke="#5EEAD4" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/><circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#fGlowSoft)"/>
-            <line x1="62" y1="53" x2="88" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="90" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#fGlowSoft)"/>
-            <line x1="48" y1="53" x2="22" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/><circle cx="20" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#fGlowSoft)"/>
-            <line x1="48" y1="63" x2="25" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="23" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#fGlowSoft)"/>
-            <line x1="62" y1="63" x2="85" y2="78" stroke="#14B8A6" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/><circle cx="87" cy="80" r="1.6" fill="#14B8A6" opacity="0.55" filter="url(#fGlowSoft)"/>
-            <g filter="url(#fGlowMed)"><circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/><circle cx="75" cy="24" r="0.9" fill="#5EEAD4" opacity="0.55"/><circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/><circle cx="20" cy="56" r="0.9" fill="#5EEAD4" opacity="0.45"/><circle cx="55" cy="91" r="1" fill="#2DD4BF" opacity="0.35"/></g>
-            <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#fUnderlineGrad)" opacity="0.55" filter="url(#fGlowSoft)"/>
+            <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/>
+            <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#fGlowMed)" opacity="0.95"/>
+            <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#fUnderlineGrad)" opacity="0.55"/>
           </g>
-          <g>
-            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
-              <tspan fill="url(#fStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#fAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
-            </text>
-            <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#fUnderlineGrad)" filter="url(#fGlowMed)" opacity="0.85"/>
-            <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
-          </g>
+          <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
+            <tspan fill="url(#fStockGrad)" font-weight="900">Stock</tspan><tspan fill="url(#fAiGrad)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.75" font-weight="900">-Pro</tspan>
+          </text>
+          <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#fUnderlineGrad)" filter="url(#fGlowMed)" opacity="0.85"/>
+          <text x="280" y="188" text-anchor="middle" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">INTELLIGENCE A CLICK AWAY</text>
         </svg>
       </a>
       <p>South Africa's smartest AI-powered stock management system with 13 apps. Built for restaurants, retail, manufacturing, and any business that holds stock.</p>
@@ -1037,14 +59,36 @@ section { padding: 90px 24px; position: relative; }
 <!-- STOCKY BOT -->
 <div id="stocky-container">
   <div id="stocky" onclick="openStockyChat()">
-    <div class="stocky-body"><div class="stocky-antenna"></div><div class="stocky-head"><div class="stocky-eye left"></div><div class="stocky-eye right"></div><div class="stocky-mouth"></div></div><div class="stocky-arm left"></div><div class="stocky-arm right"></div><div class="stocky-torso"></div><div class="stocky-leg left"></div><div class="stocky-leg right"></div></div>
+    <div class="stocky-body">
+      <div class="stocky-antenna"></div>
+      <div class="stocky-head">
+        <div class="stocky-eye left"></div>
+        <div class="stocky-eye right"></div>
+        <div class="stocky-mouth"></div>
+      </div>
+      <div class="stocky-arm left"></div>
+      <div class="stocky-arm right"></div>
+      <div class="stocky-torso"></div>
+      <div class="stocky-leg left"></div>
+      <div class="stocky-leg right"></div>
+    </div>
   </div>
-  <div id="stocky-bubble" onclick="openStockyChat()"><div class="stocky-bubble-text"><i class="fas fa-comment-dots"></i><span id="stocky-bubble-msg">Need Assistance?</span></div></div>
+  <div id="stocky-bubble" onclick="openStockyChat()">
+    <div class="stocky-bubble-text">
+      <i class="fas fa-comment-dots"></i>
+      <span id="stocky-bubble-msg">Need Assistance?</span>
+    </div>
+  </div>
 </div>
 <div id="stocky-chat">
-  <div class="stocky-chat-header"><div class="stocky-chat-avatar"><i class="fas fa-robot"></i></div><h4>Stocky — AI Assistant</h4><button class="stocky-chat-close" onclick="closeStockyChat()"><i class="fas fa-times"></i></button></div>
+  <div class="stocky-chat-header">
+    <div class="stocky-chat-avatar"><i class="fas fa-robot"></i></div>
+    <h4>Stocky — AI Assistant</h4>
+    <button class="stocky-chat-close" onclick="closeStockyChat()"><i class="fas fa-times"></i></button>
+  </div>
   <div class="stocky-chat-messages" id="stocky-messages">
-    <div class="stocky-msg bot"><p>👋 Hey! I'm Stocky. What would you like to know about StockAI-Pro?</p>
+    <div class="stocky-msg bot">
+      <p>👋 Hey! I'm Stocky. What would you like to know about StockAI-Pro?</p>
       <div class="stocky-faq-btns">
         <button class="stocky-faq-btn" onclick="stockyAnswer('what')">What is StockAI-Pro?</button>
         <button class="stocky-faq-btn" onclick="stockyAnswer('nikki')">Who is Nikki?</button>
@@ -1060,10 +104,17 @@ section { padding: 90px 24px; position: relative; }
 <!-- BOOKING MODAL -->
 <div class="modal-overlay" id="bookingModal">
   <div class="modal">
-    <div class="modal-header"><h3><i class="fas fa-calendar-check" style="margin-right:8px"></i> Book a Presentation</h3><button class="modal-close" onclick="closeBookingModal()"><i class="fas fa-times"></i></button></div>
+    <div class="modal-header">
+      <h3><i class="fas fa-calendar-check" style="margin-right:8px"></i> Book a Presentation</h3>
+      <button class="modal-close" onclick="closeBookingModal()"><i class="fas fa-times"></i></button>
+    </div>
     <div class="modal-body">
       <p style="font-size:.88rem;color:var(--text-light);margin-bottom:20px">Select a date and time slot. Presentations are available <strong>Monday–Friday</strong> in <strong>4-hour blocks</strong>.</p>
-      <div class="cal-header"><button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button><h4 id="cal-month-label">January 2025</h4><button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button></div>
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <h4 id="cal-month-label">January 2025</h4>
+        <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
       <div class="cal-grid" id="cal-grid"></div>
       <div id="time-slot-wrap" style="display:none">
         <div class="time-slots-title"><i class="fas fa-clock" style="color:var(--teal-mid);margin-right:6px"></i> Available Time Slots — <span id="selected-date-label"></span></div>
@@ -1078,26 +129,26 @@ section { padding: 90px 24px; position: relative; }
           <div class="booking-field"><label>Email Address *</label><input type="email" id="book-email" placeholder="you@business.co.za"></div>
           <div class="booking-field" style="grid-column:1/-1"><label>Business Address *</label><input type="text" id="book-address" placeholder="123 Main Street, Sandton, Johannesburg, 2196"></div>
         </div>
-        <button class="booking-submit" onclick="submitBooking()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
+        <button class="booking-submit" id="booking-submit-btn" onclick="submitBooking()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TOAST WRAP -->
-<div style="display:none" id="toastWrap"></div>
-<!-- SCRIPTS -->
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastWrap"></div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS — Firebase + Email Templates + App Logic
+═══════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="email-templates.js"></script>
-<script src="email-addon.js"></script>
+<script src="/email-templates.js"></script>
 
 <script>
 // ============================================================
-// StockAI-Pro — index.html JavaScript v4.0
+// FIREBASE INIT
 // ============================================================
-
-// ── Firebase init ──
 if (!firebase.apps.length) {
     firebase.initializeApp({
         apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
@@ -1118,15 +169,15 @@ var currentSignupCount = 0;
 // SCROLL REVEAL
 // ============================================================
 function revealOnScroll() {
-    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale')
-        .forEach(function(el) {
-            if (el.getBoundingClientRect().top < window.innerHeight - 80) {
-                el.classList.add('active');
-            }
-        });
+    var els = document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
+    for (var i = 0; i < els.length; i++) {
+        if (els[i].getBoundingClientRect().top < window.innerHeight - 80) {
+            els[i].classList.add('active');
+        }
+    }
 }
 window.addEventListener('scroll', revealOnScroll, { passive: true });
-window.addEventListener('load',   revealOnScroll);
+window.addEventListener('load', revealOnScroll);
 
 // ============================================================
 // HEADER SCROLL SHRINK
@@ -1135,6 +186,48 @@ window.addEventListener('scroll', function() {
     var hdr = document.getElementById('site-header');
     if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 50);
 }, { passive: true });
+
+// ============================================================
+// MOBILE MENU
+// ============================================================
+document.getElementById('menuToggle').addEventListener('click', function() {
+    document.getElementById('navLinks').classList.toggle('open');
+});
+// Close menu when link clicked
+var navAnchors = document.querySelectorAll('#navLinks a');
+for (var n = 0; n < navAnchors.length; n++) {
+    navAnchors[n].addEventListener('click', function() {
+        document.getElementById('navLinks').classList.remove('open');
+    });
+}
+
+// ============================================================
+// SMOOTH SCROLL
+// ============================================================
+var anchors = document.querySelectorAll('a[href^="#"]');
+for (var a = 0; a < anchors.length; a++) {
+    anchors[a].addEventListener('click', function(e) {
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+}
+
+// ============================================================
+// FAQ ACCORDION
+// ============================================================
+var faqItems = document.querySelectorAll('.faq-item');
+for (var f = 0; f < faqItems.length; f++) {
+    faqItems[f].addEventListener('click', function() {
+        var openItems = document.querySelectorAll('.faq-item.open');
+        for (var o = 0; o < openItems.length; o++) {
+            if (openItems[o] !== this) openItems[o].classList.remove('open');
+        }
+        this.classList.toggle('open');
+    });
+}
 
 // ============================================================
 // LAUNCH SPECIAL — Firebase counter
@@ -1157,51 +250,43 @@ function updateLaunchBanner() {
     var spotsEl   = document.getElementById('spots-remaining');
     var remaining = LAUNCH_MAX - currentSignupCount;
     if (!banner) return;
-    if (remaining <= 0) {
-        banner.style.display = 'none';
-        return;
-    }
+    if (remaining <= 0) { banner.style.display = 'none'; return; }
     banner.style.display = '';
-    if (spotsEl) {
-        spotsEl.textContent = remaining + ' spot' + (remaining === 1 ? '' : 's');
-    }
+    if (spotsEl) spotsEl.textContent = remaining + ' spot' + (remaining === 1 ? '' : 's');
 }
 
 function incrementLaunchCount() {
     if (currentSignupCount >= LAUNCH_MAX) return Promise.resolve();
     return db.collection('settings').doc('launch_special')
         .update({ count: firebase.firestore.FieldValue.increment(1) })
-        .then(function() {
-            currentSignupCount++;
-            updateLaunchBanner();
-        })
+        .then(function() { currentSignupCount++; updateLaunchBanner(); })
         .catch(function() {
-            // Doc may not exist yet — create it
-            return db.collection('settings').doc('launch_special')
-                .set({ count: 1 });
+            return db.collection('settings').doc('launch_special').set({ count: 1 });
         });
 }
 
-// Load on start
 loadLaunchSpecial();
 
 // ============================================================
 // COUNTER ANIMATION
 // ============================================================
 function animateCounters() {
-    document.querySelectorAll('.counter').forEach(function(el) {
-        if (el.dataset.animated) return;
-        if (el.getBoundingClientRect().top > window.innerHeight) return;
+    var counters = document.querySelectorAll('.counter');
+    for (var c = 0; c < counters.length; c++) {
+        var el = counters[c];
+        if (el.dataset.animated) continue;
+        if (el.getBoundingClientRect().top > window.innerHeight) continue;
         el.dataset.animated = 'true';
-        var target    = parseInt(el.dataset.target) || 0;
-        var current   = 0;
-        var increment = target / 60;
-        var timer = setInterval(function() {
-            current += increment;
-            if (current >= target) { current = target; clearInterval(timer); }
-            el.textContent = Math.floor(current).toLocaleString();
-        }, 30);
-    });
+        (function(target, element) {
+            var current = 0;
+            var increment = target / 60;
+            var timer = setInterval(function() {
+                current += increment;
+                if (current >= target) { current = target; clearInterval(timer); }
+                element.textContent = Math.floor(current).toLocaleString();
+            }, 30);
+        })(parseInt(el.dataset.target) || 0, el);
+    }
 }
 window.addEventListener('scroll', animateCounters, { passive: true });
 window.addEventListener('load', function() { setTimeout(animateCounters, 500); });
@@ -1216,18 +301,13 @@ function animateDemo() {
     ds.dataset.animated = 'true';
 
     animateValue('demo-stock-val', 0, 125000, 2000, 'R', '');
-    setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', '');  }, 500);
-    setTimeout(function() { animateValue('demo-fc-val',    0, 27.4,  1000, '', '%'); }, 1000);
-    setTimeout(function() { animateValue('demo-ai-val',    0, 3,     800,  '', '');  }, 1500);
-    setTimeout(function() { showDemoNotif('demo-notif-1'); }, 2000);
-    setTimeout(function() { showDemoNotif('demo-notif-2'); }, 3500);
-    setTimeout(function() { showDemoNotif('demo-notif-3'); }, 5000);
+    setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', ''); }, 500);
+    setTimeout(function() { animateValue('demo-fc-val', 0, 27.4, 1000, '', '%'); }, 1000);
+    setTimeout(function() { animateValue('demo-ai-val', 0, 3, 800, '', ''); }, 1500);
+    setTimeout(function() { var e = document.getElementById('demo-notif-1'); if(e) e.style.display='flex'; }, 2000);
+    setTimeout(function() { var e = document.getElementById('demo-notif-2'); if(e) e.style.display='flex'; }, 3500);
+    setTimeout(function() { var e = document.getElementById('demo-notif-3'); if(e) e.style.display='flex'; }, 5000);
     setTimeout(function() { typeText('demo-typed', '"Hey Nikki, show me today\'s low stock"', 55); }, 3000);
-}
-
-function showDemoNotif(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = 'flex';
 }
 
 function animateValue(id, start, end, dur, pre, suf) {
@@ -1238,8 +318,8 @@ function animateValue(id, start, end, dur, pre, suf) {
     function step(ts) {
         if (!startTime) startTime = ts;
         var progress = Math.min((ts - startTime) / dur, 1);
-        var cur      = start + (range * progress);
-        var display  = end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0);
+        var cur = start + (range * progress);
+        var display = end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0);
         el.textContent = (pre || '') + display + (suf || '');
         if (progress < 1) requestAnimationFrame(step);
     }
@@ -1260,6 +340,34 @@ function typeText(id, text, speed) {
 window.addEventListener('scroll', animateDemo, { passive: true });
 
 // ============================================================
+// TOAST
+// ============================================================
+function showToast(type, msg) {
+    var wrap = document.getElementById('toastWrap');
+    if (!wrap) { if (type === 'error') alert(msg); return; }
+    var colors = { success:'#2ea871', error:'#c94545', info:'#1a8ba8', warning:'#f59e0b' };
+    var icons  = { success:'check-circle', error:'times-circle', info:'info-circle', warning:'exclamation-triangle' };
+    var t = document.createElement('div');
+    t.style.cssText = 'background:#fff;padding:12px 16px;border-radius:10px;' +
+        'box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;align-items:center;' +
+        'gap:10px;min-width:280px;animation:slideIn .3s ease;' +
+        'border-left:4px solid ' + (colors[type] || colors.info);
+    t.innerHTML = '<i class="fas fa-' + (icons[type] || 'info-circle') + '" style="color:' +
+        (colors[type] || colors.info) + ';font-size:1rem"></i>' +
+        '<span style="flex:1;font-size:.85rem;color:#0d4a5c;font-family:Poppins,sans-serif">' +
+        msg + '</span>' +
+        '<button onclick="this.parentElement.remove()" style="background:none;border:none;' +
+        'color:#8aabb5;cursor:pointer;font-size:1rem">&times;</button>';
+    wrap.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(100%)';
+        t.style.transition = 'all .3s ease';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+    }, 5000);
+}
+
+// ============================================================
 // GET STARTED FORM
 // ============================================================
 function submitGetStarted() {
@@ -1271,15 +379,14 @@ function submitGetStarted() {
     var entities = document.getElementById('gs-entities').value  || '1';
     var message  = (document.getElementById('gs-message').value  || '').trim();
 
-    // Validation
-    if (!name)    { showIndexToast('error', 'Please enter your full name');         return; }
-    if (!phone)   { showIndexToast('error', 'Please enter your contact number');    return; }
-    if (!business){ showIndexToast('error', 'Please enter your business name');     return; }
-    if (!email)   { showIndexToast('error', 'Please enter your email address');     return; }
+    if (!name)    { showToast('error', 'Please enter your full name');         return; }
+    if (!phone)   { showToast('error', 'Please enter your contact number');    return; }
+    if (!business){ showToast('error', 'Please enter your business name');     return; }
+    if (!email)   { showToast('error', 'Please enter your email address');     return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showIndexToast('error', 'Please enter a valid email address'); return;
+        showToast('error', 'Please enter a valid email address'); return;
     }
-    if (!type)    { showIndexToast('error', 'Please select your business type');    return; }
+    if (!type)    { showToast('error', 'Please select your business type');    return; }
 
     var specialActive = currentSignupCount < LAUNCH_MAX;
     var btn = document.getElementById('gs-submit-btn');
@@ -1299,95 +406,45 @@ function submitGetStarted() {
         createdAt:     firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Save to Firebase enquiries collection
     db.collection('enquiries').add(enquiryData)
         .then(function(docRef) {
-            // Add the Firestore ID to the data for email reference
             enquiryData.id = docRef.id;
 
-            // Send emails via email-templates.js
-            var emailPromises = [];
-
+            var promises = [];
             if (typeof emailEnquiryToAdmin === 'function') {
-                emailPromises.push(emailEnquiryToAdmin(enquiryData));
+                promises.push(emailEnquiryToAdmin(enquiryData));
             }
             if (typeof emailEnquiryToCustomer === 'function') {
-                emailPromises.push(emailEnquiryToCustomer(enquiryData));
+                promises.push(emailEnquiryToCustomer(enquiryData));
             }
-
-            return Promise.all(emailPromises);
+            return Promise.all(promises);
         })
         .then(function() {
-            // Increment launch special counter
             incrementLaunchCount();
-
-            // Show success state
             document.getElementById('gs-form-wrap').style.display = 'none';
             document.getElementById('gs-success').style.display   = 'block';
-
-            showIndexToast('success', '✅ Details sent! We will be in touch within 24 hours.');
+            showToast('success', '✅ Details sent! We will be in touch within 24 hours.');
         })
         .catch(function(err) {
             console.error('Get Started error:', err);
             btn.disabled  = false;
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Details — Get a Quote';
-            showIndexToast('error', 'Something went wrong. Please try again or WhatsApp us.');
+            showToast('error', 'Something went wrong. Please try again or WhatsApp us on 079 044 0508.');
         });
 }
 
-// ── Simple toast for index page ──
-function showIndexToast(type, msg) {
-    var wrap = document.getElementById('toastWrap');
-    if (!wrap) {
-        // toastWrap hidden by default on index — use alert as fallback
-        if (type === 'error') alert(msg);
-        return;
-    }
-    wrap.style.display = 'flex';
-    var colors = {
-        success: '#2ea871', error: '#c94545',
-        info:    '#1a8ba8', warning: '#f59e0b'
-    };
-    var icons = {
-        success: 'check-circle', error: 'times-circle',
-        info:    'info-circle',  warning: 'exclamation-triangle'
-    };
-    var t = document.createElement('div');
-    t.style.cssText =
-        'background:#fff;padding:12px 16px;border-radius:10px;' +
-        'box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;align-items:center;' +
-        'gap:10px;min-width:280px;animation:tIn .3s ease;' +
-        'border-left:4px solid ' + (colors[type] || colors.info);
-    t.innerHTML =
-        '<i class="fas fa-' + (icons[type] || 'info-circle') + '" style="color:' +
-        (colors[type] || colors.info) + ';font-size:1rem"></i>' +
-        '<span style="flex:1;font-size:.85rem;color:#0d4a5c;font-family:Poppins,sans-serif">' +
-        msg + '</span>' +
-        '<button onclick="this.parentElement.remove()" style="background:none;border:none;' +
-        'color:#8aabb5;cursor:pointer;font-size:1rem">&times;</button>';
-    wrap.appendChild(t);
-    setTimeout(function() {
-        t.style.opacity   = '0';
-        t.style.transform = 'translateX(100%)';
-        t.style.transition = 'all .3s ease';
-        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
-    }, 5000);
-}
-
 // ============================================================
-// BOOKING CALENDAR SYSTEM
-// Bookings now saved to Firebase — not localStorage
+// BOOKING CALENDAR — saves to Firebase
 // ============================================================
-var calDate           = new Date();
-var selectedDate      = null;
-var selectedSlot      = null;
-var bookedSlots       = {};   // { 'YYYY-MM-DD': ['morning','afternoon'] }
+var calDate      = new Date();
+var selectedDate = null;
+var selectedSlot = null;
+var bookedSlots  = {};
 
 function openBookingModal() {
     document.getElementById('bookingModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    // Load bookings from Firebase then render
-    loadBookingsFromFirebase();
+    loadBookings();
 }
 
 function closeBookingModal() {
@@ -1397,14 +454,12 @@ function closeBookingModal() {
     selectedSlot = null;
 }
 
-// Close modal if clicking backdrop
 document.addEventListener('click', function(e) {
     if (e.target && e.target.id === 'bookingModal') closeBookingModal();
 });
 
-function loadBookingsFromFirebase() {
-    // Load all bookings for current + next month to show availability
-    var now      = new Date();
+function loadBookings() {
+    var now       = new Date();
     var thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     var nextDate  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     var nextMonth = nextDate.getFullYear() + '-' + String(nextDate.getMonth() + 1).padStart(2, '0');
@@ -1421,16 +476,12 @@ function loadBookingsFromFirebase() {
             });
             renderCalendar();
         })
-        .catch(function() {
-            // If query fails just render empty calendar
-            bookedSlots = {};
-            renderCalendar();
-        });
+        .catch(function() { bookedSlots = {}; renderCalendar(); });
 }
 
 function changeMonth(dir) {
     calDate.setMonth(calDate.getMonth() + dir);
-    loadBookingsFromFirebase();
+    loadBookings();
 }
 
 function renderCalendar() {
@@ -1440,20 +491,20 @@ function renderCalendar() {
 
     var year  = calDate.getFullYear();
     var month = calDate.getMonth();
-    var months = [
-        'January','February','March','April','May','June',
-        'July','August','September','October','November','December'
-    ];
+    var months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
     label.textContent = months[month] + ' ' + year;
 
     var firstDay    = new Date(year, month, 1).getDay();
     var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var today       = new Date(); today.setHours(0, 0, 0, 0);
+    var today       = new Date();
+    today.setHours(0, 0, 0, 0);
 
     var html = '';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) {
-        html += '<div class="cal-day-header">' + d + '</div>';
-    });
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for (var h = 0; h < days.length; h++) {
+        html += '<div class="cal-day-header">' + days[h] + '</div>';
+    }
 
     for (var i = 0; i < firstDay; i++) {
         html += '<div class="cal-day empty"></div>';
@@ -1472,11 +523,10 @@ function renderCalendar() {
         var hasBooking  = booked.length > 0;
 
         var cls = 'cal-day';
-        if (isPast || isWeek)      cls += ' disabled';
-        if (isToday)               cls += ' today';
+        if (isPast || isWeek || fullyBooked) cls += ' disabled';
+        if (isToday) cls += ' today';
         if (selectedDate === dateStr) cls += ' selected';
         if (hasBooking && !fullyBooked && !isPast && !isWeek) cls += ' has-booking';
-        if (fullyBooked && !isPast && !isWeek) cls += ' disabled';
 
         if (!isPast && !isWeek && !fullyBooked) {
             html += '<div class="' + cls + '" onclick="selectDate(\'' + dateStr + '\')">' + d + '</div>';
@@ -1492,57 +542,41 @@ function selectDate(dateStr) {
     selectedSlot = null;
     renderCalendar();
 
-    var slotWrap = document.getElementById('time-slot-wrap');
-    var formWrap = document.getElementById('booking-form-wrap');
-    if (slotWrap) slotWrap.style.display = 'block';
-    if (formWrap) formWrap.style.display = 'none';
+    document.getElementById('time-slot-wrap').style.display    = 'block';
+    document.getElementById('booking-form-wrap').style.display = 'none';
 
     var dateObj = new Date(dateStr + 'T00:00:00');
-    var dateLabel = document.getElementById('selected-date-label');
-    if (dateLabel) {
-        dateLabel.textContent = dateObj.toLocaleDateString('en-ZA', {
-            weekday:'long', year:'numeric', month:'long', day:'numeric'
-        });
-    }
+    document.getElementById('selected-date-label').textContent =
+        dateObj.toLocaleDateString('en-ZA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-    var booked   = bookedSlots[dateStr] || [];
-    var slotsHtml = '';
+    var booked = bookedSlots[dateStr] || [];
     var slots = [
         { id:'morning',   label:'Morning Session',   time:'08:00 — 12:00' },
         { id:'afternoon', label:'Afternoon Session',  time:'13:00 — 17:00' }
     ];
 
-    slots.forEach(function(slot) {
+    var slotsHtml = '';
+    for (var s = 0; s < slots.length; s++) {
+        var slot     = slots[s];
         var isBooked = booked.indexOf(slot.id) !== -1;
         if (isBooked) {
-            slotsHtml +=
-                '<div class="time-slot booked">' +
-                    '<i class="fas fa-ban" style="margin-right:6px"></i>' +
-                    slot.label + '<br><small>' + slot.time + '</small>' +
-                    '<br><small style="color:#c94545">Already Booked</small>' +
-                '</div>';
+            slotsHtml += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' +
+                slot.label + '<br><small>' + slot.time + '</small><br><small style="color:#c94545">Already Booked</small></div>';
         } else {
-            slotsHtml +=
-                '<div class="time-slot" onclick="selectSlot(this,\'' + slot.id + '\')">' +
-                    '<i class="fas fa-clock" style="margin-right:6px"></i>' +
-                    slot.label + '<br><small>' + slot.time + '</small>' +
-                '</div>';
+            slotsHtml += '<div class="time-slot" onclick="selectSlot(this,\'' + slot.id + '\')">' +
+                '<i class="fas fa-clock" style="margin-right:6px"></i>' +
+                slot.label + '<br><small>' + slot.time + '</small></div>';
         }
-    });
-
-    var slotsContainer = document.getElementById('time-slots');
-    if (slotsContainer) slotsContainer.innerHTML = slotsHtml;
+    }
+    document.getElementById('time-slots').innerHTML = slotsHtml;
 }
 
 function selectSlot(el, slotId) {
-    document.querySelectorAll('.time-slot').forEach(function(s) {
-        s.classList.remove('selected');
-    });
+    var allSlots = document.querySelectorAll('.time-slot');
+    for (var i = 0; i < allSlots.length; i++) allSlots[i].classList.remove('selected');
     el.classList.add('selected');
     selectedSlot = slotId;
-
-    var formWrap = document.getElementById('booking-form-wrap');
-    if (formWrap) formWrap.style.display = 'block';
+    document.getElementById('booking-form-wrap').style.display = 'block';
 }
 
 function submitBooking() {
@@ -1552,30 +586,20 @@ function submitBooking() {
     var email    = (document.getElementById('book-email').value    || '').trim().toLowerCase();
     var address  = (document.getElementById('book-address').value  || '').trim();
 
-    if (!name)     { alert('Please enter your full name.');          return; }
-    if (!phone)    { alert('Please enter your contact number.');     return; }
-    if (!business) { alert('Please enter your business name.');      return; }
-    if (!email)    { alert('Please enter your email address.');      return; }
-    if (!address)  { alert('Please enter your address.');            return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert('Please enter a valid email address.'); return;
-    }
-    if (!selectedDate || !selectedSlot) {
-        alert('Please select a date and time slot.'); return;
-    }
+    if (!name)     { alert('Please enter your full name.');      return; }
+    if (!phone)    { alert('Please enter your contact number.'); return; }
+    if (!business) { alert('Please enter your business name.');  return; }
+    if (!email)    { alert('Please enter your email address.');  return; }
+    if (!address)  { alert('Please enter your address.');        return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+    if (!selectedDate || !selectedSlot) { alert('Please select a date and time slot.'); return; }
 
-    var slotLabels = {
-        morning:   '08:00 — 12:00 (Morning)',
-        afternoon: '13:00 — 17:00 (Afternoon)'
-    };
+    var slotLabels = { morning:'08:00 — 12:00 (Morning)', afternoon:'13:00 — 17:00 (Afternoon)' };
 
-    var submitBtn = document.querySelector('.booking-submit');
-    if (submitBtn) {
-        submitBtn.disabled   = true;
-        submitBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
-    }
+    var btn = document.getElementById('booking-submit-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming...'; }
 
-    var monthKey = selectedDate.substring(0, 7); // 'YYYY-MM'
+    var monthKey  = selectedDate.substring(0, 7);
     var bookingId = 'BK-' + Date.now();
 
     var booking = {
@@ -1585,79 +609,49 @@ function submitBooking() {
         slotLabel: slotLabels[selectedSlot],
         monthKey:  monthKey,
         customer: {
-            name:     name,
-            phone:    phone,
-            business: business,
-            email:    email,
-            address:  address
+            name: name, phone: phone, business: business,
+            email: email, address: address
         },
         status:    'confirmed',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         timestamp: new Date().toISOString()
     };
 
-    // Save booking to Firebase
     db.collection('bookings').doc(bookingId).set(booking)
         .then(function() {
-            // Update local cache
             if (!bookedSlots[selectedDate]) bookedSlots[selectedDate] = [];
             bookedSlots[selectedDate].push(selectedSlot);
 
-            // Send confirmation emails
-            var emailData = {
-                id:        bookingId,
-                date:      selectedDate,
-                slotLabel: slotLabels[selectedSlot],
-                timestamp: new Date().toISOString(),
-                customer: {
-                    name:     name,
-                    phone:    phone,
-                    business: business,
-                    email:    email,
-                    address:  address
-                }
-            };
-
-            var emailPromises = [];
+            var promises = [];
             if (typeof emailBookingToCustomer === 'function') {
-                emailPromises.push(emailBookingToCustomer(emailData));
+                promises.push(emailBookingToCustomer(booking));
             }
             if (typeof emailBookingToAdmin === 'function') {
-                emailPromises.push(emailBookingToAdmin(emailData));
+                promises.push(emailBookingToAdmin(booking));
             }
-
-            return Promise.all(emailPromises);
+            return Promise.all(promises);
         })
         .then(function() {
-            if (submitBtn) {
-                submitBtn.disabled  = false;
-                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
-            }
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking'; }
 
-            // Show success alert and close
-            alert(
-                '✅ Presentation booked!\n\n' +
-                'Date: ' + selectedDate + '\n' +
-                'Time: ' + slotLabels[selectedSlot] + '\n\n' +
-                'A confirmation email has been sent to ' + email
-            );
+            alert('✅ Presentation booked!\n\nDate: ' + selectedDate + '\nTime: ' +
+                slotLabels[selectedSlot] + '\n\nConfirmation email sent to ' + email);
 
             closeBookingModal();
 
-            // Reset form
-            ['book-name','book-phone','book-business','book-email','book-address'].forEach(function(id) {
-                var el = document.getElementById(id);
+            var fields = ['book-name','book-phone','book-business','book-email','book-address'];
+            for (var i = 0; i < fields.length; i++) {
+                var el = document.getElementById(fields[i]);
                 if (el) el.value = '';
-            });
+            }
+            document.getElementById('time-slot-wrap').style.display    = 'none';
+            document.getElementById('booking-form-wrap').style.display = 'none';
             selectedDate = null;
             selectedSlot = null;
         })
         .catch(function(err) {
             console.error('Booking error:', err);
-            if (submitBtn) {
-                submitBtn.disabled  = false;
-                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
-            }
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking'; }
             alert('Error saving booking. Please try again or WhatsApp us on 079 044 0508.');
         });
 }
@@ -1675,7 +669,6 @@ var stockyPrompts = [
     'How can I help you today?'
 ];
 
-// Show bubble after 5 seconds
 setTimeout(function() {
     showStockyBubble();
     setInterval(cycleStockyPrompt, 15000);
@@ -1714,128 +707,56 @@ function closeStockyChat() {
     setTimeout(showStockyBubble, 10000);
 }
 
-// Stocky FAQ answers
 var stockyAnswers = {
-    what:
-        '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock ' +
-        'management system with 13 apps including Nikki your AI voice assistant!',
-    nikki:
-        '🤖 <strong>Nikki</strong> is your AI voice assistant powered by GPT-4o.<br><br>' +
-        'Just say <strong>"Hey Nikki"</strong> — she knows your live business data and ' +
-        'answers instantly in 6 languages. Only <strong>R499/mo</strong> to add.',
-    special:
-        '🎉 <strong>Launch Special — 30% OFF!</strong><br><br>' +
-        'The first 20 customers get 30% off their monthly subscription. ' +
-        'Only <strong>' + (LAUNCH_MAX - currentSignupCount) + ' spot' +
-        ((LAUNCH_MAX - currentSignupCount) === 1 ? '' : 's') + '</strong> remaining!<br><br>' +
-        '<a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">' +
-        'Claim your spot now!</a>',
-    start:
-        '🚀 Simple! Fill in the form on this page and our team will send you a ' +
-        'personalised quote link within 24 hours.<br><br>' +
-        '<a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">' +
-        'Go to the form →</a>',
-    functions:
-        '🎉 <strong>FunctionsAI</strong> is our full events &amp; functions management module. ' +
-        'Book clients, build menus, calculate costs and generate professional invoices ' +
-        'automatically. Only <strong>R449/mo</strong>.',
-    safe:
-        '🔒 <strong>100% secure</strong> — bank-level encryption, daily backups, ' +
-        'POPIA compliant, hosted on Google Firebase. Your data never leaves the country.'
+    what:      '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system with 13 apps including Nikki your AI voice assistant!',
+    nikki:     '🤖 <strong>Nikki</strong> is your AI voice assistant powered by GPT-4o.<br><br>Just say <strong>"Hey Nikki"</strong> — she knows your live business data and answers instantly in 6 languages. Only <strong>R499/mo</strong> to add.',
+    special:   '🎉 <strong>Launch Special — 30% OFF!</strong><br><br>The first 20 customers get 30% off their monthly subscription. <a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">Claim your spot now!</a>',
+    start:     '🚀 Simple! Fill in the form on this page and our team will send you a personalised quote link within 24 hours.<br><br><a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">Go to the form →</a>',
+    functions: '🎉 <strong>FunctionsAI</strong> is our full events &amp; functions management module. Book clients, build menus, calculate costs and generate invoices. Only <strong>R449/mo</strong>.',
+    safe:      '🔒 <strong>100% secure</strong> — bank-level encryption, daily backups, POPIA compliant, hosted on Google Firebase.'
 };
 
 var stockyLabels = {
-    what:      'What is StockAI-Pro?',
-    nikki:     'Who is Nikki?',
-    special:   'Launch Special?',
-    start:     'How do I start?',
-    functions: 'What is FunctionsAI?',
-    safe:      'Is my data safe?'
+    what:'What is StockAI-Pro?', nikki:'Who is Nikki?', special:'Launch Special?',
+    start:'How do I start?', functions:'What is FunctionsAI?', safe:'Is my data safe?'
 };
 
 function stockyAnswer(key) {
     var messages = document.getElementById('stocky-messages');
     if (!messages) return;
 
-    // Add user message
     var userMsg = document.createElement('div');
     userMsg.className = 'stocky-msg user';
     userMsg.innerHTML = '<p>' + (stockyLabels[key] || key) + '</p>';
     messages.appendChild(userMsg);
     messages.scrollTop = messages.scrollHeight;
 
-    // Add bot response after short delay
     setTimeout(function() {
         var botMsg = document.createElement('div');
         botMsg.className = 'stocky-msg bot';
-        botMsg.innerHTML =
-            '<p>' + (stockyAnswers[key] || 'Please WhatsApp us on 079 044 0508 for more info!') + '</p>' +
+        botMsg.innerHTML = '<p>' + (stockyAnswers[key] || 'WhatsApp us on 079 044 0508!') + '</p>' +
             '<div class="stocky-faq-btns" style="margin-top:8px">' +
-                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button>' +
-                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'nikki\')">Who is Nikki?</button>' +
-                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'special\')">Launch Special</button>' +
-                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button>' +
+            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button>' +
+            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'nikki\')">Who is Nikki?</button>' +
+            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'special\')">Launch Special</button>' +
+            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button>' +
             '</div>';
         messages.appendChild(botMsg);
         messages.scrollTop = messages.scrollHeight;
     }, 500);
 }
 
-// ── Stocky wander removed — it was causing layout issues ──
-
 // ============================================================
-// FAQ ACCORDION
-// ============================================================
-document.addEventListener('click', function(e) {
-    var item = e.target.closest('.faq-item');
-    if (!item) return;
-    // Close others
-    document.querySelectorAll('.faq-item.open').forEach(function(open) {
-        if (open !== item) open.classList.remove('open');
-    });
-    item.classList.toggle('open');
-});
-
-// ============================================================
-// MOBILE MENU TOGGLE
-// ============================================================
-var menuToggle = document.querySelector('.menu-toggle');
-if (menuToggle) {
-    menuToggle.addEventListener('click', function() {
-        var navLinks = document.getElementById('navLinks');
-        if (navLinks) navLinks.classList.toggle('open');
-    });
-}
-
-// Close mobile menu when a link is clicked
-document.querySelectorAll('#navLinks a').forEach(function(link) {
-    link.addEventListener('click', function() {
-        var navLinks = document.getElementById('navLinks');
-        if (navLinks) navLinks.classList.remove('open');
-    });
-});
-
-// ============================================================
-// SMOOTH SCROLL for anchor links
-// ============================================================
-document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-    anchor.addEventListener('click', function(e) {
-        var target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
-
-// ============================================================
-// CONFIRM ALL LOADED
+// CONFIRM LOADED
 // ============================================================
 window.addEventListener('load', function() {
     console.log('✅ StockAI-Pro index.html v4.0 loaded');
     console.log('🎉 Launch Special — Firebase counter active');
-    console.log('📋 Get Started form — saves to enquiries collection');
-    console.log('📅 Booking system — saves to bookings collection (Firebase)');
+    console.log('📋 Get Started form — saves to enquiries');
+    console.log('📅 Booking system — saves to Firebase');
     console.log('🤖 Stocky Bot — active');
-    console.log('📧 Email system — uses email-templates.js');
+    console.log('📧 Email system — email-templates.js');
 });
+</script>
+</body>
+</html>
