@@ -149,15 +149,8 @@ function fmtR(n) {
 // Called from: index.html Get Started form
 // ============================================================
 function emailEnquiryToAdmin(data) {
-    var specialBadge = data.specialActive
-        ? '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-          'border-radius:10px;padding:12px;margin-bottom:16px;text-align:center;color:#fff">' +
-          '<div style="font-weight:700;font-size:13px">🎉 LAUNCH SPECIAL CUSTOMER</div>' +
-          '<div style="font-size:12px;opacity:.85">Qualifies for 30% off</div>' +
-          '</div>'
-        : '';
-
-    var body = specialBadge +
+    
+    var body = 
         '<p style="color:#2a5f70;font-size:13px;margin-bottom:16px">' +
         'A new customer has submitted their details on the website:</p>' +
         emailTable([
@@ -200,21 +193,13 @@ function emailEnquiryToAdmin(data) {
 // Called from: index.html Get Started form
 // ============================================================
 function emailEnquiryToCustomer(data) {
-    var specialBlock = data.specialActive
-        ? '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);' +
-          'border-radius:10px;padding:16px;margin:16px 0;text-align:center;color:#fff">' +
-          '<div style="font-size:15px;font-weight:900;margin-bottom:4px">🎉 You qualify for the Launch Special!</div>' +
-          '<div style="font-size:12px;opacity:.9">30% OFF your monthly subscription</div>' +
-          '</div>'
-        : '';
-
+    
     var body =
         '<p style="color:#0d4a5c;font-size:15px;margin-bottom:8px">Hi <strong>' +
         data.name.split(' ')[0] + '</strong>,</p>' +
         '<p style="color:#5a8a96;font-size:13px;line-height:1.7;margin-bottom:16px">' +
         'Thank you for your interest in StockAI-Pro! We have received your details and ' +
         'will send you a personalised quote link within <strong style="color:#0d4a5c">24 hours</strong>.</p>' +
-        specialBlock +
         '<div style="background:#f0f7f9;border-radius:10px;padding:14px;margin:16px 0">' +
         '<div style="font-size:11px;font-weight:700;color:#1a8ba8;margin-bottom:10px">' +
         'WHAT HAPPENS NEXT</div>' +
