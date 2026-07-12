@@ -610,7 +610,7 @@ section { padding: 90px 24px; position: relative; }
       <a href="#faq">FAQ</a>
       <a href="javascript:void(0)" onclick="openBookingModal()" class="btn-present-nav"><i class="fas fa-calendar-check"></i> Book Demo</a>
       <a href="hub.html" class="btn-login-nav"><i class="fas fa-user"></i> Login</a>
-      <a href="control.html" class="btn-portal-nav"><i class="fas fa-shield-alt"></i> Portal</a>
+      <a href="portal.html" class="btn-portal-nav"><i class="fas fa-shield-alt"></i> Portal</a>
       <a href="#get-started" class="btn-nav"><i class="fas fa-rocket"></i> Get Started</a>
     </div>
     <button class="menu-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
@@ -1018,7 +1018,7 @@ section { padding: 90px 24px; position: relative; }
     <div><h4>Company</h4><ul>
       <li><a href="https://wa.me/27790440508">Contact Us</a></li>
       <li><a href="hub.html">Customer Login</a></li>
-      <li><a href="control.html">Portal Login</a></li>
+      <li><a href="portal.html">Portal Login</a></li>
       <li><a href="javascript:void(0)" onclick="openBookingModal()">Book Presentation</a></li>
       <li><a href="/supplier.html"><i class="fas fa-truck" style="font-size:.7rem;margin-right:4px"></i>Supplier Portal</a></li>
     </ul></div>
@@ -1087,141 +1087,123 @@ section { padding: 90px 24px; position: relative; }
 <!-- TOAST WRAP -->
 <div style="display:none" id="toastWrap"></div>
 <!-- SCRIPTS -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="email-templates.js"></script>
 <script src="email-addon.js"></script>
 
 <script>
 // ============================================================
-// FIREBASE CONFIG — replace with your actual config
+// StockAI-Pro — index.html JavaScript v4.0
 // ============================================================
-var firebaseConfig = {
-    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
-    authDomain:        "stockai-pro-b232e.firebaseapp.com",
-    projectId:         "stockai-pro-b232e",
-    storageBucket:     "stockai-pro-b232e.appspot.com",
-    messagingSenderId: "424200946359",
-    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
-};
 
-// Only initialise if not already done
+// ── Firebase init ──
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp({
+        apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
+        authDomain:        'stockai-pro-b232e.firebaseapp.com',
+        projectId:         'stockai-pro-b232e',
+        storageBucket:     'stockai-pro-b232e.firebasestorage.app',
+        messagingSenderId: '424200946359',
+        appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+    });
 }
 var db = firebase.firestore();
 
-var LAUNCH_SPECIAL_MAX = 20;
-var LAUNCH_SPECIAL_DOC = 'launch_special';
-var LAUNCH_SPECIAL_COL = 'settings';
-
-// ============================================================
-// TOAST — disabled, using alerts instead
-// ============================================================
-function showToast(type, msg) { console.log(type + ':', msg); }
+// ── Constants ──
+var LAUNCH_MAX = 20;
+var currentSignupCount = 0;
 
 // ============================================================
 // SCROLL REVEAL
 // ============================================================
 function revealOnScroll() {
-    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el) {
-        if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');
-    });
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale')
+        .forEach(function(el) {
+            if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+                el.classList.add('active');
+            }
+        });
 }
-window.addEventListener('scroll', revealOnScroll);
-window.addEventListener('load', revealOnScroll);
+window.addEventListener('scroll', revealOnScroll, { passive: true });
+window.addEventListener('load',   revealOnScroll);
 
 // ============================================================
-// HEADER SCROLL
+// HEADER SCROLL SHRINK
 // ============================================================
 window.addEventListener('scroll', function() {
-    document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 50);
-});
+    var hdr = document.getElementById('site-header');
+    if (hdr) hdr.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
 
 // ============================================================
 // LAUNCH SPECIAL — Firebase counter
 // ============================================================
-var currentSignupCount = 0;
-
 function loadLaunchSpecial() {
-    db.collection(LAUNCH_SPECIAL_COL).doc(LAUNCH_SPECIAL_DOC).get()
+    db.collection('settings').doc('launch_special').get()
         .then(function(doc) {
-            if (doc.exists) {
-                currentSignupCount = doc.data().count || 0;
-            } else {
-                // Create the document if it doesn't exist
-                db.collection(LAUNCH_SPECIAL_COL).doc(LAUNCH_SPECIAL_DOC).set({ count: 0 });
-                currentSignupCount = 0;
+            currentSignupCount = doc.exists ? (doc.data().count || 0) : 0;
+            if (!doc.exists) {
+                db.collection('settings').doc('launch_special')
+                    .set({ count: 0 }).catch(function() {});
             }
             updateLaunchBanner();
         })
-        .catch(function(err) {
-            console.warn('Could not load launch special count:', err);
-            // Still show banner — fail gracefully
-            updateLaunchBanner();
-        });
+        .catch(function() { updateLaunchBanner(); });
 }
 
 function updateLaunchBanner() {
-    var banner   = document.getElementById('launch-special-banner');
-    var spotsEl  = document.getElementById('spots-remaining');
-    var remaining = LAUNCH_SPECIAL_MAX - currentSignupCount;
-
+    var banner    = document.getElementById('launch-special-banner');
+    var spotsEl   = document.getElementById('spots-remaining');
+    var remaining = LAUNCH_MAX - currentSignupCount;
+    if (!banner) return;
     if (remaining <= 0) {
-        // Special is full — hide banner completely
-        if (banner) banner.style.display = 'none';
+        banner.style.display = 'none';
         return;
     }
-
-    // Show banner with remaining spots
-    if (banner) banner.style.display = 'block';
-    if (spotsEl) spotsEl.textContent = remaining + ' spot' + (remaining === 1 ? '' : 's');
+    banner.style.display = '';
+    if (spotsEl) {
+        spotsEl.textContent = remaining + ' spot' + (remaining === 1 ? '' : 's');
+    }
 }
 
 function incrementLaunchCount() {
-    // Only increment if special is still active
-    if (currentSignupCount >= LAUNCH_SPECIAL_MAX) return;
-
-    return db.collection(LAUNCH_SPECIAL_COL)
-        .doc(LAUNCH_SPECIAL_DOC)
-        .update({
-            count: firebase.firestore.FieldValue.increment(1)
-        })
+    if (currentSignupCount >= LAUNCH_MAX) return Promise.resolve();
+    return db.collection('settings').doc('launch_special')
+        .update({ count: firebase.firestore.FieldValue.increment(1) })
         .then(function() {
             currentSignupCount++;
             updateLaunchBanner();
-            console.log('✅ Launch special count incremented to:', currentSignupCount);
         })
-        .catch(function(err) {
-            // If document doesn't exist yet, create it
-            return db.collection(LAUNCH_SPECIAL_COL)
-                .doc(LAUNCH_SPECIAL_DOC)
+        .catch(function() {
+            // Doc may not exist yet — create it
+            return db.collection('settings').doc('launch_special')
                 .set({ count: 1 });
         });
 }
 
-// Load on page start
+// Load on start
 loadLaunchSpecial();
 
 // ============================================================
-// COUNTERS
+// COUNTER ANIMATION
 // ============================================================
 function animateCounters() {
-    document.querySelectorAll('.counter').forEach(function(c) {
-        if (c.dataset.animated) return;
-        if (c.getBoundingClientRect().top > window.innerHeight) return;
-        c.dataset.animated = 'true';
-        var target    = parseInt(c.dataset.target);
+    document.querySelectorAll('.counter').forEach(function(el) {
+        if (el.dataset.animated) return;
+        if (el.getBoundingClientRect().top > window.innerHeight) return;
+        el.dataset.animated = 'true';
+        var target    = parseInt(el.dataset.target) || 0;
         var current   = 0;
         var increment = target / 60;
-        var timer     = setInterval(function() {
+        var timer = setInterval(function() {
             current += increment;
             if (current >= target) { current = target; clearInterval(timer); }
-            c.textContent = Math.floor(current).toLocaleString();
+            el.textContent = Math.floor(current).toLocaleString();
         }, 30);
     });
 }
-window.addEventListener('scroll', animateCounters);
+window.addEventListener('scroll', animateCounters, { passive: true });
 window.addEventListener('load', function() { setTimeout(animateCounters, 500); });
 
 // ============================================================
@@ -1232,434 +1214,628 @@ function animateDemo() {
     if (!ds || ds.dataset.animated) return;
     if (ds.getBoundingClientRect().top > window.innerHeight) return;
     ds.dataset.animated = 'true';
+
     animateValue('demo-stock-val', 0, 125000, 2000, 'R', '');
-    setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', ''); }, 500);
-    setTimeout(function() { animateValue('demo-fc-val', 0, 27.4, 1000, '', '%'); }, 1000);
-    setTimeout(function() { animateValue('demo-ai-val', 0, 3, 800, '', ''); }, 1500);
-    setTimeout(function() { var n = document.getElementById('demo-notif-1'); if (n) n.style.display = 'flex'; }, 2000);
-    setTimeout(function() { var n = document.getElementById('demo-notif-2'); if (n) n.style.display = 'flex'; }, 3500);
-    setTimeout(function() { var n = document.getElementById('demo-notif-3'); if (n) n.style.display = 'flex'; }, 5000);
-    setTimeout(function() { typeText('demo-typed', '"Hey Nikki, show me low stock items"', 60); }, 3000);
+    setTimeout(function() { animateValue('demo-sales-val', 0, 48320, 1500, 'R', '');  }, 500);
+    setTimeout(function() { animateValue('demo-fc-val',    0, 27.4,  1000, '', '%'); }, 1000);
+    setTimeout(function() { animateValue('demo-ai-val',    0, 3,     800,  '', '');  }, 1500);
+    setTimeout(function() { showDemoNotif('demo-notif-1'); }, 2000);
+    setTimeout(function() { showDemoNotif('demo-notif-2'); }, 3500);
+    setTimeout(function() { showDemoNotif('demo-notif-3'); }, 5000);
+    setTimeout(function() { typeText('demo-typed', '"Hey Nikki, show me today\'s low stock"', 55); }, 3000);
 }
+
+function showDemoNotif(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+}
+
 function animateValue(id, start, end, dur, pre, suf) {
-    var el = document.getElementById(id); if (!el) return;
-    pre = pre || ''; suf = suf || '';
-    var range = end - start; var startTime = null;
+    var el = document.getElementById(id);
+    if (!el) return;
+    var range = end - start;
+    var startTime = null;
     function step(ts) {
         if (!startTime) startTime = ts;
         var progress = Math.min((ts - startTime) / dur, 1);
-        var cur = start + (range * progress);
-        el.textContent = pre + (end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0)) + suf;
+        var cur      = start + (range * progress);
+        var display  = end >= 1000 ? Math.floor(cur).toLocaleString() : cur.toFixed(end % 1 !== 0 ? 1 : 0);
+        el.textContent = (pre || '') + display + (suf || '');
         if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
 }
+
 function typeText(id, text, speed) {
-    var el = document.getElementById(id); if (!el) return;
-    var i = 0; el.textContent = '';
-    function t() { if (i < text.length) { el.textContent += text.charAt(i); i++; setTimeout(t, speed); } }
+    var el = document.getElementById(id);
+    if (!el) return;
+    var i = 0;
+    el.textContent = '';
+    function t() {
+        if (i < text.length) { el.textContent += text.charAt(i); i++; setTimeout(t, speed); }
+    }
     t();
 }
-window.addEventListener('scroll', animateDemo);
+
+window.addEventListener('scroll', animateDemo, { passive: true });
 
 // ============================================================
-// GET STARTED FORM — Submit to admin via Cloudflare Worker
+// GET STARTED FORM
 // ============================================================
 function submitGetStarted() {
-    var name     = document.getElementById('gs-name').value.trim();
-    var phone    = document.getElementById('gs-phone').value.trim();
-    var business = document.getElementById('gs-business').value.trim();
-    var email    = document.getElementById('gs-email').value.trim();
-    var type     = document.getElementById('gs-type').value;
-    var entities = document.getElementById('gs-entities').value;
-    var message  = document.getElementById('gs-message').value.trim();
+    var name     = (document.getElementById('gs-name').value     || '').trim();
+    var phone    = (document.getElementById('gs-phone').value    || '').trim();
+    var business = (document.getElementById('gs-business').value || '').trim();
+    var email    = (document.getElementById('gs-email').value    || '').trim().toLowerCase();
+    var type     = document.getElementById('gs-type').value      || '';
+    var entities = document.getElementById('gs-entities').value  || '1';
+    var message  = (document.getElementById('gs-message').value  || '').trim();
 
     // Validation
-    if (!name) { alert('Please enter your full name.'); return; }
-    if (!phone) { alert('Please enter your contact number.'); return; }
-    if (!business) { alert('Please enter your business name.'); return; }
-    if (!email) { alert('Please enter your email address.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
-    if (!type) { alert('Please select your business type.'); return; }
+    if (!name)    { showIndexToast('error', 'Please enter your full name');         return; }
+    if (!phone)   { showIndexToast('error', 'Please enter your contact number');    return; }
+    if (!business){ showIndexToast('error', 'Please enter your business name');     return; }
+    if (!email)   { showIndexToast('error', 'Please enter your email address');     return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showIndexToast('error', 'Please enter a valid email address'); return;
+    }
+    if (!type)    { showIndexToast('error', 'Please select your business type');    return; }
 
-    // Check if launch special is still active
-    var specialActive = currentSignupCount < LAUNCH_SPECIAL_MAX;
-    var specialText   = specialActive
-        ? '🎉 This customer qualifies for the 30% LAUNCH SPECIAL! (' + (LAUNCH_SPECIAL_MAX - currentSignupCount) + ' spots remaining before this enquiry)'
-        : '❌ Launch special has expired (20 customers reached)';
-
-    // Disable button
+    var specialActive = currentSignupCount < LAUNCH_MAX;
     var btn = document.getElementById('gs-submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-    // Build email HTML for admin
-    var adminHtml =
-        '<div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:28px;text-align:center">' +
-        '<div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:2px"><span style="color:#5EEAD4">Stock</span><span style="color:#2DD4BF">AI</span><span style="color:rgba(255,255,255,.75)">-Pro</span></div>' +
-        '<h2 style="color:#fff;margin:12px 0 0;font-size:16px;">New Customer Enquiry</h2>' +
-        '</div>' +
-        '<div style="padding:28px;background:#fff">' +
+    var enquiryData = {
+        name:          name,
+        phone:         phone,
+        business:      business,
+        email:         email,
+        type:          type,
+        entities:      entities,
+        message:       message,
+        specialActive: specialActive,
+        status:        'pending',
+        createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-        (specialActive
-            ? '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:10px;padding:14px 18px;margin-bottom:20px;text-align:center;color:#fff"><div style="font-size:13px;font-weight:700">🎉 LAUNCH SPECIAL CUSTOMER</div><div style="font-size:12px;opacity:.85;margin-top:4px">This customer qualifies for 30% off — only ' + (LAUNCH_SPECIAL_MAX - currentSignupCount) + ' spot(s) remaining</div></div>'
-            : '<div style="background:#fee2e2;border-radius:10px;padding:12px 18px;margin-bottom:20px;text-align:center;color:#991b1b;font-size:13px;font-weight:600">❌ Launch special has now expired</div>') +
+    // Save to Firebase enquiries collection
+    db.collection('enquiries').add(enquiryData)
+        .then(function(docRef) {
+            // Add the Firestore ID to the data for email reference
+            enquiryData.id = docRef.id;
 
-        '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;width:35%;font-weight:600">Name</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700">' + name + '</td></tr>' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Business</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700">' + business + '</td></tr>' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Phone</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700"><a href="tel:' + phone + '" style="color:#1a8ba8">' + phone + '</a></td></tr>' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Email</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700"><a href="mailto:' + email + '" style="color:#1a8ba8">' + email + '</a></td></tr>' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Business Type</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700">' + type + '</td></tr>' +
-        '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Locations</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c;font-weight:700">' + entities + '</td></tr>' +
-        (message ? '<tr><td style="padding:9px 12px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600;vertical-align:top">Message</td><td style="padding:9px 12px;font-size:13px;color:#0d4a5c">' + message + '</td></tr>' : '') +
-        '</table>' +
+            // Send emails via email-templates.js
+            var emailPromises = [];
 
-        '<div style="background:#f0f7f9;border-radius:10px;padding:14px 18px;margin-bottom:16px">' +
-        '<div style="font-size:12px;font-weight:700;color:#1a8ba8;margin-bottom:6px">NEXT STEPS</div>' +
-        '<div style="font-size:12px;color:#2a5f70;line-height:1.8">' +
-        '1. Review their requirements above<br>' +
-        '2. Build their personalised quote on signup.html<br>' +
-        '3. Send them the pre-filled signup link<br>' +
-        '4. Follow up via WhatsApp or phone' +
-        '</div></div>' +
+            if (typeof emailEnquiryToAdmin === 'function') {
+                emailPromises.push(emailEnquiryToAdmin(enquiryData));
+            }
+            if (typeof emailEnquiryToCustomer === 'function') {
+                emailPromises.push(emailEnquiryToCustomer(enquiryData));
+            }
 
-        '<div style="text-align:center;margin-bottom:16px">' +
-        '<a href="https://wa.me/' + phone.replace(/[^0-9]/g,'') + '" style="display:inline-block;padding:10px 20px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin:4px">WhatsApp ' + name.split(' ')[0] + '</a>' +
-        '<a href="mailto:' + email + '" style="display:inline-block;padding:10px 20px;background:#1a8ba8;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin:4px">Email ' + name.split(' ')[0] + '</a>' +
-        '</div>' +
-
-        '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:0">StockAI-Pro — www.stockai-pro.co.za &bull; ' + new Date().toLocaleString('en-ZA') + '</p>' +
-        '</div></div>';
-
-    // Build confirmation email HTML for customer
-    var customerHtml =
-        '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e4f1f5;border-radius:12px;overflow:hidden">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);padding:30px;text-align:center">' +
-        '<div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:2px"><span style="color:#5EEAD4">Stock</span><span style="color:#2DD4BF">AI</span><span style="color:rgba(255,255,255,.75)">-Pro</span></div>' +
-        '<p style="color:#5EEAD4;margin:5px 0 0;font-size:11px;letter-spacing:2px">INTELLIGENCE A CLICK AWAY</p>' +
-        '<h2 style="color:#fff;margin:14px 0 0;font-size:18px;">We\'ve Received Your Details!</h2>' +
-        '</div>' +
-        '<div style="padding:28px;background:#fff">' +
-        '<p style="color:#0d4a5c;font-size:15px;margin:0 0 8px">Hi <strong>' + name.split(' ')[0] + '</strong>,</p>' +
-        '<p style="color:#5a8a96;font-size:13px;line-height:1.7;margin:0 0 20px">Thank you for your interest in StockAI-Pro! We have received your details and will send you a personalised quote link within <strong style="color:#0d4a5c">24 hours</strong>.</p>' +
-
-        (specialActive
-            ? '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:10px;padding:18px;margin:0 0 20px;text-align:center;color:#fff"><div style="font-size:16px;font-weight:900;margin-bottom:4px">🎉 You qualify for the Launch Special!</div><div style="font-size:13px;opacity:.9">30% OFF your monthly subscription — only ' + (LAUNCH_SPECIAL_MAX - currentSignupCount) + ' spot(s) remaining</div></div>'
-            : '') +
-
-        '<div style="background:#f0f7f9;border-radius:10px;padding:16px;margin:0 0 20px">' +
-        '<p style="color:#1a8ba8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px">YOUR DETAILS</p>' +
-        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0">' +
-        '<strong>Name:</strong> ' + name + '<br>' +
-        '<strong>Business:</strong> ' + business + '<br>' +
-        '<strong>Type:</strong> ' + type + '<br>' +
-        '<strong>Locations:</strong> ' + entities +
-        '</p></div>' +
-
-        '<div style="background:#f0f7f9;border-radius:10px;padding:16px;margin:0 0 24px">' +
-        '<p style="color:#1a8ba8;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px">WHAT HAPPENS NEXT</p>' +
-        '<p style="color:#2a5f70;font-size:13px;line-height:1.8;margin:0">' +
-        '1. Our team reviews your requirements<br>' +
-        '2. We build you a personalised package<br>' +
-        '3. You receive a quote link via email (within 24hrs)<br>' +
-        '4. You choose your features and pay securely' +
-        '</p></div>' +
-
-        '<div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;margin:0 0 20px">' +
-        '<p style="color:#065f46;font-size:13px;font-weight:700;margin:0">✅ 30-Day Money-Back Guarantee</p>' +
-        '<p style="color:#047857;font-size:12px;margin:4px 0 0">Not satisfied? Full refund — no questions asked.</p>' +
-        '</div>' +
-
-        '<p style="color:#5a8a96;font-size:13px;margin:0 0 16px">While you wait, feel free to book a presentation to see StockAI-Pro live:</p>' +
-
-        '<div style="text-align:center;margin:0 0 20px">' +
-        '<a href="https://wa.me/27790440508?text=Hi%2C%20I%20just%20submitted%20my%20details%20on%20the%20StockAI-Pro%20website" style="display:inline-block;padding:12px 22px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;margin:4px;font-size:13px">💬 WhatsApp Us</a>' +
-        '<a href="tel:0790440508" style="display:inline-block;padding:12px 22px;background:#1a8ba8;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;margin:4px;font-size:13px">📞 Call Us</a>' +
-        '</div>' +
-
-        '<hr style="border:0;border-top:1px solid #e4f1f5;margin:0 0 14px">' +
-        '<p style="font-size:11px;color:#8aabb5;text-align:center;margin:0">StockAI-Pro &bull; 079 044 0508 &bull; support@stockai-pro.co.za &bull; www.stockai-pro.co.za</p>' +
-        '</div></div>';
-
-    var PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
-
-    // Send both emails simultaneously
-    Promise.all([
-        // Email to admin
-        fetch(PROXY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                to:      'cidraism@gmail.com',
-                subject: '🚀 New Enquiry: ' + business + ' (' + type + ') — ' + entities + ' location(s)' + (specialActive ? ' 🎉 LAUNCH SPECIAL' : ''),
-                html:    adminHtml
-            })
-        }),
-        // Confirmation email to customer
-        fetch(PROXY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                to:      email,
-                subject: 'We\'ve Received Your Details — StockAI-Pro',
-                html:    customerHtml
-            })
+            return Promise.all(emailPromises);
         })
-    ])
-    .then(function(responses) {
-        var allOk = responses.every(function(r) { return r.ok; });
-        if (allOk) {
-            console.log('✅ Both emails sent successfully');
-        } else {
-            console.warn('⚠️ One or more emails may have failed');
-        }
+        .then(function() {
+            // Increment launch special counter
+            incrementLaunchCount();
 
-        // Increment launch special counter
-        incrementLaunchCount();
+            // Show success state
+            document.getElementById('gs-form-wrap').style.display = 'none';
+            document.getElementById('gs-success').style.display   = 'block';
 
-        // Save enquiry to Firebase for records
-        db.collection('enquiries').add({
-            name:      name,
-            phone:     phone,
-            business:  business,
-            email:     email,
-            type:      type,
-            entities:  entities,
-            message:   message,
-            special:   specialActive,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function(err) {
-            console.warn('Could not save enquiry to Firebase:', err);
+            showIndexToast('success', '✅ Details sent! We will be in touch within 24 hours.');
+        })
+        .catch(function(err) {
+            console.error('Get Started error:', err);
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Details — Get a Quote';
+            showIndexToast('error', 'Something went wrong. Please try again or WhatsApp us.');
         });
+}
 
-        // Show success state
-        document.getElementById('gs-form-wrap').style.display = 'none';
-        document.getElementById('gs-success').style.display   = 'block';
-    })
-    .catch(function(err) {
-        console.error('❌ Error sending emails:', err);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Details — Get a Quote';
-        alert('Something went wrong. Please try again or WhatsApp us on 079 044 0508.');
-    });
+// ── Simple toast for index page ──
+function showIndexToast(type, msg) {
+    var wrap = document.getElementById('toastWrap');
+    if (!wrap) {
+        // toastWrap hidden by default on index — use alert as fallback
+        if (type === 'error') alert(msg);
+        return;
+    }
+    wrap.style.display = 'flex';
+    var colors = {
+        success: '#2ea871', error: '#c94545',
+        info:    '#1a8ba8', warning: '#f59e0b'
+    };
+    var icons = {
+        success: 'check-circle', error: 'times-circle',
+        info:    'info-circle',  warning: 'exclamation-triangle'
+    };
+    var t = document.createElement('div');
+    t.style.cssText =
+        'background:#fff;padding:12px 16px;border-radius:10px;' +
+        'box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;align-items:center;' +
+        'gap:10px;min-width:280px;animation:tIn .3s ease;' +
+        'border-left:4px solid ' + (colors[type] || colors.info);
+    t.innerHTML =
+        '<i class="fas fa-' + (icons[type] || 'info-circle') + '" style="color:' +
+        (colors[type] || colors.info) + ';font-size:1rem"></i>' +
+        '<span style="flex:1;font-size:.85rem;color:#0d4a5c;font-family:Poppins,sans-serif">' +
+        msg + '</span>' +
+        '<button onclick="this.parentElement.remove()" style="background:none;border:none;' +
+        'color:#8aabb5;cursor:pointer;font-size:1rem">&times;</button>';
+    wrap.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity   = '0';
+        t.style.transform = 'translateX(100%)';
+        t.style.transition = 'all .3s ease';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+    }, 5000);
 }
 
 // ============================================================
-// BOOKING CALENDAR
+// BOOKING CALENDAR SYSTEM
+// Bookings now saved to Firebase — not localStorage
 // ============================================================
-var calendarDate = new Date();
-var selectedBookingDate = null;
-var selectedBookingSlot = null;
-var storedBookings = JSON.parse(localStorage.getItem('stockai_bookings') || '[]');
+var calDate           = new Date();
+var selectedDate      = null;
+var selectedSlot      = null;
+var bookedSlots       = {};   // { 'YYYY-MM-DD': ['morning','afternoon'] }
 
 function openBookingModal() {
     document.getElementById('bookingModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    renderCalendar();
+    // Load bookings from Firebase then render
+    loadBookingsFromFirebase();
 }
+
 function closeBookingModal() {
     document.getElementById('bookingModal').classList.remove('active');
     document.body.style.overflow = '';
+    selectedDate = null;
+    selectedSlot = null;
 }
+
+// Close modal if clicking backdrop
 document.addEventListener('click', function(e) {
-    if (e.target.id === 'bookingModal') closeBookingModal();
+    if (e.target && e.target.id === 'bookingModal') closeBookingModal();
 });
-function changeMonth(dir) { calendarDate.setMonth(calendarDate.getMonth() + dir); renderCalendar(); }
+
+function loadBookingsFromFirebase() {
+    // Load all bookings for current + next month to show availability
+    var now      = new Date();
+    var thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    var nextDate  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    var nextMonth = nextDate.getFullYear() + '-' + String(nextDate.getMonth() + 1).padStart(2, '0');
+
+    db.collection('bookings')
+        .where('monthKey', 'in', [thisMonth, nextMonth])
+        .get()
+        .then(function(snap) {
+            bookedSlots = {};
+            snap.forEach(function(doc) {
+                var d = doc.data();
+                if (!bookedSlots[d.date]) bookedSlots[d.date] = [];
+                bookedSlots[d.date].push(d.slot);
+            });
+            renderCalendar();
+        })
+        .catch(function() {
+            // If query fails just render empty calendar
+            bookedSlots = {};
+            renderCalendar();
+        });
+}
+
+function changeMonth(dir) {
+    calDate.setMonth(calDate.getMonth() + dir);
+    loadBookingsFromFirebase();
+}
 
 function renderCalendar() {
-    var grid  = document.getElementById('cal-grid');
-    var label = document.getElementById('cal-month-label');
-    var year  = calendarDate.getFullYear();
-    var month = calendarDate.getMonth();
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var grid   = document.getElementById('cal-grid');
+    var label  = document.getElementById('cal-month-label');
+    if (!grid || !label) return;
+
+    var year  = calDate.getFullYear();
+    var month = calDate.getMonth();
+    var months = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+    ];
     label.textContent = months[month] + ' ' + year;
+
     var firstDay    = new Date(year, month, 1).getDay();
     var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var today       = new Date(); today.setHours(0,0,0,0);
+    var today       = new Date(); today.setHours(0, 0, 0, 0);
+
     var html = '';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) { html += '<div class="cal-day-header">' + d + '</div>'; });
-    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d) {
+        html += '<div class="cal-day-header">' + d + '</div>';
+    });
+
+    for (var i = 0; i < firstDay; i++) {
+        html += '<div class="cal-day empty"></div>';
+    }
+
     for (var d = 1; d <= daysInMonth; d++) {
-        var date      = new Date(year, month, d);
-        var dow       = date.getDay();
-        var isPast    = date < today;
-        var isWeekend = (dow === 0 || dow === 6);
-        var isToday   = date.getTime() === today.getTime();
-        var dateStr   = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-        var hasBooking = storedBookings.filter(function(b) { return b.date === dateStr; }).length > 0;
-        var classes   = 'cal-day';
-        if (isPast || isWeekend) classes += ' disabled';
-        if (isToday) classes += ' today';
-        if (selectedBookingDate === dateStr) classes += ' selected';
-        if (hasBooking && !isPast && !isWeekend) classes += ' has-booking';
-        if (!isPast && !isWeekend) { html += '<div class="' + classes + '" onclick="selectBookingDate(\'' + dateStr + '\')">' + d + '</div>'; }
-        else { html += '<div class="' + classes + '">' + d + '</div>'; }
+        var date    = new Date(year, month, d);
+        var dow     = date.getDay();
+        var isPast  = date < today;
+        var isWeek  = (dow === 0 || dow === 6);
+        var isToday = date.getTime() === today.getTime();
+        var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+
+        var booked      = bookedSlots[dateStr] || [];
+        var fullyBooked = booked.length >= 2;
+        var hasBooking  = booked.length > 0;
+
+        var cls = 'cal-day';
+        if (isPast || isWeek)      cls += ' disabled';
+        if (isToday)               cls += ' today';
+        if (selectedDate === dateStr) cls += ' selected';
+        if (hasBooking && !fullyBooked && !isPast && !isWeek) cls += ' has-booking';
+        if (fullyBooked && !isPast && !isWeek) cls += ' disabled';
+
+        if (!isPast && !isWeek && !fullyBooked) {
+            html += '<div class="' + cls + '" onclick="selectDate(\'' + dateStr + '\')">' + d + '</div>';
+        } else {
+            html += '<div class="' + cls + '">' + d + '</div>';
+        }
     }
     grid.innerHTML = html;
 }
 
-function selectBookingDate(dateStr) {
-    selectedBookingDate = dateStr; selectedBookingSlot = null; renderCalendar();
-    document.getElementById('time-slot-wrap').style.display = 'block';
-    document.getElementById('booking-form-wrap').style.display = 'none';
+function selectDate(dateStr) {
+    selectedDate = dateStr;
+    selectedSlot = null;
+    renderCalendar();
+
+    var slotWrap = document.getElementById('time-slot-wrap');
+    var formWrap = document.getElementById('booking-form-wrap');
+    if (slotWrap) slotWrap.style.display = 'block';
+    if (formWrap) formWrap.style.display = 'none';
+
     var dateObj = new Date(dateStr + 'T00:00:00');
-    document.getElementById('selected-date-label').textContent = dateObj.toLocaleDateString('en-ZA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    var container = document.getElementById('time-slots');
-    var slots = [{ id:'morning', label:'08:00 — 12:00', display:'Morning Session' }, { id:'afternoon', label:'13:00 — 17:00', display:'Afternoon Session' }];
-    var existing = storedBookings.filter(function(b) { return b.date === dateStr; });
-    var html = '';
+    var dateLabel = document.getElementById('selected-date-label');
+    if (dateLabel) {
+        dateLabel.textContent = dateObj.toLocaleDateString('en-ZA', {
+            weekday:'long', year:'numeric', month:'long', day:'numeric'
+        });
+    }
+
+    var booked   = bookedSlots[dateStr] || [];
+    var slotsHtml = '';
+    var slots = [
+        { id:'morning',   label:'Morning Session',   time:'08:00 — 12:00' },
+        { id:'afternoon', label:'Afternoon Session',  time:'13:00 — 17:00' }
+    ];
+
     slots.forEach(function(slot) {
-        var isBooked = existing.some(function(b) { return b.slot === slot.id; });
-        if (isBooked) { html += '<div class="time-slot booked"><i class="fas fa-ban" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small><br><small style="color:#c94545">Booked</small></div>'; }
-        else { html += '<div class="time-slot" onclick="selectTimeSlot(this,\'' + slot.id + '\')"><i class="fas fa-clock" style="margin-right:6px"></i>' + slot.display + '<br><small>' + slot.label + '</small></div>'; }
+        var isBooked = booked.indexOf(slot.id) !== -1;
+        if (isBooked) {
+            slotsHtml +=
+                '<div class="time-slot booked">' +
+                    '<i class="fas fa-ban" style="margin-right:6px"></i>' +
+                    slot.label + '<br><small>' + slot.time + '</small>' +
+                    '<br><small style="color:#c94545">Already Booked</small>' +
+                '</div>';
+        } else {
+            slotsHtml +=
+                '<div class="time-slot" onclick="selectSlot(this,\'' + slot.id + '\')">' +
+                    '<i class="fas fa-clock" style="margin-right:6px"></i>' +
+                    slot.label + '<br><small>' + slot.time + '</small>' +
+                '</div>';
+        }
     });
-    container.innerHTML = html;
+
+    var slotsContainer = document.getElementById('time-slots');
+    if (slotsContainer) slotsContainer.innerHTML = slotsHtml;
 }
 
-function selectTimeSlot(el, slotId) {
-    document.querySelectorAll('.time-slot').forEach(function(s) { s.classList.remove('selected'); });
+function selectSlot(el, slotId) {
+    document.querySelectorAll('.time-slot').forEach(function(s) {
+        s.classList.remove('selected');
+    });
     el.classList.add('selected');
-    selectedBookingSlot = slotId;
-    document.getElementById('booking-form-wrap').style.display = 'block';
+    selectedSlot = slotId;
+
+    var formWrap = document.getElementById('booking-form-wrap');
+    if (formWrap) formWrap.style.display = 'block';
 }
 
 function submitBooking() {
-    var name     = document.getElementById('book-name').value.trim();
-    var phone    = document.getElementById('book-phone').value.trim();
-    var business = document.getElementById('book-business').value.trim();
-    var email    = document.getElementById('book-email').value.trim();
-    var address  = document.getElementById('book-address').value.trim();
+    var name     = (document.getElementById('book-name').value     || '').trim();
+    var phone    = (document.getElementById('book-phone').value    || '').trim();
+    var business = (document.getElementById('book-business').value || '').trim();
+    var email    = (document.getElementById('book-email').value    || '').trim().toLowerCase();
+    var address  = (document.getElementById('book-address').value  || '').trim();
 
-    if (!name || !phone || !business || !email || !address) { alert('Please fill in all fields including your address.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
-    if (!selectedBookingDate || !selectedBookingSlot) { alert('Please select a date and time slot.'); return; }
-
-    var existing = storedBookings.filter(function(b) { return b.date === selectedBookingDate; });
-    if (existing.some(function(b) { return b.slot === selectedBookingSlot; })) {
-        alert('This slot is already booked. Please choose another.');
-        return;
+    if (!name)     { alert('Please enter your full name.');          return; }
+    if (!phone)    { alert('Please enter your contact number.');     return; }
+    if (!business) { alert('Please enter your business name.');      return; }
+    if (!email)    { alert('Please enter your email address.');      return; }
+    if (!address)  { alert('Please enter your address.');            return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.'); return;
+    }
+    if (!selectedDate || !selectedSlot) {
+        alert('Please select a date and time slot.'); return;
     }
 
-    var slotLabels = { morning: '08:00 — 12:00 (Morning)', afternoon: '13:00 — 17:00 (Afternoon)' };
+    var slotLabels = {
+        morning:   '08:00 — 12:00 (Morning)',
+        afternoon: '13:00 — 17:00 (Afternoon)'
+    };
+
+    var submitBtn = document.querySelector('.booking-submit');
+    if (submitBtn) {
+        submitBtn.disabled   = true;
+        submitBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
+    }
+
+    var monthKey = selectedDate.substring(0, 7); // 'YYYY-MM'
+    var bookingId = 'BK-' + Date.now();
+
     var booking = {
-        id: 'BK-' + Date.now(), date: selectedBookingDate, slot: selectedBookingSlot,
-        slotLabel: slotLabels[selectedBookingSlot],
-        customer: { name: name, phone: phone, business: business, email: email, address: address },
+        id:        bookingId,
+        date:      selectedDate,
+        slot:      selectedSlot,
+        slotLabel: slotLabels[selectedSlot],
+        monthKey:  monthKey,
+        customer: {
+            name:     name,
+            phone:    phone,
+            business: business,
+            email:    email,
+            address:  address
+        },
+        status:    'confirmed',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         timestamp: new Date().toISOString()
     };
 
-    storedBookings.push(booking);
-    localStorage.setItem('stockai_bookings', JSON.stringify(storedBookings));
+    // Save booking to Firebase
+    db.collection('bookings').doc(bookingId).set(booking)
+        .then(function() {
+            // Update local cache
+            if (!bookedSlots[selectedDate]) bookedSlots[selectedDate] = [];
+            bookedSlots[selectedDate].push(selectedSlot);
 
-    if (typeof window.sendBookingEmailToAdmin === 'function') {
-        window.sendBookingEmailToAdmin(booking)
-            .then(function() { console.log('✅ Booking admin email sent'); })
-            .catch(function(err) { console.warn('Booking admin email failed:', err); });
-    }
-    if (typeof window.sendBookingConfirmationToCustomer === 'function') {
-        window.sendBookingConfirmationToCustomer(booking)
-            .then(function() { console.log('✅ Booking confirmation sent'); })
-            .catch(function(err) { console.warn('Booking confirmation failed:', err); });
-    }
+            // Send confirmation emails
+            var emailData = {
+                id:        bookingId,
+                date:      selectedDate,
+                slotLabel: slotLabels[selectedSlot],
+                timestamp: new Date().toISOString(),
+                customer: {
+                    name:     name,
+                    phone:    phone,
+                    business: business,
+                    email:    email,
+                    address:  address
+                }
+            };
 
-    alert('✅ Presentation booked for ' + selectedBookingDate + ' (' + slotLabels[selectedBookingSlot] + ')\n\nYou will receive a confirmation email shortly.');
+            var emailPromises = [];
+            if (typeof emailBookingToCustomer === 'function') {
+                emailPromises.push(emailBookingToCustomer(emailData));
+            }
+            if (typeof emailBookingToAdmin === 'function') {
+                emailPromises.push(emailBookingToAdmin(emailData));
+            }
 
-    setTimeout(function() {
-        closeBookingModal();
-        selectedBookingDate = null; selectedBookingSlot = null;
-        document.getElementById('book-name').value = '';
-        document.getElementById('book-phone').value = '';
-        document.getElementById('book-business').value = '';
-        document.getElementById('book-email').value = '';
-        document.getElementById('book-address').value = '';
-        document.getElementById('time-slot-wrap').style.display = 'none';
-        document.getElementById('booking-form-wrap').style.display = 'none';
-    }, 500);
+            return Promise.all(emailPromises);
+        })
+        .then(function() {
+            if (submitBtn) {
+                submitBtn.disabled  = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+            }
+
+            // Show success alert and close
+            alert(
+                '✅ Presentation booked!\n\n' +
+                'Date: ' + selectedDate + '\n' +
+                'Time: ' + slotLabels[selectedSlot] + '\n\n' +
+                'A confirmation email has been sent to ' + email
+            );
+
+            closeBookingModal();
+
+            // Reset form
+            ['book-name','book-phone','book-business','book-email','book-address'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            selectedDate = null;
+            selectedSlot = null;
+        })
+        .catch(function(err) {
+            console.error('Booking error:', err);
+            if (submitBtn) {
+                submitBtn.disabled  = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+            }
+            alert('Error saving booking. Please try again or WhatsApp us on 079 044 0508.');
+        });
 }
 
 // ============================================================
 // STOCKY BOT
 // ============================================================
-var stockyPrompts = ['Need Assistance?','Ask me about the Launch Special!','Want to Know More?','Confused? I Can Help!','Ask me about Nikki!'];
-var stockyIdx = 0;
-var stockyChatOpen = false;
+var stockyOpen    = false;
+var stockyIdx     = 0;
+var stockyPrompts = [
+    'Need Assistance?',
+    'Ask me about the Launch Special!',
+    'Want to know more?',
+    'Ask me about Nikki AI!',
+    'How can I help you today?'
+];
 
-setTimeout(function() { showStockyBubble(); setInterval(cycleStockyPrompt, 15000); }, 5000);
+// Show bubble after 5 seconds
+setTimeout(function() {
+    showStockyBubble();
+    setInterval(cycleStockyPrompt, 15000);
+}, 5000);
 
 function showStockyBubble() {
-    var b = document.getElementById('stocky-bubble');
-    if (b && !stockyChatOpen) { b.classList.add('visible'); setTimeout(function() { if (!stockyChatOpen) b.classList.remove('visible'); }, 8000); }
+    var bubble = document.getElementById('stocky-bubble');
+    if (bubble && !stockyOpen) {
+        bubble.classList.add('visible');
+        setTimeout(function() {
+            if (!stockyOpen && bubble) bubble.classList.remove('visible');
+        }, 8000);
+    }
 }
+
 function cycleStockyPrompt() {
-    if (stockyChatOpen) return;
+    if (stockyOpen) return;
     stockyIdx = (stockyIdx + 1) % stockyPrompts.length;
-    var m = document.getElementById('stocky-bubble-msg');
-    if (m) m.textContent = stockyPrompts[stockyIdx];
+    var msgEl = document.getElementById('stocky-bubble-msg');
+    if (msgEl) msgEl.textContent = stockyPrompts[stockyIdx];
     showStockyBubble();
 }
+
 function openStockyChat() {
-    stockyChatOpen = true;
-    document.getElementById('stocky-bubble').classList.remove('visible');
-    document.getElementById('stocky-chat').style.display = 'block';
+    stockyOpen = true;
+    var bubble = document.getElementById('stocky-bubble');
+    var chat   = document.getElementById('stocky-chat');
+    if (bubble) bubble.classList.remove('visible');
+    if (chat)   chat.style.display = 'block';
 }
+
 function closeStockyChat() {
-    stockyChatOpen = false;
-    document.getElementById('stocky-chat').style.display = 'none';
+    stockyOpen = false;
+    var chat = document.getElementById('stocky-chat');
+    if (chat) chat.style.display = 'none';
     setTimeout(showStockyBubble, 10000);
 }
 
+// Stocky FAQ answers
 var stockyAnswers = {
-    'what':     '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock management system with 13 apps including Nikki your AI voice assistant!',
-    'nikki':    '🤖 <strong>Nikki</strong> is your AI voice assistant powered by GPT-4o!<br><br>Just say <strong>"Hey Nikki"</strong> to activate. She knows your live business data and answers instantly in 6 languages. Only <strong>R499/mo</strong>.',
-    'special':  '🎉 <strong>Launch Special — 30% OFF!</strong><br><br>The first 20 customers get 30% off their monthly subscription permanently. Only <strong>' + (LAUNCH_SPECIAL_MAX - currentSignupCount) + ' spot(s)</strong> remaining!<br><br><a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">Claim your spot now!</a>',
-    'start':    '🚀 Simple! Fill in your details in the form on this page and our team will send you a personalised quote link within 24 hours.<br><br><a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">Go to the form</a>',
-    'functions':'🎉 <strong>FunctionsAI</strong> — full event management with menus, beverages, auto-pricing & professional invoices.',
-    'safe':     '🔒 <strong>100% secure</strong> — bank-level encryption, daily backups, POPIA compliant, Firebase hosted.'
+    what:
+        '🤖 <strong>StockAI-Pro</strong> is South Africa\'s smartest AI-powered stock ' +
+        'management system with 13 apps including Nikki your AI voice assistant!',
+    nikki:
+        '🤖 <strong>Nikki</strong> is your AI voice assistant powered by GPT-4o.<br><br>' +
+        'Just say <strong>"Hey Nikki"</strong> — she knows your live business data and ' +
+        'answers instantly in 6 languages. Only <strong>R499/mo</strong> to add.',
+    special:
+        '🎉 <strong>Launch Special — 30% OFF!</strong><br><br>' +
+        'The first 20 customers get 30% off their monthly subscription. ' +
+        'Only <strong>' + (LAUNCH_MAX - currentSignupCount) + ' spot' +
+        ((LAUNCH_MAX - currentSignupCount) === 1 ? '' : 's') + '</strong> remaining!<br><br>' +
+        '<a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">' +
+        'Claim your spot now!</a>',
+    start:
+        '🚀 Simple! Fill in the form on this page and our team will send you a ' +
+        'personalised quote link within 24 hours.<br><br>' +
+        '<a href="#get-started" style="color:#f59e0b;font-weight:700" onclick="closeStockyChat()">' +
+        'Go to the form →</a>',
+    functions:
+        '🎉 <strong>FunctionsAI</strong> is our full events &amp; functions management module. ' +
+        'Book clients, build menus, calculate costs and generate professional invoices ' +
+        'automatically. Only <strong>R449/mo</strong>.',
+    safe:
+        '🔒 <strong>100% secure</strong> — bank-level encryption, daily backups, ' +
+        'POPIA compliant, hosted on Google Firebase. Your data never leaves the country.'
+};
+
+var stockyLabels = {
+    what:      'What is StockAI-Pro?',
+    nikki:     'Who is Nikki?',
+    special:   'Launch Special?',
+    start:     'How do I start?',
+    functions: 'What is FunctionsAI?',
+    safe:      'Is my data safe?'
 };
 
 function stockyAnswer(key) {
-    var answer   = stockyAnswers[key] || 'WhatsApp us on 079 044 0508';
     var messages = document.getElementById('stocky-messages');
-    var labels   = { 'what':'What is StockAI-Pro?', 'nikki':'Who is Nikki?', 'special':'Launch Special?', 'start':'How do I start?', 'functions':'What is FunctionsAI?', 'safe':'Is my data safe?' };
-    var userMsg  = document.createElement('div');
+    if (!messages) return;
+
+    // Add user message
+    var userMsg = document.createElement('div');
     userMsg.className = 'stocky-msg user';
-    userMsg.innerHTML = '<p>' + (labels[key] || key) + '</p>';
+    userMsg.innerHTML = '<p>' + (stockyLabels[key] || key) + '</p>';
     messages.appendChild(userMsg);
     messages.scrollTop = messages.scrollHeight;
+
+    // Add bot response after short delay
     setTimeout(function() {
         var botMsg = document.createElement('div');
         botMsg.className = 'stocky-msg bot';
-        botMsg.innerHTML = '<p>' + answer + '</p><div class="stocky-faq-btns" style="margin-top:8px">' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button>' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'nikki\')">Who is Nikki?</button>' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'special\')">Launch Special</button>' +
-            '<button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button>' +
+        botMsg.innerHTML =
+            '<p>' + (stockyAnswers[key] || 'Please WhatsApp us on 079 044 0508 for more info!') + '</p>' +
+            '<div class="stocky-faq-btns" style="margin-top:8px">' +
+                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'what\')">What is it?</button>' +
+                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'nikki\')">Who is Nikki?</button>' +
+                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'special\')">Launch Special</button>' +
+                '<button class="stocky-faq-btn" onclick="stockyAnswer(\'start\')">Get started</button>' +
             '</div>';
         messages.appendChild(botMsg);
         messages.scrollTop = messages.scrollHeight;
     }, 500);
 }
 
-setInterval(function() {
-    if (stockyChatOpen) return;
-    var s = document.getElementById('stocky');
-    var r = Math.floor(Math.random() * (window.innerWidth - 200)) + 40;
-    if (s) s.style.right = r + 'px';
-}, 20000);
+// ── Stocky wander removed — it was causing layout issues ──
+
+// ============================================================
+// FAQ ACCORDION
+// ============================================================
+document.addEventListener('click', function(e) {
+    var item = e.target.closest('.faq-item');
+    if (!item) return;
+    // Close others
+    document.querySelectorAll('.faq-item.open').forEach(function(open) {
+        if (open !== item) open.classList.remove('open');
+    });
+    item.classList.toggle('open');
+});
+
+// ============================================================
+// MOBILE MENU TOGGLE
+// ============================================================
+var menuToggle = document.querySelector('.menu-toggle');
+if (menuToggle) {
+    menuToggle.addEventListener('click', function() {
+        var navLinks = document.getElementById('navLinks');
+        if (navLinks) navLinks.classList.toggle('open');
+    });
+}
+
+// Close mobile menu when a link is clicked
+document.querySelectorAll('#navLinks a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        var navLinks = document.getElementById('navLinks');
+        if (navLinks) navLinks.classList.remove('open');
+    });
+});
+
+// ============================================================
+// SMOOTH SCROLL for anchor links
+// ============================================================
+document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+    anchor.addEventListener('click', function(e) {
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
 
 // ============================================================
 // CONFIRM ALL LOADED
 // ============================================================
 window.addEventListener('load', function() {
-    console.log('✅ index.html — Fully Loaded');
+    console.log('✅ StockAI-Pro index.html v4.0 loaded');
     console.log('🎉 Launch Special — Firebase counter active');
-    console.log('📋 Get Started Form — Active');
-    console.log('📅 Booking System — Active');
-    console.log('🤖 Nikki AI section — Active');
-    console.log('🤖 Stocky Bot — Active');
+    console.log('📋 Get Started form — saves to enquiries collection');
+    console.log('📅 Booking system — saves to bookings collection (Firebase)');
+    console.log('🤖 Stocky Bot — active');
+    console.log('📧 Email system — uses email-templates.js');
 });
-</script>
-</body>
-</html>
