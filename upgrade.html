@@ -3,253 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upgrade Your Plan — StockAI-Pro</title>
+<title>Upgrade — StockAI-Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="/email-templates.js"></script>
-
 <script>
-var firebaseConfig = {
-    apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
-    authDomain:        'stockai-pro-b232e.firebaseapp.com',
-    projectId:         'stockai-pro-b232e',
-    storageBucket:     'stockai-pro-b232e.firebasestorage.app',
-    messagingSenderId: '424200946359',
-    appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
+        authDomain:        'stockai-pro-b232e.firebaseapp.com',
+        projectId:         'stockai-pro-b232e',
+        storageBucket:     'stockai-pro-b232e.firebasestorage.app',
+        messagingSenderId: '424200946359',
+        appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+    });
+}
 var db   = firebase.firestore();
 var auth = firebase.auth();
 </script>
-
 <style>
-:root{
-    --teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;--teal-pale:#a0e9f8;
-    --bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;
-    --text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
-    --gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;
-    --warning:#d4a017;--info:#2b8eb3;
-    --border:#c4dde4;--border-light:#e0eff3;
-    --shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15);
-    --radius:14px;--radius-sm:8px
+:root {
+    --teal-dark:#0d4a5c; --teal-mid:#1a8ba8; --teal-light:#4dbdd5; --teal-pale:#a0e9f8;
+    --bg:#f0f7f9; --bg-alt:#e4f1f5; --white:#fff;
+    --text-dark:#0d4a5c; --text-mid:#2a5f70; --text-light:#5a8a96; --text-muted:#8aabb5;
+    --gold:#f59e0b; --gold-dark:#d97706; --success:#2ea871; --danger:#c94545;
+    --warning:#d4a017; --info:#2b8eb3;
+    --border:#c4dde4; --border-light:#e0eff3;
+    --shadow:0 4px 20px rgba(13,74,92,.08); --shadow-lg:0 12px 50px rgba(13,74,92,.15);
+    --radius:14px; --radius-sm:8px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
 .hidden{display:none!important}
-
-/* ── HEADER ── */
-.upgrade-header{
-    background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));
-    padding:14px 24px;display:flex;align-items:center;
-    justify-content:space-between;
-    box-shadow:0 2px 20px rgba(0,0,0,.15);
-    position:sticky;top:0;z-index:100
-}
-.header-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
-.header-right{display:flex;align-items:center;gap:12px}
-.header-entity-name{
-    color:rgba(255,255,255,.9);font-size:.85rem;font-weight:600;
-    background:rgba(255,255,255,.1);padding:6px 14px;border-radius:8px
-}
-
-/* ── HERO ── */
-.upgrade-hero{
-    background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));
-    padding:40px 24px;text-align:center;color:#fff
-}
-.upgrade-hero h1{font-size:1.8rem;font-weight:900;margin-bottom:8px}
-.upgrade-hero p{font-size:.92rem;opacity:.9;max-width:500px;margin:0 auto}
-
-/* ── BODY ── */
-.upgrade-body{max-width:900px;margin:0 auto;padding:32px 24px}
-
-/* ── MODE TABS ── */
-.mode-tabs{
-    display:flex;gap:10px;margin-bottom:24px;
-    background:#fff;border-radius:var(--radius);
-    padding:8px;box-shadow:var(--shadow)
-}
-.mode-tab{
-    flex:1;padding:12px;border:none;border-radius:var(--radius-sm);
-    font-size:.88rem;font-weight:700;cursor:pointer;
-    font-family:inherit;transition:.3s;
-    background:transparent;color:var(--text-mid)
-}
-.mode-tab.active{
-    background:var(--teal-mid);color:#fff;
-    box-shadow:0 4px 12px rgba(26,139,168,.3)
-}
-.mode-tab:hover:not(.active){background:var(--bg);color:var(--teal-mid)}
-
-/* ── ENTITY SELECTOR ── */
-.entity-selector{
-    background:#fff;border-radius:var(--radius);padding:20px 24px;
-    box-shadow:var(--shadow);margin-bottom:24px
-}
-.entity-selector h3{
-    font-size:.92rem;font-weight:700;color:var(--text-dark);
-    margin-bottom:14px;display:flex;align-items:center;gap:8px
-}
-.entity-selector h3 i{color:var(--teal-mid)}
-.entity-tabs{display:flex;flex-wrap:wrap;gap:8px}
-.entity-tab{
-    padding:8px 18px;border-radius:var(--radius-sm);font-size:.82rem;
-    font-weight:600;cursor:pointer;border:2px solid var(--border);
-    background:#fff;color:var(--text-mid);transition:.2s;font-family:inherit
-}
-.entity-tab:hover{border-color:var(--teal-mid);color:var(--teal-mid)}
-.entity-tab.selected{border-color:var(--teal-mid);background:var(--teal-mid);color:#fff}
-
-/* ── FEATURES GRID ── */
-.features-section{
-    background:#fff;border-radius:var(--radius);padding:24px;
-    box-shadow:var(--shadow);margin-bottom:24px;position:relative
-}
-.features-section::before{
-    content:'';position:absolute;left:0;top:20px;bottom:20px;
-    width:4px;background:var(--teal-mid);border-radius:0 4px 4px 0
-}
-.section-title{
-    display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:20px;padding-left:12px
-}
-.section-title h3{
-    font-size:1.05rem;font-weight:700;color:var(--text-dark);
-    display:flex;align-items:center;gap:8px
-}
-.section-title h3 i{color:var(--teal-mid)}
-.features-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    gap:16px
-}
-
-/* ── FEATURE CARD ── */
-.feature-card{
-    border:2px solid var(--border);border-radius:var(--radius);
-    padding:20px;transition:.3s;cursor:pointer;position:relative;
-    background:var(--bg)
-}
-.feature-card:hover{border-color:var(--teal-light);box-shadow:var(--shadow)}
-.feature-card.selected{
-    border-color:var(--gold);background:rgba(245,158,11,.04);
-    box-shadow:0 4px 20px rgba(245,158,11,.15)
-}
-.feature-card-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.feature-card-icon{
-    width:46px;height:46px;border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:1.1rem;flex-shrink:0
-}
-.feature-card-name{font-weight:700;font-size:.95rem;color:var(--text-dark)}
-.feature-card-price{font-size:.82rem;color:var(--text-light);margin-top:2px}
-.feature-card-badge{
-    position:absolute;top:-10px;right:12px;
-    padding:3px 12px;border-radius:10px;font-size:.65rem;
-    font-weight:700;letter-spacing:.5px
-}
-.feature-card-badge.new{background:var(--gold);color:#fff}
-.feature-card-check{
-    width:24px;height:24px;border-radius:50%;
-    border:2px solid var(--border);
-    display:flex;align-items:center;justify-content:center;
-    margin-left:auto;flex-shrink:0;transition:.2s
-}
-.feature-card.selected .feature-card-check{
-    background:var(--gold);border-color:var(--gold);color:#fff
-}
-.feature-card-desc{font-size:.75rem;color:var(--text-light);line-height:1.6}
-.setup-badge{
-    display:inline-block;margin-top:8px;padding:3px 10px;
-    background:rgba(43,142,179,.1);color:var(--info);
-    border-radius:6px;font-size:.68rem;font-weight:600
-}
-
-/* ── ENTITY PURCHASE ── */
-.entity-purchase-card{
-    background:#fff;border-radius:var(--radius);
-    padding:32px;box-shadow:var(--shadow);
-    margin-bottom:24px;text-align:center
-}
-.entity-qty-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);
-    gap:12px;margin:20px 0
-}
-.entity-qty-btn{
-    padding:16px 12px;border:2px solid var(--border);
-    border-radius:var(--radius-sm);cursor:pointer;
-    transition:.3s;background:#fff;font-family:inherit
-}
-.entity-qty-btn:hover{border-color:var(--teal-mid)}
-.entity-qty-btn.selected{
-    border-color:var(--gold);
-    background:rgba(245,158,11,.06)
-}
-.entity-qty-btn .qty-number{
-    font-size:1.2rem;font-weight:900;
-    color:var(--text-dark);display:block
-}
-.entity-qty-btn .qty-price{
-    font-size:.72rem;color:var(--text-light);
-    margin-top:4px;display:block
-}
-
-/* ── ORDER SUMMARY ── */
-.order-summary{
-    background:#fff;border-radius:var(--radius);padding:24px;
-    box-shadow:var(--shadow);margin-bottom:24px
-}
-.order-summary-title{
-    font-size:1rem;font-weight:700;color:var(--text-dark);
-    margin-bottom:16px;display:flex;align-items:center;gap:8px
-}
-.order-summary-title i{color:var(--gold)}
-.order-line{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:10px 0;border-bottom:1px solid var(--border-light);
-    font-size:.85rem
-}
-.order-line:last-of-type{border-bottom:none}
-.order-line-name{color:var(--text-mid)}
-.order-line-price{font-weight:700;color:var(--text-dark)}
-.order-total{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:14px 0;margin-top:8px;border-top:2px solid var(--teal-mid);
-    font-size:1.1rem;font-weight:900;color:var(--teal-mid)
-}
-.order-empty{
-    text-align:center;padding:24px;color:var(--text-muted);font-size:.85rem
-}
-.order-empty i{
-    font-size:2rem;display:block;
-    margin-bottom:8px;color:var(--border)
-}
-
-/* ── BUTTONS ── */
-.btn{
-    padding:12px 24px;border-radius:var(--radius-sm);font-size:.88rem;
-    font-weight:700;cursor:pointer;display:inline-flex;align-items:center;
-    gap:8px;font-family:inherit;transition:.3s;border:none
-}
-.btn.primary{background:var(--teal-mid);color:#fff}
-.btn.primary:hover{background:var(--teal-dark);transform:translateY(-2px)}
-.btn.gold{
-    background:var(--gold);color:#fff;
-    width:100%;justify-content:center;padding:16px
-}
-.btn.gold:hover{
-    background:var(--gold-dark);transform:translateY(-2px);
-    box-shadow:0 8px 25px rgba(245,158,11,.35)
-}
-.btn.gold:disabled{opacity:.6;transform:none;cursor:not-allowed}
-.btn.outline{
-    background:transparent;color:var(--text-mid);
-    border:1px solid var(--border)
-}
-.btn.outline:hover{border-color:var(--teal-mid);color:var(--teal-mid)}
 
 /* ── LOADING ── */
 .loading-screen{
@@ -258,71 +47,246 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
     align-items:center;justify-content:center;color:#fff
 }
 .loading-spinner{
-    width:56px;height:56px;border:4px solid rgba(255,255,255,.2);
+    width:52px;height:52px;border:4px solid rgba(255,255,255,.2);
     border-top-color:#fff;border-radius:50%;
-    animation:spin 1s linear infinite;margin-bottom:16px
+    animation:spin 1s linear infinite;margin-bottom:14px
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-screen p{font-size:1rem;font-weight:600;opacity:.9}
+.loading-screen p{font-size:.95rem;font-weight:600;opacity:.9}
 
-/* ── SUCCESS SCREEN ── */
+/* ── HEADER ── */
+.upgrade-header{
+    background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));
+    padding:12px 22px;display:flex;align-items:center;
+    justify-content:space-between;position:sticky;top:0;z-index:100;
+    box-shadow:0 2px 20px rgba(0,0,0,.15)
+}
+.header-logo{display:flex;align-items:center;color:#fff;text-decoration:none}
+.header-right{display:flex;align-items:center;gap:10px}
+.header-entity{
+    color:rgba(255,255,255,.9);font-size:.82rem;font-weight:600;
+    background:rgba(255,255,255,.1);padding:5px 12px;border-radius:8px
+}
+.btn-close{
+    padding:7px 14px;background:rgba(255,255,255,.15);color:#fff;
+    border:1px solid rgba(255,255,255,.25);border-radius:var(--radius-sm);
+    font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s
+}
+.btn-close:hover{background:rgba(255,255,255,.25)}
+
+/* ── HERO ── */
+.upgrade-hero{
+    background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));
+    padding:36px 22px;text-align:center;color:#fff;position:relative;overflow:hidden
+}
+.upgrade-hero::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.06),transparent 50%)
+}
+.upgrade-hero h1{font-size:1.7rem;font-weight:900;position:relative;z-index:1;margin-bottom:6px}
+.upgrade-hero p{font-size:.88rem;opacity:.88;max-width:480px;margin:0 auto;position:relative;z-index:1}
+
+/* ── BODY ── */
+.upgrade-body{max-width:880px;margin:0 auto;padding:28px 22px 60px}
+
+/* ── MODE TABS ── */
+.mode-tabs{
+    display:flex;gap:8px;margin-bottom:22px;
+    background:#fff;border-radius:var(--radius);
+    padding:7px;box-shadow:var(--shadow)
+}
+.mode-tab{
+    flex:1;padding:11px;border:none;border-radius:var(--radius-sm);
+    font-size:.85rem;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:.25s;background:transparent;color:var(--text-mid)
+}
+.mode-tab.active{background:var(--teal-mid);color:#fff;box-shadow:0 4px 12px rgba(26,139,168,.3)}
+.mode-tab:hover:not(.active){background:var(--bg);color:var(--teal-mid)}
+
+/* ── ENTITY SELECTOR ── */
+.entity-selector{
+    background:#fff;border-radius:var(--radius);padding:18px 22px;
+    box-shadow:var(--shadow);margin-bottom:22px
+}
+.entity-selector h3{
+    font-size:.88rem;font-weight:700;color:var(--text-dark);
+    margin-bottom:12px;display:flex;align-items:center;gap:7px
+}
+.entity-selector h3 i{color:var(--teal-mid)}
+.entity-tabs{display:flex;flex-wrap:wrap;gap:7px}
+.entity-tab{
+    padding:7px 16px;border-radius:var(--radius-sm);font-size:.8rem;
+    font-weight:600;cursor:pointer;border:2px solid var(--border);
+    background:#fff;color:var(--text-mid);transition:.2s;font-family:inherit
+}
+.entity-tab:hover{border-color:var(--teal-mid);color:var(--teal-mid)}
+.entity-tab.selected{border-color:var(--teal-mid);background:var(--teal-mid);color:#fff}
+
+/* ── FEATURES SECTION ── */
+.features-section{
+    background:#fff;border-radius:var(--radius);padding:22px;
+    box-shadow:var(--shadow);margin-bottom:22px;position:relative
+}
+.features-section::before{
+    content:'';position:absolute;left:0;top:18px;bottom:18px;
+    width:4px;background:var(--teal-mid);border-radius:0 4px 4px 0
+}
+.section-title{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:18px;padding-left:12px
+}
+.section-title h3{
+    font-size:1rem;font-weight:700;color:var(--text-dark);
+    display:flex;align-items:center;gap:8px
+}
+.section-title h3 i{color:var(--teal-mid)}
+.features-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(255px,1fr));
+    gap:14px
+}
+
+/* ── FEATURE CARD ── */
+.feature-card{
+    border:2px solid var(--border);border-radius:var(--radius);
+    padding:18px;transition:.25s;cursor:pointer;position:relative;
+    background:var(--bg)
+}
+.feature-card:hover{border-color:var(--teal-light);box-shadow:var(--shadow)}
+.feature-card.selected{
+    border-color:var(--gold);background:rgba(245,158,11,.04);
+    box-shadow:0 4px 18px rgba(245,158,11,.14)
+}
+.feature-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.feature-card-icon{
+    width:44px;height:44px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1.05rem;flex-shrink:0
+}
+.feature-card-name{font-weight:700;font-size:.9rem;color:var(--text-dark)}
+.feature-card-price{font-size:.78rem;color:var(--text-light);margin-top:2px}
+.feature-card-badge{
+    position:absolute;top:-9px;right:11px;
+    padding:2px 11px;border-radius:9px;font-size:.62rem;font-weight:700;letter-spacing:.4px
+}
+.feature-card-badge.add{background:var(--gold);color:#fff}
+.feature-card-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    margin-left:auto;flex-shrink:0;transition:.2s
+}
+.feature-card.selected .feature-card-check{background:var(--gold);border-color:var(--gold);color:#fff}
+.feature-card-desc{font-size:.72rem;color:var(--text-light);line-height:1.55}
+.setup-badge{
+    display:inline-block;margin-top:7px;padding:2px 9px;
+    background:rgba(43,142,179,.1);color:var(--info);
+    border-radius:6px;font-size:.65rem;font-weight:600
+}
+
+/* ── ORDER SUMMARY ── */
+.order-summary{
+    background:#fff;border-radius:var(--radius);padding:22px;
+    box-shadow:var(--shadow);margin-bottom:22px
+}
+.order-summary-title{
+    font-size:.95rem;font-weight:700;color:var(--text-dark);
+    margin-bottom:14px;display:flex;align-items:center;gap:7px
+}
+.order-summary-title i{color:var(--gold)}
+.order-line{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 0;border-bottom:1px solid var(--border-light);font-size:.83rem
+}
+.order-line:last-of-type{border-bottom:none}
+.order-line-name{color:var(--text-mid)}
+.order-line-price{font-weight:700;color:var(--text-dark)}
+.order-total{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;margin-top:7px;border-top:2px solid var(--teal-mid);
+    font-size:1.05rem;font-weight:900;color:var(--teal-mid)
+}
+.order-empty{text-align:center;padding:22px;color:var(--text-muted);font-size:.83rem}
+.order-empty i{font-size:1.9rem;display:block;margin-bottom:7px;color:var(--border)}
+
+/* ── ENTITY PURCHASE ── */
+.entity-purchase-card{
+    background:#fff;border-radius:var(--radius);
+    padding:28px;box-shadow:var(--shadow);margin-bottom:22px;text-align:center
+}
+.entity-qty-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0
+}
+.entity-qty-btn{
+    padding:14px 10px;border:2px solid var(--border);border-radius:var(--radius-sm);
+    cursor:pointer;transition:.25s;background:#fff;font-family:inherit
+}
+.entity-qty-btn:hover{border-color:var(--teal-mid)}
+.entity-qty-btn.selected{border-color:var(--gold);background:rgba(245,158,11,.05)}
+.qty-number{font-size:1.15rem;font-weight:900;color:var(--text-dark);display:block}
+.qty-label{font-size:.72rem;font-weight:700;color:var(--teal-mid);display:block;margin-top:2px}
+.qty-price{font-size:.7rem;color:var(--text-light);margin-top:3px;display:block}
+
+/* ── BUTTONS ── */
+.btn{
+    padding:11px 22px;border-radius:var(--radius-sm);font-size:.85rem;
+    font-weight:700;cursor:pointer;display:inline-flex;align-items:center;
+    gap:7px;font-family:inherit;transition:.25s;border:none
+}
+.btn.primary{background:var(--teal-mid);color:#fff}
+.btn.primary:hover{background:var(--teal-dark);transform:translateY(-2px)}
+.btn.gold{background:var(--gold);color:#fff;width:100%;justify-content:center;padding:15px}
+.btn.gold:hover{background:var(--gold-dark);transform:translateY(-2px);box-shadow:0 8px 22px rgba(245,158,11,.32)}
+.btn.gold:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn.outline{background:transparent;color:var(--text-mid);border:1px solid var(--border)}
+.btn.outline:hover{border-color:var(--teal-mid);color:var(--teal-mid)}
+
+/* ── SUCCESS ── */
 .success-screen{
-    max-width:600px;margin:60px auto;padding:48px 32px;
+    max-width:580px;margin:50px auto;padding:44px 30px;
     background:#fff;border-radius:var(--radius);
     box-shadow:var(--shadow-lg);text-align:center
 }
-.success-icon{font-size:4rem;margin-bottom:20px}
-.success-screen h2{
-    font-size:1.6rem;font-weight:900;
-    color:var(--text-dark);margin-bottom:10px
-}
-.success-screen p{
-    font-size:.92rem;color:var(--text-light);margin-bottom:24px
-}
+.success-icon{font-size:3.8rem;margin-bottom:18px}
+.success-screen h2{font-size:1.5rem;font-weight:900;color:var(--text-dark);margin-bottom:10px}
+.success-screen p{font-size:.88rem;color:var(--text-light);margin-bottom:22px;line-height:1.7}
 .success-features{
     background:var(--bg);border-radius:var(--radius-sm);
-    padding:16px;margin-bottom:24px;text-align:left
+    padding:14px;margin-bottom:22px;text-align:left
 }
-.success-feature-row{
-    display:flex;align-items:center;gap:10px;
-    padding:8px 0;border-bottom:1px solid var(--border-light);
-    font-size:.85rem;color:var(--text-dark)
+.success-row{
+    display:flex;align-items:center;gap:9px;
+    padding:7px 0;border-bottom:1px solid var(--border-light);
+    font-size:.83rem;color:var(--text-dark)
 }
-.success-feature-row:last-child{border-bottom:none}
-.success-feature-row i{color:var(--success)}
+.success-row:last-child{border-bottom:none}
+.success-row i{color:var(--success)}
 
 /* ── TOAST ── */
 .toast-wrap{
-    position:fixed;bottom:24px;right:24px;z-index:10000;
-    display:flex;flex-direction:column;gap:8px
+    position:fixed;bottom:22px;right:22px;z-index:10000;
+    display:flex;flex-direction:column;gap:7px
 }
 .toast{
-    background:#fff;padding:12px 18px;border-radius:var(--radius-sm);
+    background:#fff;padding:11px 16px;border-radius:var(--radius-sm);
     box-shadow:var(--shadow-lg);display:flex;align-items:center;
-    gap:10px;min-width:280px;animation:tIn .3s ease;
-    border-left:4px solid var(--teal-mid)
+    gap:9px;min-width:270px;animation:tIn .3s ease;border-left:4px solid var(--teal-mid)
 }
-@keyframes tIn{
-    from{transform:translateX(100%);opacity:0}
-    to{transform:translateX(0);opacity:1}
-}
+@keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .toast.success{border-left-color:var(--success)}
 .toast.error{border-left-color:var(--danger)}
 .toast.info{border-left-color:var(--info)}
 .toast.warning{border-left-color:var(--warning)}
-.toast i{font-size:1rem}
-.toast.success i{color:var(--success)}
-.toast.error i{color:var(--danger)}
-.toast.info i{color:var(--info)}
-.toast.warning i{color:var(--warning)}
-.toast span{flex:1;font-size:.85rem;color:var(--text-dark)}
+.toast i{font-size:.95rem}
+.toast.success i{color:var(--success)} .toast.error i{color:var(--danger)}
+.toast.info i{color:var(--info)} .toast.warning i{color:var(--warning)}
+.toast span{flex:1;font-size:.83rem;color:var(--text-dark)}
 .toast button{background:none;border:none;color:var(--text-muted);cursor:pointer}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
     .features-grid{grid-template-columns:1fr}
     .entity-qty-grid{grid-template-columns:repeat(2,1fr)}
-    .upgrade-body{padding:20px 16px}
+    .upgrade-body{padding:18px 14px 40px}
     .upgrade-hero h1{font-size:1.4rem}
     .mode-tabs{flex-direction:column}
 }
@@ -330,131 +294,76 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
 </head>
 <body>
 
-<!-- ── LOADING SCREEN ── -->
+<!-- LOADING -->
 <div class="loading-screen" id="loading-screen">
     <div class="loading-spinner"></div>
     <p id="loading-text">Loading your upgrade options...</p>
 </div>
 
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <header class="upgrade-header">
-    <div class="header-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="36">
+    <a href="portal.html" class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="34">
             <defs>
-                <linearGradient id="ugAiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-                    <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-                    <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
-                </linearGradient>
-                <linearGradient id="ugStockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-                    <stop offset="55%" style="stop-color:#99F6E4;stop-opacity:1"/>
-                    <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-                </linearGradient>
-                <linearGradient id="ugUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
-                    <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-                    <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
-                </linearGradient>
-                <filter id="ugGlowSoft">
-                    <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="ugGlowMed">
-                    <feGaussianBlur stdDeviation="3.2" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="ugGlowLarge">
-                    <feGaussianBlur stdDeviation="5.5" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
+                <linearGradient id="ugSG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="55%" style="stop-color:#99F6E4"/><stop offset="100%" style="stop-color:#5EEAD4"/></linearGradient>
+                <linearGradient id="ugAG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#0891B2"/></linearGradient>
+                <linearGradient id="ugUG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
+                <filter id="ugGM"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             </defs>
             <g transform="translate(225,22)">
-                <circle cx="55" cy="52" r="48" fill="#5EEAD4" opacity="0.06" filter="url(#ugGlowLarge)"/>
-                <g opacity="0.5">
-                    <polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#2DD4BF" stroke-width="1.5"/>
-                    <polygon points="55,16 85,31 55,46 25,31" fill="#2DD4BF" opacity="0.14"/>
-                </g>
-                <g filter="url(#ugGlowSoft)">
-                    <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/>
-                    <polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/>
-                    <polygon points="55,56 80,43 80,68 55,81" fill="#14B8A6" opacity="0.16"/>
-                    <polygon points="55,56 30,43 30,68 55,81" fill="#2DD4BF" opacity="0.10"/>
-                </g>
-                <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/>
-                <circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/>
-                <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#ugGlowMed)" opacity="0.95"/>
-                <line x1="55" y1="49" x2="55" y2="22" stroke="#5EEAD4" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/>
-                <circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#ugGlowSoft)"/>
-                <line x1="62" y1="53" x2="88" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
-                <circle cx="90" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#ugGlowSoft)"/>
-                <line x1="48" y1="53" x2="22" y2="41" stroke="#2DD4BF" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
-                <circle cx="20" cy="40" r="2" fill="#2DD4BF" opacity="0.65" filter="url(#ugGlowSoft)"/>
-                <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#ugUnderlineGrad)" opacity="0.55" filter="url(#ugGlowSoft)"/>
+                <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/>
+                <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#ugGM)" opacity="0.95"/>
+                <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#ugUG)" opacity="0.55"/>
             </g>
-            <g>
-                <text x="280" y="150" text-anchor="middle" textLength="330"
-                    lengthAdjust="spacingAndGlyphs"
-                    font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
-                    font-size="50" letter-spacing="-1">
-                    <tspan fill="url(#ugStockGrad)" font-weight="900">Stock</tspan>
-                    <tspan fill="url(#ugAiGrad)" font-weight="900">AI</tspan>
-                    <tspan fill="none" stroke="#5EEAD4" stroke-width="1.5"
-                        stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
-                </text>
-                <rect x="115" y="161" width="330" height="2.8" rx="1.4"
-                    fill="url(#ugUnderlineGrad)" filter="url(#ugGlowMed)" opacity="0.85"/>
-            </g>
+            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI',Arial,sans-serif" font-size="50" letter-spacing="-1">
+                <tspan fill="url(#ugSG)" font-weight="900">Stock</tspan><tspan fill="url(#ugAG)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.75" font-weight="900">-Pro</tspan>
+            </text>
         </svg>
-    </div>
+    </a>
     <div class="header-right">
-        <span class="header-entity-name" id="header-entity-name">
+        <span class="header-entity" id="header-entity-name">
             <i class="fas fa-building"></i> Loading...
         </span>
-        <button class="btn outline" onclick="window.close()"
-            style="color:#fff;border-color:rgba(255,255,255,.3)">
+        <button class="btn-close" onclick="window.close()">
             <i class="fas fa-times"></i> Close
         </button>
     </div>
 </header>
 
-<!-- ── MAIN CONTENT ── -->
+<!-- MAIN CONTENT -->
 <div id="main-content" class="hidden">
 
     <!-- HERO -->
     <div class="upgrade-hero" id="upgrade-hero">
-        <h1><i class="fas fa-rocket"></i> Upgrade Your Account</h1>
-        <p>Add new features or entities. Payment is processed securely via Paystack.</p>
+        <h1 id="hero-title"><i class="fas fa-rocket"></i> Upgrade Your Account</h1>
+        <p id="hero-subtitle">Add new features or entities. Payment processed securely via Paystack.</p>
     </div>
 
     <div class="upgrade-body">
 
         <!-- MODE TABS -->
         <div class="mode-tabs">
-            <button class="mode-tab active" id="tab-features"
-                onclick="switchMode('features')">
+            <button class="mode-tab active" id="tab-features" onclick="switchMode('features')">
                 <i class="fas fa-puzzle-piece"></i> Add Features
             </button>
-            <button class="mode-tab" id="tab-entity"
-                onclick="switchMode('entity')">
+            <button class="mode-tab" id="tab-entity" onclick="switchMode('entity')">
                 <i class="fas fa-building"></i> Buy Additional Entity
             </button>
         </div>
 
-        <!-- ENTITY SELECTOR -->
-        <div class="entity-selector" id="entity-selector-section">
+        <!-- ENTITY SELECTOR (multi-entity accounts) -->
+        <div class="entity-selector hidden" id="entity-selector">
             <h3><i class="fas fa-building"></i> Select Entity to Upgrade</h3>
             <div class="entity-tabs" id="entity-tabs"></div>
         </div>
 
-        <!-- FEATURES MODE -->
+        <!-- ══ FEATURES MODE ══ -->
         <div id="features-mode">
             <div class="features-section">
                 <div class="section-title">
                     <h3><i class="fas fa-puzzle-piece"></i> Available Features</h3>
-                    <span style="font-size:.78rem;color:var(--text-light)">
-                        <i class="fas fa-info-circle"></i>
-                        Only showing features not yet active
+                    <span style="font-size:.75rem;color:var(--text-light)">
+                        <i class="fas fa-info-circle"></i> Showing features not yet active
                     </span>
                 </div>
                 <div class="features-grid" id="features-grid"></div>
@@ -471,127 +380,76 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
                         Select features above to add them to your order
                     </div>
                 </div>
-                <div id="order-total-section" class="hidden">
+                <div id="order-total-wrap" class="hidden">
                     <div class="order-total">
                         <span>Monthly Total Added</span>
                         <strong id="order-total-amount">R0/mo</strong>
                     </div>
-                    <div style="font-size:.72rem;color:var(--text-muted);
-                        margin-bottom:16px;text-align:center">
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:14px;text-align:center">
                         <i class="fas fa-info-circle"></i>
                         This amount will be added to your monthly subscription
                     </div>
-                    <button class="btn gold" id="pay-btn"
-                        onclick="startUpgradePayment()">
-                        <i class="fas fa-lock"></i>
-                        Pay Securely via Paystack
+                    <button class="btn gold" id="pay-features-btn" onclick="startFeaturePayment()">
+                        <i class="fas fa-lock"></i> Pay Securely via Paystack
                     </button>
-                    <div style="text-align:center;margin-top:10px;
-                        font-size:.72rem;color:var(--text-muted)">
-                        <i class="fas fa-shield-alt"></i>
-                        256-bit SSL encrypted • Powered by Paystack
+                    <div style="text-align:center;margin-top:9px;font-size:.7rem;color:var(--text-muted)">
+                        <i class="fas fa-shield-alt"></i> 256-bit SSL &bull; Powered by Paystack
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ENTITY PURCHASE MODE -->
+        <!-- ══ ENTITY MODE ══ -->
         <div id="entity-mode" class="hidden">
             <div class="entity-purchase-card">
 
-                <div style="width:64px;height:64px;
-                    background:linear-gradient(135deg,#1a8ba8,#0d4a5c);
-                    border-radius:16px;display:flex;align-items:center;
-                    justify-content:center;color:#fff;font-size:1.6rem;
-                    margin:0 auto 16px">
+                <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;margin:0 auto 14px">
                     <i class="fas fa-building"></i>
                 </div>
 
-                <h3 style="font-size:1.1rem;color:var(--text-dark);margin-bottom:8px">
-                    Buy Additional Entity
-                </h3>
-                <p style="font-size:.85rem;color:var(--text-light);
-                    max-width:460px;margin:0 auto 20px;line-height:1.7">
-                    Add a new location or branch to your account. Each entity
-                    gets all your purchased features and can be managed
-                    independently by its own team.
+                <h3 style="font-size:1.05rem;color:var(--text-dark);margin-bottom:7px">Buy Additional Entity Slot</h3>
+                <p style="font-size:.83rem;color:var(--text-light);max-width:440px;margin:0 auto 18px;line-height:1.7">
+                    Add a new location or branch to your account. Each entity slot
+                    gives you the ability to create one additional location in your portal.
                 </p>
 
-                <div style="font-size:2rem;font-weight:900;
-                    color:var(--teal-mid);margin-bottom:4px">
-                    R599/mo
-                </div>
-                <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:24px">
-                    per additional entity
-                </div>
+                <div style="font-size:1.9rem;font-weight:900;color:var(--teal-mid);margin-bottom:4px">R599/mo</div>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:22px">per additional entity slot</div>
 
-                <!-- What is included -->
-                <div style="background:var(--bg);border-radius:10px;
-                    padding:16px;margin-bottom:24px;text-align:left;
-                    max-width:400px;margin-left:auto;margin-right:auto">
-                    <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);
-                        text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
-                        Each entity includes:
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:8px;
-                        font-size:.82rem;color:var(--text-mid)">
-                        <div>
-                            <i class="fas fa-check" style="color:var(--success);margin-right:8px"></i>
-                            All your purchased features
-                        </div>
-                        <div>
-                            <i class="fas fa-check" style="color:var(--success);margin-right:8px"></i>
-                            Separate stock management
-                        </div>
-                        <div>
-                            <i class="fas fa-check" style="color:var(--success);margin-right:8px"></i>
-                            Independent reporting
-                        </div>
-                        <div>
-                            <i class="fas fa-check" style="color:var(--success);margin-right:8px"></i>
-                            Own dedicated user team
-                        </div>
-                        <div>
-                            <i class="fas fa-check" style="color:var(--success);margin-right:8px"></i>
-                            Full feature access
-                        </div>
+                <!-- What's included -->
+                <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:22px;text-align:left;max-width:380px;margin-left:auto;margin-right:auto">
+                    <div style="font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px">Each entity slot includes:</div>
+                    <div style="display:flex;flex-direction:column;gap:7px;font-size:.8rem;color:var(--text-mid)">
+                        <div><i class="fas fa-check" style="color:var(--success);margin-right:7px"></i>All your purchased features</div>
+                        <div><i class="fas fa-check" style="color:var(--success);margin-right:7px"></i>Separate stock management</div>
+                        <div><i class="fas fa-check" style="color:var(--success);margin-right:7px"></i>Independent reporting</div>
+                        <div><i class="fas fa-check" style="color:var(--success);margin-right:7px"></i>Own user team</div>
+                        <div><i class="fas fa-check" style="color:var(--success);margin-right:7px"></i>Full feature access</div>
                     </div>
                 </div>
 
-                <!-- Quantity Selector -->
-                <div style="font-size:.85rem;font-weight:700;color:var(--text-mid);
-                    margin-bottom:12px">
-                    How many entities do you want to add?
+                <!-- Quantity -->
+                <div style="font-size:.83rem;font-weight:700;color:var(--text-mid);margin-bottom:11px">
+                    How many entity slots do you want to add?
                 </div>
-                <div class="entity-qty-grid" id="entity-qty-grid">
-                    <!-- Populated by JavaScript -->
-                </div>
+                <div class="entity-qty-grid" id="entity-qty-grid"></div>
 
-                <!-- Purchase Summary -->
-                <div id="entity-purchase-summary" class="hidden"
-                    style="background:rgba(26,139,168,.08);border:1px solid var(--border);
-                    border-radius:10px;padding:16px;margin-bottom:16px;
-                    max-width:400px;margin-left:auto;margin-right:auto">
-                    <div style="display:flex;justify-content:space-between;
-                        font-size:.92rem;color:var(--text-dark);font-weight:700">
-                        <span id="entity-qty-label">1 entity</span>
+                <!-- Summary -->
+                <div id="entity-summary" class="hidden" style="background:rgba(26,139,168,.08);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;max-width:380px;margin-left:auto;margin-right:auto">
+                    <div style="display:flex;justify-content:space-between;font-size:.9rem;color:var(--text-dark);font-weight:700">
+                        <span id="entity-qty-label">1 entity slot</span>
                         <span id="entity-qty-price">R599/mo</span>
                     </div>
-                    <div style="font-size:.75rem;color:var(--text-light);margin-top:6px">
+                    <div style="font-size:.72rem;color:var(--text-light);margin-top:5px">
                         Added to your monthly subscription
                     </div>
                 </div>
 
-                <!-- Pay Button -->
-                <button class="btn gold" id="entity-pay-btn"
-                    onclick="startEntityPayment()"
-                    style="display:none;max-width:400px;margin:0 auto">
+                <button class="btn gold" id="pay-entity-btn" onclick="startEntityPayment()" style="display:none;max-width:380px;margin:0 auto">
                     <i class="fas fa-lock"></i> Pay Securely via Paystack
                 </button>
-                <div style="text-align:center;margin-top:10px;
-                    font-size:.72rem;color:var(--text-muted)">
-                    <i class="fas fa-shield-alt"></i>
-                    256-bit SSL encrypted • Powered by Paystack
+                <div style="text-align:center;margin-top:9px;font-size:.7rem;color:var(--text-muted)">
+                    <i class="fas fa-shield-alt"></i> 256-bit SSL &bull; Powered by Paystack
                 </div>
 
             </div>
@@ -600,121 +458,47 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark
     </div>
 </div>
 
-<!-- ── SUCCESS SCREEN ── -->
+<!-- SUCCESS SCREEN -->
 <div id="success-screen" class="hidden">
     <div class="success-screen">
         <div class="success-icon">🎉</div>
         <h2 id="success-title">Upgrade Successful!</h2>
-        <p id="success-message">
-            Your purchase has been activated and is ready to use immediately.
-        </p>
-        <div class="success-features" id="success-features-list"></div>
-        <div style="background:rgba(46,168,113,.08);border:1px solid rgba(46,168,113,.2);
-            border-radius:var(--radius-sm);padding:14px;margin-bottom:20px;
-            font-size:.82rem;color:var(--text-mid)">
+        <p id="success-msg">Your purchase has been activated and is ready to use immediately.</p>
+        <div class="success-features" id="success-features"></div>
+        <div style="background:rgba(46,168,113,.08);border:1px solid rgba(46,168,113,.2);border-radius:var(--radius-sm);padding:12px;margin-bottom:18px;font-size:.8rem;color:var(--text-mid)">
             <i class="fas fa-envelope" style="color:var(--success)"></i>
             A confirmation email has been sent to your inbox.
         </div>
-        <button class="btn primary" onclick="returnToPortal()"
-            style="width:100%;justify-content:center;padding:14px">
+        <button class="btn primary" onclick="returnToPortal()" style="width:100%;justify-content:center;padding:13px">
             <i class="fas fa-arrow-left"></i> Return to Portal
         </button>
     </div>
 </div>
 
-<!-- ── TOAST ── -->
+<!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- ── PAYSTACK ── -->
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
 <script>
-// ============================================================
-// CONFIGURATION
-// ============================================================
-var PAYSTACK_PUBLIC_KEY = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
-var PORTAL_URL          = 'https://www.stockai-pro.co.za/portal.html';
-var ENTITY_PRICE        = 599;
+// ════════════════════════════════════════
+// CONFIG & STATE
+// ════════════════════════════════════════
+var PAYSTACK_KEY  = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
+var ENTITY_RATE   = 599;
+var PORTAL_URL    = 'https://www.stockai-pro.co.za/portal.html';
 
-// ── All 8 features ──
-var ALL_FEATURES = {
-    web_boh: {
-        name:     'Web App B.O.H',
-        price:    799,
-        setupHrs: 12,
-        alwaysOn: true,
-        icon:     'fa-laptop-code',
-        color:    '#2ea871',
-        desc:     'Full back-of-house web application. Stock counts, purchases, wastage, reports and more.'
-    },
-    mobile_app: {
-        name:     'Mobile App',
-        price:    349,
-        setupHrs: 1,
-        alwaysOn: false,
-        icon:     'fa-mobile-alt',
-        color:    '#1a8ba8',
-        desc:     'Native mobile app for iOS and Android. Manage stock on the go from anywhere.'
-    },
-    procure_ai: {
-        name:     'ProcureAI App',
-        price:    399,
-        setupHrs: 1,
-        alwaysOn: false,
-        icon:     'fa-shopping-basket',
-        color:    '#1a8ba8',
-        desc:     'AI-powered procurement. Automated purchase orders and supplier management.'
-    },
-    pos_system: {
-        name:     'P.O.S System',
-        price:    799,
-        setupHrs: 8,
-        alwaysOn: false,
-        icon:     'fa-cash-register',
-        color:    '#1a8ba8',
-        desc:     'Full point-of-sale system integrated with your stock and reporting.'
-    },
-    menu_master: {
-        name:     'Menu Master',
-        price:    349,
-        setupHrs: 0,
-        alwaysOn: false,
-        icon:     'fa-utensils',
-        color:    '#1a8ba8',
-        desc:     'Digital menu management with recipe costing and food cost calculation.'
-    },
-    functions_ai: {
-        name:     'FunctionsAI',
-        price:    449,
-        setupHrs: 1,
-        alwaysOn: false,
-        icon:     'fa-glass-cheers',
-        color:    '#f59e0b',
-        desc:     'Events and functions management with AI-powered forecasting and planning.'
-    },
-    retail_pos: {
-        name:     'Retail POS',
-        price:    999,
-        setupHrs: 12,
-        alwaysOn: false,
-        icon:     'fa-store',
-        color:    '#6366f1',
-        desc:     'Dedicated retail point-of-sale with barcode scanning and inventory sync.'
-    },
-    invoice_scanner: {
-        name:     'Invoice Scanner App',
-        price:    499,
-        setupHrs: 1,
-        alwaysOn: false,
-        icon:     'fa-file-invoice',
-        color:    '#10b981',
-        desc:     'Scan and digitise supplier invoices automatically using AI recognition.'
-    }
+// All purchasable features (not always-on, not free)
+var PURCHASABLE = {
+    pos_system:      { name:'P.O.S System',         price:799, setup:8,  icon:'fa-cash-register',   color:'#1a8ba8', desc:'Full point-of-sale — menu builder, table payments & auto stock deduction' },
+    menu_master:     { name:'Menu Master',           price:349, setup:1,  icon:'fa-utensils',        color:'#1a8ba8', desc:'Menu & recipe costing — ingredient linking & live cost pricing' },
+    functions_ai:    { name:'FunctionsAI',           price:449, setup:1,  icon:'fa-glass-cheers',    color:'#f59e0b', desc:'Full event management — menus, beverages, invoicing & bookings' },
+    retail_pos:      { name:'Retail POS',            price:999, setup:12, icon:'fa-store',           color:'#6366f1', desc:'Retail-ready POS — walk-in sales, receipts & retail reporting' },
+    production:      { name:'Production Manager',    price:449, setup:2,  icon:'fa-industry',        color:'#1a8ba8', desc:'Bulk production — recipe scaling, ingredient deduction & cost tracking' },
+    hr_module:       { name:'HR Module',             price:349, setup:2,  icon:'fa-users-cog',       color:'#8b5cf6', desc:'Staff management — clock in/out, leave, schedules & payslips' },
+    invoice_scanner: { name:'Invoice Scanner',       price:499, setup:2,  icon:'fa-file-invoice',    color:'#10b981', desc:'Scan invoices — auto-updates inventory, pricing & completes GRV entries' },
+    ai_brain:        { name:'AI Brain + Nikki',      price:499, setup:1,  icon:'fa-robot',           color:'#0d9488', desc:'Say "Hey Nikki" — AI assistant that knows your data, multilingual' }
 };
 
-// ============================================================
-// STATE
-// ============================================================
+// State
 var U = {
     user:             null,
     accountId:        null,
@@ -725,21 +509,18 @@ var U = {
     owner:            {}
 };
 
-var upgradeMode        = 'features';
-var currentEntities    = 0;
-var selectedEntityQty  = 0;
+var upgradeMode       = 'features';
+var selectedEntityQty = 0;
 var selectedEntityTotal = 0;
 
-// ============================================================
+// ════════════════════════════════════════
 // INIT
-// ============================================================
+// ════════════════════════════════════════
 window.addEventListener('load', function() {
-
-    var params      = new URLSearchParams(window.location.search);
-    var accountId   = params.get('accountId');
-    var entityIdx   = parseInt(params.get('entityIdx') || '0');
-    upgradeMode     = params.get('mode') || 'features';
-    currentEntities = parseInt(params.get('currentEntities') || '0');
+    var params          = new URLSearchParams(window.location.search);
+    var accountId       = params.get('accountId');
+    var entityIdx       = parseInt(params.get('entityIdx') || '0');
+    upgradeMode         = params.get('mode') || 'features';
 
     if (!accountId) {
         showToast('error', 'No account specified. Please return to the portal.');
@@ -747,10 +528,7 @@ window.addEventListener('load', function() {
         return;
     }
 
-    // ── Set initial tab based on mode ──
-    if (upgradeMode === 'entity') {
-        switchMode('entity');
-    }
+    if (upgradeMode === 'entity') switchMode('entity');
 
     auth.onAuthStateChanged(function(user) {
         if (!user) {
@@ -758,7 +536,6 @@ window.addEventListener('load', function() {
             setTimeout(function() { window.location.href = PORTAL_URL; }, 2000);
             return;
         }
-
         U.user = user;
 
         db.collection('accounts').doc(accountId).get()
@@ -768,268 +545,212 @@ window.addEventListener('load', function() {
                     hideLoading();
                     return;
                 }
-
                 U.accountId   = accountId;
                 U.accountData = doc.data();
                 U.entities    = doc.data().entities || [];
                 U.owner       = doc.data().owner    || {};
-                U.selectedIdx = entityIdx;
+                U.selectedIdx = Math.min(entityIdx, U.entities.length - 1);
 
-                // ── Update header ──
-                var ent = U.entities[U.selectedIdx];
-                if (ent) {
-                    document.getElementById('header-entity-name').innerHTML =
-                        '<i class="fas fa-building"></i> ' + ent.name;
-                }
-
-                // ── Render entity tabs ──
+                updateHeaderEntity();
                 renderEntityTabs();
-
-                // ── Render entity qty buttons ──
                 renderEntityQtyButtons();
-
-                // ── Render features ──
                 renderFeatures();
 
                 hideLoading();
                 document.getElementById('main-content').classList.remove('hidden');
             })
             .catch(function(err) {
-                console.error('Error loading account:', err);
                 showToast('error', 'Error loading account: ' + err.message);
                 hideLoading();
             });
     });
 });
 
-// ============================================================
-// SWITCH MODE — Features or Entity
-// ============================================================
+// ════════════════════════════════════════
+// SWITCH MODE
+// ════════════════════════════════════════
 function switchMode(mode) {
     upgradeMode = mode;
+    var isFeatures = mode === 'features';
 
-    var featuresMode = document.getElementById('features-mode');
-    var entityMode   = document.getElementById('entity-mode');
-    var tabFeatures  = document.getElementById('tab-features');
-    var tabEntity    = document.getElementById('tab-entity');
-    var entitySel    = document.getElementById('entity-selector-section');
-    var hero         = document.getElementById('upgrade-hero');
+    document.getElementById('features-mode').classList.toggle('hidden', !isFeatures);
+    document.getElementById('entity-mode').classList.toggle('hidden', isFeatures);
+    document.getElementById('tab-features').classList.toggle('active', isFeatures);
+    document.getElementById('tab-entity').classList.toggle('active', !isFeatures);
 
-    if (mode === 'features') {
-        featuresMode.classList.remove('hidden');
-        entityMode.classList.add('hidden');
-        tabFeatures.classList.add('active');
-        tabEntity.classList.remove('active');
-        if (entitySel) entitySel.style.display = '';
-        if (hero) {
-            hero.querySelector('h1').innerHTML =
-                '<i class="fas fa-puzzle-piece"></i> Add Features';
-            hero.querySelector('p').textContent =
-                'Select the features you want to add to your entity.';
-        }
+    var entitySel = document.getElementById('entity-selector');
+    if (entitySel) entitySel.classList.toggle('hidden', !isFeatures);
+
+    var heroTitle    = document.getElementById('hero-title');
+    var heroSubtitle = document.getElementById('hero-subtitle');
+    if (isFeatures) {
+        heroTitle.innerHTML    = '<i class="fas fa-puzzle-piece"></i> Add Features';
+        heroSubtitle.textContent = 'Select the features you want to add to your entity.';
     } else {
-        featuresMode.classList.add('hidden');
-        entityMode.classList.remove('hidden');
-        tabFeatures.classList.remove('active');
-        tabEntity.classList.add('active');
-        if (entitySel) entitySel.style.display = 'none';
-        if (hero) {
-            hero.querySelector('h1').innerHTML =
-                '<i class="fas fa-building"></i> Buy Additional Entity';
-            hero.querySelector('p').textContent =
-                'Add more locations or branches to your account.';
-        }
+        heroTitle.innerHTML    = '<i class="fas fa-building"></i> Buy Additional Entity Slot';
+        heroSubtitle.textContent = 'Add more locations or branches to your account.';
     }
 }
 
-// ============================================================
-// RENDER ENTITY TABS
-// ============================================================
+// ════════════════════════════════════════
+// ENTITY TABS
+// ════════════════════════════════════════
+function updateHeaderEntity() {
+    var ent = U.entities[U.selectedIdx];
+    var el  = document.getElementById('header-entity-name');
+    if (el && ent) el.innerHTML = '<i class="fas fa-building"></i> ' + ent.name;
+}
+
 function renderEntityTabs() {
-    var section = document.getElementById('entity-selector-section');
+    var sel     = document.getElementById('entity-selector');
     var tabs    = document.getElementById('entity-tabs');
-    if (!tabs) return;
-
-    var activeEntities = U.entities.filter(function(e) {
-        return e.status !== 'inactive';
-    });
-
-    if (activeEntities.length <= 1) {
-        if (section) section.style.display = 'none';
+    var active  = U.entities.filter(function(e) { return e.status !== 'inactive'; });
+    if (active.length <= 1 || !sel || !tabs) {
+        if (sel) sel.classList.add('hidden');
         return;
     }
-
-    tabs.innerHTML = activeEntities.map(function(ent, idx) {
+    sel.classList.remove('hidden');
+    tabs.innerHTML = active.map(function(ent, idx) {
         return '<button class="entity-tab ' + (idx === U.selectedIdx ? 'selected' : '') + '" ' +
             'onclick="selectEntity(' + idx + ')">' +
             (ent.status !== 'inactive' ? '✅' : '⏸️') + ' ' + ent.name +
-        '</button>';
+            '</button>';
     }).join('');
 }
 
 function selectEntity(idx) {
     U.selectedIdx      = idx;
     U.selectedFeatures = [];
-
-    var ent = U.entities[idx];
-    if (ent) {
-        document.getElementById('header-entity-name').innerHTML =
-            '<i class="fas fa-building"></i> ' + ent.name;
-    }
-
+    updateHeaderEntity();
     document.querySelectorAll('.entity-tab').forEach(function(tab, i) {
         tab.classList.toggle('selected', i === idx);
     });
-
     renderFeatures();
     renderOrderSummary();
 }
 
-// ============================================================
+// ════════════════════════════════════════
 // RENDER FEATURES GRID
-// ============================================================
+// ════════════════════════════════════════
 function renderFeatures() {
     var grid  = document.getElementById('features-grid');
     if (!grid) return;
-
     var ent   = U.entities[U.selectedIdx];
     var owned = ent ? (ent.features || ['web_boh']) : ['web_boh'];
 
-    if (owned.indexOf('web_boh') === -1) owned.unshift('web_boh');
-
-    var available = Object.keys(ALL_FEATURES).filter(function(key) {
-        return !ALL_FEATURES[key].alwaysOn && owned.indexOf(key) === -1;
+    // Always include free features in owned
+    ['mobile_app','procure_ai'].forEach(function(f) {
+        if (owned.indexOf(f) === -1) owned.push(f);
     });
 
-    if (available.length === 0) {
+    var available = Object.keys(PURCHASABLE).filter(function(key) {
+        return owned.indexOf(key) === -1;
+    });
+
+    if (!available.length) {
         grid.innerHTML =
-            '<div style="grid-column:1/-1;text-align:center;padding:48px 24px">' +
-                '<i class="fas fa-check-circle" style="font-size:3rem;color:var(--success);' +
-                    'display:block;margin-bottom:16px"></i>' +
-                '<h3 style="color:var(--text-mid);margin-bottom:8px">All Features Active!</h3>' +
-                '<p style="font-size:.85rem;color:var(--text-light)">' +
-                    'This entity already has all available features. ' +
-                    'Switch to the entity tab to add more locations.' +
-                '</p>' +
-                '<button class="btn primary" onclick="switchMode(\'entity\')" ' +
-                    'style="margin-top:16px">' +
-                    '<i class="fas fa-building"></i> Buy Additional Entity' +
-                '</button>' +
-            '</div>';
+            '<div style="grid-column:1/-1;text-align:center;padding:44px 20px">' +
+            '<i class="fas fa-check-circle" style="font-size:2.8rem;color:var(--success);display:block;margin-bottom:14px"></i>' +
+            '<h3 style="color:var(--text-mid);margin-bottom:7px">All Features Active!</h3>' +
+            '<p style="font-size:.83rem;color:var(--text-light)">This entity already has all available features.<br>Switch to the Entity tab to add more locations.</p>' +
+            '<button class="btn primary" onclick="switchMode(\'entity\')" style="margin-top:14px">' +
+            '<i class="fas fa-building"></i> Buy Additional Entity Slot</button></div>';
         return;
     }
 
     grid.innerHTML = available.map(function(key) {
-        var feat     = ALL_FEATURES[key];
+        var feat     = PURCHASABLE[key];
         var isChosen = U.selectedFeatures.indexOf(key) !== -1;
         return '<div class="feature-card ' + (isChosen ? 'selected' : '') + '" ' +
-            'onclick="toggleFeatureSelection(\'' + key + '\')" id="fc-' + key + '">' +
-            '<span class="feature-card-badge new">ADD</span>' +
+            'onclick="toggleFeatureCard(\'' + key + '\')" id="fc-' + key + '">' +
+            '<span class="feature-card-badge add">ADD</span>' +
             '<div class="feature-card-top">' +
                 '<div class="feature-card-icon" style="background:' + feat.color + '">' +
                     '<i class="fas ' + feat.icon + '"></i>' +
                 '</div>' +
                 '<div style="flex:1">' +
                     '<div class="feature-card-name">' + feat.name + '</div>' +
-                    '<div class="feature-card-price">R' +
-                        feat.price.toLocaleString() + '/month</div>' +
+                    '<div class="feature-card-price">R' + feat.price.toLocaleString() + '/month</div>' +
                 '</div>' +
                 '<div class="feature-card-check">' +
-                    (isChosen ? '<i class="fas fa-check" style="font-size:.7rem"></i>' : '') +
+                    (isChosen ? '<i class="fas fa-check" style="font-size:.65rem;color:#fff"></i>' : '') +
                 '</div>' +
             '</div>' +
             '<div class="feature-card-desc">' + feat.desc + '</div>' +
-            (feat.setupHrs > 0
-                ? '<span class="setup-badge">' +
-                    '<i class="fas fa-tools"></i> ' + feat.setupHrs + ' hr setup included' +
-                  '</span>'
+            (feat.setup > 0
+                ? '<span class="setup-badge"><i class="fas fa-tools"></i> ' + feat.setup + ' hr setup included</span>'
                 : '') +
         '</div>';
     }).join('');
 }
 
-// ============================================================
-// TOGGLE FEATURE SELECTION
-// ============================================================
-function toggleFeatureSelection(key) {
+function toggleFeatureCard(key) {
     var idx = U.selectedFeatures.indexOf(key);
     if (idx !== -1) {
         U.selectedFeatures.splice(idx, 1);
     } else {
         U.selectedFeatures.push(key);
     }
-
     var card  = document.getElementById('fc-' + key);
     var check = card ? card.querySelector('.feature-card-check') : null;
     if (card) {
-        var isSelected = U.selectedFeatures.indexOf(key) !== -1;
-        card.classList.toggle('selected', isSelected);
-        if (check) {
-            check.innerHTML = isSelected
-                ? '<i class="fas fa-check" style="font-size:.7rem"></i>'
-                : '';
-        }
+        var isOn = U.selectedFeatures.indexOf(key) !== -1;
+        card.classList.toggle('selected', isOn);
+        if (check) check.innerHTML = isOn ? '<i class="fas fa-check" style="font-size:.65rem;color:#fff"></i>' : '';
     }
     renderOrderSummary();
 }
 
-// ============================================================
-// RENDER ORDER SUMMARY
-// ============================================================
+// ════════════════════════════════════════
+// ORDER SUMMARY
+// ════════════════════════════════════════
 function renderOrderSummary() {
-    var linesEl  = document.getElementById('order-lines');
-    var totalSec = document.getElementById('order-total-section');
-    var totalEl  = document.getElementById('order-total-amount');
+    var linesEl   = document.getElementById('order-lines');
+    var totalWrap = document.getElementById('order-total-wrap');
+    var totalEl   = document.getElementById('order-total-amount');
     if (!linesEl) return;
 
-    if (U.selectedFeatures.length === 0) {
+    if (!U.selectedFeatures.length) {
         linesEl.innerHTML =
-            '<div class="order-empty">' +
-                '<i class="fas fa-shopping-cart"></i>' +
-                'Select features above to add them to your order' +
-            '</div>';
-        if (totalSec) totalSec.classList.add('hidden');
+            '<div class="order-empty"><i class="fas fa-shopping-cart"></i>' +
+            'Select features above to add them to your order</div>';
+        if (totalWrap) totalWrap.classList.add('hidden');
         return;
     }
 
     var total = 0;
     var html  = '';
-
     U.selectedFeatures.forEach(function(key) {
-        var feat = ALL_FEATURES[key];
+        var feat = PURCHASABLE[key];
         if (!feat) return;
         total += feat.price;
         html  +=
             '<div class="order-line">' +
                 '<span class="order-line-name">' +
-                    '<i class="fas ' + feat.icon + '" style="color:' + feat.color +
-                        ';margin-right:6px"></i>' + feat.name +
-                '</span>' +
+                    '<i class="fas ' + feat.icon + '" style="color:' + feat.color + ';margin-right:6px"></i>' +
+                    feat.name + '</span>' +
                 '<span class="order-line-price">R' + feat.price.toLocaleString() + '/mo</span>' +
             '</div>';
     });
 
     linesEl.innerHTML = html;
-    if (totalEl)  totalEl.textContent = 'R' + total.toLocaleString() + '/mo';
-    if (totalSec) totalSec.classList.remove('hidden');
+    if (totalEl)   totalEl.textContent = 'R' + total.toLocaleString() + '/mo';
+    if (totalWrap) totalWrap.classList.remove('hidden');
 }
 
-// ============================================================
-// RENDER ENTITY QTY BUTTONS
-// ============================================================
+// ════════════════════════════════════════
+// ENTITY QTY BUTTONS
+// ════════════════════════════════════════
 function renderEntityQtyButtons() {
     var grid = document.getElementById('entity-qty-grid');
     if (!grid) return;
-
     var quantities = [1, 2, 3, 5, 10];
     grid.innerHTML = quantities.map(function(qty) {
-        var total = qty * ENTITY_PRICE;
+        var total = qty * ENTITY_RATE;
         return '<button class="entity-qty-btn" id="eq-' + qty + '" ' +
             'onclick="selectEntityQty(' + qty + ',' + total + ')">' +
             '<span class="qty-number">' + qty + '</span>' +
-            '<span style="font-size:.78rem;font-weight:700;color:var(--teal-mid)">' +
-                qty === 1 ? 'entity' : 'entities' +
-            '</span>' +
+            '<span class="qty-label">' + (qty === 1 ? 'entity' : 'entities') + '</span>' +
             '<span class="qty-price">R' + total.toLocaleString() + '/mo</span>' +
         '</button>';
     }).join('');
@@ -1039,95 +760,92 @@ function selectEntityQty(qty, total) {
     selectedEntityQty   = qty;
     selectedEntityTotal = total;
 
-    // ── Update button styles ──
-    [1, 2, 3, 5, 10].forEach(function(q) {
+    [1,2,3,5,10].forEach(function(q) {
         var el = document.getElementById('eq-' + q);
         if (el) el.classList.toggle('selected', q === qty);
     });
 
-    // ── Show summary ──
-    var summary  = document.getElementById('entity-purchase-summary');
+    var summary  = document.getElementById('entity-summary');
     var qtyLabel = document.getElementById('entity-qty-label');
     var qtyPrice = document.getElementById('entity-qty-price');
-    var payBtn   = document.getElementById('entity-pay-btn');
+    var payBtn   = document.getElementById('pay-entity-btn');
 
     if (summary)  summary.classList.remove('hidden');
-    if (qtyLabel) qtyLabel.textContent =
-        qty + ' entit' + (qty === 1 ? 'y' : 'ies') + ' added';
-    if (qtyPrice) qtyPrice.textContent =
-        'R' + total.toLocaleString() + '/mo';
+    if (qtyLabel) qtyLabel.textContent = qty + ' entit' + (qty === 1 ? 'y' : 'ies') + ' added';
+    if (qtyPrice) qtyPrice.textContent = 'R' + total.toLocaleString() + '/mo';
     if (payBtn)   payBtn.style.display = 'flex';
 }
 
-// ============================================================
-// START FEATURE UPGRADE PAYMENT
-// ============================================================
-function startUpgradePayment() {
-    if (U.selectedFeatures.length === 0) {
+// ════════════════════════════════════════
+// FEATURE PAYMENT
+// ════════════════════════════════════════
+function startFeaturePayment() {
+    if (!U.selectedFeatures.length) {
         showToast('warning', 'Please select at least one feature.');
         return;
     }
-
     var ent = U.entities[U.selectedIdx];
     if (!ent) { showToast('error', 'No entity selected.'); return; }
 
     var total = 0;
     U.selectedFeatures.forEach(function(key) {
-        total += (ALL_FEATURES[key] ? ALL_FEATURES[key].price : 0);
+        total += (PURCHASABLE[key] ? PURCHASABLE[key].price : 0);
     });
 
-    var payRef       = 'UPG-' + Date.now().toString(36).toUpperCase();
-    var email        = U.owner.email || (U.user ? U.user.email : '');
     var featureNames = U.selectedFeatures.map(function(k) {
-        return ALL_FEATURES[k] ? ALL_FEATURES[k].name : k;
+        return PURCHASABLE[k] ? PURCHASABLE[k].name : k;
     }).join(', ');
 
-    var payBtn      = document.getElementById('pay-btn');
-    payBtn.disabled = true;
-    payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Paystack...';
+    var payRef   = 'UPG-' + Date.now().toString(36).toUpperCase();
+    var email    = U.owner.email || (U.user ? U.user.email : '');
+    var btn      = document.getElementById('pay-features-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Paystack...';
 
     var handler = PaystackPop.setup({
-        key:      PAYSTACK_PUBLIC_KEY,
+        key:      PAYSTACK_KEY,
         email:    email,
         amount:   total * 100,
         currency: 'ZAR',
         ref:      payRef,
         metadata: {
             custom_fields: [
-                { display_name: 'Customer',       variable_name: 'customer_name',   value: U.owner.name || '' },
-                { display_name: 'Entity',         variable_name: 'entity_name',     value: ent.name },
-                { display_name: 'Features Added', variable_name: 'features_added',  value: featureNames },
-                { display_name: 'Account ID',     variable_name: 'account_id',      value: U.accountId },
-                { display_name: 'Entity Index',   variable_name: 'entity_idx',      value: String(U.selectedIdx) }
+                { display_name:'Customer',      variable_name:'customer',    value: U.owner.name || '' },
+                { display_name:'Entity',        variable_name:'entity',      value: ent.name },
+                { display_name:'Features',      variable_name:'features',    value: featureNames },
+                { display_name:'Account ID',    variable_name:'account_id',  value: U.accountId },
+                { display_name:'Entity Index',  variable_name:'entity_idx',  value: String(U.selectedIdx) }
             ]
         },
         onClose: function() {
-            payBtn.disabled  = false;
-            payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely via Paystack';
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely via Paystack';
             showToast('info', 'Payment cancelled. No changes were made.');
         },
         callback: function(response) {
-            processFeatureUpgrade(response.reference, total, featureNames);
+            processFeatureUpgrade(response.reference, total, featureNames, ent);
         }
     });
-
     handler.openIframe();
 }
 
-// ============================================================
-// PROCESS FEATURE UPGRADE AFTER PAYMENT
-// ============================================================
-function processFeatureUpgrade(paystackRef, amount, featureNames) {
+function processFeatureUpgrade(paystackRef, amount, featureNames, ent) {
     showLoading('Activating your new features...');
 
-    var ent             = U.entities[U.selectedIdx];
     var currentFeatures = ent.features ? ent.features.slice() : ['web_boh'];
-
     U.selectedFeatures.forEach(function(key) {
-        if (currentFeatures.indexOf(key) === -1) {
-            currentFeatures.push(key);
-        }
+        if (currentFeatures.indexOf(key) === -1) currentFeatures.push(key);
     });
+    // Always ensure free features are included
+    ['mobile_app','procure_ai'].forEach(function(f) {
+        if (currentFeatures.indexOf(f) === -1) currentFeatures.push(f);
+    });
+    // Auto-add POS bundles if applicable
+    var hasPOS = currentFeatures.indexOf('pos_system') !== -1 || currentFeatures.indexOf('retail_pos') !== -1;
+    if (hasPOS) {
+        if (currentFeatures.indexOf('pos_builder') === -1) currentFeatures.push('pos_builder');
+        if (currentFeatures.indexOf('cashup_pro')  === -1) currentFeatures.push('cashup_pro');
+    }
 
     U.entities[U.selectedIdx].features = currentFeatures;
 
@@ -1136,17 +854,16 @@ function processFeatureUpgrade(paystackRef, amount, featureNames) {
         lastUpdated:   firebase.firestore.FieldValue.serverTimestamp(),
         lastUpdatedBy: U.owner.name || 'Customer',
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'upgrade_purchased',
+            action: 'features_purchased',
             date:   new Date().toISOString(),
             by:     U.owner.name || 'Customer',
-            reason: 'Features: ' + featureNames +
-                    ' — R' + amount.toLocaleString() + '/mo — Ref: ' + paystackRef
+            reason: featureNames + ' — R' + amount.toLocaleString() + '/mo — Ref: ' + paystackRef
         })
     })
     .then(function() {
         hideLoading();
 
-        // ── Send confirmation email ──
+        // Send upgrade confirmation email
         if (typeof emailUpgradeConfirmation === 'function') {
             emailUpgradeConfirmation({
                 name:         U.owner.name  || 'Customer',
@@ -1162,68 +879,68 @@ function processFeatureUpgrade(paystackRef, amount, featureNames) {
             });
         }
 
-        // ── Show success ──
+        // Send AI Brain activation email if purchased
+        if (U.selectedFeatures.indexOf('ai_brain') !== -1 &&
+            U.owner.email &&
+            typeof emailAIBrainActivated === 'function') {
+            emailAIBrainActivated({
+                name:  U.owner.name  || 'Customer',
+                email: U.owner.email
+            });
+        }
+
         showSuccessScreen('features', featureNames, amount, paystackRef);
     })
     .catch(function(err) {
         hideLoading();
-        console.error('Error saving upgrade:', err);
-        showToast('error',
-            'Payment received but error saving. ' +
-            'Please contact support. Ref: ' + paystackRef);
+        showToast('error', 'Payment received but error saving. Contact support. Ref: ' + paystackRef);
+        console.error('Feature upgrade save error:', err);
     });
 }
 
-// ============================================================
-// START ENTITY PAYMENT
-// ============================================================
+// ════════════════════════════════════════
+// ENTITY PAYMENT
+// ════════════════════════════════════════
 function startEntityPayment() {
-    if (selectedEntityQty === 0) {
-        showToast('warning', 'Please select how many entities you want to add.');
+    if (!selectedEntityQty) {
+        showToast('warning', 'Please select how many entity slots you want to add.');
         return;
     }
-
     var email  = U.owner.email || (U.user ? U.user.email : '');
     var payRef = 'ENT-' + Date.now().toString(36).toUpperCase();
-
-    var payBtn      = document.getElementById('entity-pay-btn');
-    payBtn.disabled = true;
-    payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Paystack...';
+    var btn    = document.getElementById('pay-entity-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Paystack...';
 
     var handler = PaystackPop.setup({
-        key:      PAYSTACK_PUBLIC_KEY,
+        key:      PAYSTACK_KEY,
         email:    email,
         amount:   selectedEntityTotal * 100,
         currency: 'ZAR',
         ref:      payRef,
         metadata: {
             custom_fields: [
-                { display_name: 'Customer',            variable_name: 'customer_name',      value: U.owner.name || '' },
-                { display_name: 'Entities Purchased',  variable_name: 'entities_purchased', value: String(selectedEntityQty) },
-                { display_name: 'Account ID',          variable_name: 'account_id',         value: U.accountId }
+                { display_name:'Customer',          variable_name:'customer',  value: U.owner.name || '' },
+                { display_name:'Entity Slots',      variable_name:'slots',     value: String(selectedEntityQty) },
+                { display_name:'Account ID',        variable_name:'account_id', value: U.accountId }
             ]
         },
         onClose: function() {
-            payBtn.disabled  = false;
-            payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely via Paystack';
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-lock"></i> Pay Securely via Paystack';
             showToast('info', 'Payment cancelled. No changes were made.');
         },
         callback: function(response) {
             processEntityPurchase(response.reference);
         }
     });
-
     handler.openIframe();
 }
 
-// ============================================================
-// PROCESS ENTITY PURCHASE AFTER PAYMENT
-// ============================================================
 function processEntityPurchase(paystackRef) {
-    showLoading('Activating your new entit' +
-        (selectedEntityQty === 1 ? 'y' : 'ies') + '...');
+    showLoading('Activating your new entit' + (selectedEntityQty === 1 ? 'y' : 'ies') + '...');
 
-    var currentMax = parseInt(U.accountData.maxEntities || 1);
+    var currentMax = parseInt((U.accountData || {}).maxEntities || 1);
     var newMax     = currentMax + selectedEntityQty;
 
     db.collection('accounts').doc(U.accountId).update({
@@ -1231,31 +948,25 @@ function processEntityPurchase(paystackRef) {
         lastUpdated:   firebase.firestore.FieldValue.serverTimestamp(),
         lastUpdatedBy: U.owner.name || 'Customer',
         statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            action: 'entities_purchased',
+            action: 'entity_slots_purchased',
             date:   new Date().toISOString(),
             by:     U.owner.name || 'Customer',
-            reason: selectedEntityQty + ' additional entit' +
-                    (selectedEntityQty === 1 ? 'y' : 'ies') +
-                    ' purchased — R' + selectedEntityTotal.toLocaleString() +
-                    '/mo — Ref: ' + paystackRef
+            reason: selectedEntityQty + ' slot' + (selectedEntityQty === 1 ? '' : 's') +
+                    ' purchased — R' + selectedEntityTotal.toLocaleString() + '/mo — Ref: ' + paystackRef
         })
     })
     .then(function() {
         hideLoading();
+        if (U.accountData) U.accountData.maxEntities = newMax;
 
-        // ── Update local state ──
-        U.accountData.maxEntities = newMax;
-
-        // ── Send confirmation email ──
+        // Send confirmation email using upgrade confirmation
         if (typeof emailUpgradeConfirmation === 'function') {
             emailUpgradeConfirmation({
                 name:         U.owner.name  || 'Customer',
                 email:        U.owner.email || (U.user ? U.user.email : ''),
-                entityName:   selectedEntityQty + ' additional entit' +
-                              (selectedEntityQty === 1 ? 'y' : 'ies'),
+                entityName:   selectedEntityQty + ' additional entit' + (selectedEntityQty === 1 ? 'y' : 'ies'),
                 features:     [],
-                featureNames: selectedEntityQty + ' additional entit' +
-                              (selectedEntityQty === 1 ? 'y' : 'ies'),
+                featureNames: selectedEntityQty + ' entity slot' + (selectedEntityQty === 1 ? '' : 's'),
                 amount:       selectedEntityTotal,
                 ref:          paystackRef,
                 date:         new Date().toLocaleDateString('en-ZA', {
@@ -1264,94 +975,65 @@ function processEntityPurchase(paystackRef) {
             });
         }
 
-        // ── Show success ──
         showSuccessScreen('entity', null, selectedEntityTotal, paystackRef, newMax);
     })
     .catch(function(err) {
         hideLoading();
-        console.error('Error saving entity purchase:', err);
-        showToast('error',
-            'Payment received but error saving. ' +
-            'Please contact support. Ref: ' + paystackRef);
+        showToast('error', 'Payment received but error saving. Contact support. Ref: ' + paystackRef);
+        console.error('Entity purchase save error:', err);
     });
 }
 
-// ============================================================
-// SHOW SUCCESS SCREEN
-// ============================================================
+// ════════════════════════════════════════
+// SUCCESS SCREEN
+// ════════════════════════════════════════
 function showSuccessScreen(type, featureNames, amount, ref, newMax) {
     document.getElementById('main-content').classList.add('hidden');
 
     var titleEl   = document.getElementById('success-title');
-    var msgEl     = document.getElementById('success-message');
-    var listEl    = document.getElementById('success-features-list');
+    var msgEl     = document.getElementById('success-msg');
+    var listEl    = document.getElementById('success-features');
 
     if (type === 'features') {
-        if (titleEl) titleEl.textContent = 'Features Activated!';
-        if (msgEl)   msgEl.textContent   =
-            'Your new features are live and ready to use immediately.';
-
-        if (listEl) {
-            listEl.innerHTML = U.selectedFeatures.map(function(key) {
-                var feat = ALL_FEATURES[key];
-                if (!feat) return '';
-                return '<div class="success-feature-row">' +
-                    '<i class="fas fa-check-circle"></i>' +
-                    '<div>' +
-                        '<strong>' + feat.name + '</strong>' +
-                        ' — R' + feat.price.toLocaleString() + '/mo' +
-                        (feat.setupHrs > 0
-                            ? '<span style="font-size:.72rem;color:var(--text-light);' +
-                              'margin-left:8px">(' + feat.setupHrs + ' hr setup included)</span>'
-                            : '') +
-                    '</div>' +
-                '</div>';
-            }).join('');
-        }
-
+        titleEl.textContent = 'Features Activated!';
+        msgEl.textContent   = 'Your new features are live and ready to use immediately.';
+        listEl.innerHTML = U.selectedFeatures.map(function(key) {
+            var feat = PURCHASABLE[key];
+            if (!feat) return '';
+            return '<div class="success-row">' +
+                '<i class="fas fa-check-circle"></i>' +
+                '<div><strong>' + feat.name + '</strong> — R' + feat.price.toLocaleString() + '/mo' +
+                (feat.setup > 0
+                    ? '<span style="font-size:.7rem;color:var(--text-light);margin-left:7px">(' + feat.setup + ' hr setup included)</span>'
+                    : '') +
+                '</div></div>';
+        }).join('');
     } else {
-        if (titleEl) titleEl.textContent = 'Entities Added!';
-        if (msgEl)   msgEl.textContent   =
-            'Your new entit' + (selectedEntityQty === 1 ? 'y has' : 'ies have') +
+        titleEl.textContent = 'Entity Slots Added!';
+        msgEl.textContent   = selectedEntityQty + ' entit' + (selectedEntityQty === 1 ? 'y has' : 'ies have') +
             ' been added. You can now create them in your portal.';
-
-        if (listEl) {
-            listEl.innerHTML =
-                '<div class="success-feature-row">' +
-                    '<i class="fas fa-check-circle"></i>' +
-                    '<div>' +
-                        '<strong>' + selectedEntityQty + ' Additional Entit' +
-                        (selectedEntityQty === 1 ? 'y' : 'ies') + '</strong>' +
-                        ' — R' + amount.toLocaleString() + '/mo' +
-                    '</div>' +
-                '</div>' +
-                '<div class="success-feature-row">' +
-                    '<i class="fas fa-check-circle"></i>' +
-                    '<div>You can now create up to <strong>' + (newMax || '?') +
-                    '</strong> entit' + ((newMax || 1) === 1 ? 'y' : 'ies') +
-                    ' in your portal</div>' +
-                '</div>' +
-                '<div class="success-feature-row">' +
-                    '<i class="fas fa-check-circle"></i>' +
-                    '<div>Payment reference: <strong>' + ref + '</strong></div>' +
-                '</div>';
-        }
+        listEl.innerHTML =
+            '<div class="success-row"><i class="fas fa-check-circle"></i>' +
+            '<div><strong>' + selectedEntityQty + ' Additional Entity Slot' + (selectedEntityQty === 1 ? '' : 's') + '</strong>' +
+            ' — R' + amount.toLocaleString() + '/mo</div></div>' +
+            '<div class="success-row"><i class="fas fa-check-circle"></i>' +
+            '<div>You can now create up to <strong>' + (newMax || '?') + '</strong> entit' +
+            ((newMax || 1) === 1 ? 'y' : 'ies') + ' in your portal</div></div>' +
+            '<div class="success-row"><i class="fas fa-check-circle"></i>' +
+            '<div>Payment reference: <strong>' + ref + '</strong></div></div>';
     }
 
     document.getElementById('success-screen').classList.remove('hidden');
     window.scrollTo(0, 0);
 }
 
-// ============================================================
-// RETURN TO PORTAL
-// ============================================================
+// ════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════
 function returnToPortal() {
     window.location.href = PORTAL_URL;
 }
 
-// ============================================================
-// LOADING HELPERS
-// ============================================================
 function showLoading(msg) {
     var el   = document.getElementById('loading-screen');
     var text = document.getElementById('loading-text');
@@ -1364,38 +1046,25 @@ function hideLoading() {
     if (el) el.style.display = 'none';
 }
 
-// ============================================================
-// TOAST
-// ============================================================
 function showToast(type, msg) {
-    var icons = {
-        success: 'check-circle',
-        error:   'times-circle',
-        warning: 'exclamation-triangle',
-        info:    'info-circle'
-    };
+    var icons = { success:'check-circle', error:'times-circle', warning:'exclamation-triangle', info:'info-circle' };
     var t = document.createElement('div');
-    t.className = 'toast ' + type;
+    t.className = 'toast ' + (type || 'info');
     t.innerHTML =
         '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i>' +
         '<span>' + msg + '</span>' +
-        '<button onclick="this.parentElement.remove()">' +
-            '<i class="fas fa-times"></i>' +
-        '</button>';
+        '<button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
     document.getElementById('toast-wrap').appendChild(t);
     setTimeout(function() {
-        t.style.opacity    = '0';
-        t.style.transform  = 'translateX(100%)';
-        t.style.transition = 'all .3s ease';
+        t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = 'all .3s';
         setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
     }, 5000);
 }
 
 console.log('✅ StockAI-Pro upgrade.html loaded');
-console.log('💳 Paystack ready — pk_live');
+console.log('💳 Paystack LIVE key active');
 console.log('🔥 Firebase connected');
-console.log('🧩 Feature upgrades ready');
-console.log('🏢 Entity purchases ready');
+console.log('🧩 ' + Object.keys(PURCHASABLE).length + ' purchasable features ready');
 </script>
 </body>
 </html>
