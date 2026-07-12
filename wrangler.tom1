@@ -1,8 +1,11 @@
-name = "stockai-pro"
+name = "stockai-pro-email-proxy"
 compatibility_date = "2026-07-08"
-
-[assets]
-directory = "."
+main = "worker.js"
 
 [observability]
 enabled = true
+
+[vars]
+RESEND_API_KEY = "re_45Zaif4k_9pYPpesV24GDyYEAfy9Nm1hT"
+FROM_EMAIL = "StockAI-Pro <noreply@stockai-pro.co.za>"
+ALLOWED_ORIGIN = "https://www.stockai-pro.co.za"
