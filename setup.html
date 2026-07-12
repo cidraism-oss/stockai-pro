@@ -6,45 +6,61 @@
 <title>Set Up Your Account — StockAI-Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="/email-templates.js"></script>
-
+<script>
+if (!firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
+        authDomain:        'stockai-pro-b232e.firebaseapp.com',
+        projectId:         'stockai-pro-b232e',
+        storageBucket:     'stockai-pro-b232e.firebasestorage.app',
+        messagingSenderId: '424200946359',
+        appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+    });
+}
+var db   = firebase.firestore();
+var auth = firebase.auth();
+</script>
 <style>
-:root{
-    --teal-dark:#0d4a5c;--teal-mid:#1a8ba8;--teal-light:#4dbdd5;
-    --bg:#f0f7f9;--bg-alt:#e4f1f5;--white:#fff;
-    --text-dark:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;
-    --gold:#f59e0b;--gold-dark:#d97706;--success:#2ea871;--danger:#c94545;
-    --border:#c4dde4;--border-light:#e0eff3;
-    --shadow:0 4px 20px rgba(13,74,92,.08);--shadow-lg:0 12px 50px rgba(13,74,92,.15);
-    --radius:14px;--radius-sm:8px
+:root {
+    --teal-dark:#0d4a5c; --teal-mid:#1a8ba8; --teal-light:#4dbdd5;
+    --bg:#f0f7f9; --bg-alt:#e4f1f5; --white:#fff;
+    --text-dark:#0d4a5c; --text-mid:#2a5f70; --text-light:#5a8a96; --text-muted:#8aabb5;
+    --gold:#f59e0b; --gold-dark:#d97706; --success:#2ea871; --danger:#c94545;
+    --border:#c4dde4; --border-light:#e0eff3;
+    --shadow:0 4px 20px rgba(13,74,92,.08); --shadow-lg:0 12px 50px rgba(13,74,92,.15);
+    --radius:14px; --radius-sm:8px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
-input[type="checkbox"]{-webkit-appearance:checkbox;appearance:checkbox;cursor:pointer;width:18px;height:18px;flex-shrink:0}
+.hidden{display:none!important}
 
 /* ── HEADER ── */
 .header{
     background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));
-    padding:14px 24px;display:flex;align-items:center;
+    padding:12px 24px;display:flex;align-items:center;
     justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.15)
 }
-.logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
-.secure-badge{color:rgba(255,255,255,.8);font-size:.85rem;display:flex;align-items:center;gap:6px}
+.header-logo{display:flex;align-items:center;color:#fff;text-decoration:none}
+.secure-badge{color:rgba(255,255,255,.8);font-size:.82rem;display:flex;align-items:center;gap:6px}
 
 /* ── PROGRESS ── */
-.progress-bar{background:var(--bg-alt);padding:16px 24px;border-bottom:1px solid var(--border)}
-.progress-steps{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.progress-bar{background:var(--bg-alt);padding:14px 24px;border-bottom:1px solid var(--border)}
+.progress-steps{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:center}
 .progress-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
 .progress-step-circle{
     width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
-    justify-content:center;font-size:.78rem;font-weight:700;
-    border:2px solid var(--border);background:#fff;color:var(--text-light)
+    justify-content:center;font-size:.75rem;font-weight:700;
+    border:2px solid var(--border);background:#fff;color:var(--text-light);transition:.3s
 }
-.progress-step.active .progress-step-circle{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff}
 .progress-step.done .progress-step-circle{background:var(--success);border-color:var(--success);color:#fff}
-.progress-step-label{font-size:.65rem;font-weight:600;color:var(--text-light);text-align:center}
-.progress-step.active .progress-step-label{color:var(--teal-mid)}
+.progress-step.active .progress-step-circle{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff}
+.progress-step-label{font-size:.62rem;font-weight:600;color:var(--text-light);text-align:center}
 .progress-step.done .progress-step-label{color:var(--success)}
+.progress-step.active .progress-step-label{color:var(--teal-mid);font-weight:700}
 .progress-line{flex:1;height:2px;background:var(--border);margin:0 4px;margin-bottom:18px}
 .progress-line.done{background:var(--success)}
 
@@ -56,593 +72,626 @@ input[type="checkbox"]{-webkit-appearance:checkbox;appearance:checkbox;cursor:po
 .page-hero h1{font-size:1.7rem;font-weight:900;margin-bottom:6px}
 .page-hero p{font-size:.9rem;opacity:.9}
 
+/* ── LOADING SCREEN ── */
+.loading-screen{
+    min-height:60vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:40px 24px;text-align:center
+}
+.loading-spinner{
+    width:56px;height:56px;border:4px solid var(--border);
+    border-top-color:var(--teal-mid);border-radius:50%;
+    animation:spin 1s linear infinite;margin-bottom:20px
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-screen p{color:var(--text-light);font-size:.95rem}
+
+/* ── ERROR SCREEN ── */
+.error-screen{
+    max-width:500px;margin:60px auto;padding:40px 32px;
+    background:#fff;border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);text-align:center
+}
+.error-screen i{font-size:3.5rem;color:var(--danger);display:block;margin-bottom:16px}
+.error-screen h2{font-size:1.4rem;font-weight:800;color:var(--text-dark);margin-bottom:10px}
+.error-screen p{font-size:.88rem;color:var(--text-light);margin-bottom:20px;line-height:1.7}
+
 /* ── MAIN ── */
-.main{max-width:680px;margin:0 auto;padding:40px 24px}
+.main{max-width:700px;margin:0 auto;padding:36px 24px 60px}
+
+/* ── PURCHASE SUMMARY ── */
+.purchase-summary{
+    background:linear-gradient(135deg,rgba(26,139,168,.08),rgba(13,74,92,.05));
+    border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px 22px;margin-bottom:24px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px
+}
+.ps-info strong{display:block;font-size:1rem;color:var(--text-dark);font-weight:700;margin-bottom:2px}
+.ps-info span{font-size:.78rem;color:var(--text-light)}
+.ps-price{font-size:1.5rem;font-weight:900;color:var(--teal-mid)}
+.ps-features{
+    width:100%;display:flex;flex-wrap:wrap;gap:5px;
+    padding-top:12px;border-top:1px solid var(--border-light)
+}
+.ps-feature-chip{
+    padding:3px 10px;background:rgba(26,139,168,.1);color:var(--teal-mid);
+    border-radius:8px;font-size:.7rem;font-weight:600
+}
+.ps-feature-chip.free{background:rgba(245,158,11,.1);color:var(--gold-dark)}
 
 /* ── FORM CARDS ── */
-.form-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.form-card{
+    background:#fff;border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px
+}
 .form-card-header{
-    background:linear-gradient(135deg,rgba(26,139,168,.08),rgba(13,74,92,.05));
-    padding:20px 28px;border-bottom:1px solid var(--border);
+    background:linear-gradient(135deg,rgba(26,139,168,.08),rgba(13,74,92,.04));
+    padding:18px 24px;border-bottom:1px solid var(--border);
     display:flex;align-items:center;gap:12px
 }
-.form-card-header .icon{
-    width:40px;height:40px;
+.form-card-icon{
+    width:38px;height:38px;
     background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
     border-radius:10px;display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:1rem;flex-shrink:0
+    color:#fff;font-size:.95rem;flex-shrink:0
 }
-.form-card-header h3{font-size:1rem;font-weight:700;color:var(--text-dark);margin-bottom:2px}
-.form-card-header p{font-size:.78rem;color:var(--text-light)}
-.form-card-body{padding:24px 28px}
+.form-card-header h3{font-size:.95rem;font-weight:700;color:var(--text-dark);margin-bottom:2px}
+.form-card-header p{font-size:.75rem;color:var(--text-light)}
+.form-card-body{padding:22px 24px}
 
 /* ── FORM ELEMENTS ── */
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--text-dark);margin-bottom:6px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:.8rem;font-weight:600;color:var(--text-dark)}
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="tel"],
 .form-group input[type="password"],
 .form-group input[type="number"],
 .form-group select{
-    width:100%;padding:12px 16px;border:1px solid var(--border);
+    padding:11px 14px;border:1.5px solid var(--border);
     border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;
     color:var(--text-dark);background:var(--bg);transition:.2s
 }
 .form-group input:focus,.form-group select:focus{
     outline:none;border-color:var(--teal-mid);
-    box-shadow:0 0 0 3px rgba(26,139,168,.12)
+    box-shadow:0 0 0 3px rgba(26,139,168,.1);background:#fff
 }
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-hint{font-size:.72rem;color:var(--text-light);margin-top:4px}
-
-/* ── PLAN SUMMARY ── */
-.plan-summary{
-    background:linear-gradient(135deg,rgba(26,139,168,.08),rgba(13,74,92,.05));
-    border:1px solid var(--border);border-radius:12px;
-    padding:16px 20px;margin-bottom:24px;
-    display:flex;justify-content:space-between;align-items:center
-}
-.plan-summary-info strong{display:block;font-size:1rem;color:var(--text-dark);font-weight:700}
-.plan-summary-info span{font-size:.78rem;color:var(--text-light)}
-.plan-summary-price{font-size:1.5rem;font-weight:900;color:var(--teal-mid)}
+.form-group input[disabled]{opacity:.65;cursor:not-allowed}
+.form-hint{font-size:.7rem;color:var(--text-light);margin-top:3px}
 
 /* ── PASSWORD STRENGTH ── */
-.password-strength{margin-top:6px;height:4px;border-radius:2px;background:var(--border);overflow:hidden}
-.password-strength-bar{height:100%;border-radius:2px;transition:.3s;width:0}
-.password-strength-bar.weak{background:var(--danger);width:33%}
-.password-strength-bar.medium{background:var(--gold);width:66%}
-.password-strength-bar.strong{background:var(--success);width:100%}
-.password-strength-text{font-size:.7rem;margin-top:4px}
+.pw-strength{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.pw-strength-bar{height:100%;border-radius:2px;transition:.3s;width:0}
+.pw-strength-bar.weak{background:var(--danger);width:33%}
+.pw-strength-bar.medium{background:var(--gold);width:66%}
+.pw-strength-bar.strong{background:var(--success);width:100%}
+.pw-strength-text{font-size:.68rem;margin-top:3px}
+
+/* ── SECTIONS GRID ── */
+.sections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
+.section-check{
+    display:flex;align-items:center;gap:8px;padding:8px 12px;
+    background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;
+    border:1.5px solid transparent;transition:.2s
+}
+.section-check:hover{border-color:var(--teal-mid)}
+.section-check input{accent-color:var(--teal-mid);width:15px;height:15px;cursor:pointer}
+.section-check span{font-size:.8rem;color:var(--text-dark)}
 
 /* ── SUBMIT BUTTON ── */
 .btn-submit{
-    width:100%;padding:16px;
+    width:100%;padding:15px;
     background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    color:#fff;border:none;border-radius:12px;
-    font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;
+    color:#fff;border:none;border-radius:var(--radius-sm);
+    font-size:.98rem;font-weight:700;cursor:pointer;font-family:inherit;
     transition:.3s;display:flex;align-items:center;justify-content:center;gap:10px
 }
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,139,168,.35)}
 .btn-submit:disabled{opacity:.6;transform:none;cursor:not-allowed}
-.security-note{text-align:center;margin-top:14px;font-size:.75rem;color:var(--text-light)}
-
-/* ── CHECKBOX GRID ── */
-.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.checkbox-label{
-    display:flex;align-items:center;gap:8px;font-weight:400;
-    font-size:.85rem;cursor:pointer;padding:6px 0;
-    user-select:none;-webkit-user-select:none
-}
+.security-note{text-align:center;margin-top:12px;font-size:.73rem;color:var(--text-light)}
 
 /* ── SUCCESS SCREEN ── */
-.success-screen{display:none;text-align:center;padding:60px 24px}
-.success-icon{font-size:4rem;margin-bottom:20px}
-.success-screen h2{font-size:1.8rem;font-weight:900;color:var(--text-dark);margin-bottom:10px}
-.success-screen p{
-    font-size:.95rem;color:var(--text-light);margin-bottom:24px;
-    max-width:400px;margin-left:auto;margin-right:auto
+.success-screen{
+    max-width:580px;margin:50px auto;padding:44px 32px;
+    background:#fff;border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);text-align:center
 }
+.success-icon{font-size:3.8rem;margin-bottom:18px}
+.success-screen h2{font-size:1.7rem;font-weight:900;color:var(--text-dark);margin-bottom:10px}
+.success-screen p{font-size:.9rem;color:var(--text-light);margin-bottom:20px;line-height:1.7}
 .success-details{
-    background:#fff;border-radius:14px;padding:20px 24px;
-    box-shadow:var(--shadow);text-align:left;margin-bottom:24px;
-    max-width:400px;margin-left:auto;margin-right:auto
+    background:var(--bg);border-radius:var(--radius-sm);
+    padding:16px 20px;text-align:left;margin-bottom:20px
 }
 .success-detail-row{
     display:flex;justify-content:space-between;
-    padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem
+    padding:8px 0;border-bottom:1px solid var(--border-light);
+    font-size:.85rem
 }
 .success-detail-row:last-child{border-bottom:none}
 .success-detail-row span{color:var(--text-light)}
 .success-detail-row strong{color:var(--text-dark)}
-.btn-go-app{
-    display:inline-flex;align-items:center;gap:10px;padding:16px 36px;
-    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
-    color:#fff;border:none;border-radius:12px;font-size:1rem;
-    font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;text-decoration:none
+.next-steps{
+    background:var(--bg);border-radius:var(--radius-sm);
+    padding:16px 20px;text-align:left;margin-bottom:24px
 }
-.btn-go-app:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,139,168,.35)}
+.next-steps h4{font-size:.88rem;color:var(--text-dark);margin-bottom:10px;font-weight:700}
+.next-step-row{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:6px 0;font-size:.83rem;color:var(--text-mid)
+}
+.next-step-row span{color:var(--success);font-weight:700;flex-shrink:0}
+.btn-go-portal{
+    display:inline-flex;align-items:center;gap:10px;padding:15px 32px;
+    background:linear-gradient(135deg,var(--teal-mid),var(--teal-dark));
+    color:#fff;border:none;border-radius:var(--radius-sm);font-size:.98rem;
+    font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;
+    text-decoration:none;width:100%;justify-content:center;margin-bottom:12px
+}
+.btn-go-portal:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,139,168,.35)}
+.btn-go-app{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 24px;
+    background:rgba(26,139,168,.1);color:var(--teal-mid);border:1px solid var(--border);
+    border-radius:var(--radius-sm);font-size:.85rem;font-weight:600;
+    cursor:pointer;font-family:inherit;transition:.3s;text-decoration:none;
+    width:100%;justify-content:center
+}
+.btn-go-app:hover{background:rgba(26,139,168,.18)}
 
-/* ── TOASTS ── */
+/* ── TOAST ── */
 .toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
 .toast{
-    padding:14px 18px;border-radius:10px;box-shadow:var(--shadow-lg);
-    display:flex;align-items:center;gap:10px;font-size:.88rem;
-    font-weight:500;animation:slideIn .3s ease;min-width:280px
+    padding:12px 16px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:10px;font-size:.85rem;
+    font-weight:500;animation:slideIn .3s ease;min-width:260px;background:#fff;
+    border-left:3px solid var(--teal-mid)
 }
 @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
-.toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
-.toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
-.toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--teal-mid)}
-.toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--gold)}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.info{border-left-color:var(--teal-mid)}
+.toast span{flex:1;color:var(--text-dark)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:600px){
     .form-row{grid-template-columns:1fr}
-    .form-card-body{padding:18px 20px}
-    .main{padding:24px 16px}
-    .checkbox-grid{grid-template-columns:1fr}
-    .plan-summary{flex-direction:column;gap:10px;text-align:center}
+    .form-card-body{padding:16px 18px}
+    .main{padding:20px 14px 40px}
+    .purchase-summary{flex-direction:column}
+    .success-screen{margin:30px 16px;padding:32px 20px}
 }
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <header class="header">
-    <a href="index.html" class="logo">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="36">
-        <defs>
-            <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:1"/>
-                <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1"/>
-            </linearGradient>
-            <linearGradient id="stockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#14B8A6;stop-opacity:1"/>
-                <stop offset="55%" style="stop-color:#0F766E;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#134E4A;stop-opacity:1"/>
-            </linearGradient>
-            <linearGradient id="underlineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/>
-                <stop offset="18%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-                <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1"/>
-                <stop offset="82%" style="stop-color:#2DD4BF;stop-opacity:0.95"/>
-                <stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/>
-            </linearGradient>
-            <filter id="glowSoft">
-                <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glowMed">
-                <feGaussianBlur stdDeviation="3.2" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glowLarge">
-                <feGaussianBlur stdDeviation="5.5" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-        </defs>
-        <g transform="translate(225,22)">
-            <circle cx="55" cy="52" r="48" fill="#14B8A6" opacity="0.08" filter="url(#glowLarge)"/>
-            <g opacity="0.5">
-                <polygon points="55,16 85,31 85,61 55,76 25,61 25,31" fill="none" stroke="#0D9488" stroke-width="1.5"/>
-                <polygon points="55,16 85,31 55,46 25,31" fill="#0D9488" opacity="0.14"/>
+    <a href="index.html" class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="36">
+            <defs>
+                <linearGradient id="sG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="55%" style="stop-color:#99F6E4"/><stop offset="100%" style="stop-color:#5EEAD4"/></linearGradient>
+                <linearGradient id="sA" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#0891B2"/></linearGradient>
+                <linearGradient id="sU" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
+                <filter id="sGM"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <g transform="translate(225,22)">
+                <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/>
+                <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#sGM)" opacity="0.95"/>
+                <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#sU)" opacity="0.55"/>
             </g>
-            <g filter="url(#glowSoft)">
-                <polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#2DD4BF" stroke-width="2"/>
-                <polygon points="55,31 80,43 55,56 30,43" fill="#14B8A6" opacity="0.22"/>
-                <polygon points="55,56 80,43 80,68 55,81" fill="#0D9488" opacity="0.16"/>
-                <polygon points="55,56 30,43 30,68 55,81" fill="#14B8A6" opacity="0.10"/>
-            </g>
-            <circle cx="55" cy="56" r="12" fill="none" stroke="#5EEAD4" stroke-width="1" opacity="0.42" stroke-dasharray="3,3"/>
-            <circle cx="55" cy="56" r="7" fill="none" stroke="#2DD4BF" stroke-width="1.5" opacity="0.7"/>
-            <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#glowMed)" opacity="0.95"/>
-            <line x1="55" y1="49" x2="55" y2="22" stroke="#2DD4BF" stroke-width="1" opacity="0.55" stroke-dasharray="2,4"/>
-            <circle cx="55" cy="19" r="2.1" fill="#5EEAD4" opacity="0.75" filter="url(#glowSoft)"/>
-            <line x1="62" y1="53" x2="88" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
-            <circle cx="90" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#glowSoft)"/>
-            <line x1="48" y1="53" x2="22" y2="41" stroke="#14B8A6" stroke-width="1" opacity="0.45" stroke-dasharray="2,4"/>
-            <circle cx="20" cy="40" r="2" fill="#14B8A6" opacity="0.65" filter="url(#glowSoft)"/>
-            <line x1="48" y1="63" x2="25" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/>
-            <circle cx="23" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#glowSoft)"/>
-            <line x1="62" y1="63" x2="85" y2="78" stroke="#0D9488" stroke-width="1" opacity="0.35" stroke-dasharray="2,4"/>
-            <circle cx="87" cy="80" r="1.6" fill="#0D9488" opacity="0.55" filter="url(#glowSoft)"/>
-            <g filter="url(#glowMed)">
-                <circle cx="38" cy="26" r="1" fill="#5EEAD4" opacity="0.65"/>
-                <circle cx="75" cy="24" r="0.9" fill="#2DD4BF" opacity="0.55"/>
-                <circle cx="90" cy="56" r="1" fill="#5EEAD4" opacity="0.45"/>
-                <circle cx="20" cy="56" r="0.9" fill="#2DD4BF" opacity="0.45"/>
-                <circle cx="55" cy="91" r="1" fill="#14B8A6" opacity="0.35"/>
-            </g>
-            <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#underlineGrad)" opacity="0.55" filter="url(#glowSoft)"/>
-        </g>
-        <g>
-            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs"
-                font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="50" letter-spacing="-1">
-                <tspan fill="url(#stockGrad)" font-weight="900">Stock</tspan>
-                <tspan fill="url(#aiGrad)" font-weight="900">AI</tspan>
-                <tspan fill="none" stroke="#2DD4BF" stroke-width="1.5" stroke-linejoin="round" opacity="0.75" font-weight="900">-Pro</tspan>
+            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI',Arial,sans-serif" font-size="50" letter-spacing="-1">
+                <tspan fill="url(#sG)" font-weight="900">Stock</tspan><tspan fill="url(#sA)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.75" font-weight="900">-Pro</tspan>
             </text>
-            <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#underlineGrad)" filter="url(#glowMed)" opacity="0.85"/>
-            <text x="280" y="188" text-anchor="middle"
-                font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
-                font-size="14" font-weight="300" fill="#5EEAD4" letter-spacing="3.2" opacity="0.8">
-                INTELLIGENCE A CLICK AWAY
-            </text>
-        </g>
-    </svg>
-</a>
-    <div class="secure-badge">
-        <i class="fas fa-lock"></i> Secure Setup
-    </div>
+        </svg>
+    </a>
+    <div class="secure-badge"><i class="fas fa-lock"></i> Secure Account Setup</div>
 </header>
 
-<!-- ── PROGRESS BAR ── -->
+<!-- PROGRESS BAR -->
 <div class="progress-bar">
     <div class="progress-steps">
-        <div class="progress-step done">
-            <div class="progress-step-circle"><i class="fas fa-check" style="font-size:.65rem"></i></div>
-            <div class="progress-step-label">Choose Plan</div>
+        <div class="progress-step done" id="step-1">
+            <div class="progress-step-circle"><i class="fas fa-check" style="font-size:.6rem"></i></div>
+            <div class="progress-step-label">Build Package</div>
         </div>
-        <div class="progress-line done"></div>
-        <div class="progress-step done">
-            <div class="progress-step-circle"><i class="fas fa-check" style="font-size:.65rem"></i></div>
+        <div class="progress-line done" id="line-1"></div>
+        <div class="progress-step done" id="step-2">
+            <div class="progress-step-circle"><i class="fas fa-check" style="font-size:.6rem"></i></div>
             <div class="progress-step-label">Payment</div>
         </div>
-        <div class="progress-line done"></div>
-        <div class="progress-step active">
+        <div class="progress-line done" id="line-2"></div>
+        <div class="progress-step active" id="step-3">
             <div class="progress-step-circle">3</div>
             <div class="progress-step-label">Setup Account</div>
         </div>
-        <div class="progress-line"></div>
-        <div class="progress-step">
+        <div class="progress-line" id="line-3"></div>
+        <div class="progress-step" id="step-4">
             <div class="progress-step-circle">4</div>
             <div class="progress-step-label">Start Using</div>
         </div>
     </div>
 </div>
 
-<!-- ── HERO ── -->
+<!-- HERO -->
 <div class="page-hero">
     <h1>Set Up Your Account</h1>
-    <p>Almost there! Fill in your details and start using StockAI-Pro in seconds.</p>
+    <p>Almost there! Fill in your details and you will be live in seconds.</p>
 </div>
 
-<!-- ── MAIN FORM ── -->
-<div class="main" id="setupForm">
-
-    <!-- Plan Summary -->
-    <div class="plan-summary">
-        <div class="plan-summary-info">
-            <strong id="summaryPlanName">Premium</strong>
-            <span>Payment confirmed ✅</span>
-        </div>
-        <div class="plan-summary-price">R<span id="summaryPlanPrice">999</span>/mo</div>
+<!-- LOADING STATE -->
+<div id="loading-state">
+    <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading your purchase details...</p>
     </div>
-
-    <!-- YOUR DETAILS -->
-    <div class="form-card">
-        <div class="form-card-header">
-            <div class="icon"><i class="fas fa-user"></i></div>
-            <div>
-                <h3>Your Personal Details</h3>
-                <p>Account owner information</p>
-            </div>
-        </div>
-        <div class="form-card-body">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>First Name *</label>
-                    <input type="text" id="f-firstname" placeholder="Your first name">
-                </div>
-                <div class="form-group">
-                    <label>Last Name *</label>
-                    <input type="text" id="f-lastname" placeholder="Your last name">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Email Address *</label>
-                <input type="email" id="f-email" placeholder="your@email.com">
-                <div class="form-hint">This will be your login email</div>
-            </div>
-            <div class="form-group">
-                <label>Phone Number *</label>
-                <input type="tel" id="f-phone" placeholder="082 555 0000">
-            </div>
-            <div class="form-group">
-                <label>Create Password *</label>
-                <input type="password" id="f-password" placeholder="Min 8 characters" oninput="checkPassword(this.value)">
-                <div class="password-strength">
-                    <div class="password-strength-bar" id="pwStrengthBar"></div>
-                </div>
-                <div class="password-strength-text" id="pwStrengthText"></div>
-            </div>
-            <div class="form-group">
-                <label>Confirm Password *</label>
-                <input type="password" id="f-password2" placeholder="Repeat your password">
-            </div>
-        </div>
-    </div>
-
-    <!-- BUSINESS DETAILS -->
-    <div class="form-card">
-        <div class="form-card-header">
-            <div class="icon"><i class="fas fa-building"></i></div>
-            <div>
-                <h3>Business Details</h3>
-                <p>Tell us about your business</p>
-            </div>
-        </div>
-        <div class="form-card-body">
-            <div class="form-group">
-                <label>Business / Company Name *</label>
-                <input type="text" id="f-business" placeholder="e.g. Ocean View Restaurant">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Business Type *</label>
-                    <select id="f-type">
-                        <option value="">Select type...</option>
-                        <option value="Restaurant">Restaurant</option>
-                        <option value="Bar & Nightclub">Bar &amp; Nightclub</option>
-                        <option value="Hotel & Resort">Hotel &amp; Resort</option>
-                        <option value="Café & Bakery">Café &amp; Bakery</option>
-                        <option value="Retail Store">Retail Store</option>
-                        <option value="Supermarket">Supermarket</option>
-                        <option value="Manufacturer">Manufacturer</option>
-                        <option value="Pharmacy">Pharmacy</option>
-                        <option value="Warehouse">Warehouse</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Country</label>
-                    <select id="f-country">
-                        <option value="South Africa">South Africa</option>
-                        <option value="Zimbabwe">Zimbabwe</option>
-                        <option value="Namibia">Namibia</option>
-                        <option value="Botswana">Botswana</option>
-                        <option value="Mozambique">Mozambique</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Business Address</label>
-                <input type="text" id="f-address" placeholder="123 Main Street, Cape Town">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>VAT Number</label>
-                    <input type="text" id="f-vat" placeholder="Optional">
-                </div>
-                <div class="form-group">
-                    <label>Food Cost Target %</label>
-                    <input type="number" id="f-foodcost" placeholder="28" value="28" min="10" max="60">
-                    <div class="form-hint">Leave at 28% if unsure</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FIRST ENTITY -->
-    <div class="form-card">
-        <div class="form-card-header">
-            <div class="icon"><i class="fas fa-store"></i></div>
-            <div>
-                <h3>Your First Location / Entity</h3>
-                <p>The first branch you will manage</p>
-            </div>
-        </div>
-        <div class="form-card-body">
-            <div class="form-group">
-                <label>Entity / Branch Name *</label>
-                <input type="text" id="f-entity" placeholder="e.g. Cape Town Branch">
-                <div class="form-hint">You can add more locations after setup</div>
-            </div>
-            <div class="form-group">
-                <label>Stock Sections / Storage Areas</label>
-                <div class="form-hint" style="margin-bottom:8px">
-                    Select all storage areas your business has
-                </div>
-                <div class="checkbox-grid">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-fridge" checked> Walk-in Fridge
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-freezer" checked> Walk-in Freezer
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-dry" checked> Dry Store
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-bar" checked> Bar
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-kitchen"> Kitchen Store
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-cellar"> Wine Cellar
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-warehouse"> Warehouse
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="sec-retail"> Retail Floor
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SUBMIT -->
-    <button class="btn-submit" id="submitBtn" onclick="createAccount()">
-        <i class="fas fa-rocket"></i> Create My Account
-    </button>
-    <div class="security-note">
-        <i class="fas fa-lock"></i> Your data is encrypted and stored securely. POPIA compliant.
-    </div>
-
 </div>
 
-<!-- ── SUCCESS SCREEN ── -->
-<div class="success-screen" id="successScreen">
-    <div class="success-icon">🎉</div>
-    <h2>Welcome to StockAI-Pro!</h2>
-    <p>Your account has been created successfully. You are ready to start managing your stock with AI.</p>
-
-    <div class="success-details" id="successDetails"></div>
-
-    <div style="background:#f0f7f9;border-radius:14px;padding:20px 24px;max-width:400px;margin:0 auto 24px;text-align:left">
-        <h4 style="font-size:.92rem;color:#0d4a5c;margin-bottom:12px">What happens next:</h4>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:.85rem;color:#5a8a96">
-            <div style="display:flex;align-items:flex-start;gap:8px">
-                <span style="color:#2ea871;font-weight:700">✅</span> Your account is live and ready to use
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px">
-                <span style="color:#2ea871;font-weight:700">✅</span> A welcome email has been sent to your inbox
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px">
-                <span style="color:#2ea871;font-weight:700">✅</span> Log in with your email and password
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px">
-                <span style="color:#2ea871;font-weight:700">✅</span> Start adding your stock items
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px">
-                <span style="color:#2ea871;font-weight:700">✅</span> AI begins learning your patterns immediately
-            </div>
-        </div>
-    </div>
-
-    <a href="app.html" class="btn-go-app" style="margin-bottom:12px">
-        <i class="fas fa-rocket"></i> Let's Get Started!
-    </a>
-
-    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:16px">
-        <a href="mobile.html" style="color:var(--teal-mid);font-size:.88rem;text-decoration:none;display:flex;align-items:center;gap:6px">
-            <i class="fas fa-mobile-alt"></i> Open Mobile App Instead
+<!-- ERROR STATE -->
+<div id="error-state" class="hidden">
+    <div class="error-screen">
+        <i class="fas fa-exclamation-circle"></i>
+        <h2>Setup Link Invalid</h2>
+        <p id="error-msg">This setup link is invalid or has already been used. If you have already set up your account, please log in to the portal.</p>
+        <a href="portal.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--teal-mid);color:#fff;border-radius:var(--radius-sm);font-weight:700;text-decoration:none;font-size:.9rem">
+            <i class="fas fa-sign-in-alt"></i> Go to Portal Login
         </a>
-        <a href="https://wa.me/27790440508" target="_blank" style="color:#25D366;font-size:.85rem;text-decoration:none;display:flex;align-items:center;gap:6px">
-            <i class="fab fa-whatsapp"></i> Need help? WhatsApp us
-        </a>
+        <div style="margin-top:14px">
+            <a href="https://wa.me/27790440508" target="_blank" style="color:var(--teal-mid);font-size:.85rem;font-weight:600;text-decoration:none">
+                <i class="fab fa-whatsapp"></i> WhatsApp Support: 079 044 0508
+            </a>
+        </div>
     </div>
 </div>
 
-<!-- ── TOAST ── -->
-<div class="toast-wrap" id="toastWrap"></div>
+<!-- SETUP FORM -->
+<div id="setup-form-state" class="hidden">
+    <div class="main">
 
-<!-- ── FIREBASE ── -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+        <!-- PURCHASE SUMMARY -->
+        <div class="purchase-summary" id="purchase-summary">
+            <div class="ps-info">
+                <strong id="ps-plan-name">Your Package</strong>
+                <span>Payment confirmed ✅</span>
+            </div>
+            <div class="ps-price">R<span id="ps-monthly">0</span>/mo</div>
+            <div class="ps-features" id="ps-features"></div>
+        </div>
+
+        <!-- PERSONAL DETAILS -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon"><i class="fas fa-user"></i></div>
+                <div>
+                    <h3>Your Personal Details</h3>
+                    <p>This becomes your account owner information</p>
+                </div>
+            </div>
+            <div class="form-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="f-firstname" placeholder="Your first name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="f-lastname" placeholder="Your last name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" id="f-email" placeholder="your@email.com">
+                        <div class="form-hint">This will be your login email — cannot be changed later</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="f-phone" placeholder="079 044 0508">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Create Password *</label>
+                        <input type="password" id="f-password" placeholder="Min 8 characters" oninput="checkPW(this.value)">
+                        <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+                        <div class="pw-strength-text" id="pw-text"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password *</label>
+                        <input type="password" id="f-password2" placeholder="Repeat your password">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSINESS DETAILS -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <h3>Business Details</h3>
+                    <p>Tell us about your business</p>
+                </div>
+            </div>
+            <div class="form-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Business / Company Name *</label>
+                        <input type="text" id="f-business" placeholder="e.g. Ocean View Restaurant">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Type *</label>
+                        <select id="f-type">
+                            <option value="">Select type...</option>
+                            <option>Restaurant</option>
+                            <option>Bar &amp; Nightclub</option>
+                            <option>Hotel &amp; Resort</option>
+                            <option>Café &amp; Bakery</option>
+                            <option>Retail Store</option>
+                            <option>Supermarket</option>
+                            <option>Manufacturer</option>
+                            <option>Pharmacy</option>
+                            <option>Warehouse</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select id="f-country">
+                            <option>South Africa</option>
+                            <option>Zimbabwe</option>
+                            <option>Namibia</option>
+                            <option>Botswana</option>
+                            <option>Mozambique</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Food Cost Target %</label>
+                        <input type="number" id="f-foodcost" placeholder="28" value="28" min="10" max="60">
+                        <div class="form-hint">Leave at 28% if unsure</div>
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label>Business Address</label>
+                        <input type="text" id="f-address" placeholder="123 Main Street, Cape Town">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>VAT Number</label>
+                        <input type="text" id="f-vat" placeholder="Optional">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIRST ENTITY -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon"><i class="fas fa-store"></i></div>
+                <div>
+                    <h3>Your First Location</h3>
+                    <p>The first branch or outlet you will manage</p>
+                </div>
+            </div>
+            <div class="form-card-body">
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label>Entity / Branch Name *</label>
+                        <input type="text" id="f-entity" placeholder="e.g. Cape Town Branch or Main Restaurant">
+                        <div class="form-hint">You can add more locations from your portal after setup</div>
+                    </div>
+                </div>
+                <div style="margin-top:6px">
+                    <label style="font-size:.8rem;font-weight:600;color:var(--text-dark);display:block;margin-bottom:8px">
+                        Stock Storage Areas
+                    </label>
+                    <div class="form-hint" style="margin-bottom:10px">Select all storage areas your business has</div>
+                    <div class="sections-grid">
+                        <label class="section-check"><input type="checkbox" id="sec-fridge"   value="Walk-in Fridge"  checked><span>Walk-in Fridge</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-freezer"  value="Walk-in Freezer" checked><span>Walk-in Freezer</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-dry"      value="Dry Store"       checked><span>Dry Store</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-bar"      value="Bar"             checked><span>Bar</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-kitchen"  value="Kitchen Store"         ><span>Kitchen Store</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-cellar"   value="Wine Cellar"           ><span>Wine Cellar</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-warehouse" value="Warehouse"             ><span>Warehouse</span></label>
+                        <label class="section-check"><input type="checkbox" id="sec-retail"   value="Retail Floor"          ><span>Retail Floor</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <button class="btn-submit" id="submit-btn" onclick="createAccount()">
+            <i class="fas fa-rocket"></i> Create My Account & Go Live
+        </button>
+        <div class="security-note">
+            <i class="fas fa-lock"></i> Your data is encrypted and stored securely. POPIA compliant.
+        </div>
+
+    </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="success-state" class="hidden">
+    <div class="main">
+        <div class="success-screen">
+            <div class="success-icon">🎉</div>
+            <h2>Welcome to StockAI-Pro!</h2>
+            <p>Your account is live and ready to use. A welcome email has been sent to your inbox.</p>
+
+            <div class="success-details" id="success-details"></div>
+
+            <div class="next-steps">
+                <h4>What happens now:</h4>
+                <div class="next-step-row"><span>✅</span> Your account is live and ready to use</div>
+                <div class="next-step-row"><span>✅</span> Welcome email sent to your inbox</div>
+                <div class="next-step-row"><span>✅</span> Log in to your Owner Portal to manage your account</div>
+                <div class="next-step-row"><span>✅</span> Open the app to start adding your stock</div>
+                <div class="next-step-row"><span>✅</span> AI begins learning your patterns immediately</div>
+            </div>
+
+            <a href="portal.html" class="btn-go-portal">
+                <i class="fas fa-shield-alt"></i> Open My Owner Portal
+            </a>
+            <a href="hub.html" class="btn-go-app">
+                <i class="fas fa-rocket"></i> Open the App Instead
+            </a>
+
+            <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <a href="https://wa.me/27790440508" target="_blank" style="color:#25D366;font-size:.83rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px">
+                    <i class="fab fa-whatsapp"></i> Need help? WhatsApp us
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
 // ============================================================
-// FIREBASE INIT
+// STATE
 // ============================================================
-var firebaseConfig = {
-    apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
-    authDomain:        'stockai-pro-b232e.firebaseapp.com',
-    projectId:         'stockai-pro-b232e',
-    storageBucket:     'stockai-pro-b232e.firebasestorage.app',
-    messagingSenderId: '424200946359',
-    appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+var SETUP = {
+    token:       '',
+    record:      null,    // the pendingSetups document
+    accountId:   ''
 };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-var db   = firebase.firestore();
-var auth = firebase.auth();
 
 // ============================================================
-// LOAD FROM SESSION STORAGE
-// Data passed from signup.html after payment
+// INIT — Load setup record from Firebase using token
 // ============================================================
 window.addEventListener('load', function() {
+    var params = new URLSearchParams(window.location.search);
+    SETUP.token = params.get('token') || '';
 
-    // ── Read from URL params first (email link)
-    // then fall back to sessionStorage (direct redirect) ──
-    var params   = new URLSearchParams(window.location.search);
-
-    var plan     = params.get('plan')     || sessionStorage.getItem('signup_plan')     || 'Premium';
-    var price    = params.get('price')    || sessionStorage.getItem('signup_price')    || '799';
-    var email    = params.get('email')    || sessionStorage.getItem('signup_email')    || '';
-    var paid     = params.get('paid')     || sessionStorage.getItem('signup_paid')     || 'false';
-    var features = params.get('features') || sessionStorage.getItem('signup_features') || 'web_boh';
-    var entities = params.get('entities') || sessionStorage.getItem('signup_entities') || '1';
-    var ref      = params.get('ref')      || sessionStorage.getItem('signup_ref')      || '';
-
-    // ── Store in session so createAccount() can use them ──
-    sessionStorage.setItem('signup_plan',     plan);
-    sessionStorage.setItem('signup_price',    price);
-    sessionStorage.setItem('signup_email',    email);
-    sessionStorage.setItem('signup_paid',     paid);
-    sessionStorage.setItem('signup_features', features);
-    sessionStorage.setItem('signup_entities', entities);
-    sessionStorage.setItem('signup_ref',      ref);
-
-    // ── Update the plan summary display ──
-    document.getElementById('summaryPlanName').textContent  = plan;
-    document.getElementById('summaryPlanPrice').textContent = parseInt(price).toLocaleString();
-    if (email) document.getElementById('f-email').value    = email;
-
-    if (paid !== 'true') {
-        showToast('info', 'Complete payment on signup page first for full activation');
+    if (!SETUP.token) {
+        showError('No setup token found in this link. Please check your email for the correct link.');
+        return;
     }
+
+    db.collection('pendingSetups').doc(SETUP.token).get()
+        .then(function(doc) {
+            if (!doc.exists) {
+                showError('This setup link has not been found. It may have already been used or is invalid.');
+                return;
+            }
+
+            var data = doc.data();
+            SETUP.record = data;
+
+            // Already completed?
+            if (data.status === 'completed') {
+                showError(
+                    'This setup link has already been used. Your account is set up! ' +
+                    'Please log in to the portal.',
+                    true
+                );
+                return;
+            }
+
+            // Pre-fill form from purchase record
+            prefillForm(data);
+
+            // Show purchase summary
+            renderPurchaseSummary(data);
+
+            // Show the form
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('setup-form-state').classList.remove('hidden');
+        })
+        .catch(function(err) {
+            console.error('Setup load error:', err);
+            showError('Error loading your setup details. Please contact support.');
+        });
 });
 
 // ============================================================
-// PASSWORD STRENGTH CHECKER
+// PRE-FILL FORM from purchase record
 // ============================================================
-function checkPassword(val) {
-    var bar  = document.getElementById('pwStrengthBar');
-    var text = document.getElementById('pwStrengthText');
-    if (!val) {
-        bar.className    = 'password-strength-bar';
-        text.textContent = '';
-        return;
+function prefillForm(data) {
+    if (data.email)    document.getElementById('f-email').value    = data.email;
+    if (data.name)     {
+        var parts = data.name.split(' ');
+        document.getElementById('f-firstname').value = parts[0] || '';
+        document.getElementById('f-lastname').value  = parts.slice(1).join(' ') || '';
     }
+    if (data.phone)    document.getElementById('f-phone').value    = data.phone;
+    if (data.business) document.getElementById('f-business').value = data.business;
+}
+
+// ============================================================
+// RENDER PURCHASE SUMMARY
+// ============================================================
+function renderPurchaseSummary(data) {
+    var nameEl     = document.getElementById('ps-plan-name');
+    var priceEl    = document.getElementById('ps-monthly');
+    var featuresEl = document.getElementById('ps-features');
+
+    var featureNames = {
+        web_boh:'Web App B.O.H', mobile_app:'Mobile App',
+        procure_ai:'ProcureAI', pos_system:'P.O.S System',
+        menu_master:'Menu Master', functions_ai:'FunctionsAI',
+        retail_pos:'Retail POS', production:'Production Manager',
+        hr_module:'HR Module', invoice_scanner:'Invoice Scanner',
+        ai_brain:'AI Brain + Nikki', pos_builder:'POS Builder',
+        cashup_pro:'CashUp-Pro'
+    };
+    var freeFeatures = ['mobile_app','procure_ai','pos_builder','cashup_pro'];
+
+    nameEl.textContent  = (data.entities || 1) + ' Location' + ((data.entities||1)>1?'s':'') + ' Package';
+    priceEl.textContent = (data.monthlyTotal || 0).toLocaleString();
+
+    var chips = (data.features || ['web_boh']).map(function(key) {
+        var isFree = freeFeatures.indexOf(key) !== -1;
+        return '<span class="ps-feature-chip' + (isFree ? ' free' : '') + '">' +
+            (featureNames[key] || key) + (isFree ? ' ✓ Free' : '') +
+            '</span>';
+    }).join('');
+    featuresEl.innerHTML = chips;
+}
+
+// ============================================================
+// PASSWORD STRENGTH
+// ============================================================
+function checkPW(val) {
+    var bar  = document.getElementById('pw-bar');
+    var text = document.getElementById('pw-text');
+    if (!val) { bar.className = 'pw-strength-bar'; text.textContent = ''; text.style.color = ''; return; }
     if (val.length < 6) {
-        bar.className    = 'password-strength-bar weak';
-        text.textContent = 'Too short';
-        text.style.color = '#c94545';
+        bar.className = 'pw-strength-bar weak';
+        text.textContent = 'Too short'; text.style.color = 'var(--danger)';
     } else if (val.length < 10 || !/[0-9]/.test(val)) {
-        bar.className    = 'password-strength-bar medium';
-        text.textContent = 'Medium strength';
-        text.style.color = '#f59e0b';
+        bar.className = 'pw-strength-bar medium';
+        text.textContent = 'Medium — add numbers to strengthen'; text.style.color = 'var(--gold)';
     } else {
-        bar.className    = 'password-strength-bar strong';
-        text.textContent = 'Strong password ✓';
-        text.style.color = '#2ea871';
+        bar.className = 'pw-strength-bar strong';
+        text.textContent = 'Strong password ✓'; text.style.color = 'var(--success)';
     }
 }
 
 // ============================================================
 // GET SELECTED SECTIONS
 // ============================================================
-function getSelectedSections() {
+function getSections() {
     var sections = [];
-    var map = {
-        'sec-fridge':   'Walk-in Fridge',
-        'sec-freezer':  'Walk-in Freezer',
-        'sec-dry':      'Dry Store',
-        'sec-bar':      'Bar',
-        'sec-kitchen':  'Kitchen Store',
-        'sec-cellar':   'Wine Cellar',
-        'sec-warehouse':'Warehouse',
-        'sec-retail':   'Retail Floor'
-    };
-    Object.keys(map).forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el && el.checked) sections.push(map[id]);
+    document.querySelectorAll('.sections-grid input[type="checkbox"]:checked').forEach(function(cb) {
+        sections.push(cb.value);
     });
     return sections.length > 0 ? sections : ['Main Store'];
 }
 
 // ============================================================
-// CREATE ACCOUNT
+// CREATE ACCOUNT — Main function
 // ============================================================
 function createAccount() {
-    // ── Read all form values ──
+    // ── Read form values ──
     var firstname  = (document.getElementById('f-firstname').value  || '').trim();
     var lastname   = (document.getElementById('f-lastname').value   || '').trim();
     var email      = (document.getElementById('f-email').value      || '').trim().toLowerCase();
@@ -656,48 +705,46 @@ function createAccount() {
     var vat        = (document.getElementById('f-vat').value        || '').trim();
     var foodcost   = parseInt(document.getElementById('f-foodcost').value) || 28;
     var entityName = (document.getElementById('f-entity').value     || '').trim();
-    var sections   = getSelectedSections();
-
-    // ── Session data from signup.html ──
-    var plan  = sessionStorage.getItem('signup_plan')  || 'Premium';
-    var price = parseInt(sessionStorage.getItem('signup_price')) || 999;
-    var ref   = sessionStorage.getItem('signup_ref')   || '';
+    var sections   = getSections();
 
     // ── Validation ──
-    if (!firstname)  { showToast('error', 'Please enter your first name');        return; }
-    if (!lastname)   { showToast('error', 'Please enter your last name');         return; }
-    if (!email)      { showToast('error', 'Please enter your email address');     return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                       showToast('error', 'Please enter a valid email address');  return; }
-    if (!phone)      { showToast('error', 'Please enter your phone number');      return; }
-    if (!password)   { showToast('error', 'Please create a password');            return; }
-    if (password.length < 8) {
-                       showToast('error', 'Password must be at least 8 characters'); return; }
-    if (password !== password2) {
-                       showToast('error', 'Passwords do not match');              return; }
-    if (!business)   { showToast('error', 'Please enter your business name');     return; }
-    if (!type)       { showToast('error', 'Please select your business type');    return; }
-    if (!entityName) { showToast('error', 'Please enter your entity/branch name'); return; }
+    if (!firstname)  { showToast('error', 'Please enter your first name');          return; }
+    if (!lastname)   { showToast('error', 'Please enter your last name');           return; }
+    if (!email)      { showToast('error', 'Please enter your email address');       return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('error', 'Please enter a valid email address'); return; }
+    if (!phone)      { showToast('error', 'Please enter your phone number');        return; }
+    if (!password)   { showToast('error', 'Please create a password');              return; }
+    if (password.length < 8) { showToast('error', 'Password must be at least 8 characters'); return; }
+    if (password !== password2) { showToast('error', 'Passwords do not match');    return; }
+    if (!business)   { showToast('error', 'Please enter your business name');       return; }
+    if (!type)       { showToast('error', 'Please select your business type');      return; }
+    if (!entityName) { showToast('error', 'Please enter your first entity name');   return; }
 
     // ── Disable button ──
-    var btn      = document.getElementById('submitBtn');
+    var btn      = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating your account...';
 
-    // ── Build IDs and dates ──
     var fullName  = firstname + ' ' + lastname;
+    var rec       = SETUP.record || {};
+
+    // ── Build account ID from email ──
     var accountId = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    var entityId  = 'ENT-' + Date.now();
+    SETUP.accountId = accountId;
+
+    // ── Build features list — always include mobile_app + procure_ai ──
+    var purchasedFeatures = rec.features || ['web_boh'];
+    if (purchasedFeatures.indexOf('web_boh')    === -1) purchasedFeatures.unshift('web_boh');
+    if (purchasedFeatures.indexOf('mobile_app') === -1) purchasedFeatures.push('mobile_app');
+    if (purchasedFeatures.indexOf('procure_ai') === -1) purchasedFeatures.push('procure_ai');
+
+    // ── Dates ──
     var now       = new Date();
     var nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
     var nextDue   = nextMonth.toISOString().split('T')[0];
-    var planKey   = plan === 'Premium'
-        ? 'premium'
-        : plan === 'Premium Plus'
-        ? 'premiumplus'
-        : 'premiumexclusive';
+    var entityId  = 'ENT-' + Date.now();
 
-    // ── Build account data ──
+    // ── Build Firestore account document ──
     var accountData = {
         owner: {
             name:    fullName,
@@ -706,43 +753,39 @@ function createAccount() {
             country: country
         },
         entities: [{
-            id:           entityId,
-            name:         entityName,
-            contact:      fullName,
-            phone:        phone,
-            email:        email,
-            address:      address,
-            vat:          vat,
-            businessType: type,
+            id:             entityId,
+            name:           entityName,
+            contact:        fullName,
+            phone:          phone,
+            email:          email,
+            address:        address,
+            vat:            vat,
+            businessType:   type,
             foodCostTarget: foodcost,
-            sections:     sections,
-            features:     ['web_boh'],   // ✅ Default feature — Web App B.O.H always included
-            plan:         planKey,
-            status:       'active',
-            paymentStatus:'paid',
-            createdAt:    now.toISOString()
+            sections:       sections,
+            features:       purchasedFeatures,
+            status:         'active',
+            paymentStatus:  'paid',
+            createdAt:      now.toISOString()
         }],
         billing: {
-            plan:            planKey,
-            planName:        plan,
-            price:           price,
-            status:          'current',
             lastPaymentDate: now.toISOString(),
             nextDueDate:     nextDue,
-            paystackRef:     ref,
-            dismissedToday:  null
+            status:          'current',
+            paystackRef:     rec.paystackRef || '',
+            monthlyTotal:    rec.monthlyTotal || 0
         },
-        accountStatus: 'active',
-        maxEntities: parseInt(sessionStorage.getItem('signup_entities')) || 1,
-        businessName:  business,
-        businessType:  type,
-        inventory:     {},
-        purchases:     {},
-        wastage:       {},
-        suppliers:     {},
-        users:         {},
-        menuItems:     {},
-        cashups:       {},
+        accountStatus:  'active',
+        businessName:   business,
+        businessType:   type,
+        maxEntities:    parseInt(rec.entities) || 1,
+        setupToken:     SETUP.token,
+        paystackRef:    rec.paystackRef || '',
+        // App data collections (empty to start)
+        inventory:      {}, purchases: {}, wastage: {},
+        suppliers:      {}, users: {}, menuItems: {},
+        cashups:        {}, activities: {}, pendingPOs: {},
+        userLogs:       {}, dayEnds: {}, invoices: {},
         notifs: [{
             type:   'success',
             title:  'Welcome to StockAI-Pro! 🎉',
@@ -750,141 +793,164 @@ function createAccount() {
             time:   'Just now',
             unread: true
         }],
-        activities:        {},
-        pendingPOs:        {},
-        internalTransfers: [],
-        userLogs:          {},
-        dayEnds:           {},
-        createdAt:         firebase.firestore.FieldValue.serverTimestamp(),
-        lastUpdated:       firebase.firestore.FieldValue.serverTimestamp()
+        createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // ============================================================
-    // STEP 1 — Create Firebase Auth account
-    // ============================================================
-    showToast('info', 'Creating your login account...');
+    // ──────────────────────────────────────────────
+    // STEP 1: Create Firebase Auth user
+    // ──────────────────────────────────────────────
+    showToast('info', 'Step 1/4 — Creating your login...');
 
     auth.createUserWithEmailAndPassword(email, password)
 
-    // ============================================================
-    // STEP 2 — Save account data to Firestore
-    // ============================================================
-        .then(function() {
-            showToast('info', 'Saving your business details...');
-            return db.collection('accounts').doc(accountId).set(accountData);
-        })
+    // ──────────────────────────────────────────────
+    // STEP 2: Save account to Firestore
+    // ──────────────────────────────────────────────
+        .then(function(userCredential) {
+            showToast('info', 'Step 2/4 — Saving your account...');
+            var uid = userCredential.user.uid;
 
-    // ============================================================
-    // STEP 3 — Send welcome email to customer
-    // Uses emailWelcome() from email-templates.js
-    // ============================================================
-        .then(function() {
-            showToast('info', 'Sending welcome email...');
-            return emailWelcome({
-                name:       fullName,
-                email:      email,
-                plan:       plan,
-                price:      price,
-                entityName: entityName,
-                nextDue:    nextDue
+            // Save main account doc
+            var saveAccount = db.collection('accounts').doc(accountId).set(accountData);
+
+            // Also save a uid-to-accountId mapping for fast lookup
+            var saveMapping = db.collection('userMappings').doc(uid).set({
+                accountId: accountId,
+                email:     email,
+                role:      'owner',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            return Promise.all([saveAccount, saveMapping]).then(function() {
+                return uid;
             });
         })
 
-    // ============================================================
-    // STEP 4 — Send new signup notification to admin
-    // Uses emailNewSignupNotification() from email-templates.js
-    // ============================================================
-        .then(function() {
-            return emailNewSignupNotification({
-                name:         fullName,
-                email:        email,
-                phone:        phone,
-                business:     business,
-                plan:         plan,
-                price:        price,
-                features:     ['web_boh'],
-                entities:     1,
-                monthlyTotal: price,
-                onceOffTotal: 0,
-                ref:          ref
-            });
+    // ──────────────────────────────────────────────
+    // STEP 3: Mark setup as completed + send emails
+    // ──────────────────────────────────────────────
+        .then(function(uid) {
+            showToast('info', 'Step 3/4 — Sending welcome email...');
+
+            // Mark pendingSetup as completed
+            db.collection('pendingSetups').doc(SETUP.token).update({
+                status:      'completed',
+                accountId:   accountId,
+                completedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(function() {});
+
+            // Send welcome email (single email — no duplicates)
+            if (typeof emailWelcome === 'function') {
+                emailWelcome({
+                    name:         fullName,
+                    email:        email,
+                    features:     purchasedFeatures,
+                    entities:     parseInt(rec.entities) || 1,
+                    monthlyTotal: rec.monthlyTotal || 0
+                });
+            }
+
+            return uid;
         })
 
-    // ============================================================
-    // STEP 5 — Show success screen
-    // ============================================================
+    // ──────────────────────────────────────────────
+    // STEP 4: Show success screen
+    // ──────────────────────────────────────────────
         .then(function() {
-            // Reset button
+            showToast('info', 'Step 4/4 — Finalising...');
+
             btn.disabled  = false;
             btn.innerHTML = '<i class="fas fa-check"></i> Account Created!';
-            btn.style.background = '#2ea871';
+            btn.style.background = 'var(--success)';
 
-            // Clear toasts and session
-            document.getElementById('toastWrap').innerHTML = '';
-            sessionStorage.clear();
-
-            showToast('success', '✅ Account created successfully!');
-
-            // Show success screen after short delay
+            // Clear toasts after short delay
             setTimeout(function() {
-                document.getElementById('setupForm').style.display  = 'none';
-                document.getElementById('successScreen').style.display = 'block';
-                window.scrollTo(0, 0);
+                document.getElementById('toast-wrap').innerHTML = '';
+            }, 1000);
 
-                document.getElementById('successDetails').innerHTML =
-                    '<div class="success-detail-row"><span>Name</span><strong>'         + fullName              + '</strong></div>' +
-                    '<div class="success-detail-row"><span>Login Email</span><strong>'  + email                 + '</strong></div>' +
-                    '<div class="success-detail-row"><span>Plan</span><strong>'         + plan                  + '</strong></div>' +
-                    '<div class="success-detail-row"><span>Monthly Rate</span><strong>R'+ price.toLocaleString() + '</strong></div>' +
-                    '<div class="success-detail-row"><span>Entity</span><strong>'       + entityName            + '</strong></div>' +
-                    '<div class="success-detail-row"><span>Next Payment</span><strong>' + nextDue               + '</strong></div>';
+            // Update progress bar
+            var step3Circle = document.querySelector('#step-3 .progress-step-circle');
+            var step4El     = document.getElementById('step-4');
+            var line3       = document.getElementById('line-3');
+            if (step3Circle) step3Circle.innerHTML = '<i class="fas fa-check" style="font-size:.6rem"></i>';
+            document.getElementById('step-3').classList.remove('active');
+            document.getElementById('step-3').classList.add('done');
+            if (line3) line3.classList.add('done');
+            if (step4El) step4El.classList.add('active');
+
+            // Build success details
+            var detailsHtml =
+                '<div class="success-detail-row"><span>Name</span><strong>'       + fullName           + '</strong></div>' +
+                '<div class="success-detail-row"><span>Login Email</span><strong>'+ email              + '</strong></div>' +
+                '<div class="success-detail-row"><span>Business</span><strong>'   + business           + '</strong></div>' +
+                '<div class="success-detail-row"><span>First Entity</span><strong>'+ entityName        + '</strong></div>' +
+                '<div class="success-detail-row"><span>Monthly Rate</span><strong>R' +
+                    (rec.monthlyTotal || 0).toLocaleString() + '/mo</strong></div>' +
+                '<div class="success-detail-row"><span>Next Payment</span><strong>' + nextDue          + '</strong></div>';
+
+            document.getElementById('success-details').innerHTML = detailsHtml;
+
+            // Show success state
+            setTimeout(function() {
+                document.getElementById('setup-form-state').classList.add('hidden');
+                document.getElementById('success-state').classList.remove('hidden');
+                window.scrollTo(0, 0);
             }, 1500);
         })
 
-    // ============================================================
+    // ──────────────────────────────────────────────
     // ERROR HANDLING
-    // ============================================================
+    // ──────────────────────────────────────────────
         .catch(function(err) {
-            btn.disabled         = false;
-            btn.innerHTML        = '<i class="fas fa-rocket"></i> Create My Account';
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-rocket"></i> Create My Account & Go Live';
             btn.style.background = '';
 
             if (err.code === 'auth/email-already-in-use') {
-                showToast('error', 'This email already has an account. Please login instead.');
-                setTimeout(function() { window.location.href = 'app.html'; }, 3000);
+                showToast('error', 'This email already has an account. Please log in to the portal instead.');
+                setTimeout(function() { window.location.href = 'portal.html'; }, 3000);
             } else if (err.code === 'auth/weak-password') {
                 showToast('error', 'Password is too weak. Use at least 8 characters with numbers.');
             } else {
-                showToast('error', 'Error: ' + err.message);
+                showToast('error', 'Error creating account: ' + (err.message || 'Unknown error'));
                 console.error('Account creation error:', err);
             }
         });
 }
 
 // ============================================================
-// TOAST NOTIFICATIONS
+// SHOW ERROR STATE
+// ============================================================
+function showError(msg, isAlreadyDone) {
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('error-state').classList.remove('hidden');
+    document.getElementById('error-msg').textContent = msg;
+}
+
+// ============================================================
+// TOAST
 // ============================================================
 function showToast(type, msg) {
-    var icons = {
-        success: 'check-circle',
-        error:   'times-circle',
-        info:    'info-circle',
-        warning: 'exclamation-triangle'
-    };
     var t = document.createElement('div');
-    t.className = 'toast ' + type;
+    t.className = 'toast ' + (type || 'info');
+    var icons = { success:'check-circle', error:'times-circle', info:'info-circle', warning:'exclamation-triangle' };
     t.innerHTML =
-        '<i class="fas fa-' + (icons[type] || 'info-circle') + '"></i>' +
+        '<i class="fas fa-' + (icons[type]||'info-circle') + '" style="color:var(--' +
+        (type==='success'?'success':type==='error'?'danger':type==='warning'?'gold':'teal-mid') + ')"></i>' +
         '<span>' + msg + '</span>';
-    document.getElementById('toastWrap').appendChild(t);
-    setTimeout(function() {
-        if (t.parentElement) t.remove();
-    }, 5000);
+    document.getElementById('toast-wrap').appendChild(t);
+    if (type !== 'info') {
+        setTimeout(function() {
+            t.style.opacity = '0'; t.style.transition = 'opacity .3s';
+            setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+        }, 5000);
+    }
 }
 
 console.log('✅ StockAI-Pro setup.html loaded');
-console.log('🔥 Firebase connected');
-console.log('📧 Email templates linked');
+console.log('🔥 Firebase Auth + Firestore connected');
+console.log('📧 Welcome email ready via email-templates.js');
 </script>
 </body>
 </html>
