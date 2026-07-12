@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Package — StockAI-Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/email-templates.js"></script>
+<script>
+if (!firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
+        authDomain:        'stockai-pro-b232e.firebaseapp.com',
+        projectId:         'stockai-pro-b232e',
+        storageBucket:     'stockai-pro-b232e.firebasestorage.app',
+        messagingSenderId: '424200946359',
+        appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+    });
+}
+var db = firebase.firestore();
+</script>
+<style>
+:root {
+    --teal-dark:#0d4a5c; --teal-mid:#1a8ba8; --teal-light:#4dbdd5; --teal-pale:#a0e9f8;
+    --bg:#f0f7f9; --bg-alt:#e4f1f5; --white:#fff;
+    --text-dark:#0d4a5c; --text-mid:#2a5f70; --text-light:#5a8a96; --text-muted:#8aabb5;
+    --gold:#f59e0b; --gold-dark:#d97706; --success:#2ea871; --danger:#c94545;
+    --border:#c4dde4; --border-light:#e0eff3;
+    --shadow:0 4px 20px rgba(13,74,92,.08); --shadow-lg:0 12px 50px rgba(13,74,92,.15);
+    --radius:14px; --radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh}
+.hidden{display:none!important}
+
+/* ── HEADER ── */
+.header{
+    background:linear-gradient(90deg,var(--teal-dark),var(--teal-mid));
+    padding:12px 24px;display:flex;align-items:center;
+    justify-content:space-between;position:sticky;top:0;z-index:100;
+    box-shadow:0 2px 20px rgba(0,0,0,.15)
+}
+.header-logo{display:flex;align-items:center;color:#fff;text-decoration:none}
+.header-secure{
+    color:rgba(255,255,255,.8);font-size:.82rem;
+    display:flex;align-items:center;gap:6px
+}
+
+/* ── PROGRESS ── */
+.progress-bar{background:var(--bg-alt);padding:14px 24px;border-bottom:1px solid var(--border)}
+.progress-steps{
+    max-width:700px;margin:0 auto;
+    display:flex;align-items:center;justify-content:center
+}
+.progress-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.progress-step-circle{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.75rem;font-weight:700;border:2px solid var(--border);
+    background:#fff;color:var(--text-light);transition:.3s
+}
+.progress-step.active .progress-step-circle{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff}
+.progress-step.done .progress-step-circle{background:var(--success);border-color:var(--success);color:#fff}
+.progress-step-label{font-size:.62rem;font-weight:600;color:var(--text-light);text-align:center}
+.progress-step.active .progress-step-label{color:var(--teal-mid);font-weight:700}
+.progress-step.done .progress-step-label{color:var(--success)}
+.progress-line{flex:1;height:2px;background:var(--border);margin:0 4px;margin-bottom:18px;transition:.3s}
+.progress-line.done{background:var(--success)}
+
+/* ── HERO ── */
+.hero{
+    background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));
+    padding:36px 24px;text-align:center;color:#fff;position:relative;overflow:hidden
+}
+.hero::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.06),transparent 50%)
+}
+.hero h1{font-size:1.8rem;font-weight:900;position:relative;z-index:1;margin-bottom:6px}
+.hero p{font-size:.9rem;opacity:.88;max-width:500px;margin:0 auto;position:relative;z-index:1;line-height:1.6}
+.hero-ref{
+    display:inline-block;margin-top:10px;padding:4px 16px;
+    background:rgba(255,255,255,.15);border-radius:12px;
+    font-size:.78rem;color:rgba(255,255,255,.85);position:relative;z-index:1
+}
+
+/* ── CLIENT BANNER ── */
+.client-banner{
+    background:linear-gradient(135deg,rgba(46,168,113,.1),rgba(46,168,113,.05));
+    border:1px solid rgba(46,168,113,.25);border-radius:var(--radius);
+    padding:16px 20px;margin-bottom:24px;
+    display:flex;align-items:center;gap:14px
+}
+.client-banner i{color:var(--success);font-size:1.4rem;flex-shrink:0}
+.client-banner-text strong{display:block;font-size:.92rem;color:var(--text-dark);margin-bottom:2px}
+.client-banner-text span{font-size:.8rem;color:var(--text-light)}
+
+/* ── MAIN ── */
+.main{max-width:860px;margin:0 auto;padding:32px 24px 60px}
+
+/* ── FREE BADGE ── */
+.free-banner{
+    background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.05));
+    border:1px solid rgba(245,158,11,.3);border-radius:var(--radius);
+    padding:14px 20px;margin-bottom:24px;
+    display:flex;align-items:center;gap:12px
+}
+.free-banner i{color:var(--gold);font-size:1.2rem;flex-shrink:0}
+.free-banner div{font-size:.85rem;color:var(--text-mid)}
+.free-banner strong{color:var(--text-dark)}
+
+/* ── BUILDER CARD ── */
+.builder-card{
+    background:#fff;border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);overflow:hidden;
+    border:2px solid var(--gold);margin-bottom:24px;position:relative
+}
+.builder-card::before{
+    content:'🚀 BUILD YOUR PACKAGE';
+    position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+    color:#fff;padding:4px 18px;border-radius:16px;
+    font-size:.68rem;font-weight:700;letter-spacing:1px;white-space:nowrap;z-index:5
+}
+.builder-header{
+    background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));
+    padding:28px 28px 20px;color:#fff;text-align:center
+}
+.builder-header h2{font-size:1.3rem;font-weight:900;margin-bottom:6px}
+.builder-header p{font-size:.85rem;opacity:.85}
+.builder-body{padding:24px 28px}
+
+/* ── FEATURE SECTION LABEL ── */
+.feature-section-label{
+    font-size:.7rem;font-weight:700;color:var(--text-muted);
+    text-transform:uppercase;letter-spacing:1.5px;
+    padding:14px 0 6px;display:flex;align-items:center;gap:8px
+}
+.feature-section-label::before,.feature-section-label::after{
+    content:'';flex:1;height:1px;background:var(--border)
+}
+
+/* ── FEATURE TOGGLE CARDS ── */
+.ft-card{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;border-radius:var(--radius-sm);border:2px solid var(--border);
+    transition:.3s;cursor:pointer;user-select:none;gap:12px;margin-bottom:10px;
+    background:var(--bg)
+}
+.ft-card:hover{border-color:var(--teal-light);box-shadow:var(--shadow);background:#fff}
+.ft-card.selected{border-color:var(--teal-mid);background:rgba(26,139,168,.04)}
+.ft-card.locked{border-color:var(--success);background:rgba(46,168,113,.04);cursor:default}
+.ft-card.free-with-pos{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.02)}
+.ft-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.ft-icon{
+    width:44px;height:44px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1.1rem;flex-shrink:0
+}
+.ft-name{font-size:.92rem;font-weight:700;color:var(--text-dark)}
+.ft-desc{font-size:.72rem;color:var(--text-light);margin-top:2px;line-height:1.4}
+.ft-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.ft-price{font-size:.95rem;font-weight:800;color:var(--text-dark);white-space:nowrap}
+.ft-price.free{color:var(--success);font-size:.82rem}
+.ft-badge{
+    font-size:.6rem;font-weight:700;padding:3px 10px;border-radius:8px;
+    text-transform:uppercase;letter-spacing:.5px;white-space:nowrap
+}
+.ft-badge.included{background:rgba(46,168,113,.1);color:var(--success)}
+.ft-badge.gift{background:rgba(245,158,11,.12);color:var(--gold-dark)}
+.ft-toggle{
+    width:44px;height:24px;border-radius:12px;background:var(--border);
+    position:relative;transition:.3s;flex-shrink:0
+}
+.ft-toggle::after{
+    content:'';width:20px;height:20px;border-radius:50%;background:#fff;
+    position:absolute;top:2px;left:2px;transition:.3s;
+    box-shadow:0 2px 6px rgba(0,0,0,.15)
+}
+.ft-card.selected .ft-toggle{background:var(--teal-mid)}
+.ft-card.selected .ft-toggle::after{transform:translateX(20px)}
+.ft-card.locked .ft-toggle,.ft-card.free-with-pos .ft-toggle{background:var(--success)}
+.ft-card.locked .ft-toggle::after,.ft-card.free-with-pos .ft-toggle::after{transform:translateX(20px)}
+
+/* ── SELECTED CHIPS ── */
+.chips-section{
+    background:var(--bg);border-radius:var(--radius-sm);
+    padding:14px 16px;margin-bottom:20px;border:1px solid var(--border)
+}
+.chips-title{
+    font-size:.72rem;font-weight:700;color:var(--text-dark);
+    margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;
+    display:flex;align-items:center;gap:6px
+}
+.chips-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 12px;border-radius:16px;font-size:.75rem;font-weight:600
+}
+.chip.locked{background:rgba(46,168,113,.1);color:var(--success);border:1px solid rgba(46,168,113,.2)}
+.chip.selected{background:rgba(26,139,168,.1);color:var(--teal-mid);border:1px solid rgba(26,139,168,.2)}
+.chip.free{background:rgba(245,158,11,.1);color:var(--gold-dark);border:1px solid rgba(245,158,11,.2)}
+
+/* ── ADD-ONS ── */
+.addons-section{border-top:1px solid var(--border);padding-top:20px;margin-top:8px}
+.addon-row{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:14px 0;border-bottom:1px solid var(--border-light);gap:16px;flex-wrap:wrap
+}
+.addon-row:last-child{border-bottom:none}
+.addon-label strong{font-size:.88rem;color:var(--text-dark);display:block;margin-bottom:3px}
+.addon-label small{font-size:.72rem;color:var(--text-light);line-height:1.5}
+.addon-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.addon-controls select,.addon-controls input[type="number"]{
+    padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);
+    font-family:inherit;font-size:.88rem;font-weight:600;color:var(--text-dark);
+    background:#fff;cursor:pointer;transition:.2s
+}
+.addon-controls select:focus,.addon-controls input:focus{
+    outline:none;border-color:var(--teal-mid)
+}
+.addon-controls input[type="number"]{width:70px}
+.addon-price{font-weight:700;font-size:.92rem;color:var(--teal-mid);min-width:90px;text-align:right}
+.tech-breakdown{
+    display:none;background:var(--bg);border-radius:var(--radius-sm);
+    padding:12px 14px;width:100%;border:1px solid var(--border);margin-top:8px;font-size:.78rem
+}
+.tech-breakdown.show{display:block}
+.training-extras{display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.training-extras.show{display:flex}
+
+/* ── PRICE SUMMARY ── */
+.price-summary{
+    background:linear-gradient(135deg,var(--teal-dark),var(--teal-mid));
+    border-radius:var(--radius);padding:22px;color:#fff;margin-top:24px
+}
+.ps-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;font-weight:700}
+.ps-line{display:flex;justify-content:space-between;padding:5px 0;font-size:.85rem;opacity:.85}
+.ps-line.sub{padding-left:12px;font-size:.78rem;opacity:.65}
+.ps-divider{border:none;border-top:1px solid rgba(255,255,255,.15);margin:10px 0}
+.ps-line.total-monthly{font-size:1.25rem;font-weight:900;opacity:1;padding:10px 0 4px}
+.ps-line.total-monthly .ps-val{color:var(--gold)}
+.ps-line.total-onceoff{font-size:.98rem;font-weight:700;opacity:.9}
+.ps-line.total-onceoff .ps-val{color:#fcd34d}
+.ps-vat{font-size:.7rem;opacity:.5;text-align:right;margin-top:6px}
+
+/* ── PROMO CODE ── */
+.promo-section{
+    background:#fff;border-radius:var(--radius);padding:18px 22px;
+    box-shadow:var(--shadow);margin-bottom:20px;border:1px solid var(--border)
+}
+.promo-label{
+    font-size:.85rem;font-weight:700;color:var(--text-dark);
+    margin-bottom:12px;display:flex;align-items:center;gap:8px
+}
+.promo-label i{color:var(--teal-mid)}
+.promo-row{display:flex;gap:10px}
+.promo-row input{
+    flex:1;padding:11px 14px;border:1.5px solid var(--border);
+    border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;
+    color:var(--text-dark);background:#fff;transition:.2s;text-transform:uppercase
+}
+.promo-row input:focus{outline:none;border-color:var(--teal-mid)}
+.promo-row button{
+    padding:11px 18px;background:var(--teal-mid);color:#fff;border:none;
+    border-radius:var(--radius-sm);font-size:.85rem;font-weight:600;
+    cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s
+}
+.promo-row button:hover{background:var(--teal-dark)}
+.promo-result{margin-top:10px;display:none}
+
+/* ── PAY BUTTON ── */
+.pay-section{text-align:center;padding:24px 0 10px}
+.btn-pay{
+    display:inline-flex;align-items:center;gap:12px;
+    padding:17px 40px;background:linear-gradient(135deg,var(--success),#1a7a4a);
+    color:#fff;border:none;border-radius:var(--radius);font-size:1rem;
+    font-weight:700;cursor:pointer;font-family:inherit;transition:.3s;
+    box-shadow:0 8px 25px rgba(46,168,113,.35);max-width:100%
+}
+.btn-pay:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(46,168,113,.45)}
+.btn-pay:disabled{opacity:.5;transform:none;cursor:not-allowed;box-shadow:none}
+.pay-note{font-size:.8rem;color:var(--text-light);margin-top:14px;line-height:1.7}
+.pay-icons{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;opacity:.4}
+.pay-icons i{font-size:1.7rem;color:var(--text-light)}
+.guarantee-box{
+    background:#fff;border-radius:var(--radius);padding:20px 24px;
+    box-shadow:var(--shadow);text-align:center;margin-top:20px;
+    border-left:4px solid var(--success)
+}
+.guarantee-box h3{font-size:.95rem;font-weight:700;color:var(--text-dark);margin-bottom:6px}
+.guarantee-box p{font-size:.82rem;color:var(--text-light);max-width:460px;margin:0 auto}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px}
+.toast{
+    background:#fff;padding:12px 16px;border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;
+    min-width:280px;animation:tIn .3s ease;border-left:4px solid var(--teal-mid)
+}
+@keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.info{border-left-color:var(--teal-mid)}
+.toast.warning{border-left-color:var(--gold)}
+.toast span{flex:1;font-size:.85rem;color:var(--text-dark)}
+.toast button{background:none;border:none;color:var(--text-muted);cursor:pointer}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+    .builder-body{padding:18px 16px}
+    .ft-card{flex-wrap:wrap}
+    .ft-right{width:100%;justify-content:space-between}
+    .main{padding:20px 14px 40px}
+    .hero h1{font-size:1.5rem}
+    .addon-row{flex-direction:column}
+    .addon-controls{width:100%;justify-content:flex-start}
+    .ps-line.total-monthly{font-size:1.1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <a href="index.html" class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" height="38">
+            <defs>
+                <linearGradient id="qbSG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="55%" style="stop-color:#99F6E4"/><stop offset="100%" style="stop-color:#5EEAD4"/></linearGradient>
+                <linearGradient id="qbAG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5EEAD4"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#0891B2"/></linearGradient>
+                <linearGradient id="qbUG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#99F6E4;stop-opacity:0"/><stop offset="50%" style="stop-color:#14B8A6"/><stop offset="100%" style="stop-color:#99F6E4;stop-opacity:0"/></linearGradient>
+                <filter id="qbGS"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                <filter id="qbGM"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <g transform="translate(225,22)">
+                <g filter="url(#qbGS)"><polygon points="55,31 80,43 80,68 55,81 30,68 30,43" fill="none" stroke="#5EEAD4" stroke-width="2"/><polygon points="55,31 80,43 55,56 30,43" fill="#2DD4BF" opacity="0.22"/></g>
+                <circle cx="55" cy="56" r="7" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.7"/>
+                <circle cx="55" cy="56" r="3.2" fill="#5EEAD4" filter="url(#qbGM)" opacity="0.95"/>
+                <rect x="25" y="98" width="60" height="1.6" rx="0.8" fill="url(#qbUG)" opacity="0.55"/>
+            </g>
+            <text x="280" y="150" text-anchor="middle" textLength="330" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI',Arial,sans-serif" font-size="50" letter-spacing="-1">
+                <tspan fill="url(#qbSG)" font-weight="900">Stock</tspan><tspan fill="url(#qbAG)" font-weight="900">AI</tspan><tspan fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity="0.75" font-weight="900">-Pro</tspan>
+            </text>
+            <rect x="115" y="161" width="330" height="2.8" rx="1.4" fill="url(#qbUG)" filter="url(#qbGM)" opacity="0.85"/>
+        </svg>
+    </a>
+    <div class="header-secure">
+        <i class="fas fa-lock"></i> Secure Checkout
+    </div>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar">
+    <div class="progress-steps">
+        <div class="progress-step active" id="step-1">
+            <div class="progress-step-circle">1</div>
+            <div class="progress-step-label">Build Package</div>
+        </div>
+        <div class="progress-line" id="line-1"></div>
+        <div class="progress-step" id="step-2">
+            <div class="progress-step-circle">2</div>
+            <div class="progress-step-label">Payment</div>
+        </div>
+        <div class="progress-line" id="line-2"></div>
+        <div class="progress-step" id="step-3">
+            <div class="progress-step-circle">3</div>
+            <div class="progress-step-label">Setup Account</div>
+        </div>
+        <div class="progress-line" id="line-3"></div>
+        <div class="progress-step" id="step-4">
+            <div class="progress-step-circle">4</div>
+            <div class="progress-step-label">Start Using</div>
+        </div>
+    </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <h1><i class="fas fa-tools" style="opacity:.85;margin-right:10px"></i>Build Your Custom Package</h1>
+    <p>Select your features, add your locations, and pay securely. Only pay for what you need.</p>
+    <div class="hero-ref" id="hero-ref" style="display:none"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- CLIENT WELCOME BANNER (shown when pre-filled) -->
+    <div class="client-banner hidden" id="client-banner">
+        <i class="fas fa-user-check"></i>
+        <div class="client-banner-text">
+            <strong id="client-banner-name">Welcome!</strong>
+            <span id="client-banner-detail">Your details have been pre-filled from your quote.</span>
+        </div>
+    </div>
+
+    <!-- FREE FEATURES NOTICE -->
+    <div class="free-banner">
+        <i class="fas fa-gift"></i>
+        <div>
+            <strong>Mobile App & ProcureAI App are included FREE</strong>
+            with every package — no extra charge.
+        </div>
+    </div>
+
+    <!-- BUILDER CARD -->
+    <div class="builder-card">
+        <div class="builder-header">
+            <h2>Select Your Features</h2>
+            <p>Web App B.O.H is always included. Toggle additional features below.</p>
+        </div>
+        <div class="builder-body">
+
+            <!-- ALWAYS INCLUDED -->
+            <div class="ft-card locked">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#2ea871,#1a7a4a)">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Web App B.O.H</div>
+                        <div class="ft-desc">Full back-of-house management — stock, purchases, wastage, reports & more</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-badge included"><i class="fas fa-lock"></i> Always Included</span>
+                    <span class="ft-price">R799/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- FREE WITH EVERY PACKAGE -->
+            <div class="feature-section-label">Included Free with Every Package</div>
+
+            <div class="ft-card locked" data-feature="mobile_app">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Mobile App</div>
+                        <div class="ft-desc">Full PWA — stock counts, approvals, AI chat on any mobile device</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-badge gift"><i class="fas fa-gift"></i> Free</span>
+                    <span class="ft-price free">Included</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card locked" data-feature="procure_ai">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+                        <i class="fas fa-shopping-basket"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">ProcureAI App</div>
+                        <div class="ft-desc">Chef ordering app — auto-splits orders to cheapest suppliers</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-badge gift"><i class="fas fa-gift"></i> Free</span>
+                    <span class="ft-price free">Included</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- CORE APPS -->
+            <div class="feature-section-label">Core Applications</div>
+
+            <div class="ft-card" data-feature="menu_master" data-price="349" data-setup="1" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Menu Master</div>
+                        <div class="ft-desc">Menu & recipe costing — ingredient linking & live cost pricing</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R349/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card" data-feature="invoice_scanner" data-price="499" data-setup="2" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Invoice Scanner App</div>
+                        <div class="ft-desc">Scan invoices — auto-updates inventory, pricing & completes GRV entries</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R499/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- POINT OF SALE -->
+            <div class="feature-section-label">Point of Sale</div>
+
+            <div class="ft-card" data-feature="pos_system" data-price="799" data-setup="8" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+                        <i class="fas fa-cash-register"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">P.O.S System</div>
+                        <div class="ft-desc">Point of sale — menu builder, table payments & auto stock deduction</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R799/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card" data-feature="retail_pos" data-price="999" data-setup="12" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Retail POS</div>
+                        <div class="ft-desc">Retail-ready point of sale — walk-in sales, receipts & retail reporting</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R999/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- FREE WITH POS (hidden until POS selected) -->
+            <div class="ft-card free-with-pos hidden" id="ft-pos-builder">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">POS Builder</div>
+                        <div class="ft-desc">Build & configure your POS menus, categories and items</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-badge gift"><i class="fas fa-gift"></i> Free with POS</span>
+                    <span class="ft-price free">Included</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card free-with-pos hidden" id="ft-cashup-pro">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#10b981,#065f46)">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">CashUp-Pro</div>
+                        <div class="ft-desc">Manager cash-up & reconciliation — all cashiers in one view</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-badge gift"><i class="fas fa-gift"></i> Free with POS</span>
+                    <span class="ft-price free">Included</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- BUSINESS MODULES -->
+            <div class="feature-section-label">Business Modules</div>
+
+            <div class="ft-card" data-feature="functions_ai" data-price="449" data-setup="1" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                        <i class="fas fa-glass-cheers"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">FunctionsAI — Events Manager</div>
+                        <div class="ft-desc">Full event management — menus, beverages, invoicing & client bookings</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R449/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card" data-feature="production" data-price="449" data-setup="2" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#1a8ba8,#0d4a5c)">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">Production Manager</div>
+                        <div class="ft-desc">Bulk production — recipe scaling, ingredient deduction & cost tracking</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R449/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <div class="ft-card" data-feature="hr_module" data-price="349" data-setup="2" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">HR Module</div>
+                        <div class="ft-desc">Staff management — clock in/out, leave, schedules & payslips</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R349/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- AI -->
+            <div class="feature-section-label">AI & Intelligence</div>
+
+            <div class="ft-card" data-feature="ai_brain" data-price="499" data-setup="1" onclick="toggleFeature(this)">
+                <div class="ft-left">
+                    <div class="ft-icon" style="background:linear-gradient(135deg,#0d9488,#0d4a5c)">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="ft-name">AI Brain + Nikki Voice Bot</div>
+                        <div class="ft-desc">Say "Hey Nikki" — AI assistant that knows your data, multilingual</div>
+                    </div>
+                </div>
+                <div class="ft-right">
+                    <span class="ft-price">R499/mo</span>
+                    <div class="ft-toggle"></div>
+                </div>
+            </div>
+
+            <!-- SELECTED CHIPS -->
+            <div class="chips-section" style="margin-top:20px">
+                <div class="chips-title">
+                    <i class="fas fa-check-circle" style="color:var(--success)"></i>
+                    Your Selected Features
+                </div>
+                <div class="chips-wrap" id="chips-wrap">
+                    <span class="chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>
+                    <span class="chip locked"><i class="fas fa-gift"></i> Mobile App (Free)</span>
+                    <span class="chip locked"><i class="fas fa-gift"></i> ProcureAI (Free)</span>
+                </div>
+            </div>
+
+            <!-- ADD-ONS -->
+            <div class="addons-section">
+                <div style="font-size:.95rem;font-weight:700;color:var(--text-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+                    <i class="fas fa-building" style="color:var(--teal-mid)"></i> Entities & Services
+                </div>
+
+                <!-- ENTITIES -->
+                <div class="addon-row">
+                    <div class="addon-label">
+                        <strong>Number of Locations / Entities</strong>
+                        <small>R599/month per entity — each branch, store or outlet counts as one entity</small>
+                    </div>
+                    <div class="addon-controls">
+                        <select id="su-entities" onchange="calcTotal()">
+                            <option value="1">1 Entity</option>
+                            <option value="2">2 Entities</option>
+                            <option value="3">3 Entities</option>
+                            <option value="4">4 Entities</option>
+                            <option value="5">5 Entities</option>
+                            <option value="6">6 Entities</option>
+                            <option value="7">7 Entities</option>
+                            <option value="8">8 Entities</option>
+                            <option value="9">9 Entities</option>
+                            <option value="10">10 Entities</option>
+                        </select>
+                        <span class="addon-price" id="su-entity-price">R599.00</span>
+                    </div>
+                </div>
+
+                <!-- TECHNICIAN -->
+                <div class="addon-row">
+                    <div class="addon-label">
+                        <strong>Technician Setup & Configuration</strong>
+                        <small>R450/hour — hours calculated from selected features × number of entities</small>
+                    </div>
+                    <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:8px;max-width:360px;width:100%">
+                        <label style="display:flex;align-items:center;gap:10px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
+                            <input type="checkbox" id="su-tech" onchange="calcTotal()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--teal-mid)">
+                            Include technician setup
+                        </label>
+                        <div class="tech-breakdown" id="tech-breakdown">
+                            <div style="font-size:.75rem;font-weight:700;color:var(--text-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                                <i class="fas fa-clock" style="color:var(--teal-mid)"></i> Setup Hours Per Feature
+                            </div>
+                            <div id="tech-breakdown-lines" style="font-size:.75rem;color:var(--text-mid);line-height:2"></div>
+                            <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:6px;border-top:2px solid var(--border);font-weight:700;font-size:.88rem;color:var(--text-dark)">
+                                <span>Total: <span id="tech-hrs">12</span> hrs @ R450/hr</span>
+                                <span id="tech-price" style="color:var(--teal-mid)">R5,400.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAINING -->
+                <div class="addon-row">
+                    <div class="addon-label">
+                        <strong>Staff Training</strong>
+                        <small>Standard R1,500 — up to 5 staff. Additional staff R750 each.</small>
+                    </div>
+                    <div class="addon-controls" style="flex-direction:column;align-items:flex-end;gap:8px;max-width:360px;width:100%">
+                        <label style="display:flex;align-items:center;gap:10px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-mid)">
+                            <input type="checkbox" id="su-training" onchange="calcTotal()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--teal-mid)">
+                            Include staff training (R1,500 for up to 5 staff)
+                        </label>
+                        <div class="training-extras" id="training-extras">
+                            <span style="font-size:.82rem;color:var(--text-light)">Additional staff:</span>
+                            <input type="number" id="extra-staff" value="0" min="0" max="50" onchange="calcTotal()" oninput="calcTotal()">
+                            <span class="addon-price" id="training-price">R1,500.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRICE SUMMARY -->
+            <div class="price-summary">
+                <div class="ps-label" style="margin-bottom:10px"><i class="fas fa-receipt" style="margin-right:6px"></i> Your Price Breakdown</div>
+                <div class="ps-label" style="margin:10px 0 4px">Monthly Subscription</div>
+                <div class="ps-line"><span>Web App B.O.H (Base — always included)</span><span class="ps-val">R799.00/mo</span></div>
+                <div class="ps-line"><span>Mobile App</span><span class="ps-val" style="color:#fcd34d">Free ✓</span></div>
+                <div class="ps-line"><span>ProcureAI App</span><span class="ps-val" style="color:#fcd34d">Free ✓</span></div>
+                <div id="ps-feature-lines"></div>
+                <div class="ps-line"><span>Entities (<span id="ps-ent-count">1</span> × R599)</span><span class="ps-val" id="ps-ent-total">R599.00/mo</span></div>
+                <hr class="ps-divider">
+                <div class="ps-line total-monthly">
+                    <span>Monthly Total</span>
+                    <span class="ps-val" id="ps-monthly">R1,398.00</span>
+                </div>
+                <div id="ps-onceoff-wrap" style="display:none">
+                    <div class="ps-label" style="margin:12px 0 4px">Once-off Charges</div>
+                    <div class="ps-line" id="ps-tech-line" style="display:none">
+                        <span>Technician Setup (<span id="ps-tech-hrs">0</span> hrs × R450)</span>
+                        <span class="ps-val" id="ps-tech-val">R0.00</span>
+                    </div>
+                    <div class="ps-line" id="ps-training-line" style="display:none">
+                        <span>Staff Training</span>
+                        <span class="ps-val" id="ps-training-val">R0.00</span>
+                    </div>
+                    <hr class="ps-divider">
+                    <div class="ps-line total-onceoff">
+                        <span>Once-off Total</span>
+                        <span class="ps-val" id="ps-onceoff">R0.00</span>
+                    </div>
+                </div>
+                <div class="ps-vat">All prices include 15% VAT</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PROMO CODE -->
+    <div class="promo-section">
+        <div class="promo-label"><i class="fas fa-tag"></i> Promo Code</div>
+        <div class="promo-row">
+            <input type="text" id="promo-input" placeholder="Enter promo code..." oninput="this.value=this.value.toUpperCase()">
+            <button onclick="applyPromo()" id="promo-btn">Apply</button>
+        </div>
+        <div class="promo-result" id="promo-result"></div>
+    </div>
+
+    <!-- PAY BUTTON -->
+    <div class="pay-section">
+        <button class="btn-pay" id="pay-btn" onclick="startPayment()">
+            <i class="fas fa-lock"></i>
+            <span id="pay-btn-text">Pay R1,398.00/mo — Get Started</span>
+        </button>
+        <div class="pay-note">
+            <i class="fas fa-shield-alt" style="color:var(--success);margin-right:4px"></i>
+            Secured by Paystack &bull; SSL Encrypted &bull; POPIA Compliant<br>
+            Your first month is charged now. Once-off charges included in first payment.<br>
+            Cancel anytime with 30 days notice.
+        </div>
+        <div class="pay-icons">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fas fa-university"></i>
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+    </div>
+
+    <!-- GUARANTEE -->
+    <div class="guarantee-box">
+        <h3>✅ 30-Day Money-Back Guarantee</h3>
+        <p>Not happy within your first 30 days? Full refund — no questions asked. Zero risk.</p>
+    </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+var PAYSTACK_KEY = 'pk_live_88d92c340eb00bf09c241c7cc5ad1cef7b44b3b0';
+var ENTITY_RATE  = 599;
+var TECH_RATE    = 450;
+var TRAINING_BASE  = 1500;
+var TRAINING_EXTRA = 750;
+
+// All selectable features with setup hours
+var FEATURES = {
+    menu_master:     { name:'Menu Master',              price:349, setup:1  },
+    invoice_scanner: { name:'Invoice Scanner App',      price:499, setup:2  },
+    pos_system:      { name:'P.O.S System',             price:799, setup:8  },
+    retail_pos:      { name:'Retail POS',               price:999, setup:12 },
+    functions_ai:    { name:'FunctionsAI',              price:449, setup:1  },
+    production:      { name:'Production Manager',       price:449, setup:2  },
+    hr_module:       { name:'HR Module',                price:349, setup:2  },
+    ai_brain:        { name:'AI Brain + Nikki',         price:499, setup:1  },
+    pos_builder:     { name:'POS Builder',              price:0,   setup:2  },
+    cashup_pro:      { name:'CashUp-Pro',               price:0,   setup:1  }
+};
+
+// Always included (base setup hours)
+var BASE_SETUP_HRS = 12; // web_boh
+
+// Promo state
+var PROMO = { code:'', discount:0, type:'percent', applied:false, docId:'' };
+
+// Customer data from URL params
+var CUSTOMER = { name:'', email:'', phone:'', business:'', quoteRef:'' };
+
+// ============================================================
+// INIT — Read URL params and pre-fill
+// ============================================================
+window.addEventListener('load', function() {
+    var params = new URLSearchParams(window.location.search);
+
+    // Customer pre-fill from admin quote link
+    CUSTOMER.name      = params.get('name')     || '';
+    CUSTOMER.email     = params.get('email')    || '';
+    CUSTOMER.phone     = params.get('phone')    || '';
+    CUSTOMER.business  = params.get('business') || '';
+    CUSTOMER.quoteRef  = params.get('ref')      || '';
+
+    // Show quote ref
+    if (CUSTOMER.quoteRef) {
+        var refEl = document.getElementById('hero-ref');
+        refEl.textContent = 'Quote Reference: ' + CUSTOMER.quoteRef;
+        refEl.style.display = 'inline-block';
+    }
+
+    // Show client banner if pre-filled
+    if (CUSTOMER.name || CUSTOMER.email) {
+        var banner = document.getElementById('client-banner');
+        var nameEl = document.getElementById('client-banner-name');
+        var detEl  = document.getElementById('client-banner-detail');
+        banner.classList.remove('hidden');
+        nameEl.textContent = 'Welcome, ' + (CUSTOMER.name || CUSTOMER.email) + '!';
+        detEl.textContent  = 'Your details have been pre-filled from your personalised quote.';
+    }
+
+    // Pre-select features from URL
+    var featuresParam = params.get('features');
+    if (featuresParam) {
+        featuresParam.split(',').forEach(function(key) {
+            var card = document.querySelector('.ft-card[data-feature="' + key.trim() + '"]');
+            if (card && !card.classList.contains('locked')) {
+                card.classList.add('selected');
+            }
+        });
+    }
+
+    // Pre-select entities
+    var entParam = params.get('entities');
+    if (entParam) {
+        var sel = document.getElementById('su-entities');
+        var val = parseInt(entParam);
+        if (val >= 1 && val <= 10) sel.value = String(val);
+    }
+
+    // Pre-select tech/training
+    if (params.get('tech') === 'yes') document.getElementById('su-tech').checked = true;
+    if (params.get('training') === 'yes') document.getElementById('su-training').checked = true;
+
+    var extraParam = params.get('extrastaff');
+    if (extraParam && parseInt(extraParam) > 0) {
+        document.getElementById('extra-staff').value = extraParam;
+    }
+
+    // Show/hide POS free bundles
+    checkPOSBundles();
+
+    // Initial calc
+    calcTotal();
+    updateChips();
+});
+
+// ============================================================
+// TOGGLE FEATURE
+// ============================================================
+function toggleFeature(el) {
+    if (el.classList.contains('locked')) return;
+    el.classList.toggle('selected');
+    checkPOSBundles();
+    calcTotal();
+    updateChips();
+}
+
+function checkPOSBundles() {
+    var hasPOS = document.querySelector('.ft-card[data-feature="pos_system"].selected') !== null;
+    var hasRet = document.querySelector('.ft-card[data-feature="retail_pos"].selected') !== null;
+    var show   = hasPOS || hasRet;
+    document.getElementById('ft-pos-builder').classList.toggle('hidden', !show);
+    document.getElementById('ft-cashup-pro').classList.toggle('hidden', !show);
+}
+
+// ============================================================
+// UPDATE CHIPS
+// ============================================================
+function updateChips() {
+    var wrap = document.getElementById('chips-wrap');
+    var html =
+        '<span class="chip locked"><i class="fas fa-lock"></i> Web App B.O.H</span>' +
+        '<span class="chip locked"><i class="fas fa-gift"></i> Mobile App (Free)</span>' +
+        '<span class="chip locked"><i class="fas fa-gift"></i> ProcureAI (Free)</span>';
+
+    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
+        var key  = card.getAttribute('data-feature');
+        var feat = FEATURES[key];
+        if (!feat) return;
+        html += feat.price === 0
+            ? '<span class="chip free"><i class="fas fa-gift"></i> ' + feat.name + ' (Free)</span>'
+            : '<span class="chip selected"><i class="fas fa-check"></i> ' + feat.name + '</span>';
+    });
+
+    // POS bundles
+    var hasPOS = document.querySelector('.ft-card[data-feature="pos_system"].selected') !== null;
+    var hasRet = document.querySelector('.ft-card[data-feature="retail_pos"].selected') !== null;
+    if (hasPOS || hasRet) {
+        html += '<span class="chip free"><i class="fas fa-gift"></i> POS Builder (Free)</span>';
+        html += '<span class="chip free"><i class="fas fa-gift"></i> CashUp-Pro (Free)</span>';
+    }
+
+    wrap.innerHTML = html;
+}
+
+// ============================================================
+// CALCULATE TOTAL
+// ============================================================
+function calcTotal() {
+    // --- Features ---
+    var featureMonthly = 799; // web_boh base
+    var totalSetupHrs  = BASE_SETUP_HRS;
+    var selectedKeys   = ['web_boh', 'mobile_app', 'procure_ai'];
+    var featureLinesHtml = '';
+
+    document.querySelectorAll('.ft-card.selected:not(.locked)').forEach(function(card) {
+        var key   = card.getAttribute('data-feature');
+        var feat  = FEATURES[key];
+        if (!feat) return;
+        featureMonthly += feat.price;
+        totalSetupHrs  += feat.setup;
+        selectedKeys.push(key);
+        if (feat.price > 0) {
+            featureLinesHtml +=
+                '<div class="ps-line sub"><span>' + feat.name + '</span>' +
+                '<span class="ps-val">R' + feat.price.toLocaleString() + '.00/mo</span></div>';
+        } else {
+            featureLinesHtml +=
+                '<div class="ps-line sub"><span>' + feat.name + '</span>' +
+                '<span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+        }
+    });
+
+    // POS bundles
+    var hasPOS = selectedKeys.indexOf('pos_system') !== -1;
+    var hasRet = selectedKeys.indexOf('retail_pos')  !== -1;
+    if (hasPOS || hasRet) {
+        if (selectedKeys.indexOf('pos_builder') === -1) {
+            selectedKeys.push('pos_builder');
+            totalSetupHrs += FEATURES.pos_builder.setup;
+            featureLinesHtml +=
+                '<div class="ps-line sub"><span>POS Builder</span>' +
+                '<span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+        }
+        if (selectedKeys.indexOf('cashup_pro') === -1) {
+            selectedKeys.push('cashup_pro');
+            totalSetupHrs += FEATURES.cashup_pro.setup;
+            featureLinesHtml +=
+                '<div class="ps-line sub"><span>CashUp-Pro</span>' +
+                '<span class="ps-val" style="color:#fcd34d">Free ✓</span></div>';
+        }
+    }
+
+    document.getElementById('ps-feature-lines').innerHTML = featureLinesHtml;
+
+    // --- Entities ---
+    var entCount  = parseInt(document.getElementById('su-entities').value) || 1;
+    var entTotal  = entCount * ENTITY_RATE;
+    document.getElementById('su-entity-price').textContent = 'R' + entTotal.toLocaleString() + '.00';
+    document.getElementById('ps-ent-count').textContent    = entCount;
+    document.getElementById('ps-ent-total').textContent    = 'R' + entTotal.toLocaleString() + '.00/mo';
+
+    var monthlyTotal = featureMonthly + entTotal;
+
+    // --- Promo Discount ---
+    var discount = 0;
+    if (PROMO.applied && PROMO.discount > 0) {
+        discount = PROMO.type === 'fixed'
+            ? Math.min(PROMO.discount, monthlyTotal)
+            : parseFloat((monthlyTotal * PROMO.discount / 100).toFixed(2));
+    }
+    var discountedMonthly = Math.max(0, monthlyTotal - discount);
+
+    // --- Tech Setup ---
+    var techCheck  = document.getElementById('su-tech').checked;
+    var techTotal  = 0;
+    var totalHrsAll = totalSetupHrs * entCount;
+
+    if (techCheck) {
+        document.getElementById('tech-breakdown').classList.add('show');
+        techTotal = totalHrsAll * TECH_RATE;
+
+        var breakHtml = '';
+        selectedKeys.forEach(function(key) {
+            var f = key === 'web_boh'
+                ? { name:'Web App B.O.H', setup:BASE_SETUP_HRS }
+                : FEATURES[key];
+            if (!f) return;
+            breakHtml +=
+                '<div style="display:flex;justify-content:space-between;padding:1px 0">' +
+                '<span>' + f.name + '</span>' +
+                '<span style="font-weight:700">' + f.setup + ' hr' + (f.setup !== 1 ? 's' : '') + '</span>' +
+                '</div>';
+        });
+        if (entCount > 1) {
+            breakHtml +=
+                '<div style="display:flex;justify-content:space-between;padding:4px 0;' +
+                'margin-top:6px;border-top:1px solid var(--border);color:var(--teal-mid);font-weight:700">' +
+                '<span>× ' + entCount + ' entities</span>' +
+                '<span>' + totalHrsAll + ' total hrs</span></div>';
+        }
+        document.getElementById('tech-breakdown-lines').innerHTML = breakHtml;
+        document.getElementById('tech-hrs').textContent = totalHrsAll + ' hrs @ R450';
+        document.getElementById('tech-price').textContent = 'R' + techTotal.toLocaleString() + '.00';
+    } else {
+        document.getElementById('tech-breakdown').classList.remove('show');
+    }
+
+    // --- Training ---
+    var trainCheck  = document.getElementById('su-training').checked;
+    var trainTotal  = 0;
+    var extraStaff  = 0;
+    if (trainCheck) {
+        document.getElementById('training-extras').classList.add('show');
+        extraStaff  = parseInt(document.getElementById('extra-staff').value) || 0;
+        trainTotal  = TRAINING_BASE + (extraStaff * TRAINING_EXTRA);
+        document.getElementById('training-price').textContent = 'R' + trainTotal.toLocaleString() + '.00';
+    } else {
+        document.getElementById('training-extras').classList.remove('show');
+    }
+
+    // --- Once-off Total ---
+    var onceOffTotal = techTotal + trainTotal;
+
+    // --- Update Price Summary ---
+    if (PROMO.applied && discount > 0) {
+        document.getElementById('ps-monthly').innerHTML =
+            '<span style="text-decoration:line-through;opacity:.5">R' + monthlyTotal.toLocaleString() + '</span> ' +
+            '<span style="color:' + 'var(--gold)' + ';font-weight:900">R' + discountedMonthly.toFixed(2) + '</span> ' +
+            '<span style="font-size:.72rem;color:#6ee7b7">(-R' + discount.toFixed(2) + ')</span>';
+    } else {
+        document.getElementById('ps-monthly').textContent = 'R' + monthlyTotal.toLocaleString() + '.00';
+    }
+
+    var onceOffWrap = document.getElementById('ps-onceoff-wrap');
+    if (onceOffTotal > 0) {
+        onceOffWrap.style.display = 'block';
+        var techLine = document.getElementById('ps-tech-line');
+        if (techCheck && techTotal > 0) {
+            techLine.style.display = 'flex';
+            document.getElementById('ps-tech-hrs').textContent = totalHrsAll;
+            document.getElementById('ps-tech-val').textContent = 'R' + techTotal.toLocaleString() + '.00';
+        } else { techLine.style.display = 'none'; }
+        var trainLine = document.getElementById('ps-training-line');
+        if (trainCheck) {
+            trainLine.style.display = 'flex';
+            document.getElementById('ps-training-val').textContent = 'R' + trainTotal.toLocaleString() + '.00';
+        } else { trainLine.style.display = 'none'; }
+        document.getElementById('ps-onceoff').textContent = 'R' + onceOffTotal.toLocaleString() + '.00';
+    } else {
+        onceOffWrap.style.display = 'none';
+    }
+
+    // --- Update Pay Button ---
+    var totalCharge = discountedMonthly + onceOffTotal;
+    var btnText = PROMO.applied && discount > 0
+        ? 'Pay R' + discountedMonthly.toFixed(2) + '/mo (Save R' + discount.toFixed(2) + '!)'
+        : 'Pay R' + monthlyTotal.toLocaleString() + '/mo';
+    if (onceOffTotal > 0) btnText += ' + R' + onceOffTotal.toLocaleString() + '.00 once-off';
+    btnText += ' — Get Started';
+    document.getElementById('pay-btn-text').textContent = btnText;
+
+    return {
+        features:        selectedKeys,
+        featureMonthly:  featureMonthly,
+        entities:        entCount,
+        entityTotal:     entTotal,
+        monthlyTotal:    monthlyTotal,
+        discountedMonthly: discountedMonthly,
+        promoDiscount:   discount,
+        techIncluded:    techCheck,
+        techHours:       techCheck ? totalHrsAll : 0,
+        techTotal:       techTotal,
+        trainingIncluded: trainCheck,
+        extraStaff:      extraStaff,
+        trainingTotal:   trainTotal,
+        onceOffTotal:    onceOffTotal,
+        totalCharge:     totalCharge
+    };
+}
+
+// ============================================================
+// PROMO CODE
+// ============================================================
+function applyPromo() {
+    var code    = (document.getElementById('promo-input').value || '').trim().toUpperCase();
+    var resultEl = document.getElementById('promo-result');
+    var btn      = document.getElementById('promo-btn');
+
+    if (!code) { showPromoMsg('error', 'Please enter a promo code'); return; }
+
+    if (PROMO.applied && code === PROMO.code) {
+        PROMO = { code:'', discount:0, type:'percent', applied:false, docId:'' };
+        showPromoMsg('info', 'Promo code removed');
+        calcTotal();
+        return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Checking...';
+
+    db.collection('promoCodes').doc(code).get()
+        .then(function(doc) {
+            btn.disabled    = false;
+            btn.textContent = 'Apply';
+            if (!doc.exists) { showPromoMsg('error', 'Invalid promo code. Please check and try again.'); return; }
+            var data = doc.data();
+            if (!data.active) { showPromoMsg('error', 'This promo code is no longer active.'); return; }
+            if (data.expiryDate && new Date(data.expiryDate) < new Date()) { showPromoMsg('error', 'This promo code has expired.'); return; }
+            if (data.usageLimit && data.usageLimit > 0 && data.usageCount >= data.usageLimit) { showPromoMsg('error', 'This promo code has reached its usage limit.'); return; }
+
+            PROMO.code     = code;
+            PROMO.discount = data.discount || 0;
+            PROMO.type     = data.type || 'percent';
+            PROMO.applied  = true;
+            PROMO.docId    = doc.id;
+
+            var label = data.type === 'fixed'
+                ? 'R' + data.discount + ' off'
+                : data.discount + '% off';
+            showPromoMsg('success', '✅ Applied! ' + label + (data.description ? ' — ' + data.description : ''));
+            calcTotal();
+        })
+        .catch(function(err) {
+            btn.disabled    = false;
+            btn.textContent = 'Apply';
+            showPromoMsg('error', 'Error checking code. Please try again.');
+        });
+}
+
+function showPromoMsg(type, msg) {
+    var el = document.getElementById('promo-result');
+    var colors = {
+        success: { bg:'rgba(46,168,113,.1)',  border:'rgba(46,168,113,.3)',  color:'#2ea871' },
+        error:   { bg:'rgba(201,69,69,.1)',   border:'rgba(201,69,69,.3)',   color:'#c94545' },
+        info:    { bg:'rgba(26,139,168,.1)',  border:'rgba(26,139,168,.3)',  color:'#1a8ba8' }
+    };
+    var c = colors[type] || colors.info;
+    el.style.display = 'block';
+    el.innerHTML =
+        '<div style="padding:10px 14px;border-radius:8px;font-size:.82rem;font-weight:600;' +
+        'background:' + c.bg + ';border:1px solid ' + c.border + ';color:' + c.color + '">' + msg +
+        (PROMO.applied
+            ? '<button onclick="removePromo()" style="margin-left:12px;background:none;border:none;' +
+              'color:' + c.color + ';cursor:pointer;font-weight:700;font-size:.78rem;text-decoration:underline">Remove</button>'
+            : '') +
+        '</div>';
+}
+
+function removePromo() {
+    PROMO = { code:'', discount:0, type:'percent', applied:false, docId:'' };
+    document.getElementById('promo-input').value = '';
+    document.getElementById('promo-result').style.display = 'none';
+    calcTotal();
+}
+
+// ============================================================
+// START PAYMENT — Paystack
+// ============================================================
+function startPayment() {
+    var data = calcTotal();
+
+    // Need email to proceed
+    var email = CUSTOMER.email;
+    if (!email) {
+        email = prompt(
+            'Please enter your email address to proceed with payment.\n' +
+            '(This will be your login email for StockAI-Pro)'
+        );
+        if (!email || !email.trim()) return;
+        email = email.trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showToast('error', 'Please enter a valid email address');
+            return;
+        }
+        CUSTOMER.email = email;
+    }
+
+    var payRef = 'STOCKAI-' + Date.now();
+    var featureLabels = data.features.map(function(key) {
+        if (key === 'web_boh') return 'Web App B.O.H';
+        if (key === 'mobile_app') return 'Mobile App';
+        if (key === 'procure_ai') return 'ProcureAI App';
+        return FEATURES[key] ? FEATURES[key].name : key;
+    });
+
+    // Set progress to step 2
+    setProgress(2);
+
+    var btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Paystack...';
+
+    var handler = PaystackPop.setup({
+        key:      PAYSTACK_KEY,
+        email:    email,
+        amount:   Math.round(data.totalCharge * 100),
+        currency: 'ZAR',
+        ref:      payRef,
+        metadata: {
+            custom_fields: [
+                { display_name:'Customer Email', variable_name:'email',     value: email },
+                { display_name:'Features',       variable_name:'features',  value: featureLabels.join(', ') },
+                { display_name:'Entities',       variable_name:'entities',  value: String(data.entities) },
+                { display_name:'Monthly',        variable_name:'monthly',   value: 'R' + data.monthlyTotal },
+                { display_name:'Once-off',       variable_name:'onceoff',   value: 'R' + data.onceOffTotal },
+                { display_name:'Total Charged',  variable_name:'total',     value: 'R' + data.totalCharge },
+                { display_name:'Quote Ref',      variable_name:'quote_ref', value: CUSTOMER.quoteRef || '' }
+            ]
+        },
+        onClose: function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-lock"></i><span id="pay-btn-text">Pay — Get Started</span>';
+            setProgress(1);
+            showToast('info', 'Payment cancelled. Your selections are saved — try again when ready.');
+        },
+        callback: function(response) {
+            onPaymentSuccess(response.reference, data, email, featureLabels);
+        }
+    });
+
+    handler.openIframe();
+}
+
+// ============================================================
+// PAYMENT SUCCESS
+// ============================================================
+function onPaymentSuccess(paystackRef, data, email, featureLabels) {
+    setProgress(3);
+
+    // Increment promo code usage
+    if (PROMO.applied && PROMO.docId) {
+        db.collection('promoCodes').doc(PROMO.docId).update({
+            usageCount: firebase.firestore.FieldValue.increment(1),
+            lastUsed:   new Date().toISOString(),
+            lastUsedBy: email
+        }).catch(function() {});
+    }
+
+    // Save pending setup record to Firebase
+    var setupToken = 'SETUP-' + paystackRef + '-' + Date.now().toString(36);
+    var setupRecord = {
+        email:            email,
+        name:             CUSTOMER.name    || '',
+        phone:            CUSTOMER.phone   || '',
+        business:         CUSTOMER.business || '',
+        quoteRef:         CUSTOMER.quoteRef || '',
+        features:         data.features,
+        entities:         data.entities,
+        monthlyTotal:     data.monthlyTotal,
+        onceOffTotal:     data.onceOffTotal,
+        totalCharged:     data.totalCharge,
+        techIncluded:     data.techIncluded,
+        techHours:        data.techHours,
+        techTotal:        data.techTotal,
+        trainingIncluded: data.trainingIncluded,
+        extraStaff:       data.extraStaff,
+        trainingTotal:    data.trainingTotal,
+        promoCode:        PROMO.applied ? PROMO.code : '',
+        promoDiscount:    data.promoDiscount,
+        paystackRef:      paystackRef,
+        setupToken:       setupToken,
+        status:           'paid_pending_setup',
+        createdAt:        firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    db.collection('pendingSetups').doc(setupToken).set(setupRecord)
+        .then(function() {
+            // Build the setup link — includes the token so setup.html can load data
+            var setupLink = window.location.origin + '/setup.html?token=' + setupToken;
+
+            // Send payment success email with setup link
+            if (typeof emailPaymentAndSetup === 'function') {
+                emailPaymentAndSetup({
+                    name:         CUSTOMER.name    || email,
+                    email:        email,
+                    features:     data.features,
+                    entities:     data.entities,
+                    monthlyTotal: data.monthlyTotal,
+                    onceOffTotal: data.onceOffTotal,
+                    paymentRef:   paystackRef,
+                    setupLink:    setupLink
+                });
+            }
+
+            // Send admin notification
+            if (typeof emailNewCustomerToAdmin === 'function') {
+                emailNewCustomerToAdmin({
+                    name:         CUSTOMER.name    || '',
+                    email:        email,
+                    phone:        CUSTOMER.phone   || '',
+                    features:     featureLabels,
+                    entities:     data.entities,
+                    monthlyTotal: data.monthlyTotal,
+                    onceOffTotal: data.onceOffTotal,
+                    paymentRef:   paystackRef
+                });
+            }
+
+            // Redirect to setup after short delay
+            setTimeout(function() {
+                window.location.href = '/setup.html?token=' + setupToken;
+            }, 2000);
+
+            showToast('success', '✅ Payment confirmed! Redirecting to account setup...');
+        })
+        .catch(function(err) {
+            console.error('Error saving setup record:', err);
+            // Even if save fails, show success and provide setup link
+            showToast('success', '✅ Payment confirmed! Check your email for the setup link.');
+            setProgress(3);
+        });
+}
+
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+function setProgress(step) {
+    for (var i = 1; i <= 4; i++) {
+        var s = document.getElementById('step-' + i);
+        var l = document.getElementById('line-' + i);
+        if (!s) continue;
+        s.classList.remove('active', 'done');
+        if (i < step) s.classList.add('done');
+        else if (i === step) s.classList.add('active');
+        if (l) l.classList.toggle('done', i < step);
+    }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(type, msg) {
+    var icons = { success:'check-circle', error:'times-circle', info:'info-circle', warning:'exclamation-triangle' };
+    var t = document.createElement('div');
+    t.className = 'toast ' + (type || 'info');
+    t.innerHTML =
+        '<i class="fas fa-' + (icons[type] || 'info-circle') + '" style="color:var(--' +
+        (type==='success'?'success':type==='error'?'danger':type==='warning'?'gold':'teal-mid') +
+        ')"></i><span>' + msg + '</span>' +
+        '<button onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+    document.getElementById('toast-wrap').appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = 'all .3s';
+        setTimeout(function() { if (t.parentElement) t.remove(); }, 300);
+    }, 6000);
+}
+
+console.log('✅ StockAI-Pro quote-builder.html loaded');
+console.log('💳 Paystack LIVE key active');
+console.log('🔥 Firebase connected');
+</script>
+</body>
+</html>
