@@ -13224,13 +13224,11 @@ function initNikki() {
         console.log('🔒 Nikki requires AI Brain feature');
         return;
     }
-    NIKKI.openAIKey = localStorage.getItem('stockai_openai_key');
-    if (!NIKKI.openAIKey) {
-        console.warn('⚠️ No OpenAI key. Set via: localStorage.setItem("stockai_openai_key","sk-...")');
-    }
+    // Key is now stored securely in Cloudflare Worker
+    // No localStorage key needed — works for all users automatically
+    NIKKI.openAIKey = 'proxy';
     startNikkiWakeWordListener();
-    console.log('✅ Nikki AI initialized —',
-        NIKKI.openAIKey ? 'OpenAI connected' : 'keyword-only mode');
+    console.log('✅ Nikki AI initialized — using secure Cloudflare proxy');
 }
 
 // ── Continuous Wake Word Listener ─────────────────────────
@@ -13357,79 +13355,72 @@ function processNikkiCommand(command) {
         }
     }, 45000);
 
-    if (NIKKI.openAIKey) {
-        callOpenAINikki(command);
-    } else {
-        // Keyword fallback mode
-        var fallback = nikkiKeywordFallback(command);
-        nikkiSpeak(fallback.speak);
-        if (fallback.action !== 'SPEAK_ONLY') {
-            executeNikkiAction(fallback);
-        }
-        NIKKI.isProcessing = false;
-        if (statusText) statusText.textContent = '🤖 Nikki Listening';
-    }
+        // Always use proxy — key is stored in Cloudflare, not the browser
+    callOpenAINikki(command);
 }
 
-// ── OpenAI API Call ───────────────────────────────────────
+// ── OpenAI API Call — via Cloudflare Worker (key never in browser) ──
 function callOpenAINikki(command) {
-    var appContext   = buildNikkiContext();
-    var statusText   = document.getElementById('nikki-status-text');
-    var messages     = [
+    var NIKKI_PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/nikki';
+    var statusText      = document.getElementById('nikki-status-text');
+
+    var messages = [
         {
             role: 'system',
             content:
-                'You are Nikki, the voice AI assistant for StockAI-Pro, a stock management system. ' +
-                'You control a web application for hospitality and retail businesses in South Africa. ' +
-                'When the user gives a voice command, respond ONLY with valid JSON in this exact format:\n' +
-                '{"action":"ACTION_NAME","params":{},"speak":"what to say to user"}\n\n' +
-                'Available actions and their params:\n' +
-                'NAVIGATE          — {page: "page-name"}  — pages: dashboard,inventory,menu-creation,production,stock-take,cashup,day-end,purchases,grv,transfers,suppliers,wastage,reports,users,retail-pos,pos-builder,invoicing,settings,month-end,invoice-scanner\n' +
-                'SHOW_CASHUP       — {date: "YYYY-MM-DD"} — show cashup for specific date\n' +
-                'SHOW_REPORT       — {type: "report-type"} — types: day-end,cashup,stock-summary,food-cost,wastage,unpaid,user-logs,retail-sales,cash-drops,cashier-perf\n' +
-                'SEARCH_INVENTORY  — {query: "item name"} — search inventory\n' +
-                'SHOW_LOW_STOCK    — {} — filter to low stock items\n' +
-                'SHOW_FOOD_COST    — {} — show food cost report\n' +
-                'SHOW_UNPAID       — {} — show unpaid invoices\n' +
-                'CREATE_WASTAGE    — {} — open wastage log form\n' +
-                'SHOW_PRODUCTION   — {} — show production page\n' +
-                'APPROVE_PO        — {poId: "id"} — approve pending PO\n' +
-                'RUN_DAY_END       — {} — trigger day end\n' +
-                'SPEAK_ONLY        — {} — just respond verbally, no navigation\n\n' +
-                'Current app state:\n' + appContext + '\n\n' +
-                'Today\'s date: ' + new Date().toISOString().split('T')[0] + '\n' +
-                'Day of week: ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()] + '\n\n' +
-                'For relative dates like "last Tuesday", "yesterday", calculate the actual YYYY-MM-DD.\n' +
-                'Be conversational, brief and helpful. Always respond in JSON only.'
+                'You are Nikki, the voice AI assistant for StockAI-Pro, ' +
+                'a stock management system for South African hospitality and retail businesses. ' +
+                'You control a web application. ' +
+                'When the user gives a voice command, respond ONLY with valid JSON:\n' +
+                '{"action":"ACTION_NAME","params":{},"speak":"what to say"}\n\n' +
+                'Available actions:\n' +
+                'NAVIGATE          {page: "page-name"}\n' +
+                'SHOW_CASHUP       {date: "YYYY-MM-DD"}\n' +
+                'SHOW_REPORT       {type: "report-type"}\n' +
+                'SEARCH_INVENTORY  {query: "item name"}\n' +
+                'SHOW_LOW_STOCK    {}\n' +
+                'SHOW_FOOD_COST    {}\n' +
+                'SHOW_UNPAID       {}\n' +
+                'CREATE_WASTAGE    {}\n' +
+                'SHOW_PRODUCTION   {}\n' +
+                'APPROVE_PO        {poId: "id"}\n' +
+                'RUN_DAY_END       {}\n' +
+                'SPEAK_ONLY        {}\n\n' +
+                'Pages: dashboard,inventory,menu-creation,production,stock-take,' +
+                'cashup,day-end,purchases,grv,transfers,suppliers,wastage,reports,' +
+                'users,retail-pos,pos-builder,invoicing,settings,month-end,invoice-scanner\n\n' +
+                'Current app state:\n' + buildNikkiContext() + '\n\n' +
+                'Today: ' + new Date().toISOString().split('T')[0] + '\n' +
+                'Day: ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()] + '\n' +
+                'For relative dates like "last Tuesday", calculate the actual YYYY-MM-DD date.\n' +
+                'Be conversational, brief and helpful. Respond in JSON only.'
         }
     ];
 
-    // Add recent conversation context (last 6 messages)
+    // Add conversation context
     NIKKI.context.slice(-6).forEach(function(msg){ messages.push(msg); });
-    messages.push({ role: 'user', content: command });
+    messages.push({ role:'user', content:command });
 
-    fetch('https://api.openai.com/v1/chat/completions', {
+    fetch(NIKKI_PROXY_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type':  'application/json',
-            'Authorization': 'Bearer ' + NIKKI.openAIKey
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            model:       'gpt-4o-mini',
             messages:    messages,
+            model:       'gpt-4o-mini',
             temperature: 0.2,
-            max_tokens:  250
+            max_tokens:  300,
+            accountId:   S._accountId || ''
         })
     })
     .then(function(r){
-        if (!r.ok) throw new Error('OpenAI error: ' + r.status);
+        if (!r.ok) throw new Error('Proxy error: ' + r.status);
         return r.json();
     })
     .then(function(data){
-        if (data.error) throw new Error(data.error.message);
+        if (data.error) throw new Error(data.error);
         var responseText = data.choices[0].message.content.trim();
 
-        // Store in context
+        // Store context
         NIKKI.context.push({ role:'user',      content:command });
         NIKKI.context.push({ role:'assistant', content:responseText });
         if (NIKKI.context.length > 20) NIKKI.context = NIKKI.context.slice(-20);
@@ -13438,10 +13429,10 @@ function callOpenAINikki(command) {
         var action;
         try {
             var jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) action = JSON.parse(jsonMatch[0]);
-            else action = { action:'SPEAK_ONLY', speak:responseText };
+            action = jsonMatch ? JSON.parse(jsonMatch[0])
+                               : { action:'SPEAK_ONLY', speak:responseText };
         } catch(e) {
-            action = { action:'SPEAK_ONLY', speak:responseText.replace(/[{}"\[\]]/g,'') };
+            action = { action:'SPEAK_ONLY', speak:responseText.replace(/[{}"[\]]/g,'') };
         }
 
         if (action && action.speak) {
@@ -13453,8 +13444,7 @@ function callOpenAINikki(command) {
         }
     })
     .catch(function(err){
-        console.warn('Nikki OpenAI error:', err.message);
-        // Fallback to keyword mode
+        console.warn('Nikki proxy error:', err.message);
         var fallback = nikkiKeywordFallback(command);
         nikkiSpeak(fallback.speak);
         addAIMsg('bot', '🤖 <strong>Nikki:</strong> ' + fallback.speak);
