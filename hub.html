@@ -1196,7 +1196,7 @@ console.log('✅ Firebase + State initialized');
    Clients with AI Brain feature get full AI automatically
 ============================================================ */
 
-var AI_PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/';
+var AI_PROXY_URL = 'https://bold-dust-c51b.cidraism.workers.dev/ai';
 
 /* ── Text-to-Speech via Proxy ── */
 function callProxyTTS(text, voice, speed, callback) {
@@ -1223,17 +1223,14 @@ function callProxyTTS(text, voice, speed, callback) {
         return;
     }
 
-    fetch(AI_PROXY_URL, {
+        fetch('https://bold-dust-c51b.cidraism.workers.dev/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            type: 'tts',
-            payload: {
-                model: 'tts-1',
-                voice: voice || 'nova',
-                input: text,
-                speed: speed || 1.0
-            }
+            model: 'tts-1',
+            voice: 'nova',
+            input: text,
+            speed: 0.92
         })
     })
     .then(function(response) {
@@ -1316,23 +1313,42 @@ function callProxyChat(messages, maxTokens, onSuccess, onError) {
 /* ── Welcome Voice via Proxy ── */
 function playWelcomeVoice() {
     var text = "Welcome to StockAI-Pro. " +
-        "South Africa's first automated AI procurement and " +
-        "stock management system. " +
+        "The world's first automated AI procurement and " +
+        "stock control system. " +
         "Designed by professionals, for professionals. " +
         "Press Enter now to get started!";
+
+    // Make sure AI_PROXY_URL is defined
+    if (typeof AI_PROXY_URL === 'undefined' || !AI_PROXY_URL) {
+        if (typeof playBrowserVoice === 'function') {
+            playBrowserVoice(text);
+        }
+        return;
+    }
+
+    // Make sure payload is complete before sending
+    var payload = {
+        type: 'tts',
+        payload: {
+            model: 'tts-1',
+            voice: 'nova',
+            input: text,
+            speed: 0.92
+        }
+    };
+
+    // Validate payload has input
+    if (!payload.payload.input) {
+        if (typeof playBrowserVoice === 'function') {
+            playBrowserVoice(text);
+        }
+        return;
+    }
 
     fetch(AI_PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            type: 'tts',
-            payload: {
-                model: 'tts-1',
-                voice: 'nova',
-                input: text,
-                speed: 0.92
-            }
-        })
+        body: JSON.stringify(payload)
     })
     .then(function(response) {
         if (!response.ok) throw new Error('TTS proxy failed');
@@ -1350,8 +1366,9 @@ function playWelcomeVoice() {
         });
     })
     .catch(function() {
-        // Fallback to browser speech if proxy fails
-        playBrowserVoice(text);
+        if (typeof playBrowserVoice === 'function') {
+            playBrowserVoice(text);
+        }
     });
 }
 
