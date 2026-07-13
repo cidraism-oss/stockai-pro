@@ -1151,7 +1151,7 @@ function applyPromo() {
     btn.disabled    = true;
     btn.textContent = 'Checking...';
 
-    db.collection('promoCodes').doc(code).get()
+    db.collection('promocodes').doc(code).get()
         .then(function(doc) {
             btn.disabled    = false;
             btn.textContent = 'Apply';
@@ -1314,7 +1314,7 @@ function onPaymentSuccess(paystackRef, data, email, featureLabels) {
 
     // Increment promo code usage
     if (PROMO.applied && PROMO.docId) {
-    db.collection('promoCodes').doc(PROMO.docId).update({
+    db.collection('promocodes').doc(PROMO.docId).update({
         usedCount:  firebase.firestore.FieldValue.increment(1),
         usageCount: firebase.firestore.FieldValue.increment(1),
         lastUsed:   new Date().toISOString(),
