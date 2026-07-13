@@ -1659,6 +1659,15 @@ function buildWelcomeTone(ctx) {
     sh.start(now + 1.2); sh.stop(now + 2.9);
 }
 
+function playWelcomeVoice() {
+    var text = "Welcome to StockAI-Pro. " +
+        "The world's first automated AI procurement and " +
+        "stock control system. " +
+        "Designed by professionals, for professionals. " +
+        "Press Enter now to get started!";
+    playWelcomeTTSSafe(text);
+}
+
 function playBrowserVoice(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
@@ -1711,14 +1720,10 @@ function handleWelcomeEnter() {
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {
 
-document.addEventListener('DOMContentLoaded', function() {
-
-// ── Audio trigger on first interaction ──
+    // ── Audio trigger on first interaction ──
     var _audioUnlocked = false;
-    // ... rest of your existing code unchanged ...
-// ── Audio trigger on first interaction ──
+
     function tryUnlockAudio() {
-var _audioUnlocked = false;
         if (_audioUnlocked) return;
         _audioUnlocked = true;
         var ws = document.getElementById('welcome-screen');
@@ -1729,15 +1734,11 @@ var _audioUnlocked = false;
             }
         }
     }
-    
-    document.addEventListener('mousemove',  tryUnlockAudio,
-        {once:true, passive:true});
-    document.addEventListener('touchstart', tryUnlockAudio,
-        {once:true, passive:true});
-    document.addEventListener('keydown',    tryUnlockAudio,
-        {once:true, passive:true});
-    document.addEventListener('click',      tryUnlockAudio,
-        {once:true, passive:true});
+
+    document.addEventListener('mousemove',  tryUnlockAudio, {once:true, passive:true});
+    document.addEventListener('touchstart', tryUnlockAudio, {once:true, passive:true});
+    document.addEventListener('keydown',    tryUnlockAudio, {once:true, passive:true});
+    document.addEventListener('click',      tryUnlockAudio, {once:true, passive:true});
 
     // ── Login form ──
     var form = document.getElementById('login-form');
@@ -1772,12 +1773,11 @@ var _audioUnlocked = false;
     // ── Service Worker ──
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js')
-                .catch(function() {});
+            navigator.serviceWorker.register('/sw.js').catch(function() {});
         });
     }
 
-    // ── Start clock (delayed to ensure defined) ──
+    // ── Start clock ──
     setTimeout(function() {
         if (typeof startHubClock === 'function') startHubClock();
     }, 200);
@@ -1785,16 +1785,15 @@ var _audioUnlocked = false;
     // ── Language selector ──
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
-        if (sel) sel.value =
-            localStorage.getItem('stockai_lang') || 'en';
+        if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
     }, 300);
 
-    // ── Weather (delayed) ──
+    // ── Weather ──
     setTimeout(function() {
         if (typeof hubLoadWeather === 'function') hubLoadWeather();
     }, 2000);
 
-    // ── Nikki wake word (delayed) ──
+    // ── Nikki wake word ──
     setTimeout(function() {
         if (typeof nikkiStartWakeWordListener === 'function') {
             nikkiStartWakeWordListener();
@@ -1803,13 +1802,20 @@ var _audioUnlocked = false;
 
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
 });
-
-</script>
 <script>
 /* ============================================================
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
+// ── Always hide welcome screen when auth is being checked ──
+    var welcomeEl = document.getElementById('welcome-screen');
+    if (welcomeEl) {
+        welcomeEl.style.display    = 'none';
+        welcomeEl.style.opacity    = '0';
+        welcomeEl.style.pointerEvents = 'none';
+        welcomeEl.classList.add('hidden');
+    }
+
     // Check if returning from external app (POS, App etc)
     var isReturn = sessionStorage.getItem('hub_return') === 'true';
     if (isReturn) {
@@ -14130,41 +14136,45 @@ function sayloProcessCommand(text) {
 }
 
 function sayloAskOpenAI(userText) {
-    // Use Cloudflare Worker proxy — no key needed in browser
-    var SAYLO_PROXY = 'https://bold-dust-c51b.cidraism.workers.dev/nikki';
+    var SAYLO_PROXY = 'https://bold-dust-c51b.cidraism.workers.dev/ai';
 
-    var today     = new Date().toISOString().split('T')[0];
-    var todayEvts = SAYLO.calendar.filter(function(e){ return e.date === today; });
+    var today        = new Date().toISOString().split('T')[0];
+    var todayEvts    = SAYLO.calendar.filter(function(e){ return e.date === today; });
     var upcomingEvts = SAYLO.calendar.filter(function(e){ return e.date >= today; });
+
+    var messages = [
+        {
+            role: 'system',
+            content:
+                'You are Saylo, a personal AI assistant for ' +
+                (HUB.user ? HUB.user.name : 'the user') + '. ' +
+                'You help manage their calendar, notes, and bookings. ' +
+                'Today is ' + today + '. ' +
+                'They have ' + todayEvts.length + ' events today and ' +
+                upcomingEvts.length + ' upcoming events total. ' +
+                'When the user wants to add an event, respond with JSON: ' +
+                '{"intent":"add_event","title":"...","date":"YYYY-MM-DD",' +
+                '"startTime":"HH:MM","duration":"...","notes":"...","speak":"..."}. ' +
+                'When the user wants to add a note, respond with JSON: ' +
+                '{"intent":"add_note","title":"...","content":"...","speak":"..."}. ' +
+                'For other requests respond with JSON: ' +
+                '{"intent":"speak","speak":"your response here"}. ' +
+                'Keep voice responses brief and conversational.'
+        },
+        { role: 'user', content: userText }
+    ];
 
     fetch(SAYLO_PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            messages: [
-                {
-                    role: 'system',
-                    content:
-                        'You are Saylo, a personal AI assistant for ' +
-                        (HUB.user ? HUB.user.name : 'the user') + '. ' +
-                        'You help manage their calendar, notes, and bookings. ' +
-                        'Today is ' + today + '. ' +
-                        'They have ' + todayEvts.length + ' events today and ' +
-                        upcomingEvts.length + ' upcoming events total. ' +
-                        'When the user wants to add an event, respond with JSON: ' +
-                        '{"intent":"add_event","title":"...","date":"YYYY-MM-DD",' +
-                        '"startTime":"HH:MM","duration":"...","notes":"...","speak":"..."}. ' +
-                        'When the user wants to add a note, respond with JSON: ' +
-                        '{"intent":"add_note","title":"...","content":"...","speak":"..."}. ' +
-                        'For other requests respond with JSON: ' +
-                        '{"intent":"speak","speak":"your response here"}. ' +
-                        'Keep voice responses brief and conversational.'
-                },
-                { role: 'user', content: userText }
-            ],
-            model:       'gpt-4o-mini',
-            max_tokens:  300,
-            temperature: 0.3
+            type: 'chat',
+            payload: {
+                model:       'gpt-4o-mini',
+                messages:    messages,
+                max_tokens:  300,
+                temperature: 0.3
+            }
         })
     })
     .then(function(r){ return r.json(); })
@@ -14172,7 +14182,6 @@ function sayloAskOpenAI(userText) {
         var reply = data.choices && data.choices[0] && data.choices[0].message
             ? data.choices[0].message.content : '';
 
-        // Try to parse as JSON action
         var action;
         try {
             var jsonMatch = reply.match(/\{[\s\S]*\}/);
@@ -14183,17 +14192,13 @@ function sayloAskOpenAI(userText) {
 
         if (!action) action = { intent:'speak', speak: reply };
 
-        // Execute the action
         if (action.speak) {
-            sayloSpeak(action.speak,
-                localStorage.getItem('stockai_openai_key') || '',
-                function(){});
+            sayloSpeak(action.speak, '', function(){});
         }
 
         if (action.intent === 'add_event' && action.title && action.date) {
-            // Auto-create the event
             var now   = new Date().toISOString();
-            var start = action.date && action.startTime
+            var start = action.startTime
                 ? new Date(action.date + 'T' + action.startTime + ':00').toISOString()
                 : null;
             var evtId = 'EVT-' + Date.now();
@@ -14204,7 +14209,7 @@ function sayloAskOpenAI(userText) {
                 startTime: start,
                 endTime:   null,
                 duration:  action.duration || '',
-                notes:     action.notes || userText,
+                notes:     action.notes    || userText,
                 type:      'personal',
                 createdAt: now,
                 createdBy: HUB.user ? HUB.user.email : ''
@@ -14217,7 +14222,6 @@ function sayloAskOpenAI(userText) {
                 })
                 .catch(function(err){ console.warn('Event save error:', err); });
         }
-
         else if (action.intent === 'add_note' && action.content) {
             var noteId = 'NOTE-' + Date.now();
             var note   = {
