@@ -1549,7 +1549,8 @@ function handleWelcomeEnter() {
    DOM READY
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {
-    // Audio trigger on first interaction
+
+    // ── Audio trigger on first interaction ──
     var _audioUnlocked = false;
     function tryUnlockAudio() {
         if (_audioUnlocked) return;
@@ -1557,7 +1558,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var ws = document.getElementById('welcome-screen');
         if (ws && ws.style.display !== 'none' &&
             !ws.classList.contains('hidden')) {
-            playWelcomeStartup();
+            if (typeof playWelcomeStartup === 'function') {
+                playWelcomeStartup();
+            }
         }
     }
     document.addEventListener('mousemove',  tryUnlockAudio,
@@ -1569,24 +1572,37 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click',      tryUnlockAudio,
         {once:true, passive:true});
 
-    // Login form
+    // ── Login form ──
     var form = document.getElementById('login-form');
-    if (form) form.addEventListener('submit', function(e) {
-        e.preventDefault(); hubLogin();
-    });
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (typeof hubLogin === 'function') hubLogin();
+        });
+    }
 
-    // Button listeners
+    // ── Button listeners ──
     var forgotBtn   = document.getElementById('hub-forgot-btn');
     var logoutBtn   = document.getElementById('hub-logout-btn');
     var adminLogout = document.getElementById('admin-logout-btn');
     var notifBtn    = document.getElementById('hub-notif-btn');
 
-    if (forgotBtn)   forgotBtn.addEventListener('click', hubForgotPw);
-    if (logoutBtn)   logoutBtn.addEventListener('click', hubLogout);
-    if (adminLogout) adminLogout.addEventListener('click', hubLogout);
-    if (notifBtn)    notifBtn.addEventListener('click', showHubNotifications);
+    if (forgotBtn) forgotBtn.addEventListener('click', function() {
+        if (typeof hubForgotPw === 'function') hubForgotPw();
+    });
+    if (logoutBtn) logoutBtn.addEventListener('click', function() {
+        if (typeof hubLogout === 'function') hubLogout();
+    });
+    if (adminLogout) adminLogout.addEventListener('click', function() {
+        if (typeof hubLogout === 'function') hubLogout();
+    });
+    if (notifBtn) notifBtn.addEventListener('click', function() {
+        if (typeof showHubNotifications === 'function') {
+            showHubNotifications();
+        }
+    });
 
-    // Service Worker
+    // ── Service Worker ──
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js')
@@ -1594,27 +1610,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Start clock
-    startHubClock();
+    // ── Start clock (delayed to ensure defined) ──
+    setTimeout(function() {
+        if (typeof startHubClock === 'function') startHubClock();
+    }, 200);
 
-    // Language selector
+    // ── Language selector ──
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
-        if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
+        if (sel) sel.value =
+            localStorage.getItem('stockai_lang') || 'en';
     }, 300);
 
-    // Weather after 2s
+    // ── Weather (delayed) ──
     setTimeout(function() {
-        try { hubLoadWeather(); } catch(e) {}
+        if (typeof hubLoadWeather === 'function') hubLoadWeather();
     }, 2000);
 
-    // Nikki wake word after 4s
+    // ── Nikki wake word (delayed) ──
     setTimeout(function() {
-        try {
-            if (typeof nikkiStartWakeWordListener === 'function') {
-                nikkiStartWakeWordListener();
-            }
-        } catch(e) {}
+        if (typeof nikkiStartWakeWordListener === 'function') {
+            nikkiStartWakeWordListener();
+        }
     }, 4000);
 
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
@@ -2314,9 +2331,9 @@ function checkAccountAccess(accountData, entity) {
    Decides where to send user based on role + entities
 ============================================================ */
 function routeAfterLogin() {
-    // Load branding
-    hubLoadBranding();
-    hubLoadWeather();
+    // Safely call branding and weather
+    if (typeof hubLoadBranding === 'function') hubLoadBranding();
+    if (typeof hubLoadWeather  === 'function') hubLoadWeather();
 
     // ── Master admin ──
     if (HUB.isMaster) {
@@ -2333,7 +2350,7 @@ function routeAfterLogin() {
         return;
     }
 
-    // ── Owner / Area Manager / Ops Manager with multiple entities ──
+    // ── Owner / Area Manager / Ops Manager ──
     var isMultiEntityRole =
         HUB.user.role === 'Owner'              ||
         HUB.user.role === 'Area Manager'       ||
@@ -2345,8 +2362,7 @@ function routeAfterLogin() {
         return;
     }
 
-    // ── Single entity or assigned entity ──
-    // Find correct entity
+    // ── Single entity ──
     if (HUB.user.assignedEntityId) {
         var ent = HUB.entities.find(function(e) {
             return e.id === HUB.user.assignedEntityId;
@@ -2366,10 +2382,12 @@ function routeAfterLogin() {
             HUB.accountData, HUB.entities[0].id);
     }
 
-    // ── Write SSO session before going to entity hub ──
     writeSharedSession();
     saveSessionCache();
-    showEntityHub();
+
+    if (typeof showEntityHub === 'function') {
+        showEntityHub();
+    }
 }
 
 /* ============================================================
