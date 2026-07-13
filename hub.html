@@ -1411,7 +1411,12 @@ function playWelcomeStartup() {
             buildWelcomeTone(ctx);
         }
     } catch(e) { console.warn('Audio error:', e); }
-    setTimeout(playWelcomeVoice, 1200);
+    // Delay voice to avoid hammering API on page load
+    setTimeout(function() {
+        if (typeof playWelcomeVoice === 'function') {
+            playWelcomeVoice();
+        }
+    }, 2000);
 }
 
 function buildWelcomeTone(ctx) {
@@ -3144,7 +3149,6 @@ function openMasterSaylo() {
     frame.classList.remove('hidden');
     frame.innerHTML = getSayloHTML();
     initSaylo();
-}
 }
 
 /* ============================================================
@@ -13132,7 +13136,8 @@ function nikkiReportCommand(lower, text, apiKey) {
 
 /* ── Wake Word Listener ── */
 nikkiStartWakeWordListener = function() {
-    if (!isFeaturePurchased('ai_brain')) return;
+    if (typeof isFeaturePurchased === 'function' &&
+        !isFeaturePurchased('ai_brain')) return;
     if (!('webkitSpeechRecognition' in window ||
           'SpeechRecognition' in window)) return;
 
