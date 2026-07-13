@@ -1480,11 +1480,14 @@ function playWelcomeStartup() {
         }
     }
 
-    /* Play TTS voice — only once ever */
-    if (!_ttsPlayed) {
-        _ttsPlayed = true;
+    /* Play TTS voice — only if not already fired */
+    if (!window._welcomeVoiceFired && !_ttsPlayed) {
         setTimeout(function() {
-            playWelcomeVoice();
+            /* Check again inside timeout in case it fired
+               during the delay */
+            if (!window._welcomeVoiceFired && !_ttsPlayed) {
+                playWelcomeVoice();
+            }
         }, 1800);
     }
 }
@@ -1546,9 +1549,11 @@ function buildWelcomeTone(ctx) {
 }
 
 function playWelcomeVoice() {
-    /* Guard — only ever play once */
+    /* Strongest possible guard — window level + module level */
     if (window._welcomeVoiceFired) return;
+    if (_ttsPlayed) return;
     window._welcomeVoiceFired = true;
+    _ttsPlayed = true;
 
     var text = "Welcome to StockAI-Pro. " +
         "The world's first automated AI procurement and " +
@@ -1556,8 +1561,11 @@ function playWelcomeVoice() {
         "Designed by professionals, for professionals. " +
         "Press Enter now to get started!";
 
-    /* Try proxy TTS first, fallback to browser */
     var AI_URL = 'https://bold-dust-c51b.cidraism.workers.dev/ai';
+
+    /* Track whether proxy succeeded so we don't also run fallback */
+    var _voiceHandled = false;
+
     fetch(AI_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1576,6 +1584,8 @@ function playWelcomeVoice() {
         return r.arrayBuffer();
     })
     .then(function(buffer) {
+        if (_voiceHandled) return; /* Extra safety */
+        _voiceHandled = true;
         var ac = new (window.AudioContext || window.webkitAudioContext)();
         if (ac.state === 'suspended') ac.resume();
         return ac.decodeAudioData(buffer).then(function(decoded) {
@@ -1586,7 +1596,8 @@ function playWelcomeVoice() {
         });
     })
     .catch(function() {
-        /* Fallback to browser speech */
+        if (_voiceHandled) return; /* Don't play twice */
+        _voiceHandled = true;
         playBrowserVoice(text);
     });
 }
@@ -1660,35 +1671,50 @@ document.addEventListener('DOMContentLoaded', function() {
     var _audioUnlocked = false;
 
     function tryUnlockAudio() {
-        if (_audioUnlocked) return;
-        _audioUnlocked = true;
-        var ws = document.getElementById('welcome-screen');
-        if (ws && ws.style.display !== 'none' &&
-            !ws.classList.contains('hidden')) {
+    if (_audioUnlocked) return;
+    /* Also check if voice already played — if so just
+       unlock audio context but don't replay voice */
+    _audioUnlocked = true;
+    var ws = document.getElementById('welcome-screen');
+    if (ws && ws.style.display !== 'none' &&
+        !ws.classList.contains('hidden')) {
+        if (!window._welcomeVoiceFired && !_tonePlayed) {
+            /* Nothing has played yet — play everything */
             playWelcomeStartup();
+        } else if (!window._welcomeVoiceFired && _tonePlayed) {
+            /* Tone played but voice not yet — just fire voice */
+            if (!_ttsPlayed) {
+                _ttsPlayed = true;
+                playWelcomeVoice();
+            }
+        }
+        /* If _welcomeVoiceFired is true — do nothing,
+           already played */
         }
     }
 
     /* Attempt immediately on DOM ready */
-    setTimeout(function() {
-        var ws = document.getElementById('welcome-screen');
-        if (!ws || ws.classList.contains('hidden')) return;
-        try {
-            var testCtx = new (window.AudioContext ||
-                               window.webkitAudioContext)();
-            if (testCtx.state !== 'suspended') {
-                /* Autoplay allowed — fire immediately */
-                _audioUnlocked = true;
-                playWelcomeStartup();
-                testCtx.close();
-            } else {
-                /* Autoplay blocked — wait for interaction */
-                testCtx.close();
-            }
-        } catch(e) {
-            /* Cannot even create context yet */
+setTimeout(function() {
+    var ws = document.getElementById('welcome-screen');
+    if (!ws || ws.classList.contains('hidden')) return;
+    /* Only attempt if nothing has played yet */
+    if (window._welcomeVoiceFired || _tonePlayed) return;
+    try {
+        var testCtx = new (window.AudioContext ||
+                           window.webkitAudioContext)();
+        if (testCtx.state !== 'suspended') {
+            /* Autoplay allowed — fire immediately */
+            _audioUnlocked = true;
+            testCtx.close();
+            playWelcomeStartup();
+        } else {
+            /* Autoplay blocked — wait for interaction */
+            testCtx.close();
         }
-    }, 500);
+    } catch(e) {
+        /* Cannot create context yet */
+    }
+}, 500);
 
     /* Fallback — fire on any first interaction */
     document.addEventListener('mousemove',  tryUnlockAudio,
