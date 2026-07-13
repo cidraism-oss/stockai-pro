@@ -837,134 +837,7 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
     </div>
 </div>
 
-<script>
-/* ============================================================
-   EMERGENCY PATCH — Welcome Enter + Login
-   This guarantees the Enter button and login work even if
-   a later script block has a syntax error.
-============================================================ */
 
-window.handleWelcomeEnter = function() {
-    try {
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    } catch(e) {}
-
-    var welcome = document.getElementById('welcome-screen');
-    var login   = document.getElementById('login-screen');
-
-    // If returning from app and auth checker exists, let it route directly
-    if (sessionStorage.getItem('hub_return') === 'true' &&
-        typeof checkHubAuth === 'function') {
-        if (welcome) {
-            welcome.style.display = 'none';
-            welcome.classList.add('hidden');
-        }
-        if (login) {
-            login.style.display = 'none';
-            login.classList.add('hidden');
-        }
-        checkHubAuth();
-        return;
-    }
-
-    // Normal enter → just show login screen
-    if (welcome) {
-        welcome.style.display = 'none';
-        welcome.classList.add('hidden');
-    }
-    if (login) {
-        login.style.display = '';
-        login.classList.remove('hidden');
-    }
-
-    setTimeout(function() {
-        var emailInput = document.getElementById('hub-email');
-        if (emailInput) emailInput.focus();
-    }, 100);
-};
-
-window.hubLogin = function() {
-    var email    = (document.getElementById('hub-email') ? document.getElementById('hub-email').value : '').trim().toLowerCase();
-    var password = (document.getElementById('hub-password') ? document.getElementById('hub-password').value : '').trim();
-    var remember = document.getElementById('hub-remember') ? document.getElementById('hub-remember').checked : false;
-    var errorDiv = document.getElementById('login-error');
-    var loginBtn = document.getElementById('hub-login-btn');
-
-    if (errorDiv) {
-        errorDiv.style.display = 'none';
-        errorDiv.textContent   = '';
-    }
-
-    if (!email || !password) {
-        if (errorDiv) {
-            errorDiv.textContent  = 'Please enter your email and password.';
-            errorDiv.style.display = 'block';
-        }
-        return;
-    }
-
-    if (loginBtn) {
-        loginBtn.disabled  = true;
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-    }
-
-    var persistence = remember
-        ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION;
-
-    auth.setPersistence(persistence)
-        .then(function() {
-            return auth.signInWithEmailAndPassword(email, password);
-        })
-        .then(function(result) {
-            if (remember) {
-                localStorage.setItem('stockai_remember', 'yes');
-                localStorage.setItem('stockai_email', email);
-            } else {
-                localStorage.removeItem('stockai_remember');
-                localStorage.removeItem('stockai_email');
-            }
-
-            if (typeof findHubAccount === 'function') {
-                findHubAccount(result.user.email, function(found) {
-                    if (found) {
-                        if (typeof saveSessionCache === 'function') saveSessionCache();
-                        if (typeof routeAfterLogin === 'function') routeAfterLogin();
-
-                        var login = document.getElementById('login-screen');
-                        if (login) login.classList.add('hidden');
-                    } else {
-                        if (errorDiv) {
-                            errorDiv.textContent  = 'Account not found. Please contact support.';
-                            errorDiv.style.display = 'block';
-                        }
-                        if (loginBtn) {
-                            loginBtn.disabled  = false;
-                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                        }
-                    }
-                });
-            }
-        })
-        .catch(function(err) {
-            var msg = 'Login failed. Please try again.';
-            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
-            if (err.code === 'auth/user-not-found') msg = 'Email not found.';
-            if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
-            if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
-
-            if (errorDiv) {
-                errorDiv.textContent  = msg;
-                errorDiv.style.display = 'block';
-            }
-            if (loginBtn) {
-                loginBtn.disabled  = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-            }
-            console.warn('hubLogin error:', err.code, err.message);
-        });
-};
-</script>
 
 <!-- ============================================================
      MAIN HUB APP
@@ -1931,160 +1804,130 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
 });
 
+</script>
 <script>
 /* ============================================================
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-    // ══════════════════════════════════════════════════
-    // CHECK 1: Returning from Web App or external app
-    // ══════════════════════════════════════════════════
-    var isReturn     = sessionStorage.getItem('hub_return') === 'true';
-    var savedAccount = sessionStorage.getItem('hub_account_id');
-    var savedEmail   = sessionStorage.getItem('hub_user_email');
-    var savedName    = sessionStorage.getItem('hub_user_name');
-    var savedRole    = sessionStorage.getItem('hub_user_role');
-    var savedEntity  = sessionStorage.getItem('hub_entity_id');
-
-    if (isReturn && (savedAccount || savedEmail)) {
-        // Clear the return flag immediately so it does not trigger twice
+    // Check if returning from external app (POS, App etc)
+    var isReturn = sessionStorage.getItem('hub_return') === 'true';
+    if (isReturn) {
         sessionStorage.removeItem('hub_return');
-        sessionStorage.removeItem('hub_skip_welcome');
 
-        // Hide welcome and login screens IMMEDIATELY — before any rendering
         var welcomeEl = document.getElementById('welcome-screen');
         var loginEl   = document.getElementById('login-screen');
-        if (welcomeEl) {
-            welcomeEl.style.display    = 'none';
-            welcomeEl.style.opacity    = '0';
-            welcomeEl.style.visibility = 'hidden';
-            welcomeEl.classList.add('hidden');
-        }
-        if (loginEl) {
-            loginEl.style.display = 'none';
-            loginEl.classList.add('hidden');
-        }
+        if (welcomeEl) welcomeEl.style.display = 'none';
+        if (loginEl)   loginEl.classList.add('hidden');
 
-        // Try to restore from session cache first
-        var cacheRestored = false;
-        if (typeof restoreSessionCache === 'function') {
-            cacheRestored = restoreSessionCache();
-        }
+        if (restoreSessionCache()) {
 
-        // If cache did not restore, manually set HUB state from sessionStorage
-        if (!cacheRestored && savedAccount) {
-            HUB.accountId  = savedAccount;
-            HUB.entityId   = savedEntity || '';
-            if (!HUB.user) HUB.user = {};
-            HUB.user.name  = savedName  || '';
-            HUB.user.email = savedEmail || '';
-            HUB.user.role  = savedRole  || 'Owner';
-            HUB.isMaster   = (savedEmail || '').toLowerCase() === 'cidraism@gmail.com';
-        }
-
-        // Read SSO features if available
-        try {
-            var rawSSO = sessionStorage.getItem('sso_session');
-            if (rawSSO) {
-                var sso = JSON.parse(rawSSO);
-                if (sso && sso.valid) {
-                    // Use SSO data to fill any gaps
-                    if (!HUB.accountId && sso.accountId) HUB.accountId = sso.accountId;
-                    if (!HUB.entityId  && sso.entityId)  HUB.entityId  = sso.entityId;
-                    if (!HUB.user.name && sso.userName)  HUB.user.name = sso.userName;
-                    if (!HUB.user.email&& sso.userEmail) HUB.user.email= sso.userEmail;
-                    if (sso.entityName) HUB.entityName = sso.entityName;
-                    if (sso.features && sso.features.length) {
-                        HUB.features = sso.features;
-                        if (typeof cacheUserFeatures === 'function') {
-                            cacheUserFeatures(sso.features);
+            try {
+                var rawSSO = sessionStorage.getItem('sso_session');
+                if (rawSSO) {
+                    var sso = JSON.parse(rawSSO);
+                    if (sso && sso.valid) {
+                        if (sso.features && sso.features.length) {
+                            HUB.features = sso.features;
+                            if (typeof cacheUserFeatures === 'function') {
+                                cacheUserFeatures(sso.features);
+                            }
                         }
                     }
                 }
-            }
-        } catch(e) {}
+            } catch(e) {}
 
-        // Now load account data from Firestore
-        if (HUB.accountId) {
-            db.collection('accounts').doc(HUB.accountId).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        HUB.accountData = doc.data();
-                        HUB.entities    = doc.data().entities || [];
+            if (HUB.accountId) {
+                db.collection('accounts').doc(HUB.accountId).get()
+                    .then(function(doc) {
+                        if (doc.exists) {
+                            HUB.accountData = doc.data();
+                            HUB.entities    = doc.data().entities || [];
 
-                        // Find the saved entity
-                        if (HUB.entityId) {
-                            var ent = HUB.entities.find(function(e) {
-                                return e.id === HUB.entityId;
-                            });
-                            if (ent) {
-                                HUB.entity     = ent;
-                                HUB.entityName = ent.name;
-                                HUB.features   = typeof getEntityFeatures === 'function'
-                                    ? getEntityFeatures(HUB.accountData, HUB.entityId)
-                                    : (HUB.features || []);
+                            if (HUB.entityId) {
+                                var ent = HUB.entities.find(function(e) {
+                                    return e.id === HUB.entityId;
+                                });
+                                if (ent) {
+                                    HUB.entity   = ent;
+                                    HUB.features = getEntityFeatures(
+                                        HUB.accountData,
+                                        HUB.entityId);
+                                }
                             }
-                        } else if (HUB.entities.length > 0) {
-                            HUB.entity     = HUB.entities[0];
-                            HUB.entityId   = HUB.entities[0].id;
-                            HUB.entityName = HUB.entities[0].name;
-                        }
-
-                        // Start background services
-                        if (typeof startHubSync    === 'function') startHubSync();
-                        if (typeof hubLoadBranding === 'function') hubLoadBranding();
-                        if (typeof hubLoadWeather  === 'function') hubLoadWeather();
-
-                        // Go STRAIGHT to dashboard — no welcome screen
-                        if (typeof routeAfterLogin === 'function') {
+                            startHubSync();
+                            hubLoadBranding();
+                            hubLoadWeather();
                             routeAfterLogin();
+                        } else {
+                            showLoginScreen();
                         }
-                        console.log('✅ Returned from Web App — dashboard loaded');
+                    })
+                    .catch(function() {
+                        if (HUB.user && HUB.accountId) {
+                            routeAfterLogin();
+                        } else {
+                            showLoginScreen();
+                        }
+                    });
+            } else {
+                routeAfterLogin();
+            }
+            return;
+        }
+
+        var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
+            unsubReturn();
+            if (firebaseUser) {
+                findHubAccount(firebaseUser.email, function(found) {
+                    if (found) {
+                        saveSessionCache();
+                        routeAfterLogin();
                     } else {
-                        // Account not found — try Firebase auth as fallback
-                        console.warn('Account doc not found — falling back to auth');
-                        checkHubAuthNormal();
-                    }
-                })
-                .catch(function(err) {
-                    console.warn('Return load error:', err.message);
-                    // If we have enough data, try to show dashboard anyway
-                    if (HUB.accountData && HUB.user && HUB.user.email) {
-                        if (typeof routeAfterLogin === 'function') routeAfterLogin();
-                    } else {
-                        checkHubAuthNormal();
+                        showLoginScreen();
                     }
                 });
-        } else if (savedEmail) {
-            // No account ID but have email — find account via Firebase
-            var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
-                unsubReturn();
-                if (firebaseUser) {
-                    if (typeof findHubAccount === 'function') {
-                        findHubAccount(firebaseUser.email, function(found) {
-                            if (found) {
-                                if (typeof saveSessionCache === 'function') saveSessionCache();
-                                if (typeof routeAfterLogin  === 'function') routeAfterLogin();
-                            } else {
-                                if (typeof showLoginScreen === 'function') showLoginScreen();
-                            }
-                        });
-                    }
-                } else {
-                    if (typeof showLoginScreen === 'function') showLoginScreen();
-                }
-            });
-        } else {
-            // Nothing to work with — show login
-            if (typeof showLoginScreen === 'function') showLoginScreen();
-        }
-        return; // ← STOP HERE — do not fall through to normal auth
+            } else {
+                showLoginScreen();
+            }
+        });
+        return;
     }
 
-    // ══════════════════════════════════════════════════
-    // CHECK 2: Normal auth flow (not returning from app)
-    // ══════════════════════════════════════════════════
-    checkHubAuthNormal();
+    // Normal auth check — remember me
+    var remembered = localStorage.getItem('stockai_remember');
+    var remEmail   = localStorage.getItem('stockai_email');
+
+    if (remembered === 'yes' && remEmail) {
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(function() {
+                return new Promise(function(resolve) {
+                    var unsub = auth.onAuthStateChanged(function(user) {
+                        unsub(); resolve(user);
+                    });
+                });
+            })
+            .then(function(firebaseUser) {
+                if (firebaseUser) {
+                    hubToast('info', '🔄 Loading your workspace...');
+                    findHubAccount(firebaseUser.email, function(found) {
+                        if (found) {
+                            document.getElementById('login-screen')
+                                .classList.add('hidden');
+                            saveSessionCache();
+                            routeAfterLogin();
+                        } else {
+                            showLoginScreen();
+                        }
+                    });
+                } else {
+                    showLoginScreen();
+                }
+            })
+            .catch(function() { showLoginScreen(); });
+    } else {
+        auth.signOut().then(showLoginScreen).catch(showLoginScreen);
+    }
 }
 
 // Separated normal auth into its own function for clean fallback
@@ -2134,7 +1977,9 @@ function checkHubAuthNormal() {
             });
     }
 }
-  
+  console.log('✅ Welcome + Auth screen functions loaded');
+</script>
+<script>
 /* ============================================================
    SESSION CACHE
 ============================================================ */
@@ -2174,6 +2019,7 @@ function restoreSessionCache() {
         return true;
     } catch(e) { return false; }
 }
+
 
 /* ============================================================
    SHOW / HIDE SCREENS
@@ -2237,9 +2083,6 @@ function showPaymentRequired(reason) {
     document.body.appendChild(div);
 }
 
-console.log('✅ Welcome + Auth screen functions loaded');
-</script>
-<script>
 /* ============================================================
    LOGIN — Single Sign-On for ALL apps
    Once logged into hub, NO other app needs login again.
