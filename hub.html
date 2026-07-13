@@ -1719,6 +1719,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ... rest of your existing code unchanged ...
 // ── Audio trigger on first interaction ──
     function tryUnlockAudio() {
+var _audioUnlocked = false;
         if (_audioUnlocked) return;
         _audioUnlocked = true;
         var ws = document.getElementById('welcome-screen');
@@ -1804,8 +1805,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
 });
 
-</script>
-<script>
 /* ============================================================
    AUTH — CHECK ON LOAD
 ============================================================ */
