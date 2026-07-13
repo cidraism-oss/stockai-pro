@@ -1314,12 +1314,13 @@ function onPaymentSuccess(paystackRef, data, email, featureLabels) {
 
     // Increment promo code usage
     if (PROMO.applied && PROMO.docId) {
-        db.collection('promoCodes').doc(PROMO.docId).update({
-            usageCount: firebase.firestore.FieldValue.increment(1),
-            lastUsed:   new Date().toISOString(),
-            lastUsedBy: email
-        }).catch(function() {});
-    }
+    db.collection('promoCodes').doc(PROMO.docId).update({
+        usedCount:  firebase.firestore.FieldValue.increment(1),
+        usageCount: firebase.firestore.FieldValue.increment(1),
+        lastUsed:   new Date().toISOString(),
+        lastUsedBy: email
+    }).catch(function() {});
+}
 
     // Save pending setup record to Firebase
     var setupToken = 'SETUP-' + paystackRef + '-' + Date.now().toString(36);
