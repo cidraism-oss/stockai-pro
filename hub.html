@@ -2004,43 +2004,7 @@ function checkHubAuthNormal() {
             });
     }
 }
-
-    // Normal auth check — remember me
-    var remembered = localStorage.getItem('stockai_remember');
-    var remEmail   = localStorage.getItem('stockai_email');
-
-    if (remembered === 'yes' && remEmail) {
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(function() {
-                return new Promise(function(resolve) {
-                    var unsub = auth.onAuthStateChanged(function(user) {
-                        unsub(); resolve(user);
-                    });
-                });
-            })
-            .then(function(firebaseUser) {
-                if (firebaseUser) {
-                    hubToast('info', '🔄 Loading your workspace...');
-                    findHubAccount(firebaseUser.email, function(found) {
-                        if (found) {
-                            document.getElementById('login-screen')
-                                .classList.add('hidden');
-                            saveSessionCache();
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
-                        }
-                    });
-                } else {
-                    showLoginScreen();
-                }
-            })
-            .catch(function() { showLoginScreen(); });
-    } else {
-        auth.signOut().then(showLoginScreen).catch(showLoginScreen);
-    }
-}
-
+  
 /* ============================================================
    SESSION CACHE
 ============================================================ */
