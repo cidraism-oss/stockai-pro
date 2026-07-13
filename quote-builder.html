@@ -1135,7 +1135,7 @@ function calcTotal() {
 // PROMO CODE
 // ============================================================
 function applyPromo() {
-    var code    = (document.getElementById('promo-input').value || '').trim().toUpperCase();
+    var code     = (document.getElementById('promo-input').value || '').trim().toUpperCase();
     var resultEl = document.getElementById('promo-result');
     var btn      = document.getElementById('promo-btn');
 
@@ -1155,28 +1155,60 @@ function applyPromo() {
         .then(function(doc) {
             btn.disabled    = false;
             btn.textContent = 'Apply';
-            if (!doc.exists) { showPromoMsg('error', 'Invalid promo code. Please check and try again.'); return; }
-            var data = doc.data();
-            if (!data.active) { showPromoMsg('error', 'This promo code is no longer active.'); return; }
-            if (data.expiryDate && new Date(data.expiryDate) < new Date()) { showPromoMsg('error', 'This promo code has expired.'); return; }
-            if (data.usageLimit && data.usageLimit > 0 && data.usageCount >= data.usageLimit) { showPromoMsg('error', 'This promo code has reached its usage limit.'); return; }
 
-            PROMO.code     = code;
+            if (!doc.exists) {
+                showPromoMsg('error', 'Invalid promo code. Please check and try again.');
+                return;
+            }
+
+            var data = doc.data();
+
+            // Check if active
+            if (data.active === false) {
+                showPromoMsg('error', 'This promo code is no longer active.');
+                return;
+            }
+
+            // Check expiry — supports both expiryDate and expiryDate
+            var expiry = data.expiryDate || data.expiry || null;
+            if (expiry) {
+                if (new Date(expiry) < new Date()) {
+                    showPromoMsg('error', 'This promo code has expired.');
+                    return;
+                }
+            }
+
+            // Check usage limit — supports maxUses/usageLimit and usedCount/usageCount
+            var maxUses   = data.maxUses   || data.usageLimit || 0;
+            var usedCount = data.usedCount || data.usageCount || 0;
+            if (maxUses > 0 && usedCount >= maxUses) {
+                showPromoMsg('error', 'This promo code has reached its usage limit.');
+                return;
+            }
+
+            // Apply the code — supports type: "percentage"/"percent"/"fixed"
+            var discountType = (data.type || 'percent').toLowerCase();
+            if (discountType === 'percentage') discountType = 'percent';
+
+            PROMO.code     = data.code || code;
             PROMO.discount = data.discount || 0;
-            PROMO.type     = data.type || 'percent';
+            PROMO.type     = discountType;
             PROMO.applied  = true;
             PROMO.docId    = doc.id;
 
-            var label = data.type === 'fixed'
+            var discountText = discountType === 'fixed'
                 ? 'R' + data.discount + ' off'
                 : data.discount + '% off';
-            showPromoMsg('success', '✅ Applied! ' + label + (data.description ? ' — ' + data.description : ''));
+
+            showPromoMsg('success', '✅ Code applied! ' + discountText +
+                (data.description ? ' — ' + data.description : ''));
             calcTotal();
         })
         .catch(function(err) {
             btn.disabled    = false;
             btn.textContent = 'Apply';
             showPromoMsg('error', 'Error checking code. Please try again.');
+            console.error('Promo error:', err);
         });
 }
 
