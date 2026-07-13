@@ -1205,14 +1205,20 @@ function callProxyTTS(text, voice, speed, callback) {
         return;
     }
 
-    // Only use TTS if AI Brain is purchased OR user is master/saylo
-    var hasAI = isFeaturePurchased('ai_brain') ||
+    // Check if AI is available
+    // Welcome voice plays before login so we allow it always
+    var isLoggedIn = HUB.user !== null;
+    var hasAI = !isLoggedIn || // allow before login
+                (typeof isFeaturePurchased === 'function' &&
+                 isFeaturePurchased('ai_brain')) ||
                 HUB.isMaster ||
                 isSayloUser(HUB.user ? HUB.user.email : '');
 
     if (!hasAI) {
         // Fallback to browser speech
-        playBrowserVoice(text);
+        if (typeof playBrowserVoice === 'function') {
+            playBrowserVoice(text);
+        }
         if (callback) setTimeout(callback, 2000);
         return;
     }
@@ -1306,6 +1312,175 @@ function callProxyChat(messages, maxTokens, onSuccess, onError) {
         if (onError) onError(err.message);
     });
 }
+
+/* ── Welcome Voice via Proxy ── */
+function playWelcomeVoice() {
+    var text = "Welcome to StockAI-Pro. " +
+        "South Africa's first automated AI procurement and " +
+        "stock management system. " +
+        "Designed by professionals, for professionals. " +
+        "Press Enter now to get started!";
+
+    fetch(AI_PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'tts',
+            payload: {
+                model: 'tts-1',
+                voice: 'nova',
+                input: text,
+                speed: 0.92
+            }
+        })
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('TTS proxy failed');
+        return response.arrayBuffer();
+    })
+    .then(function(buffer) {
+        var ac = new (window.AudioContext ||
+                      window.webkitAudioContext)();
+        if (ac.state === 'suspended') ac.resume();
+        return ac.decodeAudioData(buffer).then(function(decoded) {
+            var source = ac.createBufferSource();
+            source.buffer = decoded;
+            source.connect(ac.destination);
+            source.start(0);
+        });
+    })
+    .catch(function() {
+        // Fallback to browser speech if proxy fails
+        playBrowserVoice(text);
+    });
+}
+
+/* ── saySpeak — used by MobileAI voice count ── */
+function saySpeak(text, apiKeyIgnored, callback) {
+    callProxyTTS(text, 'nova', 1.0, callback || function() {});
+}
+
+/* ── sayloSpeak — used by Saylo assistant ── */
+function sayloSpeak(text, apiKeyIgnored, callback) {
+    callProxyTTS(text, 'nova', 1.0, callback || function() {});
+}
+
+/* ── nikkiRespond — used by Nikki AI ── */
+function nikkiRespond(text, apiKeyIgnored, callback) {
+    if (!text) return;
+    var btn = document.getElementById('nikki-btn');
+    if (btn) btn.classList.remove('thinking');
+    nikkiAddMessage('bot', text);
+    callProxyTTS(text, 'nova', 1.0, callback || function() {});
+}
+
+/* ── nikkiAskAI — used by Nikki AI ── */
+function nikkiAskAI(text, apiKeyIgnored) {
+    var inv = HUB.accountData && HUB.entityId
+        ? (HUB.accountData.inventory || {})[HUB.entityId] || [] : [];
+
+    callProxyChat(
+        [
+            {
+                role: 'system',
+                content: 'You are Nikki, an AI assistant for StockAI-Pro. ' +
+                    'Help with stock management, orders, reports and navigation. ' +
+                    'Entity: ' + (HUB.entityName || 'Unknown') +
+                    '. Stock items: ' + inv.length +
+                    '. Be brief — max 2 sentences. Conversational tone.'
+            },
+            { role: 'user', content: text }
+        ],
+        120,
+        function(reply) {
+            nikkiRespond(reply, '', function() {});
+        },
+        function() {
+            nikkiRespond(
+                'I am having trouble right now. Please try again.',
+                '', function() {}
+            );
+        }
+    );
+}
+
+/* ── sayloAskOpenAI — used by Saylo assistant ── */
+function sayloAskOpenAI(text) {
+    var today     = new Date().toISOString().split('T')[0];
+    var todayEvts = typeof SAYLO !== 'undefined' &&
+                    SAYLO.calendar
+        ? SAYLO.calendar.filter(function(e) {
+            return e.date === today;
+        }).length : 0;
+
+    callProxyChat(
+        [
+            {
+                role: 'system',
+                content: 'You are Saylo, a personal AI assistant for ' +
+                    (HUB.user ? HUB.user.name.split(' ')[0] : 'Miguel') +
+                    '. Help manage calendar, notes, and bookings. ' +
+                    'Today is ' + today +
+                    '. You have ' + todayEvts + ' events today. ' +
+                    'Be brief — max 2 sentences. Voice-controlled.'
+            },
+            { role: 'user', content: text }
+        ],
+        150,
+        function(reply) {
+            callProxyTTS(reply, 'nova', 1.0, function() {});
+        },
+        function() {
+            callProxyTTS(
+                'I am having trouble connecting. Please try again.',
+                'nova', 1.0, function() {}
+            );
+        }
+    );
+}
+
+/* ── Also fix callProxyTTS to work before login ── */
+/* Welcome voice plays before user logs in so we  */
+/* cannot check isFeaturePurchased at that point  */
+function playWelcomeTTSSafe(text) {
+    fetch(AI_PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'tts',
+            payload: {
+                model: 'tts-1',
+                voice: 'nova',
+                input: text,
+                speed: 0.92
+            }
+        })
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('TTS failed');
+        return r.arrayBuffer();
+    })
+    .then(function(buffer) {
+        var ac = new (window.AudioContext ||
+                      window.webkitAudioContext)();
+        if (ac.state === 'suspended') ac.resume();
+        return ac.decodeAudioData(buffer).then(function(d) {
+            var s = ac.createBufferSource();
+            s.buffer = d;
+            s.connect(ac.destination);
+            s.start(0);
+        });
+    })
+    .catch(function() {
+        if (typeof playBrowserVoice === 'function') {
+            playBrowserVoice(text);
+        }
+    });
+}
+
+console.log('✅ AI Proxy functions loaded');
+console.log('🤖 All AI calls route through Cloudflare Worker');
+console.log('🔐 OpenAI key secured server-side');
 
 /* ── Welcome Screen Voice via Proxy ── */
 /* Overrides the version in Part 4 to use proxy */
@@ -1464,43 +1639,6 @@ function buildWelcomeTone(ctx) {
     shG.gain.linearRampToValueAtTime(0.025, now + 1.6);
     shG.gain.linearRampToValueAtTime(0, now + 2.8);
     sh.start(now + 1.2); sh.stop(now + 2.9);
-}
-
-function playWelcomeVoice() {
-    var text = "Welcome to StockAI-Pro. " +
-        "The world's first automated AI procurement and stock control system. " +
-        "Designed by professionals, for professionals. " +
-        "Press Enter now to get started!";
-    var apiKey = localStorage.getItem('stockai_openai_key') || '';
-    if (apiKey && apiKey.startsWith('sk-')) {
-        fetch('https://api.openai.com/v1/audio/speech', {
-            method: 'POST',
-            headers: {
-                'Content-Type':  'application/json',
-                'Authorization': 'Bearer ' + apiKey
-            },
-            body: JSON.stringify({
-                model: 'tts-1',
-                voice: 'nova',
-                input: text,
-                speed: 0.92
-            })
-        })
-        .then(function(r) { return r.arrayBuffer(); })
-        .then(function(buffer) {
-            var ac = new (window.AudioContext || window.webkitAudioContext)();
-            if (ac.state === 'suspended') ac.resume();
-            return ac.decodeAudioData(buffer).then(function(d) {
-                var s = ac.createBufferSource();
-                s.buffer = d;
-                s.connect(ac.destination);
-                s.start(0);
-            });
-        })
-        .catch(function() { playBrowserVoice(text); });
-    } else {
-        playBrowserVoice(text);
-    }
 }
 
 function playBrowserVoice(text) {
