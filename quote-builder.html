@@ -1248,7 +1248,7 @@ function startPayment() {
     var email = CUSTOMER.email;
     if (!email) {
         email = prompt(
-            'Please enter your email address to proceed with payment.\n' +
+            'Please enter your email address to proceed.\n' +
             '(This will be your login email for StockAI-Pro)'
         );
         if (!email || !email.trim()) return;
@@ -1268,7 +1268,30 @@ function startPayment() {
         return FEATURES[key] ? FEATURES[key].name : key;
     });
 
-    // Set progress to step 2
+    // ── If total is R0 (100% discount or free) skip Paystack ──
+    if (data.totalCharge <= 0) {
+        setProgress(2);
+
+        var btn = document.getElementById('pay-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        // Record promo code usage
+        if (PROMO.applied && PROMO.docId) {
+            db.collection('promocodes').doc(PROMO.docId).update({
+                usedCount:  firebase.firestore.FieldValue.increment(1),
+                usageCount: firebase.firestore.FieldValue.increment(1),
+                lastUsed:   new Date().toISOString(),
+                lastUsedBy: email
+            }).catch(function() {});
+        }
+
+        // Go straight to payment success with FREE reference
+        onPaymentSuccess('FREE-' + payRef, data, email, featureLabels);
+        return;
+    }
+
+    // ── Normal Paystack payment flow ──
     setProgress(2);
 
     var btn = document.getElementById('pay-btn');
@@ -1299,6 +1322,15 @@ function startPayment() {
             showToast('info', 'Payment cancelled. Your selections are saved — try again when ready.');
         },
         callback: function(response) {
+            // Record promo code usage
+            if (PROMO.applied && PROMO.docId) {
+                db.collection('promocodes').doc(PROMO.docId).update({
+                    usedCount:  firebase.firestore.FieldValue.increment(1),
+                    usageCount: firebase.firestore.FieldValue.increment(1),
+                    lastUsed:   new Date().toISOString(),
+                    lastUsedBy: email
+                }).catch(function() {});
+            }
             onPaymentSuccess(response.reference, data, email, featureLabels);
         }
     });
