@@ -837,6 +837,135 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
     </div>
 </div>
 
+<script>
+/* ============================================================
+   EMERGENCY PATCH — Welcome Enter + Login
+   This guarantees the Enter button and login work even if
+   a later script block has a syntax error.
+============================================================ */
+
+window.handleWelcomeEnter = function() {
+    try {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    } catch(e) {}
+
+    var welcome = document.getElementById('welcome-screen');
+    var login   = document.getElementById('login-screen');
+
+    // If returning from app and auth checker exists, let it route directly
+    if (sessionStorage.getItem('hub_return') === 'true' &&
+        typeof checkHubAuth === 'function') {
+        if (welcome) {
+            welcome.style.display = 'none';
+            welcome.classList.add('hidden');
+        }
+        if (login) {
+            login.style.display = 'none';
+            login.classList.add('hidden');
+        }
+        checkHubAuth();
+        return;
+    }
+
+    // Normal enter → just show login screen
+    if (welcome) {
+        welcome.style.display = 'none';
+        welcome.classList.add('hidden');
+    }
+    if (login) {
+        login.style.display = '';
+        login.classList.remove('hidden');
+    }
+
+    setTimeout(function() {
+        var emailInput = document.getElementById('hub-email');
+        if (emailInput) emailInput.focus();
+    }, 100);
+};
+
+window.hubLogin = function() {
+    var email    = (document.getElementById('hub-email') ? document.getElementById('hub-email').value : '').trim().toLowerCase();
+    var password = (document.getElementById('hub-password') ? document.getElementById('hub-password').value : '').trim();
+    var remember = document.getElementById('hub-remember') ? document.getElementById('hub-remember').checked : false;
+    var errorDiv = document.getElementById('login-error');
+    var loginBtn = document.getElementById('hub-login-btn');
+
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent   = '';
+    }
+
+    if (!email || !password) {
+        if (errorDiv) {
+            errorDiv.textContent  = 'Please enter your email and password.';
+            errorDiv.style.display = 'block';
+        }
+        return;
+    }
+
+    if (loginBtn) {
+        loginBtn.disabled  = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    }
+
+    var persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+    auth.setPersistence(persistence)
+        .then(function() {
+            return auth.signInWithEmailAndPassword(email, password);
+        })
+        .then(function(result) {
+            if (remember) {
+                localStorage.setItem('stockai_remember', 'yes');
+                localStorage.setItem('stockai_email', email);
+            } else {
+                localStorage.removeItem('stockai_remember');
+                localStorage.removeItem('stockai_email');
+            }
+
+            if (typeof findHubAccount === 'function') {
+                findHubAccount(result.user.email, function(found) {
+                    if (found) {
+                        if (typeof saveSessionCache === 'function') saveSessionCache();
+                        if (typeof routeAfterLogin === 'function') routeAfterLogin();
+
+                        var login = document.getElementById('login-screen');
+                        if (login) login.classList.add('hidden');
+                    } else {
+                        if (errorDiv) {
+                            errorDiv.textContent  = 'Account not found. Please contact support.';
+                            errorDiv.style.display = 'block';
+                        }
+                        if (loginBtn) {
+                            loginBtn.disabled  = false;
+                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                        }
+                    }
+                });
+            }
+        })
+        .catch(function(err) {
+            var msg = 'Login failed. Please try again.';
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
+            if (err.code === 'auth/user-not-found') msg = 'Email not found.';
+            if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
+            if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+
+            if (errorDiv) {
+                errorDiv.textContent  = msg;
+                errorDiv.style.display = 'block';
+            }
+            if (loginBtn) {
+                loginBtn.disabled  = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
+            console.warn('hubLogin error:', err.code, err.message);
+        });
+};
+</script>
+
 <!-- ============================================================
      MAIN HUB APP
 ============================================================ -->
@@ -1802,6 +1931,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
 });
 
+<script>
 /* ============================================================
    AUTH — CHECK ON LOAD
 ============================================================ */
@@ -2196,6 +2326,8 @@ function hubLogin() {
         });
 }
 
+</script>
+<script>
 /* ============================================================
    SSO — SHARED SESSION WRITER
    All hub apps (POS, Kitchen, Supplier etc) read this
