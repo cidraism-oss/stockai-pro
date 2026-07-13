@@ -2568,19 +2568,23 @@ function loadAccountAndEnter(accountId, targetEntityId) {
                     if (e.id === targetEntityId) idx = i;
                 });
                 if (idx !== -1) {
+                    S.isGlobalMode  = false;
                     S.activeEntity  = idx;
                     S.currentEntity = S.entities[idx];
                 } else if (S.entities.length > 0) {
+                    S.isGlobalMode  = false;
                     S.activeEntity  = 0;
                     S.currentEntity = S.entities[0];
                 }
                 enterApp();
-            } else if (S.entities.length > 1) {
-                showEntitySelector();
+            
             } else if (S.entities.length === 1) {
+                S.isGlobalMode  = false;
                 S.activeEntity  = 0;
                 S.currentEntity = S.entities[0];
                 enterApp();
+            } else if (S.entities.length > 1) {
+                showEntitySelector();
             } else {
                 showError('No entities found. Please set up an entity in the hub.');
             }
@@ -2846,12 +2850,23 @@ function showEntitySelector() {
 
 function selectEntity(idx) {
     if (idx === -1) {
-        S.isGlobalMode = true; S.activeEntity = -1; S.currentEntity = null;
+        // Global view — only for owners with multiple entities
+        if (S.entities.length < 2) {
+            toast('warning','Global view requires multiple entities');
+            return;
+        }
+        S.isGlobalMode  = true;
+        S.activeEntity  = -1;
+        S.currentEntity = null;
     } else {
-        S.isGlobalMode = false; S.activeEntity = idx; S.currentEntity = S.entities[idx];
+        // Normal entity — always default
+        S.isGlobalMode  = false;
+        S.activeEntity  = idx;
+        S.currentEntity = S.entities[idx];
     }
     var el = document.getElementById('entity-select-screen');
-    el.classList.add('hidden'); el.style.display = 'none';
+    el.classList.add('hidden');
+    el.style.display = 'none';
     enterApp();
 }
 
@@ -2946,26 +2961,32 @@ function finishEnterApp() {
 // BACK TO HUB — Fixed SSO
 // ============================================================
 function goBackToHub() {
-    // Write SSO session so hub recognizes returning user
+    // Write full SSO session so hub dashboard loads directly
     var ssoSession = {
-        valid:      true,
-        accountId:  S._accountId  || '',
-        entityId:   eid()         || '',
-        entityName: S.currentEntity ? S.currentEntity.name : '',
-        userName:   S.user ? S.user.name  : '',
-        userEmail:  S.user ? S.user.email : '',
-        userRole:   S.user ? S.user.role  : '',
-        features:   JSON.parse(localStorage.getItem('stockai_user_features') || '[]'),
-        isMaster:   isMasterAccount(),
-        timestamp:  Date.now()
+        valid:        true,
+        accountId:    S._accountId  || '',
+        entityId:     eid()         || '',
+        entityName:   S.currentEntity ? S.currentEntity.name : '',
+        userName:     S.user ? S.user.name  : '',
+        userEmail:    S.user ? S.user.email : '',
+        userRole:     S.user ? S.user.role  : '',
+        features:     JSON.parse(localStorage.getItem('stockai_user_features') || '[]'),
+        isMaster:     isMasterAccount(),
+        timestamp:    Date.now(),
+        returnAction: 'dashboard'  // ← tells hub to go straight to dashboard
     };
-    try { sessionStorage.setItem('sso_session', JSON.stringify(ssoSession)); } catch(e) {}
-    sessionStorage.setItem('hub_return',     'true');
-    sessionStorage.setItem('hub_account_id', S._accountId || '');
-    sessionStorage.setItem('hub_entity_id',  eid()        || '');
-    sessionStorage.setItem('hub_user_name',  S.user ? S.user.name  : '');
-    sessionStorage.setItem('hub_user_email', S.user ? S.user.email : '');
-    sessionStorage.setItem('hub_user_role',  S.user ? S.user.role  : '');
+    try { sessionStorage.setItem('sso_session', JSON.stringify(ssoSession)); } catch(e){}
+
+    // All hub_* keys
+    sessionStorage.setItem('hub_return',        'true');
+    sessionStorage.setItem('hub_authenticated', 'true');
+    sessionStorage.setItem('hub_account_id',    S._accountId || '');
+    sessionStorage.setItem('hub_entity_id',     eid()        || '');
+    sessionStorage.setItem('hub_user_name',     S.user ? S.user.name  : '');
+    sessionStorage.setItem('hub_user_email',    S.user ? S.user.email : '');
+    sessionStorage.setItem('hub_user_role',     S.user ? S.user.role  : '');
+    sessionStorage.setItem('hub_skip_welcome',  'true');  // ← skip welcome screen
+
     logAction('Navigation', 'Returned to Hub');
     window.location.href = 'hub.html';
 }
@@ -3085,8 +3106,10 @@ function renderPages() {
 
     var html = '';
 
-    // Global dashboard for owner/global mode
-    if (S.isGlobalMode || isMasterAccount()) {
+        // Dashboard — global only shows if multiple entities AND owner AND clicked
+    // Normal entity dashboard always loads by default
+    if (S.isGlobalMode && S.entities.length > 1 &&
+        (S.user && (S.user.role === 'Owner' || isMasterAccount()))) {
         html += '<section id="page-dashboard" class="page">' + pageGlobalDashboard() + '</section>';
     } else if (pages.indexOf('dashboard') !== -1) {
         html += '<section id="page-dashboard" class="page">' + pageDashboard() + '</section>';
@@ -3675,110 +3698,216 @@ function pageDashboard() {
     var ent = S.entities[S.activeEntity];
     if (!ent) return '<div class="page-heading">No entity selected</div>';
 
-    var liveFoodCost = calcLiveFoodCost();
-    var targetFC     = ent.foodCostTarget || 28;
-    var inv          = getInv();
-    var stockVal     = inv.reduce(function(s,i){ return s + (i.value||0); }, 0);
-    var cashups      = S.cashups[eid()] || {};
-    var todayCU      = cashups[S.selectedDate] || {};
-    var dailySales   = (todayCU.total || 0) / (1 + VAT_RATE);
-    var purchTotal   = getPurch().reduce(function(s,p){
-        return s + (p.grvTotal || p.total || 0);
-    }, 0);
-    var purchExVat   = purchTotal / (1 + VAT_RATE);
-    var wasteTotal   = getWastage().reduce(function(s,w){ return s + (w.value||0); }, 0);
-    var grvPending   = getPurch().filter(function(p){
-        return (p.status === 'Received' || p.status === 'Delivered') && !p.grvCompleted;
-    }).length;
-    var unpaidCount  = getPurch().filter(function(p){
-        return p.grvCompleted && p.paymentStatus !== 'Paid';
-    }).length;
-    var retailSalesToday = getRetailSales()
-        .filter(function(s){ return s.date && s.date.startsWith(S.selectedDate); })
-        .reduce(function(sum,s){ return sum + (s.totalIncl||0); }, 0);
-
     var sym = getCurrencySymbol();
 
-    return '<div class="page-watermark">STOCKAI-PRO</div>' +
-        '<h1 class="page-heading">Dashboard — ' + ent.name + '</h1>' +
+    // ── Calculate all values ──
+    var inv          = getInv();
+    var stockVal     = inv.reduce(function(s,i){ return s+(i.value||0); }, 0);
+    var cashups      = S.cashups[eid()] || {};
+    var todayCU      = cashups[S.selectedDate] || {};
+    var dailySales   = (todayCU.total||0);
 
-        // Unpaid alert banner
-        (unpaidCount > 0
+    // Monthly sales
+    var monthStart   = new Date(); monthStart.setDate(1);
+    var monthSales   = 0;
+    Object.keys(cashups).forEach(function(date){
+        if (typeof cashups[date]==='object' && cashups[date]!==null) {
+            var d = new Date(date);
+            if (d >= monthStart) monthSales += (cashups[date].total||0);
+        }
+    });
+
+    // Monthly purchases
+    var allPurch     = getPurch();
+    var monthPurch   = allPurch.filter(function(p){
+        var d = new Date(p.createdAt||p.date||'');
+        return d >= monthStart;
+    }).reduce(function(s,p){ return s+(p.grvTotal||p.total||0); },0);
+
+    // Monthly wastage
+    var monthWaste   = getWastage().filter(function(w){
+        return new Date(w.date) >= monthStart;
+    }).reduce(function(s,w){ return s+(w.value||0); },0);
+
+    // Unpaid invoices
+    var unpaidInvs   = allPurch.filter(function(p){
+        return p.grvCompleted && p.paymentStatus !== 'Paid';
+    });
+
+    // Pending orders (in transit)
+    var pendingOrders= allPurch.filter(function(p){
+        return p.status === 'In Transit' || p.status === 'Processing';
+    });
+
+    // Live food cost
+    var lfc          = calcLiveFoodCost();
+    var targetFC     = ent.foodCostTarget || 28;
+    var fcColor      = lfc > targetFC ? 'var(--danger)' : 'var(--success)';
+
+    // Low stock items
+    var lowStock     = inv.filter(function(i){
+        return i.status === 'low-stock' || i.status === 'out-of-stock';
+    }).slice(0,3);
+
+    // Top & bottom sellers from menu
+    var menu         = getMenu();
+    var sorted       = menu.slice().sort(function(a,b){ return (b.sold||0)-(a.sold||0); });
+    var top3         = sorted.slice(0,3);
+    var bottom3      = sorted.length >= 3 ? sorted.slice(-3).reverse() : [];
+
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading" style="display:flex;align-items:center;justify-content:space-between">' +
+        '<span>' + ent.name + ' — Dashboard</span>' +
+        '<span style="font-size:.75rem;font-weight:400;color:var(--text-light)">' +
+        new Date().toLocaleDateString("en-ZA",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) +
+        '</span></h1>' +
+
+        // ── UNPAID ALERT BANNER ──
+        (unpaidInvs.length > 0
             ? '<div style="background:rgba(201,69,69,.1);border:1px solid rgba(201,69,69,.3);' +
               'border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;' +
               'display:flex;align-items:center;gap:10px">' +
               '<i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>' +
-              '<div><strong style="font-size:.85rem;color:var(--danger)">⚠️ ' + unpaidCount +
-              ' Unpaid Invoice' + (unpaidCount > 1 ? 's' : '') + '</strong>' +
+              '<div><strong style="font-size:.85rem;color:var(--danger)">⚠️ ' + unpaidInvs.length +
+              ' Unpaid Invoice' + (unpaidInvs.length>1?'s':'') + '</strong>' +
               '<span style="font-size:.75rem;color:var(--text-mid)"> — Review in Purchases</span></div>' +
               '<button class="btn-primary" onclick="navigate(\'purchases\')" ' +
               'style="margin-left:auto;padding:6px 14px;font-size:.78rem">View</button></div>'
             : '') +
 
-        // Stats row 1
-        '<div class="stats-row">' +
-        statCard('Stock Value (excl. VAT)', sym + fmtNum(convertCurrency(stockVal)), '') +
-        statCard('Today Sales (excl.)',     sym + fmtNum(convertCurrency(dailySales)), '') +
-        statCard('Live Food Cost', liveFoodCost.toFixed(1) + '%',
-            liveFoodCost > targetFC ? 'red' : 'green') +
-        statCard('Target FC', targetFC + '%', '') +
+        // ── STAT CARDS ROW 1 ──
+        '<div class="stats-row" style="grid-template-columns:repeat(4,1fr)">' +
+        statCard('Stock Value (excl. VAT)',   sym + fmtNum(convertCurrency(stockVal)), '') +
+        statCard('Daily Sales (excl. VAT)',   sym + fmtNum(convertCurrency(dailySales)), '') +
+        statCard('Monthly Sales (excl. VAT)', sym + fmtNum(convertCurrency(monthSales)), 'green') +
+        statCard('Live Food Cost',
+            '<span style="color:' + fcColor + '">' + lfc.toFixed(1) + '%</span>' +
+            '<span style="font-size:.65rem;display:block;color:var(--text-light)">Target: ' + targetFC + '%</span>',
+            lfc > targetFC ? 'red' : 'green') +
         '</div>' +
 
-        // Stats row 2
-        '<div class="stats-row">' +
-        statCard('Purchases MTD (excl.)', sym + fmtNum(convertCurrency(purchExVat)), 'gold') +
-        statCard('Wastage',               sym + fmtNum(convertCurrency(wasteTotal)),  'red') +
-        statCard('GRV Pending',  grvPending,  'gold') +
-        statCard('Retail Today', sym + fmtNum(convertCurrency(retailSalesToday)), 'info') +
+        // ── STAT CARDS ROW 2 ──
+        '<div class="stats-row" style="grid-template-columns:repeat(4,1fr)">' +
+        statCard('Monthly Purchases', sym + fmtNum(convertCurrency(monthPurch)), 'gold') +
+        statCard('Monthly Wastage',   sym + fmtNum(convertCurrency(monthWaste)), 'red') +
+        statCard('Unpaid Invoices',   unpaidInvs.length,   unpaidInvs.length > 0 ? 'red' : '') +
+        statCard('Pending Orders',    pendingOrders.length, pendingOrders.length > 0 ? 'gold' : '') +
         '</div>' +
 
-        // Charts
+        // ── CHARTS ROW ──
         '<div class="charts-row">' +
-        '<div class="chart-block">' +
-        '<h3 class="block-title">' +
-        '<i class="fas fa-chart-line" style="color:var(--accent)"></i> Food Cost Trend</h3>' +
-        '<div class="chart-area"><canvas id="foodCostChart"></canvas></div>' +
-        '</div>' +
-        '<div class="chart-block">' +
-        '<h3 class="block-title">' +
-        '<i class="fas fa-chart-pie" style="color:var(--accent)"></i> Overview</h3>' +
-        '<div class="chart-area" style="height:200px"><canvas id="overviewPie"></canvas></div>' +
-        '<div style="margin-top:14px">' +
-        '<div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-mid);margin-bottom:6px">' +
-        '<span style="width:12px;height:12px;border-radius:3px;background:var(--accent)"></span>' +
-        ' Stock: ' + sym + fmtNum(convertCurrency(stockVal)) + '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-mid);margin-bottom:6px">' +
-        '<span style="width:12px;height:12px;border-radius:3px;background:var(--teal-light)"></span>' +
-        ' Sales: ' + sym + fmtNum(convertCurrency(dailySales)) + '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-mid)">' +
-        '<span style="width:12px;height:12px;border-radius:3px;background:var(--warning)"></span>' +
-        ' Wastage: ' + sym + fmtNum(convertCurrency(wasteTotal)) + '</div>' +
-        '</div></div></div>' +
-
-        // Top/Bottom sellers
-        '<div class="sellers-row">' +
-        '<div class="info-block">' +
-        '<h3 class="block-title">🏆 Top 10 Sellers</h3>' +
-        '<div id="top-sellers"></div></div>' +
-        '<div class="info-block">' +
-        '<h3 class="block-title">📉 Bottom 10 Sellers</h3>' +
-        '<div id="bottom-sellers"></div></div>' +
+        '<div class="chart-block"><h3 class="block-title">' +
+        '<i class="fas fa-chart-line" style="color:var(--accent)"></i> Food Cost Trend (This Week)</h3>' +
+        '<div class="chart-area"><canvas id="foodCostChart"></canvas></div></div>' +
+        '<div class="chart-block"><h3 class="block-title">' +
+        '<i class="fas fa-cloud-sun" style="color:var(--gold)"></i> Weekly Weather Forecast</h3>' +
+        '<div id="weather-widget" style="height:260px;overflow-y:auto;padding:4px">' +
+        '<div style="text-align:center;padding:30px;color:var(--text-muted)">' +
+        '<i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px;display:block"></i>' +
+        'Loading forecast...</div></div></div>' +
         '</div>' +
 
-        // Bottom row
+        // ── BOTTOM THREE PANELS ──
         '<div class="bottom-row">' +
-        '<div class="info-block">' +
+
+        // Panel 1: Low Stock Alert
+        '<div class="info-block" style="border-left-color:var(--danger)">' +
         '<h3 class="block-title">' +
-        '<i class="fas fa-history" style="color:var(--accent)"></i> Recent Activity</h3>' +
-        '<div class="activity-list" id="dash-activity"></div></div>' +
+        '<i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> ' +
+        'Low Stock Alert</h3>' +
+        (lowStock.length === 0
+            ? '<div style="text-align:center;padding:20px;color:var(--success)">' +
+              '<i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:8px"></i>' +
+              'All stock levels OK!</div>'
+            : '<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:8px">' +
+              'Top 3 items needing attention:</div>' +
+              lowStock.map(function(i){
+                  var sup = getSups().find(function(s){ return s.name === i.supplier; });
+                  var eta = '';
+                  if (sup && sup.deliveryDays) {
+                      var days = calcDeliveryETA(sup.deliveryDays);
+                      if (days !== null) eta = ' • 🚚 ' + days + 'd';
+                  }
+                  return '<div style="padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);' +
+                      'margin-bottom:8px;border-left:3px solid ' +
+                      (i.status==='out-of-stock'?'var(--danger)':'var(--warning)') + '">' +
+                      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+                      '<div>' +
+                      '<div style="font-weight:700;font-size:.85rem;color:var(--text)">' + i.name + '</div>' +
+                      '<div style="font-size:.7rem;color:var(--text-light)">' +
+                      (i.quantity||0) + ' ' + i.unit + ' remaining • Par: ' + (i.parLevel||0) + eta + '</div>' +
+                      '</div>' +
+                      '<span class="status-badge ' + i.status + '" style="font-size:.65rem">' +
+                      statusText(i.status) + '</span>' +
+                      '</div>' +
+                      '<button class="btn-primary" onclick="quickReorder(\'' + i.id + '\')" ' +
+                      'style="margin-top:8px;width:100%;padding:5px;font-size:.75rem">' +
+                      '<i class="fas fa-shopping-cart"></i> Reorder</button>' +
+                      '</div>';
+              }).join('') +
+              (inv.filter(function(i){
+                  return i.status==='low-stock'||i.status==='out-of-stock';
+              }).length > 3
+                  ? '<div style="text-align:center;margin-top:8px">' +
+                    '<button class="btn-outline" onclick="navigate(\'inventory\')" ' +
+                    'style="font-size:.75rem;width:100%">' +
+                    'View all ' + inv.filter(function(i){
+                        return i.status==='low-stock'||i.status==='out-of-stock';
+                    }).length + ' low stock items</button></div>'
+                  : '')) +
+        '</div>' +
+
+        // Panel 2: Top & Bottom Sellers
+        '<div class="info-block" style="border-left-color:var(--gold)">' +
+        '<h3 class="block-title">' +
+        '<i class="fas fa-trophy" style="color:var(--gold)"></i> Sellers Overview</h3>' +
+        '<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">' +
+        'Updated weekly based on sales data</div>' +
+
+        '<div style="margin-bottom:12px">' +
+        '<div style="font-size:.75rem;font-weight:700;color:var(--success);' +
+        'text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">' +
+        '🏆 Top 3 Sellers</div>' +
+        (top3.length === 0
+            ? '<p style="font-size:.78rem;color:var(--text-muted);font-style:italic">No sales data yet</p>'
+            : top3.map(function(m, i){
+                return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;' +
+                    'background:rgba(46,168,113,.08);border-radius:var(--radius-sm);margin-bottom:5px">' +
+                    '<div style="width:22px;height:22px;border-radius:50%;' +
+                    'background:var(--gold);color:#fff;display:flex;align-items:center;' +
+                    'justify-content:center;font-size:.68rem;font-weight:800;flex-shrink:0">' +
+                    (i+1) + '</div>' +
+                    '<div style="flex:1;font-size:.82rem;font-weight:600;color:var(--text)">' + m.name + '</div>' +
+                    '<div style="font-size:.75rem;color:var(--success);font-weight:700">' +
+                    (m.sold||0) + ' sold</div></div>';
+            }).join('')) +
+        '</div>' +
+
+        '<div style="border-top:1px solid var(--border);padding-top:10px">' +
+        '<div style="font-size:.75rem;font-weight:700;color:var(--danger);' +
+        'text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">' +
+        '📉 Bottom 3 Sellers</div>' +
+        (bottom3.length === 0
+            ? '<p style="font-size:.78rem;color:var(--text-muted);font-style:italic">No sales data yet</p>'
+            : bottom3.map(function(m, i){
+                return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;' +
+                    'background:rgba(201,69,69,.06);border-radius:var(--radius-sm);margin-bottom:5px">' +
+                    '<div style="width:22px;height:22px;border-radius:50%;' +
+                    'background:var(--danger);color:#fff;display:flex;align-items:center;' +
+                    'justify-content:center;font-size:.68rem;font-weight:800;flex-shrink:0">' +
+                    (i+1) + '</div>' +
+                    '<div style="flex:1;font-size:.82rem;font-weight:600;color:var(--text)">' + m.name + '</div>' +
+                    '<div style="font-size:.75rem;color:var(--danger);font-weight:700">' +
+                    (m.sold||0) + ' sold</div></div>';
+            }).join('')) +
+        '</div></div>' +
+
+        // Panel 3: AI Insights
         '<div class="info-block">' +
         '<h3 class="block-title">' +
         '<i class="fas fa-brain" style="color:var(--accent)"></i> AI Insights</h3>' +
         '<div class="insights-list" id="dash-insights"></div></div>' +
-        '<div class="info-block">' +
-        '<h3 class="block-title">' +
-        '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> Low Stock Alerts</h3>' +
-        '<div class="alerts-list" id="dash-alerts"></div></div>' +
+
         '</div>';
 }
 
@@ -3786,90 +3915,166 @@ function pageDashboard() {
 // PAGE: GLOBAL DASHBOARD — Owner/Global Mode
 // ============================================================
 function pageGlobalDashboard() {
-    var totalStock = 0, totalSales = 0, totalWastage = 0, totalUnpaid = 0;
-    S.entities.forEach(function(ent) {
-        var inv = S.inventory[ent.id] || [];
-        totalStock   += inv.reduce(function(s,i){ return s + (i.value||0); }, 0);
-        var cu = S.cashups[ent.id] || {};
-        Object.values(cu).forEach(function(c){
-            if (typeof c === 'object' && c !== null && c.total) totalSales += c.total;
-        });
-        totalWastage += (S.wastage[ent.id] || []).reduce(function(s,w){ return s+(w.value||0); }, 0);
-        totalUnpaid  += (S.purchases[ent.id] || []).filter(function(p){
-            return p.grvCompleted && p.paymentStatus !== 'Paid';
-        }).length;
-    });
-
     var sym = getCurrencySymbol();
 
+    // ── Calculate group totals across ALL active entities ──
+    var totalStock   = 0;
+    var totalDailySales   = 0;
+    var totalMonthlySales = 0;
+    var totalMonthPurch   = 0;
+    var totalMonthWaste   = 0;
+    var totalUnpaid       = 0;
+    var totalPending      = 0;
+    var monthStart        = new Date(); monthStart.setDate(1);
+
+    S.entities.forEach(function(ent){
+        if (ent.status === 'inactive') return;
+        var eId = ent.id;
+
+        // Stock value
+        var inv = S.inventory[eId] || [];
+        totalStock += inv.reduce(function(s,i){ return s+(i.value||0); }, 0);
+
+        // Daily & monthly sales
+        var cu = S.cashups[eId] || {};
+        var today = new Date().toISOString().split('T')[0];
+        if (cu[today]) totalDailySales += (cu[today].total||0);
+        Object.keys(cu).forEach(function(date){
+            if (typeof cu[date]==='object' && cu[date]!==null) {
+                var d = new Date(date);
+                if (d >= monthStart) totalMonthlySales += (cu[date].total||0);
+            }
+        });
+
+        // Purchases
+        var purch = S.purchases[eId] || [];
+        purch.forEach(function(p){
+            var d = new Date(p.createdAt||p.date||'');
+            if (d >= monthStart) totalMonthPurch += (p.grvTotal||p.total||0);
+            if (p.grvCompleted && p.paymentStatus !== 'Paid') totalUnpaid++;
+            if (p.status==='In Transit'||p.status==='Processing') totalPending++;
+        });
+
+        // Wastage
+        var waste = S.wastage[eId] || [];
+        waste.forEach(function(w){
+            if (new Date(w.date) >= monthStart) totalMonthWaste += (w.value||0);
+        });
+    });
+
+    // Group food cost
+    var groupFC = calcGroupFoodCost();
+
     return '<div class="page-watermark">STOCKAI-PRO</div>' +
-        '<h1 class="page-heading">👑 Global Dashboard — All ' + S.entities.length + ' Entities</h1>' +
-        '<div class="stats-row">' +
-        statCard('Group Stock Value', sym + fmtNum(convertCurrency(totalStock)), 'gold') +
-        statCard('Total Sales (excl.)', sym + fmtNum(convertCurrency(totalSales/(1+VAT_RATE))), 'green') +
-        statCard('Entities', S.entities.length, '') +
-        statCard('Unpaid Invoices', totalUnpaid, totalUnpaid > 0 ? 'red' : '') +
+        '<h1 class="page-heading" style="display:flex;align-items:center;justify-content:space-between">' +
+        '<span>👑 Group Dashboard — All ' + S.entities.filter(function(e){ return e.status!=='inactive'; }).length + ' Entities</span>' +
+        '<span style="font-size:.75rem;font-weight:400;color:var(--text-light)">' +
+        new Date().toLocaleDateString("en-ZA",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) +
+        '</span></h1>' +
+
+        // ── STAT CARDS ROW 1 ──
+        '<div class="stats-row" style="grid-template-columns:repeat(4,1fr)">' +
+        statCard('Group Stock Value',         sym + fmtNum(convertCurrency(totalStock)), 'gold') +
+        statCard('Group Daily Sales',         sym + fmtNum(convertCurrency(totalDailySales)), '') +
+        statCard('Group Monthly Sales',       sym + fmtNum(convertCurrency(totalMonthlySales)), 'green') +
+        statCard('Group Food Cost',
+            '<span style="color:' + (groupFC > 28 ? 'var(--danger)' : 'var(--success)') + '">' +
+            groupFC.toFixed(1) + '%</span>', groupFC > 28 ? 'red' : 'green') +
         '</div>' +
-        '<div class="stats-row">' +
-        statCard('Active', S.entities.filter(function(e){ return e.status !== 'inactive'; }).length, 'green') +
-        statCard('Inactive', S.entities.filter(function(e){ return e.status === 'inactive'; }).length, 'red') +
-        statCard('Total Wastage', sym + fmtNum(convertCurrency(totalWastage)), 'red') +
-        statCard('Low Stock Items',
-            S.entities.reduce(function(s,e){
-                return s + (S.inventory[e.id]||[]).filter(function(i){
-                    return i.status==='low-stock'||i.status==='out-of-stock';
-                }).length;
-            }, 0), 'gold') +
+
+        // ── STAT CARDS ROW 2 ──
+        '<div class="stats-row" style="grid-template-columns:repeat(4,1fr)">' +
+        statCard('Group Month Purchases', sym + fmtNum(convertCurrency(totalMonthPurch)), 'gold') +
+        statCard('Group Month Wastage',   sym + fmtNum(convertCurrency(totalMonthWaste)), 'red') +
+        statCard('Group Unpaid Invoices', totalUnpaid,  totalUnpaid  > 0 ? 'red'  : '') +
+        statCard('Group Pending Orders',  totalPending, totalPending > 0 ? 'gold' : '') +
         '</div>' +
+
+        // ── ENTITY BREAKDOWN CARDS ──
         '<h3 class="block-title" style="margin-top:24px">' +
         '<i class="fas fa-building" style="color:var(--accent)"></i> Entity Breakdown</h3>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));' +
         'gap:14px;margin-top:12px">' +
-        S.entities.map(function(ent) {
-            var inv      = S.inventory[ent.id] || [];
+        S.entities.map(function(ent){
+            var eId      = ent.id;
+            var inv      = S.inventory[eId] || [];
             var val      = inv.reduce(function(s,i){ return s+(i.value||0); }, 0);
             var low      = inv.filter(function(i){
                 return i.status==='low-stock'||i.status==='out-of-stock';
             }).length;
             var isActive = ent.status !== 'inactive';
-            var users    = (S.users[ent.id] || []).length;
+            var users    = (S.users[eId] || []).length;
             var entSales = 0;
-            var entCU    = S.cashups[ent.id] || {};
-            Object.values(entCU).forEach(function(c){
-                if (typeof c === 'object' && c !== null && c.total) entSales += c.total;
+            var cu       = S.cashups[eId] || {};
+            Object.keys(cu).forEach(function(date){
+                if (typeof cu[date]==='object' && cu[date]!==null) {
+                    var d = new Date(date);
+                    if (d >= monthStart) entSales += (cu[date].total||0);
+                }
             });
             return '<div class="form-card" style="border-left-color:' +
-                (isActive ? 'var(--accent)' : 'var(--danger)') + ';cursor:pointer" ' +
-                'onclick="quickSwitchToEntity(\'' + ent.id + '\')">' +
+                (isActive ? 'var(--accent)' : 'var(--danger)') +
+                ';cursor:pointer;transition:.2s" ' +
+                'onclick="quickSwitchToEntity(\'' + eId + '\')" ' +
+                'onmouseover="this.style.transform=\'translateY(-3px)\'" ' +
+                'onmouseout="this.style.transform=\'translateY(0)\'">' +
                 '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
                 '<div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,' +
                 (isActive ? 'var(--accent),var(--accent-dark)' : 'var(--danger),#a83232') +
-                ');display:flex;align-items:center;justify-content:center;color:#fff;' +
-                'font-size:1.1rem;font-weight:700">' + ent.name.charAt(0) + '</div>' +
-                '<div style="flex:1"><div style="font-size:.92rem;font-weight:700;color:var(--text)">' +
-                ent.name + '</div>' +
-                '<div style="font-size:.68rem;color:var(--text-light)">' + (ent.contact||'') + '</div></div>' +
-                '<span class="status-badge ' + (isActive ? 'in-stock' : 'out-of-stock') + '">' +
-                (isActive ? 'Active' : 'Inactive') + '</span></div>' +
+                ');display:flex;align-items:center;justify-content:center;' +
+                'color:#fff;font-size:1.1rem;font-weight:700">' + ent.name.charAt(0) + '</div>' +
+                '<div style="flex:1">' +
+                '<div style="font-size:.92rem;font-weight:700;color:var(--text)">' + ent.name + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-light)">' + (ent.contact||'') + '</div>' +
+                '</div>' +
+                '<span class="status-badge ' + (isActive?'in-stock':'out-of-stock') + '">' +
+                (isActive?'Active':'Inactive') + '</span></div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">' +
                 '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
                 '<div style="font-size:.58rem;color:var(--text-muted)">Stock</div>' +
-                '<div style="font-size:.82rem;font-weight:700">' + sym + fmtNum(convertCurrency(val)) + '</div></div>' +
+                '<div style="font-size:.78rem;font-weight:700">' + sym + fmtNum(convertCurrency(val)) + '</div></div>' +
                 '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
-                '<div style="font-size:.58rem;color:var(--text-muted)">Sales</div>' +
-                '<div style="font-size:.82rem;font-weight:700">' + sym + fmtNum(convertCurrency(entSales)) + '</div></div>' +
+                '<div style="font-size:.58rem;color:var(--text-muted)">Mth Sales</div>' +
+                '<div style="font-size:.78rem;font-weight:700">' + sym + fmtNum(convertCurrency(entSales)) + '</div></div>' +
                 '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
-                '<div style="font-size:.58rem;color:var(--text-muted)">Low</div>' +
-                '<div style="font-size:.82rem;font-weight:700;color:' + (low > 0 ? 'var(--danger)' : 'var(--success)') + '">' + low + '</div></div>' +
+                '<div style="font-size:.58rem;color:var(--text-muted)">Low Stock</div>' +
+                '<div style="font-size:.78rem;font-weight:700;color:' +
+                (low>0?'var(--danger)':'var(--success)') + '">' + low + '</div></div>' +
                 '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
                 '<div style="font-size:.58rem;color:var(--text-muted)">Users</div>' +
-                '<div style="font-size:.82rem;font-weight:700">' + users + '</div></div>' +
+                '<div style="font-size:.78rem;font-weight:700">' + users + '</div></div>' +
                 '</div>' +
                 '<div style="margin-top:10px;font-size:.72rem;color:var(--accent);text-align:center">' +
-                '<i class="fas fa-arrow-right"></i> Click to enter entity</div>' +
-                '</div>';
+                '<i class="fas fa-arrow-right"></i> Click to enter</div></div>';
         }).join('') +
         '</div>';
+}
+
+// ── Group food cost helper ──
+function calcGroupFoodCost() {
+    var totalCOGS  = 0;
+    var totalSales = 0;
+    var monthStart = new Date(); monthStart.setDate(1);
+    S.entities.forEach(function(ent){
+        if (ent.status === 'inactive') return;
+        var eId  = ent.id;
+        var inv  = S.inventory[eId] || [];
+        var cs   = inv.reduce(function(s,i){ return s+(i.value||0); }, 0);
+        var os   = ent.openingStockValue || cs;
+        var purch= (S.purchases[eId]||[]).filter(function(p){ return p.grvCompleted; })
+                    .reduce(function(s,p){ return s+(p.grvTotal||0); },0);
+        var cu   = S.cashups[eId] || {};
+        var sales= 0;
+        Object.keys(cu).forEach(function(date){
+            if (typeof cu[date]==='object' && cu[date]!==null) {
+                var d = new Date(date);
+                if (d >= monthStart) sales += (cu[date].total||0);
+            }
+        });
+        totalCOGS  += (os + purch - cs);
+        totalSales += (sales / (1 + VAT_RATE));
+    });
+    return totalSales > 0 ? (totalCOGS / totalSales) * 100 : 0;
 }
 
 function quickSwitchToEntity(entityId) {
@@ -4019,6 +4224,98 @@ function renderDashContent() {
     renderTopBottomSellers();
 }
 
+function loadWeatherWidget() {
+    var el = document.getElementById('weather-widget');
+    if (!el) return;
+
+    // Get entity location or default to Johannesburg
+    var ent      = S.entities[S.activeEntity] || {};
+    var city     = ent.city || ent.weatherCity || 'Johannesburg';
+    var country  = ent.weatherCountry || 'ZA';
+    var apiKey   = ''; // Leave blank — using open-meteo (free, no key needed)
+
+    // Use Open-Meteo — completely free, no API key required
+    // Default coordinates: Johannesburg (-26.2041, 28.0473)
+    var lat = ent.lat || -26.2041;
+    var lon = ent.lon ||  28.0473;
+
+    var url = 'https://api.open-meteo.com/v1/forecast' +
+        '?latitude=' + lat +
+        '&longitude=' + lon +
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
+        '&timezone=Africa%2FJohannesburg' +
+        '&forecast_days=7';
+
+    fetch(url)
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (!data.daily) throw new Error('No data');
+            var days   = data.daily;
+            var DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            var html   = '';
+
+            var weatherIcons = {
+                0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+                45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',
+                61:'🌧️',63:'🌧️',65:'🌧️',71:'❄️',73:'❄️',75:'❄️',
+                80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'
+            };
+
+            var weatherDesc = {
+                0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
+                45:'Foggy',48:'Foggy',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+                61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',
+                80:'Showers',81:'Showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'
+            };
+
+            for (var i = 0; i < 7; i++) {
+                var date    = new Date(days.time[i]);
+                var dayName = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : DAYS[date.getDay()];
+                var code    = days.weather_code[i];
+                var icon    = weatherIcons[code] || '🌡️';
+                var desc    = weatherDesc[code]  || 'Variable';
+                var tMax    = Math.round(days.temperature_2m_max[i]);
+                var tMin    = Math.round(days.temperature_2m_min[i]);
+                var rain    = days.precipitation_probability_max[i] || 0;
+                var isToday = i === 0;
+
+                html +=
+                    '<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;' +
+                    'background:' + (isToday ? 'rgba(26,139,168,.15)' : 'var(--bg)') + ';' +
+                    'border-radius:var(--radius-sm);margin-bottom:6px;' +
+                    'border-left:3px solid ' + (isToday ? 'var(--accent)' : 'transparent') + '">' +
+
+                    '<div style="width:60px;font-size:.78rem;font-weight:' + (isToday?'700':'500') +
+                    ';color:' + (isToday?'var(--accent)':'var(--text-mid)') + '">' + dayName + '</div>' +
+
+                    '<div style="font-size:1.4rem;width:32px;text-align:center">' + icon + '</div>' +
+
+                    '<div style="flex:1">' +
+                    '<div style="font-size:.75rem;color:var(--text-mid)">' + desc + '</div>' +
+                    '<div style="font-size:.68rem;color:var(--text-muted)">' +
+                    '<i class="fas fa-tint" style="color:var(--info)"></i> ' + rain + '%</div>' +
+                    '</div>' +
+
+                    '<div style="text-align:right">' +
+                    '<span style="font-size:.88rem;font-weight:700;color:var(--text)">' + tMax + '°</span>' +
+                    '<span style="font-size:.75rem;color:var(--text-muted);margin-left:4px">' + tMin + '°</span>' +
+                    '</div></div>';
+            }
+
+            html += '<div style="font-size:.62rem;color:var(--text-muted);' +
+                'margin-top:6px;text-align:center">' +
+                city + ' • Open-Meteo</div>';
+
+            if (el) el.innerHTML = html;
+        })
+        .catch(function(err){
+            if (el) el.innerHTML =
+                '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.82rem">' +
+                '<i class="fas fa-cloud-rain" style="font-size:1.5rem;display:block;margin-bottom:8px"></i>' +
+                'Weather unavailable<br><small>Check internet connection</small></div>';
+        });
+}
+
 function renderTopBottomSellers() {
     var menu   = getMenu();
     var sorted = menu.slice().sort(function(a,b){ return (b.sold||0) - (a.sold||0); });
@@ -4152,6 +4449,7 @@ function initDashCharts() {
             }
         });
     }
+            loadWeatherWidget();
 }
 
 console.log('✅ PART C — Utilities, Dashboard & Charts loaded');
@@ -4847,7 +5145,7 @@ function pageMenuCreation() {
         fc.toFixed(1) + '%</strong></div></div>' +
         '<div class="table-wrap"><table class="data-table">' +
         '<thead><tr>' +
-        '<th>Menu Item</th><th>Yield</th><th>Cost/Portion</th>' +
+        '<th>Menu Item</th><th>Department</th><th>Yield</th><th>Cost/Portion</th>' +
         '<th>Suggested</th><th>Set Price</th><th>FC%</th>' +
         '<th>GP%</th><th>Last Updated</th><th>Actions</th>' +
         '</tr></thead>' +
@@ -4872,6 +5170,7 @@ function renderMenu() {
         var fcClass = fc > (ent.foodCostTarget||28) ? 'low-stock' : 'in-stock';
         return '<tr>' +
             '<td><strong>' + m.name + '</strong></td>' +
+            '<td>' + (m.department || '—') + '</td>' +
             '<td>' + (m.yield||1) + '</td>' +
             '<td>' + sym + convertCurrency(m.costPerPortion||m.totalCost||0).toFixed(2) + '</td>' +
             '<td style="color:var(--accent)">' + sym + convertCurrency(m.suggestedPrice||0).toFixed(2) + '</td>' +
@@ -4900,9 +5199,25 @@ function showCreateMenuForm() {
         '<div class="form-field"><label>Yield (Portions)</label>' +
         '<input type="number" id="mn-yield" value="1" min="1" oninput="calcMenuCost()"></div></div>' +
         '<h4 style="font-size:.88rem;color:var(--text);margin:16px 0 8px">' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Department</label>' +
+        '<select id="mn-dept">' +
+        '<option value="">Select department (optional)</option>' +
+        getDepts().map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') +
+        '</select>' +
+        '<div class="form-hint">Links this menu item to a department for reporting</div></div>' +
+        '</div>' +
         '<i class="fas fa-list"></i> Ingredients</h4>' +
-        '<p style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
-        'Prices pulled from last GRV cost (excl. VAT).</p>' +
+        '<div style="display:grid;grid-template-columns:2.5fr 1fr 0.5fr 1fr auto;' +
+        'gap:8px;padding:4px 8px;font-size:.68rem;font-weight:700;' +
+        'color:var(--text-muted);text-transform:uppercase">' +
+        '<span>Ingredient</span><span>Usage Qty</span><span>Unit</span>' +
+        '<span>Usage Cost</span><span></span></div>' +
+        '<div style="background:rgba(26,139,168,.06);border-left:3px solid var(--accent);' +
+        'padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:10px;font-size:.75rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Enter the actual quantity used in this recipe (not the pack size). ' +
+        'e.g. if you use 300g of chicken, enter 0.3 (kg)</div>' +
         '<div id="mn-ingredients"></div>' +
         '<button class="btn-outline" onclick="addMenuIngredient()" ' +
         'style="margin-top:8px;width:100%">' +
@@ -4940,48 +5255,93 @@ function addMenuIngredient() {
         ? '<option value="">No stock items — add inventory first</option>'
         : '<option value="">Select ingredient</option>' +
           inv.map(function(i){
-              return '<option value="' + i.id + '" data-cost="' + (i.cost||0) + '" ' +
-                  'data-unit="' + (i.unit||'each') + '" data-name="' + i.name + '">' +
-                  i.name + ' (' + sym + (convertCurrency(i.cost||0)).toFixed(2) + '/' + (i.unit||'each') + ')' +
+              // cost is per unit (e.g. per kg, per liter, per each)
+              return '<option value="' + i.id + '" ' +
+                  'data-cost="' + (i.cost||0) + '" ' +
+                  'data-unit="' + (i.unit||'each') + '" ' +
+                  'data-name="' + i.name + '">' +
+                  i.name + ' — ' + sym + (i.cost||0).toFixed(2) + ' per ' + (i.unit||'each') +
                   '</option>';
           }).join('');
+
     var row = document.createElement('div');
     row.className = 'ingredient-row';
     row.innerHTML =
         '<select class="mn-ing-item" onchange="calcMenuCost()">' + opts + '</select>' +
-        '<input type="number" class="mn-ing-qty" placeholder="Qty" step="0.001" oninput="calcMenuCost()">' +
-        '<div class="ingredient-cost">R 0.00</div>' +
+        '<input type="number" class="mn-ing-qty" placeholder="Usage qty" ' +
+        'step="0.001" min="0" oninput="calcMenuCost()" ' +
+        'title="How much of this ingredient does one recipe use?">' +
+        '<div class="mn-ing-unit" style="font-size:.75rem;color:var(--text-muted);' +
+        'padding:8px 4px;white-space:nowrap">—</div>' +
+        '<div class="ingredient-cost">—</div>' +
         '<button onclick="this.parentElement.remove();calcMenuCost()" class="row-btn del">' +
         '<i class="fas fa-times"></i></button>';
+
+    // Update unit display when ingredient selected
+    var sel = row.querySelector('.mn-ing-item');
+    sel.addEventListener('change', function(){
+        var opt     = sel.options[sel.selectedIndex];
+        var unitEl  = row.querySelector('.mn-ing-unit');
+        if (unitEl && opt.dataset.unit) {
+            unitEl.textContent = opt.dataset.unit;
+        }
+    });
+
     var container = document.getElementById('mn-ingredients');
     if (container) container.appendChild(row);
 }
 
 function calcMenuCost() {
     var totalCost = 0;
+    var sym = getCurrencySymbol();
+
     document.querySelectorAll('.ingredient-row').forEach(function(row){
-        var sel = row.querySelector('.mn-ing-item');
-        var qty = parseFloat(row.querySelector('.mn-ing-qty').value) || 0;
-        if (sel && sel.selectedIndex > 0) {
-            var cost     = parseFloat(sel.options[sel.selectedIndex].dataset.cost) || 0;
-            var lineCost = qty * cost;
-            totalCost   += lineCost;
-            var costEl   = row.querySelector('.ingredient-cost');
-            if (costEl) costEl.textContent = 'R ' + lineCost.toFixed(2);
+        var sel     = row.querySelector('.mn-ing-item');
+        var qtyEl   = row.querySelector('.mn-ing-qty');
+        var costEl  = row.querySelector('.ingredient-cost');
+        var unitEl  = row.querySelector('.mn-ing-unit');
+
+        if (!sel || sel.selectedIndex < 1) {
+            if (costEl) costEl.textContent = '—';
+            return;
         }
+
+        var opt      = sel.options[sel.selectedIndex];
+        var costPerUnit = parseFloat(opt.dataset.cost) || 0; // cost per kg/liter/each etc
+        var unit        = opt.dataset.unit || 'each';
+        var qty         = parseFloat(qtyEl ? qtyEl.value : 0) || 0;
+
+        // Line cost = actual usage qty × cost per unit
+        // e.g. 0.3 kg × R45.00/kg = R13.50
+        var lineCost = qty * costPerUnit;
+        totalCost   += lineCost;
+
+        if (costEl) costEl.textContent = sym + lineCost.toFixed(2);
+        if (unitEl) unitEl.textContent  = unit;
     });
+
     var yieldVal  = parseFloat(document.getElementById('mn-yield').value) || 1;
     var costPP    = totalCost / yieldVal;
     var setPrice  = parseFloat(document.getElementById('mn-price').value) || 0;
     var ent       = S.entities[S.activeEntity] || {};
     var targetFC  = ent.foodCostTarget || 28;
-    var suggested = costPP / (targetFC / 100);
+    var suggested = targetFC > 0 ? costPP / (targetFC / 100) : costPP * 3;
     var actualFC  = setPrice > 0 ? (costPP / setPrice * 100) : 0;
+
     var el;
-    el = document.getElementById('mn-total');        if(el) el.textContent = 'R ' + totalCost.toFixed(2);
-    el = document.getElementById('mn-yield-disp');  if(el) el.textContent = yieldVal;
-    el = document.getElementById('mn-per-portion'); if(el) el.textContent = 'R ' + costPP.toFixed(2);
-    el = document.getElementById('mn-suggested');   if(el) el.textContent = 'R ' + suggested.toFixed(2);
+    el = document.getElementById('mn-total');
+    if(el) el.textContent = sym + totalCost.toFixed(2) +
+        ' <span style="font-size:.68rem;color:var(--text-muted)">(actual usage cost)</span>';
+
+    el = document.getElementById('mn-yield-disp');
+    if(el) el.textContent = yieldVal + ' portion' + (yieldVal !== 1 ? 's' : '');
+
+    el = document.getElementById('mn-per-portion');
+    if(el) el.textContent = sym + costPP.toFixed(2);
+
+    el = document.getElementById('mn-suggested');
+    if(el) el.textContent = sym + suggested.toFixed(2);
+
     el = document.getElementById('mn-fc');
     if (el) {
         el.value = setPrice > 0 ? actualFC.toFixed(1) + '%' : '—';
@@ -5027,6 +5387,8 @@ function saveNewMenuItem() {
     menu.push({
         id:              'MN-' + Date.now(),
         name:            name,
+        department:      (document.getElementById('mn-dept') ?
+        document.getElementById('mn-dept').value : '') || '',
         ingredients:     ingredients,
         yield:           yieldVal,
         totalCost:       parseFloat(totalCost.toFixed(2)),
@@ -5096,6 +5458,190 @@ function deleteMenuById(id) {
         '<button class="btn-danger" onclick="confirmDeleteMenu(\'' + id + '\')">' +
         'Delete</button>'
     );
+}
+
+function editMenuIngredients(id) {
+    var m = getMenu().find(function(x){ return x.id === id; });
+    if (!m) return;
+    var inv = getInv();
+    var sym = getCurrencySymbol();
+
+    showModal(
+        '<i class="fas fa-edit" style="color:var(--accent)"></i> Edit Ingredients — ' + m.name,
+
+        '<div style="background:rgba(212,160,23,.08);border-left:3px solid var(--warning);' +
+        'padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:14px;font-size:.82rem;color:var(--text-mid)">' +
+        '<i class="fas fa-lock" style="color:var(--warning)"></i> ' +
+        '<strong>Pricing is locked</strong> — it updates automatically when costs change via GRV. ' +
+        'You can only edit ingredients and quantities here.</div>' +
+
+        '<div style="display:grid;grid-template-columns:2.5fr 1fr 0.5fr 1fr auto;' +
+        'gap:8px;padding:4px 8px;font-size:.68rem;font-weight:700;' +
+        'color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">' +
+        '<span>Ingredient</span><span>Usage Qty</span><span>Unit</span>' +
+        '<span>Usage Cost</span><span></span></div>' +
+
+        '<div id="edit-mn-ingredients">' +
+        (m.ingredients||[]).map(function(ing){
+            var invItem = inv.find(function(i){ return i.id === ing.itemId; });
+            var opts = '<option value="">Select ingredient</option>' +
+                inv.map(function(i){
+                    return '<option value="' + i.id + '" ' +
+                        'data-cost="' + (i.cost||0) + '" ' +
+                        'data-unit="' + (i.unit||'each') + '" ' +
+                        'data-name="' + i.name + '"' +
+                        (i.id === ing.itemId ? ' selected' : '') + '>' +
+                        i.name + ' — ' + sym + (i.cost||0).toFixed(2) + ' per ' + (i.unit||'each') +
+                        '</option>';
+                }).join('');
+            var lineCost = ing.qty * (invItem ? invItem.cost : ing.cost||0);
+            return '<div class="ingredient-row">' +
+                '<select class="mn-ing-item" onchange="calcEditMenuCost()">' + opts + '</select>' +
+                '<input type="number" class="mn-ing-qty" value="' + ing.qty + '" ' +
+                'step="0.001" min="0" oninput="calcEditMenuCost()">' +
+                '<div class="mn-ing-unit" style="font-size:.75rem;color:var(--text-muted);' +
+                'padding:8px 4px;white-space:nowrap">' + (ing.unit||'each') + '</div>' +
+                '<div class="ingredient-cost">' + sym + lineCost.toFixed(2) + '</div>' +
+                '<button onclick="this.closest(\'.ingredient-row\').remove();calcEditMenuCost()" ' +
+                'class="row-btn del"><i class="fas fa-times"></i></button></div>';
+        }).join('') +
+        '</div>' +
+        '<button class="btn-outline" onclick="addEditMenuIngredient()" ' +
+        'style="margin-top:8px;width:100%">' +
+        '<i class="fas fa-plus"></i> Add Ingredient</button>' +
+        '<div class="cost-summary" style="margin-top:14px">' +
+        '<div class="cost-row"><span>Total Usage Cost:</span>' +
+        '<strong id="edit-mn-total">' + sym + (m.totalCost||0).toFixed(2) + '</strong></div>' +
+        '<div class="cost-row"><span>÷ Yield (' + (m.yield||1) + ' portions):</span>' +
+        '<strong id="edit-mn-cpp">' + sym + (m.costPerPortion||0).toFixed(2) + '</strong></div>' +
+        '<div class="cost-row highlight"><span>Actual FC %:</span>' +
+        '<strong id="edit-mn-fc" style="color:var(--accent)">' + (m.actualFC||0).toFixed(1) + '%</strong></div>' +
+        '</div>',
+
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveEditedMenuIngredients(\'' + id + '\')">' +
+        '<i class="fas fa-save"></i> Save Changes</button>'
+    );
+}
+
+function addEditMenuIngredient() {
+    var inv  = getInv();
+    var sym  = getCurrencySymbol();
+    var opts = '<option value="">Select ingredient</option>' +
+        inv.map(function(i){
+            return '<option value="' + i.id + '" ' +
+                'data-cost="' + (i.cost||0) + '" ' +
+                'data-unit="' + (i.unit||'each') + '" ' +
+                'data-name="' + i.name + '">' +
+                i.name + ' — ' + sym + (i.cost||0).toFixed(2) + ' per ' + (i.unit||'each') +
+                '</option>';
+        }).join('');
+    var row = document.createElement('div');
+    row.className = 'ingredient-row';
+    row.innerHTML =
+        '<select class="mn-ing-item" onchange="calcEditMenuCost()">' + opts + '</select>' +
+        '<input type="number" class="mn-ing-qty" placeholder="Qty" ' +
+        'step="0.001" min="0" oninput="calcEditMenuCost()">' +
+        '<div class="mn-ing-unit" style="font-size:.75rem;color:var(--text-muted);padding:8px 4px">—</div>' +
+        '<div class="ingredient-cost">—</div>' +
+        '<button onclick="this.closest(\'.ingredient-row\').remove();calcEditMenuCost()" ' +
+        'class="row-btn del"><i class="fas fa-times"></i></button>';
+    var container = document.getElementById('edit-mn-ingredients');
+    if (container) container.appendChild(row);
+}
+
+function calcEditMenuCost() {
+    var sym  = getCurrencySymbol();
+    var total= 0;
+    document.querySelectorAll('#edit-mn-ingredients .ingredient-row').forEach(function(row){
+        var sel  = row.querySelector('.mn-ing-item');
+        var qty  = parseFloat(row.querySelector('.mn-ing-qty').value)||0;
+        var cost = sel && sel.selectedIndex > 0
+            ? parseFloat(sel.options[sel.selectedIndex].dataset.cost)||0 : 0;
+        var unit = sel && sel.selectedIndex > 0
+            ? sel.options[sel.selectedIndex].dataset.unit||'each' : '—';
+        var line = qty * cost;
+        total   += line;
+        var costEl = row.querySelector('.ingredient-cost');
+        var unitEl = row.querySelector('.mn-ing-unit');
+        if (costEl) costEl.textContent = sym + line.toFixed(2);
+        if (unitEl) unitEl.textContent = unit;
+    });
+    // These IDs only exist in edit modal
+    var el;
+    el = document.getElementById('edit-mn-total'); if(el) el.textContent = sym + total.toFixed(2);
+    // Get yield from stored menu item (yield not editable in edit mode)
+    var m = null;
+    var modal = document.querySelector('.modal-window');
+    if (modal) {
+        var title = modal.querySelector('.modal-top h2');
+        if (title) {
+            var menuName = title.textContent.replace('Edit Ingredients — ','').trim();
+            m = getMenu().find(function(x){ return x.name === menuName; });
+        }
+    }
+    var yieldVal = m ? (m.yield||1) : 1;
+    var cpp = total / yieldVal;
+    el = document.getElementById('edit-mn-cpp'); if(el) el.textContent = sym + cpp.toFixed(2);
+    var setPrice = m ? (m.setPrice||0) : 0;
+    var fc = setPrice > 0 ? (cpp/setPrice*100) : 0;
+    el = document.getElementById('edit-mn-fc');
+    if(el) {
+        el.textContent = fc.toFixed(1) + '%';
+        el.style.color = fc > (((S.entities[S.activeEntity]||{}).foodCostTarget)||28)
+            ? 'var(--danger)' : 'var(--success)';
+    }
+}
+
+function saveEditedMenuIngredients(id) {
+    var m = getMenu().find(function(x){ return x.id === id; });
+    if (!m) return;
+    var ingredients = [];
+    var totalCost   = 0;
+    var inv         = getInv();
+
+    document.querySelectorAll('#edit-mn-ingredients .ingredient-row').forEach(function(row){
+        var sel = row.querySelector('.mn-ing-item');
+        var qty = parseFloat(row.querySelector('.mn-ing-qty').value)||0;
+        if (!sel || sel.selectedIndex < 1 || qty <= 0) return;
+        var opt      = sel.options[sel.selectedIndex];
+        var cost     = parseFloat(opt.dataset.cost)||0;
+        var lineCost = qty * cost;
+        totalCost   += lineCost;
+        ingredients.push({
+            itemId: sel.value,
+            item:   opt.dataset.name || sel.value,
+            qty:    qty,
+            unit:   opt.dataset.unit || 'each',
+            cost:   cost,
+            total:  parseFloat(lineCost.toFixed(2))
+        });
+    });
+
+    if (ingredients.length === 0) { toast('error','Add at least one ingredient'); return; }
+
+    var yieldVal    = m.yield || 1;
+    var costPP      = totalCost / yieldVal;
+    var ent         = S.entities[S.activeEntity] || {};
+    var targetFC    = ent.foodCostTarget || 28;
+
+    // Update ingredients and recalculate costs — but do NOT change setPrice
+    m.ingredients      = ingredients;
+    m.totalCost        = parseFloat(totalCost.toFixed(2));
+    m.costPerPortion   = parseFloat(costPP.toFixed(2));
+    m.actualFC         = m.setPrice > 0
+        ? parseFloat((costPP / m.setPrice * 100).toFixed(2)) : 0;
+    m.suggestedPrice   = targetFC > 0
+        ? parseFloat((costPP / (targetFC/100)).toFixed(2)) : 0;
+    m.lastCostUpdate   = new Date().toISOString();
+    m.lastCostUpdatedBy= S.user ? S.user.name : 'Unknown';
+
+    S.menuItems[eid()] = getMenu();
+    logAction('Menu Updated', m.name + ' — ingredients edited');
+    debouncedSave();
+    closeModal();
+    renderMenu();
+    toast('success', '✅ ' + m.name + ' ingredients updated');
 }
 
 function confirmDeleteMenu(id) {
@@ -6677,6 +7223,26 @@ function renderPurchasesTable() {
         return p.paymentStatus !== 'Paid';
     }).length;
 
+    // Also update GRV history section label
+    var grvCompleteTitle = document.querySelector(
+        '#page-purchases .block-title .fa-check-double'
+    );
+    if (grvCompleteTitle) {
+        var titleParent = grvCompleteTitle.closest('.block-title');
+        if (titleParent) {
+            var pendingPayCount = complete.filter(function(p){
+                return p.paymentStatus === 'Pending Payment';
+            }).length;
+            if (pendingPayCount > 0) {
+                titleParent.innerHTML =
+                    '<i class="fas fa-check-double" style="color:var(--success)"></i> ' +
+                    'GRV Complete <span style="margin-left:8px;font-size:.7rem;' +
+                    'background:rgba(212,160,23,.15);color:var(--warning);padding:2px 8px;' +
+                    'border-radius:10px">' + pendingPayCount + ' Pending Payment</span>';
+            }
+        }
+    }
+
     // Transit table
     var tb = document.getElementById('po-transit-body');
     if (tb) {
@@ -6697,9 +7263,16 @@ function renderPurchasesTable() {
                     '<td>' + (typeof p.items==='number' ? p.items : (p.items||[]).length) + '</td>' +
                     '<td>' + sym + fmtNum(convertCurrency(totalExVat)) + '</td>' +
                     '<td>' + fmtDate(p.createdAt||p.date) + '</td>' +
-                    '<td><button class="btn-success" style="padding:5px 12px;font-size:.75rem" ' +
+                    '<td><div style="display:flex;gap:6px;align-items:center">' +
+                    (p.type === 'ProcureAI' || p.type === 'AI-PO'
+                        ? '<span style="font-size:.68rem;background:rgba(46,168,113,.15);' +
+                          'color:var(--success);padding:2px 8px;border-radius:10px;' +
+                          'font-weight:600">✅ Auto-sent</span>'
+                        : '') +
+                    '<button class="btn-success" style="padding:5px 12px;font-size:.75rem" ' +
                     'onclick="markPODelivered(\'' + p.id + '\')">' +
-                    '<i class="fas fa-check"></i> Delivered</button></td></tr>';
+                    '<i class="fas fa-check"></i> Delivered</button>' +
+                    '</div></td></tr>';
               }).join('');
     }
 
@@ -6736,7 +7309,8 @@ function renderPurchasesTable() {
                     '<td>' + (p.invoiceNumber||'—') + '</td>' +
                     '<td>' + sym + fmtNum(convertCurrency(grvExVat)) + '</td>' +
                     '<td><span class="status-badge ' +
-                    (p.paymentStatus==='Paid' ? 'paid' : 'unpaid') + '">' +
+                    (p.paymentStatus==='Paid' ? 'paid' :
+                     p.paymentStatus==='Pending Payment' ? 'pending' : 'unpaid') + '">' +
                     (p.paymentStatus||'Unpaid') + '</span></td>' +
                     '<td>' + (p.paymentDueDate||'—') + '</td>' +
                     '<td><div class="row-actions">' +
@@ -7331,12 +7905,15 @@ function renderGRVSection() {
                     '<td><span class="status-badge ' +
                     (p.paymentStatus==='Paid'?'paid':'unpaid') + '">' +
                     (p.paymentStatus||'Unpaid') + '</span></td>' +
-                    '<td><div class="row-actions">' +
-                    '<button class="row-btn" onclick="printGRV(\'' + p.id + '\')" title="Print">' +
-                    '<i class="fas fa-print"></i></button>' +
-                    '<button class="row-btn" onclick="viewGRVDetail(\'' + p.id + '\')" title="View">' +
-                    '<i class="fas fa-eye"></i></button>' +
-                    '</div></td></tr>';
+            '<td><div class="row-actions">' +
+            '<button class="row-btn" onclick="viewMenuDetail(\'' + m.id + '\')" title="View">' +
+            '<i class="fas fa-eye"></i></button>' +
+            '<button class="row-btn" onclick="editMenuIngredients(\'' + m.id + '\')" title="Edit Ingredients" ' +
+            'style="background:rgba(26,139,168,.15);border-color:var(--accent);color:var(--accent)">' +
+            '<i class="fas fa-edit"></i></button>' +
+            '<button class="row-btn del" onclick="deleteMenuById(\'' + m.id + '\')" title="Delete">' +
+            '<i class="fas fa-trash"></i></button>' +
+            '</div></td></tr>';
             }).join('') +
             '</tbody></table></div>';
     }
@@ -7512,7 +8089,9 @@ function completeGRV(poId) {
     po.grvLines      = grvLines;
     po.grvNotes      = grvNotes;
     po.invoiceNumber = invNum;
-    po.paymentStatus = payTerms === 'COD' ? 'Paid' : 'Unpaid';
+    // Nothing is ever auto-marked as Paid after GRV
+    // COD moves to Pending Payment, all others go to Unpaid
+    po.paymentStatus = 'Pending Payment';
     po.paymentDueDate= calcPaymentDueDate(payTerms, grvDate);
 
     S.purchases[eid()] = getPurch();
