@@ -2696,7 +2696,7 @@ function showMasterDashboard() {
         '<p style="margin-top:12px">Loading master dashboard...</p></div>';
 
     // Load all data in parallel
-    Promise.all([
+        Promise.all([
         db.collection('accounts').get(),
         db.collection('enquiries').orderBy('createdAt','desc')
             .limit(50).get(),
@@ -2719,10 +2719,66 @@ function showMasterDashboard() {
         results[2].forEach(function(doc) {
             bookings.push({ id: doc.id, data: doc.data() });
         });
+
+        // Get signups — if signups collection is empty, 
+        // build from accounts collection instead
         var signups = [];
         results[3].forEach(function(doc) {
             signups.push({ id: doc.id, data: doc.data() });
         });
+
+        // If no signups found, build newest clients 
+        // from accounts collection
+        if (signups.length === 0 && customers.length > 0) {
+            signups = customers
+                .filter(function(c) {
+                    return c.data.owner && c.data.owner.email;
+                })
+                .sort(function(a, b) {
+                    var dateA = a.data.createdAt 
+                        ? (a.data.createdAt.seconds 
+                            ? a.data.createdAt.seconds * 1000 
+                            : new Date(a.data.createdAt).getTime()) 
+                        : 0;
+                    var dateB = b.data.createdAt 
+                        ? (b.data.createdAt.seconds 
+                            ? b.data.createdAt.seconds * 1000 
+                            : new Date(b.data.createdAt).getTime()) 
+                        : 0;
+                    return dateB - dateA;
+                })
+                .slice(0, 10)
+                .map(function(c) {
+                    var d = c.data;
+                    var o = d.owner || {};
+                    var ents = d.entities || [];
+                    var features = [];
+                    ents.forEach(function(e) {
+                        (e.features || []).forEach(function(f) {
+                            if (features.indexOf(f) === -1) 
+                                features.push(f);
+                        });
+                    });
+                    return {
+                        id: c.id,
+                        data: {
+                            name:         o.name         || o.email || 'Unknown',
+                            email:        o.email        || '',
+                            phone:        o.phone        || '',
+                            business:     d.businessName || o.groupName || '',
+                            entities:     ents.length,
+                            features:     features.length > 0 
+                                          ? features 
+                                          : ['web_boh'],
+                            monthlyTotal: ents.length > 0 
+                                          ? 799 + (ents.length * 599) 
+                                          : 0,
+                            createdAt:    d.createdAt || null
+                        }
+                    };
+                });
+        }
+
         renderMasterDashboard(customers, enquiries, bookings, signups);
     }).catch(function(err) {
         content.innerHTML =
@@ -3036,8 +3092,46 @@ function renderMasterDashboard(customers, enquiries, bookings, signups) {
             html += renderCustomerCard(c);
         });
     }
-    html += '</div></div>';
+        // ── SAYLO QUICK ACCESS ──
+    if (isSayloUser(HUB.user ? HUB.user.email : '')) {
+        html +=
+            '<div style="width:100%;max-width:1100px;margin-top:16px;' +
+            'margin-bottom:24px">' +
+            '<div onclick="openMasterSaylo()" ' +
+            'style="background:linear-gradient(135deg,#4c1d95,#7c3aed);' +
+            'border-radius:var(--r);padding:20px;box-shadow:var(--shadow);' +
+            'cursor:pointer;display:flex;align-items:center;gap:16px;' +
+            'transition:.3s" ' +
+            'onmouseover="this.style.transform=\'translateY(-4px)\';' +
+            'this.style.boxShadow=\'0 12px 40px rgba(124,58,237,.4)\'" ' +
+            'onmouseout="this.style.transform=\'translateY(0)\';' +
+            'this.style.boxShadow=\'var(--shadow)\'">' +
+            '<div style="width:56px;height:56px;border-radius:50%;' +
+            'background:rgba(255,255,255,.15);display:flex;' +
+            'align-items:center;justify-content:center;font-size:2rem">' +
+            '🤖</div>' +
+            '<div style="flex:1">' +
+            '<div style="font-size:1.1rem;font-weight:800;color:#fff">' +
+            'Saylo</div>' +
+            '<div style="font-size:.78rem;color:rgba(255,255,255,.7)">' +
+            'Your Personal AI Assistant — Calendar, Notes & Voice Control' +
+            '</div></div>' +
+            '<i class="fas fa-chevron-right" ' +
+            'style="color:rgba(255,255,255,.5);font-size:1.2rem"></i>' +
+            '</div></div>';
+    }
+
+    html += '</div>';
     content.innerHTML = html;
+}
+function openMasterSaylo() {
+    // Switch from admin panel to app frame for Saylo
+    document.getElementById('admin-panel').classList.add('hidden');
+    var frame = document.getElementById('app-frame');
+    frame.classList.remove('hidden');
+    frame.innerHTML = getSayloHTML();
+    initSaylo();
+}
 }
 
 /* ============================================================
@@ -3261,7 +3355,7 @@ function renderEntityHub() {
     var html = '';
 
     // Back button
-    if (isOwner && HUB.entities.length > 1) {
+        if (isOwner || HUB.isMaster) {
         html +=
             '<div style="width:100%;max-width:640px;margin-bottom:14px">' +
             '<button onclick="goBack()" ' +
@@ -3270,7 +3364,7 @@ function renderEntityHub() {
             'border:1.5px solid var(--border);border-radius:var(--rs);' +
             'color:var(--text-light);font-size:.82rem;font-weight:600;' +
             'cursor:pointer;font-family:inherit">' +
-            '<i class="fas fa-arrow-left"></i> Back to All Entities' +
+            '<i class="fas fa-arrow-left"></i> Back to Dashboard' +
             '</button></div>';
     }
 
