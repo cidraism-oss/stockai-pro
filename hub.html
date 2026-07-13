@@ -2695,8 +2695,7 @@ function showMasterDashboard() {
         'style="font-size:2rem;color:var(--primary)"></i>' +
         '<p style="margin-top:12px">Loading master dashboard...</p></div>';
 
-    // Load all data in parallel
-        Promise.all([
+    Promise.all([
         db.collection('accounts').get(),
         db.collection('enquiries').orderBy('createdAt','desc')
             .limit(50).get(),
@@ -2720,30 +2719,26 @@ function showMasterDashboard() {
             bookings.push({ id: doc.id, data: doc.data() });
         });
 
-        // Get signups — if signups collection is empty, 
-        // build from accounts collection instead
         var signups = [];
         results[3].forEach(function(doc) {
             signups.push({ id: doc.id, data: doc.data() });
         });
 
-        // If no signups found, build newest clients 
-        // from accounts collection
         if (signups.length === 0 && customers.length > 0) {
             signups = customers
                 .filter(function(c) {
                     return c.data.owner && c.data.owner.email;
                 })
                 .sort(function(a, b) {
-                    var dateA = a.data.createdAt 
-                        ? (a.data.createdAt.seconds 
-                            ? a.data.createdAt.seconds * 1000 
-                            : new Date(a.data.createdAt).getTime()) 
+                    var dateA = a.data.createdAt
+                        ? (a.data.createdAt.seconds
+                            ? a.data.createdAt.seconds * 1000
+                            : new Date(a.data.createdAt).getTime())
                         : 0;
-                    var dateB = b.data.createdAt 
-                        ? (b.data.createdAt.seconds 
-                            ? b.data.createdAt.seconds * 1000 
-                            : new Date(b.data.createdAt).getTime()) 
+                    var dateB = b.data.createdAt
+                        ? (b.data.createdAt.seconds
+                            ? b.data.createdAt.seconds * 1000
+                            : new Date(b.data.createdAt).getTime())
                         : 0;
                     return dateB - dateA;
                 })
@@ -2755,23 +2750,23 @@ function showMasterDashboard() {
                     var features = [];
                     ents.forEach(function(e) {
                         (e.features || []).forEach(function(f) {
-                            if (features.indexOf(f) === -1) 
+                            if (features.indexOf(f) === -1)
                                 features.push(f);
                         });
                     });
                     return {
                         id: c.id,
                         data: {
-                            name:         o.name         || o.email || 'Unknown',
-                            email:        o.email        || '',
-                            phone:        o.phone        || '',
+                            name:         o.name || o.email || 'Unknown',
+                            email:        o.email || '',
+                            phone:        o.phone || '',
                             business:     d.businessName || o.groupName || '',
                             entities:     ents.length,
-                            features:     features.length > 0 
-                                          ? features 
+                            features:     features.length > 0
+                                          ? features
                                           : ['web_boh'],
-                            monthlyTotal: ents.length > 0 
-                                          ? 799 + (ents.length * 599) 
+                            monthlyTotal: ents.length > 0
+                                          ? 799 + (ents.length * 599)
                                           : 0,
                             createdAt:    d.createdAt || null
                         }
