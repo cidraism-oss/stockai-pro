@@ -2116,22 +2116,28 @@ console.log('✅ Welcome + Auth screen functions loaded');
    Session is shared via sessionStorage + Firebase persistence.
 ============================================================ */
 function hubLogin() {
-    var email    = (document.getElementById('hub-email').value || '')
-                    .trim().toLowerCase();
-    var password = (document.getElementById('hub-password').value || '')
-                    .trim();
-    var remember = document.getElementById('hub-remember').checked;
+    var email    = (document.getElementById('hub-email')    ? document.getElementById('hub-email').value    : '').trim().toLowerCase();
+    var password = (document.getElementById('hub-password') ? document.getElementById('hub-password').value : '').trim();
+    var remember = document.getElementById('hub-remember')  ? document.getElementById('hub-remember').checked : false;
     var errorDiv = document.getElementById('login-error');
-    errorDiv.style.display = 'none';
+    if (errorDiv) errorDiv.style.display = 'none';
 
-    if (!email)    { showLoginError('Please enter your email');    return; }
-    if (!password) { showLoginError('Please enter your password'); return; }
+    if (!email || !password) {
+        if (errorDiv) {
+            errorDiv.textContent    = 'Please enter your email and password.';
+            errorDiv.style.display  = 'block';
+        }
+        return;
+    }
 
-    var btn = document.getElementById('hub-login-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    // Show loading state
+    var loginBtn = document.getElementById('hub-login-btn');
+    if (loginBtn) {
+        loginBtn.disabled     = true;
+        loginBtn.innerHTML    = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    }
 
-    // Set Firebase persistence based on remember me
+    // Set persistence based on remember me
     var persistence = remember
         ? firebase.auth.Auth.Persistence.LOCAL
         : firebase.auth.Auth.Persistence.SESSION;
@@ -2140,58 +2146,53 @@ function hubLogin() {
         .then(function() {
             return auth.signInWithEmailAndPassword(email, password);
         })
-        .then(function(cred) {
-            // ── Store remember preference ──
+        .then(function(result) {
+            var firebaseUser = result.user;
+
+            // Save remember me preference
             if (remember) {
                 localStorage.setItem('stockai_remember', 'yes');
-                localStorage.setItem('stockai_email', email);
+                localStorage.setItem('stockai_email',    email);
             } else {
                 localStorage.removeItem('stockai_remember');
                 localStorage.removeItem('stockai_email');
             }
-            HUB.rememberMe = remember;
 
-            // ── Store UID for feature lookups ──
-            if (cred.user) {
-                localStorage.setItem('stockai_user_uid', cred.user.uid);
-                // Save userMapping for fast future lookups
-                saveUserMapping(cred.user.uid, email);
-            }
-
-            hubToast('info', '🔄 Loading your workspace...');
-
-            findHubAccount(email, function(found) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            // Find account and load hub
+            findHubAccount(firebaseUser.email, function(found) {
                 if (found) {
-                    document.getElementById('login-screen')
-                        .classList.add('hidden');
-                    // ── Write SSO session so all apps skip login ──
-                    writeSharedSession();
+                    var ls = document.getElementById('login-screen');
+                    if (ls) ls.classList.add('hidden');
                     saveSessionCache();
                     routeAfterLogin();
                 } else {
-                    showLoginError(
-                        'No account found for this email. ' +
-                        'Please contact support.');
-                    auth.signOut();
+                    if (errorDiv) {
+                        errorDiv.textContent   = 'Account not found. Please contact support.';
+                        errorDiv.style.display = 'block';
+                    }
+                    if (loginBtn) {
+                        loginBtn.disabled  = false;
+                        loginBtn.innerHTML = 'Sign In';
+                    }
                 }
             });
         })
         .catch(function(err) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
             var msg = 'Login failed. Please try again.';
-            if (err.code === 'auth/invalid-credential' ||
-                err.code === 'auth/wrong-password'     ||
-                err.code === 'auth/user-not-found') {
-                msg = 'Incorrect email or password.';
-            } else if (err.code === 'auth/too-many-requests') {
-                msg = 'Too many attempts. Please try again later.';
-            } else if (err.code === 'auth/network-request-failed') {
-                msg = 'No internet connection. Please check and try again.';
+            if (err.code === 'auth/wrong-password'   ||
+                err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
+            if (err.code === 'auth/user-not-found')    msg = 'Email not found.';
+            if (err.code === 'auth/invalid-email')     msg = 'Invalid email address.';
+            if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+            if (errorDiv) {
+                errorDiv.textContent   = msg;
+                errorDiv.style.display = 'block';
             }
-            showLoginError(msg);
+            if (loginBtn) {
+                loginBtn.disabled  = false;
+                loginBtn.innerHTML = 'Sign In';
+            }
+            console.warn('Login error:', err.code, err.message);
         });
 }
 
