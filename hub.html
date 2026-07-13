@@ -1604,7 +1604,6 @@ function playWelcomeStartup() {
             buildWelcomeTone(ctx);
         }
     } catch(e) { console.warn('Audio error:', e); }
-    // Delay voice to avoid hammering API on page load
     setTimeout(function() {
         if (typeof playWelcomeVoice === 'function') {
             playWelcomeVoice();
@@ -1614,7 +1613,6 @@ function playWelcomeStartup() {
 
 function buildWelcomeTone(ctx) {
     var now = ctx.currentTime;
-    // Bass
     var bass = ctx.createOscillator();
     var bassG = ctx.createGain();
     bass.connect(bassG); bassG.connect(ctx.destination);
@@ -1625,7 +1623,7 @@ function buildWelcomeTone(ctx) {
     bassG.gain.linearRampToValueAtTime(0.1, now + 0.5);
     bassG.gain.linearRampToValueAtTime(0, now + 2.5);
     bass.start(now); bass.stop(now + 2.6);
-    // Rising chord
+
     var notes = [
         {freq:220,start:0,  end:1.5,vol:.06},
         {freq:277,start:.2, end:1.8,vol:.05},
@@ -1646,7 +1644,7 @@ function buildWelcomeTone(ctx) {
         g.gain.linearRampToValueAtTime(0, now + n.end);
         osc.start(now + n.start); osc.stop(now + n.end + 0.1);
     });
-    // Shimmer
+
     var sh = ctx.createOscillator();
     var shG = ctx.createGain();
     sh.connect(shG); shG.connect(ctx.destination);
@@ -1701,9 +1699,9 @@ function handleWelcomeEnter() {
     } catch(e) {}
     var screen = document.getElementById('welcome-screen');
     if (screen) {
-        screen.style.transition  = 'opacity 0.6s ease, transform 0.6s ease';
-        screen.style.opacity     = '0';
-        screen.style.transform   = 'scale(1.03)';
+        screen.style.transition   = 'opacity 0.6s ease, transform 0.6s ease';
+        screen.style.opacity      = '0';
+        screen.style.transform    = 'scale(1.03)';
         screen.style.pointerEvents = 'none';
         setTimeout(function() {
             screen.style.display = 'none';
@@ -1720,7 +1718,6 @@ function handleWelcomeEnter() {
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ── Audio trigger on first interaction ──
     var _audioUnlocked = false;
 
     function tryUnlockAudio() {
@@ -1735,10 +1732,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    document.addEventListener('mousemove',  tryUnlockAudio, {once:true, passive:true});
-    document.addEventListener('touchstart', tryUnlockAudio, {once:true, passive:true});
-    document.addEventListener('keydown',    tryUnlockAudio, {once:true, passive:true});
-    document.addEventListener('click',      tryUnlockAudio, {once:true, passive:true});
+    document.addEventListener('mousemove',  tryUnlockAudio,
+        {once:true, passive:true});
+    document.addEventListener('touchstart', tryUnlockAudio,
+        {once:true, passive:true});
+    document.addEventListener('keydown',    tryUnlockAudio,
+        {once:true, passive:true});
+    document.addEventListener('click',      tryUnlockAudio,
+        {once:true, passive:true});
 
     // ── Login form ──
     var form = document.getElementById('login-form');
@@ -1773,7 +1774,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Service Worker ──
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js').catch(function() {});
+            navigator.serviceWorker.register('/sw.js')
+                .catch(function() {});
         });
     }
 
@@ -1785,7 +1787,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Language selector ──
     setTimeout(function() {
         var sel = document.getElementById('hub-lang-selector');
-        if (sel) sel.value = localStorage.getItem('stockai_lang') || 'en';
+        if (sel) sel.value =
+            localStorage.getItem('stockai_lang') || 'en';
     }, 300);
 
     // ── Weather ──
@@ -1801,13 +1804,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 4000);
 
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
-});
+
+}); // ← THIS CLOSES THE DOMContentLoaded listener
+
+console.log('✅ Welcome + Auth screen functions loaded');
+</script>
 <script>
 /* ============================================================
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-// ── Always hide welcome screen when auth is being checked ──
+    // ── Always hide welcome screen ──
     var welcomeEl = document.getElementById('welcome-screen');
     if (welcomeEl) {
         welcomeEl.style.display    = 'none';
