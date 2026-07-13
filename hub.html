@@ -1710,8 +1710,12 @@ function handleWelcomeEnter() {
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ── Audio trigger on first interaction ──
+document.addEventListener('DOMContentLoaded', function() {
+
+// ── Audio trigger on first interaction ──
     var _audioUnlocked = false;
+    // ... rest of your existing code unchanged ...
+// ── Audio trigger on first interaction ──
     function tryUnlockAudio() {
         if (_audioUnlocked) return;
         _audioUnlocked = true;
@@ -1723,6 +1727,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
     document.addEventListener('mousemove',  tryUnlockAudio,
         {once:true, passive:true});
     document.addEventListener('touchstart', tryUnlockAudio,
@@ -1801,24 +1806,64 @@ document.addEventListener('DOMContentLoaded', function() {
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-    // Check if returning from external app (POS, App etc)
-    var isReturn = sessionStorage.getItem('hub_return') === 'true';
-    if (isReturn) {
-    sessionStorage.removeItem('hub_return');
+    // ══════════════════════════════════════════════════
+    // CHECK 1: Returning from Web App or external app
+    // ══════════════════════════════════════════════════
+    var isReturn     = sessionStorage.getItem('hub_return') === 'true';
+    var savedAccount = sessionStorage.getItem('hub_account_id');
+    var savedEmail   = sessionStorage.getItem('hub_user_email');
+    var savedName    = sessionStorage.getItem('hub_user_name');
+    var savedRole    = sessionStorage.getItem('hub_user_role');
+    var savedEntity  = sessionStorage.getItem('hub_entity_id');
 
-    var welcomeEl = document.getElementById('welcome-screen');
-    var loginEl   = document.getElementById('login-screen');
-    if (welcomeEl) welcomeEl.style.display = 'none';
-    if (loginEl)   loginEl.classList.add('hidden');
+    if (isReturn && (savedAccount || savedEmail)) {
+        // Clear the return flag immediately so it does not trigger twice
+        sessionStorage.removeItem('hub_return');
+        sessionStorage.removeItem('hub_skip_welcome');
 
-    if (restoreSessionCache()) {
+        // Hide welcome and login screens IMMEDIATELY — before any rendering
+        var welcomeEl = document.getElementById('welcome-screen');
+        var loginEl   = document.getElementById('login-screen');
+        if (welcomeEl) {
+            welcomeEl.style.display    = 'none';
+            welcomeEl.style.opacity    = '0';
+            welcomeEl.style.visibility = 'hidden';
+            welcomeEl.classList.add('hidden');
+        }
+        if (loginEl) {
+            loginEl.style.display = 'none';
+            loginEl.classList.add('hidden');
+        }
 
-        // Read any updated session data written back by app.html
+        // Try to restore from session cache first
+        var cacheRestored = false;
+        if (typeof restoreSessionCache === 'function') {
+            cacheRestored = restoreSessionCache();
+        }
+
+        // If cache did not restore, manually set HUB state from sessionStorage
+        if (!cacheRestored && savedAccount) {
+            HUB.accountId  = savedAccount;
+            HUB.entityId   = savedEntity || '';
+            if (!HUB.user) HUB.user = {};
+            HUB.user.name  = savedName  || '';
+            HUB.user.email = savedEmail || '';
+            HUB.user.role  = savedRole  || 'Owner';
+            HUB.isMaster   = (savedEmail || '').toLowerCase() === 'cidraism@gmail.com';
+        }
+
+        // Read SSO features if available
         try {
             var rawSSO = sessionStorage.getItem('sso_session');
             if (rawSSO) {
                 var sso = JSON.parse(rawSSO);
                 if (sso && sso.valid) {
+                    // Use SSO data to fill any gaps
+                    if (!HUB.accountId && sso.accountId) HUB.accountId = sso.accountId;
+                    if (!HUB.entityId  && sso.entityId)  HUB.entityId  = sso.entityId;
+                    if (!HUB.user.name && sso.userName)  HUB.user.name = sso.userName;
+                    if (!HUB.user.email&& sso.userEmail) HUB.user.email= sso.userEmail;
+                    if (sso.entityName) HUB.entityName = sso.entityName;
                     if (sso.features && sso.features.length) {
                         HUB.features = sso.features;
                         if (typeof cacheUserFeatures === 'function') {
@@ -1829,7 +1874,7 @@ function checkHubAuth() {
             }
         } catch(e) {}
 
-        // Refresh account data from Firestore
+        // Now load account data from Firestore
         if (HUB.accountId) {
             db.collection('accounts').doc(HUB.accountId).get()
                 .then(function(doc) {
@@ -1837,55 +1882,127 @@ function checkHubAuth() {
                         HUB.accountData = doc.data();
                         HUB.entities    = doc.data().entities || [];
 
+                        // Find the saved entity
                         if (HUB.entityId) {
                             var ent = HUB.entities.find(function(e) {
                                 return e.id === HUB.entityId;
                             });
                             if (ent) {
-                                HUB.entity   = ent;
-                                HUB.features = getEntityFeatures(
-                                    HUB.accountData,
-                                    HUB.entityId);
+                                HUB.entity     = ent;
+                                HUB.entityName = ent.name;
+                                HUB.features   = typeof getEntityFeatures === 'function'
+                                    ? getEntityFeatures(HUB.accountData, HUB.entityId)
+                                    : (HUB.features || []);
                             }
+                        } else if (HUB.entities.length > 0) {
+                            HUB.entity     = HUB.entities[0];
+                            HUB.entityId   = HUB.entities[0].id;
+                            HUB.entityName = HUB.entities[0].name;
                         }
-                        startHubSync();
-                        hubLoadBranding();
-                        hubLoadWeather();
-                        routeAfterLogin();
+
+                        // Start background services
+                        if (typeof startHubSync    === 'function') startHubSync();
+                        if (typeof hubLoadBranding === 'function') hubLoadBranding();
+                        if (typeof hubLoadWeather  === 'function') hubLoadWeather();
+
+                        // Go STRAIGHT to dashboard — no welcome screen
+                        if (typeof routeAfterLogin === 'function') {
+                            routeAfterLogin();
+                        }
+                        console.log('✅ Returned from Web App — dashboard loaded');
                     } else {
-                        showLoginScreen();
+                        // Account not found — try Firebase auth as fallback
+                        console.warn('Account doc not found — falling back to auth');
+                        checkHubAuthNormal();
                     }
                 })
-                .catch(function() {
-                    if (HUB.user && HUB.accountId) {
-                        routeAfterLogin();
+                .catch(function(err) {
+                    console.warn('Return load error:', err.message);
+                    // If we have enough data, try to show dashboard anyway
+                    if (HUB.accountData && HUB.user && HUB.user.email) {
+                        if (typeof routeAfterLogin === 'function') routeAfterLogin();
                     } else {
-                        showLoginScreen();
+                        checkHubAuthNormal();
                     }
                 });
-        } else {
-            routeAfterLogin();
-        }
-        return;
-    }
-
-    // No cached session — check Firebase auth
-    var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
-        unsubReturn();
-        if (firebaseUser) {
-            findHubAccount(firebaseUser.email, function(found) {
-                if (found) {
-                    saveSessionCache();
-                    routeAfterLogin();
+        } else if (savedEmail) {
+            // No account ID but have email — find account via Firebase
+            var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
+                unsubReturn();
+                if (firebaseUser) {
+                    if (typeof findHubAccount === 'function') {
+                        findHubAccount(firebaseUser.email, function(found) {
+                            if (found) {
+                                if (typeof saveSessionCache === 'function') saveSessionCache();
+                                if (typeof routeAfterLogin  === 'function') routeAfterLogin();
+                            } else {
+                                if (typeof showLoginScreen === 'function') showLoginScreen();
+                            }
+                        });
+                    }
                 } else {
-                    showLoginScreen();
+                    if (typeof showLoginScreen === 'function') showLoginScreen();
                 }
             });
         } else {
-            showLoginScreen();
+            // Nothing to work with — show login
+            if (typeof showLoginScreen === 'function') showLoginScreen();
         }
-    });
-    return;
+        return; // ← STOP HERE — do not fall through to normal auth
+    }
+
+    // ══════════════════════════════════════════════════
+    // CHECK 2: Normal auth flow (not returning from app)
+    // ══════════════════════════════════════════════════
+    checkHubAuthNormal();
+}
+
+// Separated normal auth into its own function for clean fallback
+function checkHubAuthNormal() {
+    var remembered = localStorage.getItem('stockai_remember');
+    var remEmail   = localStorage.getItem('stockai_email');
+
+    if (remembered === 'yes' && remEmail) {
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(function() {
+                return new Promise(function(resolve) {
+                    var unsub = auth.onAuthStateChanged(function(user) {
+                        unsub();
+                        resolve(user);
+                    });
+                });
+            })
+            .then(function(firebaseUser) {
+                if (firebaseUser) {
+                    hubToast('info', '🔄 Loading your workspace...');
+                    if (typeof findHubAccount === 'function') {
+                        findHubAccount(firebaseUser.email, function(found) {
+                            if (found) {
+                                var loginScreen = document.getElementById('login-screen');
+                                if (loginScreen) loginScreen.classList.add('hidden');
+                                if (typeof saveSessionCache === 'function') saveSessionCache();
+                                if (typeof routeAfterLogin  === 'function') routeAfterLogin();
+                            } else {
+                                if (typeof showLoginScreen === 'function') showLoginScreen();
+                            }
+                        });
+                    }
+                } else {
+                    if (typeof showLoginScreen === 'function') showLoginScreen();
+                }
+            })
+            .catch(function() {
+                if (typeof showLoginScreen === 'function') showLoginScreen();
+            });
+    } else {
+        auth.signOut()
+            .then(function() {
+                if (typeof showLoginScreen === 'function') showLoginScreen();
+            })
+            .catch(function() {
+                if (typeof showLoginScreen === 'function') showLoginScreen();
+            });
+    }
 }
 
     // Normal auth check — remember me
@@ -2689,11 +2806,12 @@ function startHubSync() {
    HELPERS
 ============================================================ */
 function isSayloUser(email) {
-    if (!email) return false;
-    var e = email.toLowerCase().trim();
-    return e === 'lagemiguel854@gmail.com' ||
-           e === 'jcidrais11@gmail.com'    ||
-           e === 'cidraism@gmail.com';
+    var authorised = [
+        'cidraism@gmail.com',
+        'lagemiguel854@gmail.com',
+        'jcidrais11@gmail.com'
+    ];
+    return authorised.indexOf((email||'').toLowerCase()) !== -1;
 }
 
 function hubForgotPw() {
@@ -5051,15 +5169,14 @@ function getMobileAppHTML() {
         '-webkit-overflow-scrolling:touch"></div>' +
 
         // Bottom Nav
-        '<nav style="height:var(--nav-h);background:var(--bg-card);' +
-        'border-top:1px solid var(--border);display:flex;' +
-        'align-items:center;justify-content:space-around;' +
-        'flex-shrink:0;padding:0 8px 8px;z-index:50">' +
-        mNavItem('dashboard',   'fa-chart-pie',      'Home',    true)  +
-        mNavItem('stock-count', 'fa-clipboard-list', 'Count',   false) +
-        mNavItem('purchases',   'fa-shopping-cart',  'Orders',  false) +
-        mNavItem('inventory',   'fa-box',            'Stock',   false) +
-        '</nav></div>';
+                '<nav style="height:var(--nav-h);background:var(--bg-card);' +
+                             'border-top:1px solid var(--border);display:flex;' +
+                             'align-items:center;justify-content:space-around;' +
+                             'flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+                             mNavItem('dashboard',   'fa-chart-pie',      'Home',  true)  +
+                             mNavItem('stock-count', 'fa-clipboard-list', 'Count', false) +
+                             mNavItem('inventory',   'fa-box',            'Stock', false) +
+                             '</nav></div>';
 }
 
 function mNavItem(p, i, l, a) {
@@ -5077,25 +5194,32 @@ function mNavItem(p, i, l, a) {
 }
 
 function initMobileApp() {
-    MOBILE.inventory   = mGetInv();
-    MOBILE.departments = mGetDepartments();
+    MOBILE.inventory    = mGetInv();
+    MOBILE.departments  = mGetDepartments();
     MOBILE.countSession = [];
     MOBILE.selectedDepartment = null;
-    mobileNavigate('dashboard');
-}
 
-function mobileRefresh() {
-    hubToast('info', 'Refreshing...');
-    db.collection('accounts').doc(HUB.accountId).get()
-        .then(function(doc) {
-            if (doc.exists) {
-                HUB.accountData  = doc.data();
-                MOBILE.inventory = mGetInv();
-                MOBILE.departments = mGetDepartments();
-                mobileNavigate(MOBILE.currentPage);
-                hubToast('success', 'Refreshed');
-            }
-        });
+    // Real-time listener for inventory changes from web app
+    if (HUB.accountId && HUB.entityId) {
+        db.collection('accounts').doc(HUB.accountId)
+            .onSnapshot(function(doc) {
+                if (!doc.exists) return;
+                var data = doc.data();
+                // Only update if changed from web app (not our own saves)
+                if (data.lastUpdatedDevice === 'Web App') {
+                    HUB.accountData  = data;
+                    MOBILE.inventory = mGetInv();
+                    MOBILE.departments = mGetDepartments();
+                    // Refresh current page silently
+                    if (MOBILE.currentPage === 'dashboard' ||
+                        MOBILE.currentPage === 'inventory') {
+                        mobileNavigate(MOBILE.currentPage);
+                    }
+                }
+            }, function(err){ console.warn('MobileAI sync:', err); });
+    }
+
+    mobileNavigate('dashboard');
 }
 
 function mobileNavigate(p) {
@@ -5110,7 +5234,6 @@ function mobileNavigate(p) {
     c.scrollTop = 0;
     if      (p === 'dashboard')   c.innerHTML = mDash();
     else if (p === 'stock-count') c.innerHTML = mCountDeptSelect();
-    else if (p === 'purchases')   c.innerHTML = mPurch();
     else if (p === 'inventory')   c.innerHTML = mInv();
 }
 
@@ -5586,78 +5709,58 @@ function extractNumberFromSpeech(text) {
 
 /* ── Save Count ── */
 function mSaveCount() {
-    var inv    = mGetInv();
+    var inv     = mGetInv().slice(); // clone
     var counted = 0;
-    var updates = [];
 
     inv.forEach(function(item) {
         var input = document.getElementById('cnt-' + item.id);
         if (!input || input.value === '') return;
         var actual = parseFloat(input.value);
         if (isNaN(actual)) return;
-
-        // Update inventory item
         item.quantity    = actual;
-        item.value       = parseFloat(
-            (actual * (item.cost || 0)).toFixed(2));
+        item.value       = parseFloat((actual * (item.cost||0)).toFixed(2));
         item.status      = actual === 0
             ? 'out-of-stock'
-            : actual <= (item.reorder || item.parLevel || 0)
+            : actual <= (item.parLevel||item.reorder||0)
                 ? 'low-stock' : 'in-stock';
         item.lastCount   = new Date().toISOString();
         item.lastCountBy = HUB.user ? HUB.user.name : 'MobileAI';
         counted++;
-        updates.push({
-            id:     item.id,
-            name:   item.name,
-            actual: actual,
-            unit:   item.unit || ''
-        });
     });
 
-    if (counted === 0) {
-        hubToast('info', 'No quantities entered');
-        return;
-    }
+    if (counted === 0) { hubToast('info','No quantities entered'); return; }
 
-    // ── Sync to Web App (accounts collection) ──
+    hubToast('info','Saving ' + counted + ' item(s)...');
+
+    // Write full inventory array back to Firestore
     var update = {};
     update['inventory.' + HUB.entityId] = inv;
-    update['lastUpdated'] =
-        firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy'] = HUB.user ? HUB.user.name : 'MobileAI';
-    update['lastUpdatedDevice'] = 'MobileAI';
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'MobileAI';
+    update['lastUpdatedDevice'] = 'MobileAI';  // triggers web app listener
 
-    // Log stock count activity
+    // Log activity
     update['activities.' + HUB.entityId] =
         firebase.firestore.FieldValue.arrayUnion({
-            type:        'stock_count',
-            department:  MOBILE.selectedDepartment || 'ALL',
+            type:         'stock_count',
+            department:   MOBILE.selectedDepartment || 'ALL',
             itemsCounted: counted,
-            by:          HUB.user ? HUB.user.name : 'MobileAI',
-            date:        new Date().toISOString(),
-            items:       updates.slice(0, 10) // store first 10 for log
+            by:           HUB.user ? HUB.user.name : 'MobileAI',
+            date:         new Date().toISOString()
         });
 
-    hubToast('info', 'Saving ' + counted + ' items...');
-
     db.collection('accounts').doc(HUB.accountId)
-        .set(update, { merge: true })
+        .set(update, { merge:true })
         .then(function() {
-            // Update local cache
+            // Update local cache correctly
             if (HUB.accountData) {
-                if (!HUB.accountData.inventory)
-                    HUB.accountData.inventory = {};
+                if (!HUB.accountData.inventory) HUB.accountData.inventory = {};
                 HUB.accountData.inventory[HUB.entityId] = inv;
             }
             MOBILE.inventory    = inv;
             MOBILE.countSession = [];
-            hubToast('success',
-                '✅ ' + counted + ' items updated in Web App!');
-            // Return to department select
-            setTimeout(function() {
-                mobileNavigate('stock-count');
-            }, 1500);
+            hubToast('success', '✅ ' + counted + ' items updated in Web App!');
+            setTimeout(function() { mobileNavigate('stock-count'); }, 1500);
         })
         .catch(function(err) {
             hubToast('error', 'Save failed: ' + err.message);
@@ -5786,56 +5889,1283 @@ console.log('✅ MobileAI loaded');
 </script>
 <script>
 /* ============================================================
-   PROCURE AI APP
-   - Smart ordering & procurement
-   - Receives ItemPro order requests
-   - Creates POs and sends to web app
-   - Receives POs back from web app
-   - Supplier management
+   MENU MASTER APP v1.0
+   - Build recipes linked to web app inventory
+   - Calculate costs from actual usage quantities
+   - Set selling price and see food cost %
+   - Post to web app menu items
+   - Post to restaurant POS system
+============================================================ */
+
+var MMENU = {
+    currentPage:       'mm-dash',
+    selectedIngredients:[]
+};
+
+function getMenuMasterHTML() {
+    return '<div style="position:fixed;inset:0;display:flex;' +
+        'flex-direction:column;background:var(--bg)">' +
+        '<header class="hub-header" ' +
+        'style="background:linear-gradient(90deg,#0d9488,#14b8a6)">' +
+        '<button class="return-hub-btn" onclick="closeEmbeddedApp()">' +
+        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff">' +
+        '<i class="fas fa-utensils"></i>' +
+        '<div><div style="font-size:.88rem;font-weight:700">Menu Master</div>' +
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' +
+        (HUB.entityName||'Entity') + '</div></div></div>' +
+        '<button class="hub-hbtn" onclick="mmRefresh()" ' +
+        'style="background:rgba(255,255,255,.15)">' +
+        '<i class="fas fa-sync-alt"></i></button>' +
+        '</header>' +
+        '<div id="mm-content" style="flex:1;overflow-y:auto;' +
+        'padding:16px;padding-bottom:80px;-webkit-overflow-scrolling:touch"></div>' +
+        '<nav style="height:var(--nav-h);background:var(--bg-card);' +
+        'border-top:1px solid var(--border);display:flex;' +
+        'align-items:center;justify-content:space-around;' +
+        'flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+        mmNavBtn('mm-dash',   'fa-chart-pie',  'Dashboard', true)  +
+        mmNavBtn('mm-create', 'fa-plus-circle','Create',    false) +
+        mmNavBtn('mm-items',  'fa-list',       'Menu Items',false) +
+        '</nav></div>';
+}
+
+function mmNavBtn(page, icon, label, active) {
+    return '<div data-mmpage="' + page + '" onclick="mmNav(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;' +
+        'padding:6px 12px;border-radius:var(--rs);cursor:pointer;min-width:60px;' +
+        'color:' + (active?'#14b8a6':'var(--text-light)') + ';' +
+        'background:' + (active?'rgba(20,184,166,.08)':'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:1.1rem"></i>' +
+        '<span style="font-size:.6rem;font-weight:600">' + label + '</span></div>';
+}
+
+function initMenuMasterApp() {
+    MMENU.selectedIngredients = [];
+    mmRefresh();
+}
+
+function mmRefresh() {
+    if (!HUB.accountId) { mmNav('mm-dash'); return; }
+    db.collection('accounts').doc(HUB.accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                HUB.accountData = doc.data();
+                mmNav(MMENU.currentPage);
+            }
+        })
+        .catch(function(){ mmNav(MMENU.currentPage); });
+}
+
+function mmNav(page) {
+    MMENU.currentPage = page;
+    document.querySelectorAll('[data-mmpage]').forEach(function(el){
+        var a = el.dataset.mmpage === page;
+        el.style.color      = a ? '#14b8a6' : 'var(--text-light)';
+        el.style.background = a ? 'rgba(20,184,166,.08)' : 'transparent';
+    });
+    var c = document.getElementById('mm-content');
+    if (!c) return;
+    c.scrollTop = 0;
+    if      (page === 'mm-dash')   c.innerHTML = mmDash();
+    else if (page === 'mm-create') c.innerHTML = mmCreate();
+    else if (page === 'mm-items')  c.innerHTML = mmItems();
+}
+
+/* ── Data helpers ── */
+function mmGetInv() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.inventory || {})[HUB.entityId] || [];
+}
+function mmGetMenu() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.menuItems || {})[HUB.entityId] || [];
+}
+function mmGetDepts() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.departments || {})[HUB.entityId] || [];
+}
+
+/* ── Dashboard ── */
+function mmDash() {
+    var inv    = mmGetInv();
+    var menu   = mmGetMenu();
+    var sorted = menu.slice().sort(function(a,b){ return (b.sold||0)-(a.sold||0); });
+
+    return '<div style="background:rgba(20,184,166,.1);border-left:3px solid #14b8a6;' +
+        'padding:14px;border-radius:var(--rs);margin-bottom:16px">' +
+        '<div style="font-size:.92rem;font-weight:700;color:var(--text)">' +
+        'Menu Master — ' + (HUB.entityName||'') + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">' +
+        menu.length + ' menu items • ' + inv.length + ' inventory items</div>' +
+        '</div>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'border-left:3px solid #14b8a6;text-align:center">' +
+        '<div style="font-size:.6rem;color:var(--text-light);text-transform:uppercase;' +
+        'font-weight:600;margin-bottom:3px">Menu Items</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:var(--text)">' + menu.length + '</div></div>' +
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'border-left:3px solid var(--gold);text-align:center">' +
+        '<div style="font-size:.6rem;color:var(--text-light);text-transform:uppercase;' +
+        'font-weight:600;margin-bottom:3px">Inventory Items</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:var(--text)">' + inv.length + '</div></div>' +
+        '</div>' +
+
+        mActionBtn('fa-plus-circle', '#14b8a6', 'Create Menu Item',
+            'Build a new recipe', "mmNav('mm-create')") +
+        mActionBtn('fa-list', 'var(--primary)', 'View All Menu Items',
+            menu.length + ' items created', "mmNav('mm-items')") +
+
+        (sorted.length > 0
+            ? '<div style="margin-top:16px;font-size:.78rem;font-weight:700;' +
+              'color:var(--text-light);text-transform:uppercase;letter-spacing:1px;' +
+              'margin-bottom:10px">Top Sellers</div>' +
+              sorted.slice(0,3).map(function(m,i){
+                  return '<div style="display:flex;align-items:center;gap:10px;padding:10px;' +
+                      'background:var(--bg-card);border-radius:var(--rs);margin-bottom:6px">' +
+                      '<div style="width:24px;height:24px;border-radius:50%;' +
+                      'background:var(--gold);color:#fff;display:flex;align-items:center;' +
+                      'justify-content:center;font-size:.7rem;font-weight:800">' + (i+1) + '</div>' +
+                      '<div style="flex:1;font-size:.85rem;font-weight:600;color:var(--text)">' +
+                      m.name + '</div>' +
+                      '<div style="font-size:.75rem;color:var(--text-muted)">' +
+                      (m.sold||0) + ' sold</div></div>';
+              }).join('')
+            : '');
+}
+
+/* ── Create Menu Item ── */
+function mmCreate() {
+    var inv   = mmGetInv();
+    var depts = mmGetDepts();
+    MMENU.selectedIngredients = [];
+
+    var deptOpts = '<option value="">No department</option>' +
+        depts.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('');
+
+    return '<div style="font-size:.92rem;font-weight:800;color:var(--text);margin-bottom:16px">' +
+        '<i class="fas fa-utensils" style="color:#14b8a6"></i> Create Menu Item</div>' +
+
+        // Basic info
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'margin-bottom:14px;border-left:3px solid #14b8a6">' +
+        '<div style="margin-bottom:10px">' +
+        '<label style="font-size:.75rem;font-weight:600;color:var(--text-mid);' +
+        'display:block;margin-bottom:4px">Menu Item Name *</label>' +
+        '<input type="text" id="mm-name" placeholder="e.g. Grilled Chicken Burger" ' +
+        'style="width:100%;padding:10px;border:1px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.88rem"></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);' +
+        'display:block;margin-bottom:4px">Yield (Portions)</label>' +
+        '<input type="number" id="mm-yield" value="1" min="1" ' +
+        'style="width:100%;padding:10px;border:1px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.88rem" oninput="mmCalcCost()"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);' +
+        'display:block;margin-bottom:4px">Department</label>' +
+        '<select id="mm-dept" style="width:100%;padding:10px;border:1px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.85rem">' + deptOpts + '</select></div></div>' +
+        '</div>' +
+
+        // Ingredients section
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'margin-bottom:14px">' +
+        '<div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:6px">' +
+        '<i class="fas fa-list" style="color:#14b8a6"></i> Ingredients</div>' +
+        '<div style="background:rgba(20,184,166,.06);border-left:3px solid #14b8a6;' +
+        'padding:8px 12px;border-radius:var(--rs);margin-bottom:10px;font-size:.75rem;' +
+        'color:var(--text-mid)">Enter the actual quantity USED in this recipe. ' +
+        'e.g. 0.3 for 300g of a 1kg item.</div>' +
+
+        // Department filter for ingredients
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;gap:8px;background:var(--bg);' +
+        'border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted);font-size:.8rem"></i>' +
+        '<input type="text" id="mm-ing-search" placeholder="Search ingredients..." ' +
+        'oninput="mmFilterIngredients()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.82rem;font-family:inherit;' +
+        'color:var(--text);background:transparent"></div>' +
+        '<select id="mm-ing-dept" onchange="mmFilterIngredients()" ' +
+        'style="padding:8px;background:var(--bg);border:1px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:.78rem">' +
+        '<option value="">All Depts</option>' +
+        (function(){
+            var d=[]; inv.forEach(function(i){
+                var dept=i.department||i.category||'General';
+                if(d.indexOf(dept)===-1) d.push(dept);
+            });
+            return d.map(function(dept){
+                return '<option value="'+dept+'">'+dept+'</option>';
+            }).join('');
+        })() +
+        '</select></div>' +
+
+        '<div id="mm-ingredient-list" style="max-height:250px;overflow-y:auto">' +
+        (inv.length === 0
+            ? '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.82rem">' +
+              'No inventory items found. Add items in the Web App first.</div>'
+            : inv.map(function(item){
+                return '<div class="mm-ing-row" ' +
+                    'data-name="' + (item.name||'').toLowerCase() + '" ' +
+                    'data-dept="' + (item.department||item.category||'General').toLowerCase() + '" ' +
+                    'style="display:flex;align-items:center;gap:8px;padding:8px;' +
+                    'background:var(--bg);border-radius:var(--rs);margin-bottom:6px">' +
+                    '<div style="flex:1;min-width:0">' +
+                    '<div style="font-size:.82rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+                    '<div style="font-size:.65rem;color:var(--text-muted)">' +
+                    'R' + (item.cost||0).toFixed(2) + ' per ' + (item.unit||'each') +
+                    (item.department ? ' • ' + item.department : '') + '</div></div>' +
+                    '<input type="number" class="mm-qty-input" ' +
+                    'id="mm-qty-' + item.id + '" ' +
+                    'data-id="' + item.id + '" ' +
+                    'data-name="' + item.name + '" ' +
+                    'data-cost="' + (item.cost||0) + '" ' +
+                    'data-unit="' + (item.unit||'each') + '" ' +
+                    'placeholder="Qty used" min="0" step="0.001" ' +
+                    'oninput="mmOnQtyChange(this)" ' +
+                    'style="width:80px;padding:7px;text-align:center;' +
+                    'border:1.5px solid var(--border);border-radius:var(--rs);' +
+                    'font-size:.85rem;font-weight:700;color:var(--text);' +
+                    'background:var(--bg-dark);font-family:inherit">' +
+                    '<div id="mm-line-' + item.id + '" ' +
+                    'style="font-size:.75rem;font-weight:700;color:#14b8a6;' +
+                    'min-width:55px;text-align:right">—</div>' +
+                    '</div>';
+              }).join('')) +
+        '</div></div>' +
+
+        // Cost summary
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'margin-bottom:14px;border-left:3px solid var(--gold)">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:12px">' +
+        'Cost Analysis</div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;' +
+        'border-bottom:1px solid var(--border);font-size:.82rem;color:var(--text-mid)">' +
+        '<span>Total Recipe Cost</span><strong id="mm-total-cost">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;' +
+        'border-bottom:1px solid var(--border);font-size:.82rem;color:var(--text-mid)">' +
+        '<span>÷ Yield (portions)</span><strong id="mm-yield-disp">1</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:8px 0;' +
+        'border-bottom:1px solid var(--border);font-size:.88rem;color:#14b8a6;font-weight:700">' +
+        '<span>Cost per Portion</span><strong id="mm-cpp">R 0.00</strong></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0;' +
+        'font-size:.82rem;color:var(--text-mid)">' +
+        '<span>Suggested Selling Price</span><strong id="mm-suggested" style="color:var(--gold)">R 0.00</strong></div>' +
+        '</div>' +
+
+        // Selling price & FC
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;margin-bottom:14px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);' +
+        'display:block;margin-bottom:4px">Selling Price (R) *</label>' +
+        '<input type="number" id="mm-price" step="0.01" placeholder="0.00" ' +
+        'oninput="mmCalcCost()" ' +
+        'style="width:100%;padding:10px;border:2px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.92rem;font-weight:700"></div>' +
+        '<div><label style="font-size:.75rem;font-weight:600;color:var(--text-mid);' +
+        'display:block;margin-bottom:4px">Actual FC %</label>' +
+        '<input type="text" id="mm-fc" readonly value="—" ' +
+        'style="width:100%;padding:10px;border:2px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--accent);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.92rem;font-weight:700"></div>' +
+        '</div></div>' +
+
+        // Save buttons
+        '<button onclick="mmSaveMenuItem(false)" ' +
+        'style="width:100%;padding:14px;background:#14b8a6;color:#fff;border:none;' +
+        'border-radius:var(--r);font-size:.95rem;font-weight:700;cursor:pointer;' +
+        'font-family:inherit;margin-bottom:10px;display:flex;align-items:center;' +
+        'justify-content:center;gap:10px">' +
+        '<i class="fas fa-save"></i> Save to Web App Menu</button>' +
+        '<button onclick="mmSaveMenuItem(true)" ' +
+        'style="width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#4f46e5);' +
+        'color:#fff;border:none;border-radius:var(--r);font-size:.95rem;font-weight:700;' +
+        'cursor:pointer;font-family:inherit;display:flex;align-items:center;' +
+        'justify-content:center;gap:10px">' +
+        '<i class="fas fa-cash-register"></i> Save & Post to Restaurant POS</button>';
+}
+
+function mmFilterIngredients() {
+    var q    = (document.getElementById('mm-ing-search')||{}).value || '';
+    var dept = (document.getElementById('mm-ing-dept')||{}).value   || '';
+    q    = q.toLowerCase();
+    dept = dept.toLowerCase();
+    document.querySelectorAll('.mm-ing-row').forEach(function(el){
+        var nameOk = !q    || (el.dataset.name||'').includes(q);
+        var deptOk = !dept || (el.dataset.dept||'').includes(dept);
+        el.style.display = (nameOk && deptOk) ? '' : 'none';
+    });
+}
+
+function mmOnQtyChange(input) {
+    var id   = input.dataset.id;
+    var qty  = parseFloat(input.value) || 0;
+    var cost = parseFloat(input.dataset.cost) || 0;
+    var unit = input.dataset.unit || 'each';
+    var name = input.dataset.name || '';
+    var line = qty * cost;
+
+    var lineEl = document.getElementById('mm-line-' + id);
+    if (lineEl) {
+        lineEl.textContent = qty > 0 ? 'R' + line.toFixed(2) : '—';
+        lineEl.style.color = qty > 0 ? '#14b8a6' : 'var(--text-muted)';
+    }
+
+    // Update selected ingredients
+    var existing = MMENU.selectedIngredients.find(function(i){ return i.itemId === id; });
+    if (qty > 0) {
+        var data = { itemId:id, item:name, qty:qty, unit:unit, cost:cost, total:parseFloat(line.toFixed(2)) };
+        if (existing) { Object.assign(existing, data); }
+        else { MMENU.selectedIngredients.push(data); }
+    } else {
+        MMENU.selectedIngredients = MMENU.selectedIngredients.filter(function(i){ return i.itemId !== id; });
+    }
+
+    mmCalcCost();
+}
+
+function mmCalcCost() {
+    var totalCost = MMENU.selectedIngredients.reduce(function(s,i){ return s+(i.total||0); }, 0);
+    var yieldVal  = parseFloat(document.getElementById('mm-yield') ?
+                    document.getElementById('mm-yield').value : 1) || 1;
+    var cpp       = totalCost / yieldVal;
+    var setPrice  = parseFloat(document.getElementById('mm-price') ?
+                    document.getElementById('mm-price').value : 0) || 0;
+    var ent       = HUB.entity || {};
+    var targetFC  = ent.foodCostTarget || 28;
+    var suggested = targetFC > 0 ? cpp / (targetFC/100) : cpp * 3;
+    var actualFC  = setPrice > 0 ? (cpp/setPrice*100) : 0;
+
+    var el;
+    el = document.getElementById('mm-total-cost'); if(el) el.textContent = 'R ' + totalCost.toFixed(2);
+    el = document.getElementById('mm-yield-disp'); if(el) el.textContent = yieldVal + ' portion' + (yieldVal!==1?'s':'');
+    el = document.getElementById('mm-cpp');        if(el) el.textContent = 'R ' + cpp.toFixed(2);
+    el = document.getElementById('mm-suggested');  if(el) el.textContent = 'R ' + suggested.toFixed(2);
+    el = document.getElementById('mm-fc');
+    if(el) {
+        el.value = setPrice > 0 ? actualFC.toFixed(1) + '%' : '—';
+        el.style.color = actualFC > targetFC ? 'var(--danger)' : 'var(--success)';
+    }
+}
+
+function mmSaveMenuItem(postToPOS) {
+    var name     = (document.getElementById('mm-name') ?
+                   document.getElementById('mm-name').value : '').trim();
+    var yieldVal = parseFloat(document.getElementById('mm-yield') ?
+                   document.getElementById('mm-yield').value : 1) || 1;
+    var setPrice = parseFloat(document.getElementById('mm-price') ?
+                   document.getElementById('mm-price').value : 0) || 0;
+    var dept     = document.getElementById('mm-dept') ?
+                   document.getElementById('mm-dept').value : '';
+
+    if (!name)        { hubToast('error','Enter menu item name'); return; }
+    if (setPrice<=0)  { hubToast('error','Enter a selling price'); return; }
+    if (MMENU.selectedIngredients.length===0) {
+        hubToast('error','Add at least one ingredient with a quantity');
+        return;
+    }
+
+    var totalCost   = MMENU.selectedIngredients.reduce(function(s,i){ return s+(i.total||0); },0);
+    var cpp         = totalCost / yieldVal;
+    var ent         = HUB.entity || {};
+    var targetFC    = ent.foodCostTarget || 28;
+    var suggested   = targetFC > 0 ? cpp/(targetFC/100) : cpp*3;
+    var actualFC    = setPrice > 0 ? (cpp/setPrice*100) : 0;
+
+    var menuId  = 'MN-' + Date.now();
+    var newItem = {
+        id:             menuId,
+        name:           name,
+        department:     dept,
+        ingredients:    MMENU.selectedIngredients.map(function(i){ return Object.assign({},i); }),
+        yield:          yieldVal,
+        totalCost:      parseFloat(totalCost.toFixed(2)),
+        costPerPortion: parseFloat(cpp.toFixed(2)),
+        suggestedPrice: parseFloat(suggested.toFixed(2)),
+        setPrice:       setPrice,
+        actualFC:       parseFloat(actualFC.toFixed(2)),
+        sold:           0,
+        createdBy:      HUB.user ? HUB.user.name : 'Menu Master',
+        createdAt:      new Date().toISOString(),
+        source:         'Menu Master App'
+    };
+
+    // Get existing menu items
+    var existingMenu = mmGetMenu();
+    existingMenu.push(newItem);
+
+    var update = {};
+    update['menuItems.' + HUB.entityId] = existingMenu;
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'Menu Master';
+    update['lastUpdatedDevice'] = 'Menu Master';
+
+    // Also post to POS if requested
+    if (postToPOS) {
+        var posTabs  = (HUB.accountData.posMenuTabs  || {})[HUB.entityId] || [];
+        var posItems = (HUB.accountData.posMenuItems || {})[HUB.entityId] || [];
+        var firstTab = posTabs.length > 0 ? posTabs[0].id : '';
+
+        posItems.push({
+            id:              'MI-' + Date.now(),
+            name:            name,
+            price:           setPrice,
+            tabId:           firstTab,
+            linkedMenuItemId:menuId,
+            portionsPerUnit: 1,
+            status:          'active',
+            specialActive:   false,
+            createdAt:       new Date().toISOString()
+        });
+        update['posMenuItems.' + HUB.entityId] = posItems;
+    }
+
+    hubToast('info', 'Saving to Web App...');
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            if (HUB.accountData) {
+                if (!HUB.accountData.menuItems) HUB.accountData.menuItems = {};
+                HUB.accountData.menuItems[HUB.entityId] = existingMenu;
+            }
+            MMENU.selectedIngredients = [];
+            hubToast('success',
+                '✅ ' + name + ' saved to Web App!' +
+                (postToPOS ? ' Also posted to POS.' : ''));
+            setTimeout(function(){ mmNav('mm-items'); }, 1000);
+        })
+        .catch(function(err){ hubToast('error','Error: '+err.message); });
+}
+
+/* ── Menu Items List ── */
+function mmItems() {
+    var menu = mmGetMenu();
+
+    if (menu.length === 0) {
+        return '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-utensils" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text)">No Menu Items Yet</h3>' +
+            '<p>Create your first menu item</p>' +
+            '<button onclick="mmNav(\'mm-create\')" ' +
+            'style="margin-top:14px;padding:12px 24px;background:#14b8a6;color:#fff;' +
+            'border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;' +
+            'font-weight:700"><i class="fas fa-plus"></i> Create First Item</button></div>';
+    }
+
+    var ent = HUB.entity || {};
+    var tfc = ent.foodCostTarget || 28;
+
+    return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);' +
+        'border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;' +
+        'margin-bottom:12px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
+        '<input type="text" id="mm-search" placeholder="Search menu items..." ' +
+        'oninput="mmFilterMenu()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.88rem;' +
+        'font-family:inherit;color:var(--text);background:transparent"></div>' +
+        '<div id="mm-items-list">' +
+        menu.map(function(m){
+            var fc      = m.actualFC || 0;
+            var fcColor = fc > tfc ? 'var(--danger)' : 'var(--success)';
+            return '<div data-mmname="' + (m.name||'').toLowerCase() + '" ' +
+                'style="background:var(--bg-card);border-radius:var(--rs);' +
+                'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+                'border-left:4px solid #14b8a6">' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+                '<div>' +
+                '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' + m.name + '</div>' +
+                (m.department
+                    ? '<div style="font-size:.68rem;color:var(--text-muted)">' + m.department + '</div>'
+                    : '') +
+                '</div>' +
+                '<div style="text-align:right">' +
+                '<div style="font-size:.95rem;font-weight:800;color:var(--text)">' +
+                'R' + (m.setPrice||0).toFixed(2) + '</div>' +
+                '<div style="font-size:.68rem;font-weight:700;color:' + fcColor + '">' +
+                fc.toFixed(1) + '% FC</div>' +
+                '</div></div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;' +
+                'font-size:.68rem;color:var(--text-muted)">' +
+                '<div>Cost/portion: <strong style="color:var(--text)">' +
+                'R' + (m.costPerPortion||0).toFixed(2) + '</strong></div>' +
+                '<div>Yield: <strong style="color:var(--text)">' + (m.yield||1) + '</strong></div>' +
+                '<div>Sold: <strong style="color:var(--text)">' + (m.sold||0) + '</strong></div>' +
+                '</div>' +
+                (m.ingredients && m.ingredients.length > 0
+                    ? '<div style="margin-top:8px;font-size:.68rem;color:var(--text-muted)">' +
+                      (m.ingredients||[]).slice(0,3).map(function(i){
+                          return '<span style="background:var(--bg);padding:2px 6px;' +
+                              'border-radius:4px;margin-right:4px">' + i.item + '</span>';
+                      }).join('') +
+                      (m.ingredients.length > 3
+                          ? '<span style="color:var(--text-muted)">+' +
+                            (m.ingredients.length-3) + ' more</span>'
+                          : '') +
+                      '</div>'
+                    : '') +
+                '</div>';
+        }).join('') +
+        '</div>';
+}
+
+function mmFilterMenu() {
+    var q = (document.getElementById('mm-search')||{}).value || '';
+    q = q.toLowerCase();
+    document.querySelectorAll('#mm-items-list [data-mmname]').forEach(function(el){
+        el.style.display = (el.dataset.mmname||'').includes(q) ? '' : 'none';
+    });
+}
+
+console.log('✅ MenuMaster v1.0 loaded');
+</script>
+<script>
+/* ============================================================
+   PRODUCTION MANAGER APP v1.0
+   - Mirror of web app Production Manager
+   - Create production runs
+   - Voice commands for production
+   - Sync all data to web app
+============================================================ */
+
+var PROD_APP = {
+    currentPage:    'prod-dash',
+    selectedMenu:   null,
+    productions:    []
+};
+
+function getProductionAppHTML() {
+    return '<div style="position:fixed;inset:0;display:flex;' +
+        'flex-direction:column;background:var(--bg)">' +
+        '<header class="hub-header" ' +
+        'style="background:linear-gradient(90deg,#0d4a5c,#1a8ba8)">' +
+        '<button class="return-hub-btn" onclick="closeEmbeddedApp()">' +
+        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff">' +
+        '<i class="fas fa-industry"></i>' +
+        '<div><div style="font-size:.88rem;font-weight:700">Production Manager</div>' +
+        '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' +
+        (HUB.entityName||'Entity') + '</div></div></div>' +
+        '<button class="hub-hbtn" onclick="prodAppRefresh()" ' +
+        'style="background:rgba(255,255,255,.15)">' +
+        '<i class="fas fa-sync-alt"></i></button>' +
+        '</header>' +
+        '<div id="prod-content" style="flex:1;overflow-y:auto;' +
+        'padding:16px;padding-bottom:80px;-webkit-overflow-scrolling:touch"></div>' +
+        '<nav style="height:var(--nav-h);background:var(--bg-card);' +
+        'border-top:1px solid var(--border);display:flex;' +
+        'align-items:center;justify-content:space-around;' +
+        'flex-shrink:0;padding:0 8px 8px;z-index:50">' +
+        prodNavBtn('prod-dash',      'fa-chart-pie',   'Dashboard', true)  +
+        prodNavBtn('prod-new',       'fa-plus-circle', 'New Run',   false) +
+        prodNavBtn('prod-waiting',   'fa-clock',       'Waiting',   false) +
+        prodNavBtn('prod-active',    'fa-cogs',        'Active',    false) +
+        prodNavBtn('prod-completed', 'fa-check-double','Completed', false) +
+        '</nav></div>';
+}
+
+function prodNavBtn(page, icon, label, active) {
+    return '<div data-prodpage="' + page + '" onclick="prodAppNav(\'' + page + '\')" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:2px;' +
+        'padding:6px 8px;border-radius:var(--rs);cursor:pointer;min-width:46px;' +
+        'color:' + (active?'var(--primary)':'var(--text-light)') + ';' +
+        'background:' + (active?'rgba(26,139,168,.08)':'transparent') + '">' +
+        '<i class="fas ' + icon + '" style="font-size:1rem"></i>' +
+        '<span style="font-size:.52rem;font-weight:600">' + label + '</span></div>';
+}
+
+function initProductionApp() {
+    PROD_APP.selectedMenu  = null;
+    PROD_APP.productions   = [];
+    prodAppRefresh();
+}
+
+function prodAppRefresh() {
+    if (!HUB.accountId) { prodAppNav('prod-dash'); return; }
+    db.collection('accounts').doc(HUB.accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                HUB.accountData = doc.data();
+                PROD_APP.productions = prodAppGetProductions();
+                prodAppNav(PROD_APP.currentPage);
+            }
+        })
+        .catch(function(){ prodAppNav(PROD_APP.currentPage); });
+}
+
+function prodAppNav(page) {
+    PROD_APP.currentPage = page;
+    document.querySelectorAll('[data-prodpage]').forEach(function(el){
+        var a = el.dataset.prodpage === page;
+        el.style.color      = a ? 'var(--primary)' : 'var(--text-light)';
+        el.style.background = a ? 'rgba(26,139,168,.08)' : 'transparent';
+    });
+    var c = document.getElementById('prod-content');
+    if (!c) return;
+    c.scrollTop = 0;
+    if      (page === 'prod-dash')      c.innerHTML = prodAppDash();
+    else if (page === 'prod-new')       c.innerHTML = prodAppNew();
+    else if (page === 'prod-waiting')   c.innerHTML = prodAppList('awaiting-stock');
+    else if (page === 'prod-active')    c.innerHTML = prodAppList('processing');
+    else if (page === 'prod-completed') c.innerHTML = prodAppList('completed');
+}
+
+/* ── Data helpers ── */
+function prodAppGetInv() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.inventory || {})[HUB.entityId] || [];
+}
+function prodAppGetMenu() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.menuItems || {})[HUB.entityId] || [];
+}
+function prodAppGetProductions() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.productions || {})[HUB.entityId] || [];
+}
+function prodAppGetPending() {
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.pendingPOs || {})[HUB.entityId] || [];
+}
+
+/* ── Dashboard ── */
+function prodAppDash() {
+    var prods     = PROD_APP.productions;
+    var waiting   = prods.filter(function(p){ return p.status==='awaiting-stock'; });
+    var active    = prods.filter(function(p){ return p.status==='processing'; });
+    var completed = prods.filter(function(p){ return p.status==='completed'; });
+    var menu      = prodAppGetMenu();
+
+    return '<div style="background:var(--bg-card);border-radius:var(--r);' +
+        'padding:16px;margin-bottom:14px;border-left:4px solid var(--primary)">' +
+        '<div style="font-size:.92rem;font-weight:700;color:var(--text)">' +
+        'Production Manager — ' + (HUB.entityName||'') + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">' +
+        menu.length + ' menu items • ' + prods.length + ' production runs</div>' +
+        '</div>' +
+
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">' +
+        prodStatCard('Awaiting Stock', waiting.length,   'var(--warning)') +
+        prodStatCard('Active Runs',    active.length,    'var(--primary)') +
+        prodStatCard('Completed',      completed.length, 'var(--success)') +
+        '</div>' +
+
+        (waiting.filter(function(p){ return p.canProcess; }).length > 0
+            ? '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);' +
+              'padding:12px;border-radius:var(--rs);margin-bottom:14px;cursor:pointer" ' +
+              'onclick="prodAppNav(\'prod-waiting\')">' +
+              '<div style="font-size:.85rem;font-weight:700;color:var(--success)">' +
+              '<i class="fas fa-check-circle"></i> ' +
+              waiting.filter(function(p){ return p.canProcess; }).length +
+              ' run(s) ready to process!</div>' +
+              '<div style="font-size:.72rem;color:var(--text-light);margin-top:4px">' +
+              'Stock is available — tap to process</div></div>'
+            : '') +
+
+        mActionBtn('fa-plus-circle',  'var(--primary)', 'New Production Run',
+            'Start a new batch production',          "prodAppNav('prod-new')")      +
+        mActionBtn('fa-clock',        'var(--warning)', 'Awaiting Stock',
+            waiting.length + ' runs waiting',        "prodAppNav('prod-waiting')")  +
+        mActionBtn('fa-cogs',         'var(--info)',    'Active Production',
+            active.length + ' runs processing',      "prodAppNav('prod-active')")   +
+        mActionBtn('fa-check-double', 'var(--success)', 'Completed Runs',
+            completed.length + ' runs completed',    "prodAppNav('prod-completed')");
+}
+
+function prodStatCard(label, value, color) {
+    return '<div style="background:var(--bg-card);border-radius:var(--r);' +
+        'padding:14px 10px;box-shadow:var(--shadow);' +
+        'border-left:3px solid ' + color + ';text-align:center">' +
+        '<div style="font-size:.58rem;color:var(--text-light);text-transform:uppercase;' +
+        'font-weight:600;margin-bottom:3px">' + label + '</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + value + '</div></div>';
+}
+
+/* ── New Production Run ── */
+function prodAppNew() {
+    var menu = prodAppGetMenu();
+
+    if (menu.length === 0) {
+        return '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-utensils" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text)">No Menu Items Found</h3>' +
+            '<p>Create menu items in the Web App or Menu Master app first.</p>' +
+            '<button onclick="prodAppRefresh()" ' +
+            'style="margin-top:14px;padding:12px 24px;background:var(--primary);' +
+            'color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;' +
+            'font-weight:700"><i class="fas fa-sync"></i> Refresh</button></div>';
+    }
+
+    var selectedMenu = PROD_APP.selectedMenu;
+    var inv          = prodAppGetInv();
+
+    return '<div style="font-size:.92rem;font-weight:800;color:var(--text);margin-bottom:16px">' +
+        '<i class="fas fa-industry" style="color:var(--primary)"></i> New Production Run</div>' +
+
+        // Step 1: Select menu item
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'margin-bottom:14px;border-left:3px solid var(--primary)">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:10px">' +
+        'Step 1 — Select Menu Item</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;background:var(--bg);' +
+        'border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;margin-bottom:8px">' +
+        '<i class="fas fa-search" style="color:var(--text-muted);font-size:.8rem"></i>' +
+        '<input type="text" id="prod-menu-search" placeholder="Search menu items..." ' +
+        'oninput="prodFilterMenu()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.85rem;font-family:inherit;' +
+        'color:var(--text);background:transparent"></div>' +
+        '<div id="prod-menu-list" style="max-height:200px;overflow-y:auto">' +
+        menu.map(function(m){
+            var isSelected = selectedMenu && selectedMenu.id === m.id;
+            return '<div class="prod-menu-item" ' +
+                'data-menuname="' + (m.name||'').toLowerCase() + '" ' +
+                'onclick="prodSelectMenu(\'' + m.id + '\')" ' +
+                'style="display:flex;align-items:center;gap:10px;padding:10px;' +
+                'background:' + (isSelected?'rgba(26,139,168,.15)':'var(--bg)') + ';' +
+                'border-radius:var(--rs);margin-bottom:6px;cursor:pointer;' +
+                'border:2px solid ' + (isSelected?'var(--primary)':'transparent') + '">' +
+                '<div style="width:32px;height:32px;border-radius:8px;' +
+                'background:' + (isSelected?'var(--primary)':'rgba(26,139,168,.1)') + ';' +
+                'display:flex;align-items:center;justify-content:center;' +
+                'color:' + (isSelected?'#fff':'var(--primary)') + ';flex-shrink:0">' +
+                '<i class="fas ' + (isSelected?'fa-check':'fa-utensils') + '"></i></div>' +
+                '<div style="flex:1">' +
+                '<div style="font-size:.85rem;font-weight:600;color:var(--text)">' + m.name + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-light)">' +
+                'Base yield: ' + (m.yield||1) + ' | Cost/portion: R' +
+                (m.costPerPortion||0).toFixed(2) + '</div></div></div>';
+        }).join('') +
+        '</div></div>' +
+
+        // Step 2: Target yield
+        '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'margin-bottom:14px;border-left:3px solid var(--gold)">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:10px">' +
+        'Step 2 — How Many Units to Produce?</div>' +
+        '<input type="number" id="prod-target-yield" min="1" placeholder="e.g. 50" ' +
+        'oninput="prodCalcRequirements()" ' +
+        'style="width:100%;padding:14px;border:2px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:1.1rem;font-weight:700;text-align:center">' +
+        '<div style="font-size:.72rem;color:var(--text-muted);text-align:center;margin-top:6px">' +
+        'Enter the number of finished units you want to produce</div>' +
+        '</div>' +
+
+        // Ingredient requirements (populated by prodCalcRequirements)
+        '<div id="prod-requirements" style="margin-bottom:14px"></div>' +
+
+        // Create button
+        '<button onclick="prodAppCreateRun()" ' +
+        'style="width:100%;padding:16px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));' +
+        'color:#fff;border:none;border-radius:var(--r);font-size:.95rem;font-weight:700;' +
+        'cursor:pointer;font-family:inherit;display:flex;align-items:center;' +
+        'justify-content:center;gap:10px">' +
+        '<i class="fas fa-industry"></i> Create Production Run</button>';
+}
+
+function prodFilterMenu() {
+    var q = (document.getElementById('prod-menu-search')||{}).value || '';
+    q = q.toLowerCase();
+    document.querySelectorAll('.prod-menu-item').forEach(function(el){
+        el.style.display = (el.dataset.menuname||'').includes(q) ? '' : 'none';
+    });
+}
+
+function prodSelectMenu(menuId) {
+    var menu = prodAppGetMenu();
+    PROD_APP.selectedMenu = menu.find(function(m){ return m.id === menuId; });
+    // Re-render the new run page with selection highlighted
+    var c = document.getElementById('prod-content');
+    if (c) c.innerHTML = prodAppNew();
+    // Scroll to yield input
+    setTimeout(function(){
+        var inp = document.getElementById('prod-target-yield');
+        if (inp) inp.focus();
+    }, 200);
+}
+
+function prodCalcRequirements() {
+    if (!PROD_APP.selectedMenu) {
+        var el = document.getElementById('prod-requirements');
+        if (el) el.innerHTML = '<div style="color:var(--warning);font-size:.82rem;' +
+            'padding:10px;text-align:center">Please select a menu item first</div>';
+        return;
+    }
+
+    var m          = PROD_APP.selectedMenu;
+    var targetYield= parseFloat(document.getElementById('prod-target-yield') ?
+                     document.getElementById('prod-target-yield').value : 0) || 0;
+    var el         = document.getElementById('prod-requirements');
+    if (!el) return;
+
+    if (targetYield <= 0) { el.innerHTML = ''; return; }
+
+    var baseYield  = m.yield || 1;
+    var multiplier = targetYield / baseYield;
+    var inv        = prodAppGetInv();
+    var totalCost  = 0;
+    var hasShortage= false;
+
+    var html = '<div style="background:var(--bg-card);border-radius:var(--r);padding:14px;' +
+        'border-left:3px solid var(--accent)">' +
+        '<div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:10px">' +
+        'Ingredient Requirements for ' + targetYield + ' units:</div>';
+
+    (m.ingredients||[]).forEach(function(ing){
+        var reqQty     = parseFloat((ing.qty*multiplier).toFixed(3));
+        var invItem    = inv.find(function(i){ return i.id === ing.itemId; });
+        var inStock    = invItem ? invItem.quantity : 0;
+        var latestCost = invItem ? (invItem.cost||ing.cost||0) : (ing.cost||0);
+        var lineCost   = reqQty * latestCost;
+        totalCost     += lineCost;
+        var ok         = inStock >= reqQty;
+        if (!ok) hasShortage = true;
+
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;' +
+            'border-bottom:1px solid var(--border-light)">' +
+            '<div style="flex:2;font-size:.82rem;color:var(--text)">' + ing.item + '</div>' +
+            '<div style="flex:1;font-size:.78rem;text-align:center;color:var(--text-mid)">' +
+            'Need: <strong>' + reqQty + ' ' + ing.unit + '</strong></div>' +
+            '<div style="flex:1;font-size:.78rem;text-align:center;' +
+            'color:' + (ok?'var(--success)':'var(--danger)') + ';font-weight:700">' +
+            'Have: ' + inStock + '</div>' +
+            '<div style="flex:1;font-size:.75rem;text-align:right;color:var(--accent)">' +
+            'R' + lineCost.toFixed(2) + '</div></div>';
+    });
+
+    var cpp = totalCost / targetYield;
+
+    html += '<div style="display:flex;justify-content:space-between;padding:10px 0;' +
+        'margin-top:4px;font-size:.88rem;font-weight:700">' +
+        '<span style="color:var(--text)">Total Cost</span>' +
+        '<span style="color:var(--accent)">R' + totalCost.toFixed(2) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:.82rem">' +
+        '<span style="color:var(--text-mid)">Cost per Unit</span>' +
+        '<span style="color:var(--accent);font-weight:700">R' + cpp.toFixed(2) + '</span></div>' +
+
+        (hasShortage
+            ? '<div style="background:rgba(212,160,23,.1);border-left:3px solid var(--warning);' +
+              'padding:10px;border-radius:var(--rs);margin-top:10px;font-size:.78rem;color:var(--text)">' +
+              '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> ' +
+              'Some ingredients are insufficient. POs will be auto-generated for shortages.</div>'
+            : '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);' +
+              'padding:10px;border-radius:var(--rs);margin-top:10px;font-size:.78rem;color:var(--text)">' +
+              '<i class="fas fa-check-circle" style="color:var(--success)"></i> ' +
+              'All ingredients available — ready to process immediately!</div>') +
+        '</div>';
+
+    el.innerHTML = html;
+}
+
+function prodAppCreateRun() {
+    if (!PROD_APP.selectedMenu) {
+        hubToast('error','Select a menu item first'); return;
+    }
+    var targetYield = parseFloat(document.getElementById('prod-target-yield') ?
+                      document.getElementById('prod-target-yield').value : 0) || 0;
+    if (targetYield <= 0) {
+        hubToast('error','Enter the number of units to produce'); return;
+    }
+
+    var m          = PROD_APP.selectedMenu;
+    var inv        = prodAppGetInv();
+    var baseYield  = m.yield || 1;
+    var multiplier = targetYield / baseYield;
+    var totalCost  = 0;
+    var hasShortage= false;
+    var requiredIngredients = [];
+    var shortages  = [];
+
+    (m.ingredients||[]).forEach(function(ing){
+        var reqQty     = parseFloat((ing.qty*multiplier).toFixed(3));
+        var invItem    = inv.find(function(i){ return i.id === ing.itemId; });
+        var inStock    = invItem ? invItem.quantity : 0;
+        var latestCost = invItem ? (invItem.cost||ing.cost||0) : (ing.cost||0);
+        var lineCost   = reqQty * latestCost;
+        totalCost     += lineCost;
+        var ok         = inStock >= reqQty;
+        if (!ok) {
+            hasShortage = true;
+            shortages.push({
+                itemId: ing.itemId, item: ing.item, unit: ing.unit||'each',
+                needed: parseFloat((reqQty-inStock).toFixed(3)), cost: latestCost
+            });
+        }
+        requiredIngredients.push({
+            itemId:ing.itemId, item:ing.item, unit:ing.unit||'each',
+            baseQty:ing.qty, totalQty:reqQty, cost:latestCost,
+            lineCost:parseFloat(lineCost.toFixed(2)), inStock:inStock, sufficient:ok
+        });
+    });
+
+    var costPerUnit = totalCost / targetYield;
+    var prodId      = 'PROD-' + Date.now();
+    var prod        = {
+        id:                  prodId,
+        menuItemId:          m.id,
+        menuItemName:        m.name,
+        targetYield:         targetYield,
+        baseYield:           baseYield,
+        requiredIngredients: requiredIngredients,
+        totalProductionCost: parseFloat(totalCost.toFixed(2)),
+        costPerUnit:         parseFloat(costPerUnit.toFixed(2)),
+        status:              hasShortage ? 'awaiting-stock' : 'processing',
+        canProcess:          !hasShortage,
+        createdAt:           new Date().toISOString(),
+        createdBy:           HUB.user ? HUB.user.name : 'Production App',
+        source:              'Production App'
+    };
+
+    if (!hasShortage) {
+        prod.processedAt = new Date().toISOString();
+        prod.processedBy = HUB.user ? HUB.user.name : 'Production App';
+        // Deduct ingredients from inventory
+        requiredIngredients.forEach(function(req){
+            var invItem = inv.find(function(i){ return i.id === req.itemId; });
+            if (invItem) {
+                invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
+                invItem.value    = parseFloat((invItem.quantity*invItem.cost).toFixed(2));
+                invItem.status   = invItem.quantity===0?'out-of-stock':
+                    invItem.quantity<=(invItem.parLevel||0)?'low-stock':'in-stock';
+            }
+        });
+        // Add produced units to inventory
+        var existing = inv.find(function(i){
+            return i.name.toLowerCase()===m.name.toLowerCase() || i.menuItemId===m.id;
+        });
+        if (existing) {
+            existing.quantity   += targetYield;
+            existing.cost        = parseFloat(costPerUnit.toFixed(2));
+            existing.value       = parseFloat((existing.quantity*existing.cost).toFixed(2));
+            existing.status      = 'in-stock';
+            existing.lastUpdated = new Date().toISOString();
+        } else {
+            inv.push({
+                id:         'ITM-PROD-' + Date.now(),
+                menuItemId: m.id,
+                name:       m.name,
+                category:   'Produced',
+                department: 'Production',
+                location:   'Main Store',
+                unit:       'each',
+                quantity:   targetYield,
+                cost:       parseFloat(costPerUnit.toFixed(2)),
+                lastCost:   0,
+                value:      parseFloat((targetYield*costPerUnit).toFixed(2)),
+                status:     'in-stock',
+                parLevel:   0,
+                reorder:    0,
+                isVat:      true,
+                isProduced: true,
+                linkedSuppliers:[],
+                addedDate:  new Date().toISOString(),
+                addedBy:    'Production App'
+            });
+        }
+    }
+
+    // Get existing productions and add new one
+    var existingProds = prodAppGetProductions();
+    existingProds.unshift(prod);
+
+    // Generate POs for shortages
+    var pendingPOs = prodAppGetPending();
+    if (hasShortage) {
+        var bySupplier = {};
+        shortages.forEach(function(s){
+            var invItem = inv.find(function(i){ return i.id === s.itemId; });
+            var supName = (invItem&&invItem.supplier) ? invItem.supplier : 'Unknown Supplier';
+            if (!bySupplier[supName]) bySupplier[supName] = [];
+            bySupplier[supName].push({
+                id:s.itemId, name:s.item, qty:s.needed,
+                unit:s.unit, cost:s.cost,
+                total:parseFloat((s.needed*s.cost).toFixed(2))
+            });
+        });
+        Object.keys(bySupplier).forEach(function(supName){
+            var items = bySupplier[supName];
+            var total = items.reduce(function(sum,i){ return sum+i.total; },0);
+            pendingPOs.push({
+                id:           'PPO-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                supplier:     supName, items:items, total:total,
+                date:         new Date().toISOString(),
+                status:       'Pending Approval',
+                generatedBy:  'Production App',
+                productionId: prodId
+            });
+        });
+    }
+
+    hubToast('info','Saving production run...');
+
+    var update = {};
+    update['productions.' + HUB.entityId] = existingProds;
+    update['inventory.'   + HUB.entityId] = inv;
+    if (pendingPOs.length > 0) {
+        update['pendingPOs.' + HUB.entityId] = pendingPOs;
+    }
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'Production App';
+    update['lastUpdatedDevice'] = 'Production App';
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            if (HUB.accountData) {
+                if (!HUB.accountData.productions) HUB.accountData.productions = {};
+                HUB.accountData.productions[HUB.entityId] = existingProds;
+                if (!HUB.accountData.inventory) HUB.accountData.inventory = {};
+                HUB.accountData.inventory[HUB.entityId] = inv;
+            }
+            PROD_APP.productions = existingProds;
+            PROD_APP.selectedMenu = null;
+
+            if (hasShortage) {
+                hubToast('warning',
+                    '⏳ Production saved — POs generated for ' + shortages.length +
+                    ' shortage(s). Check Purchases in Web App.');
+            } else {
+                hubToast('success',
+                    '✅ Production started! ' + targetYield + ' units added to stock.');
+            }
+            setTimeout(function(){
+                prodAppNav(hasShortage ? 'prod-waiting' : 'prod-active');
+            }, 1000);
+        })
+        .catch(function(err){ hubToast('error','Error: '+err.message); });
+}
+
+/* ── Production List ── */
+function prodAppList(status) {
+    var prods = PROD_APP.productions.filter(function(p){ return p.status === status; });
+    var titles = {
+        'awaiting-stock':'Awaiting Stock',
+        'processing':    'Active Production',
+        'completed':     'Completed'
+    };
+    var colors = {
+        'awaiting-stock':'var(--warning)',
+        'processing':    'var(--primary)',
+        'completed':     'var(--success)'
+    };
+
+    var html = '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);' +
+        'text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">' +
+        titles[status] + ' (' + prods.length + ')</div>';
+
+    if (prods.length === 0) {
+        return html + '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-inbox" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No ' + titles[status].toLowerCase() + ' runs</p></div>';
+    }
+
+    html += prods.map(function(p){
+        var color = colors[status] || 'var(--primary)';
+        return '<div style="background:var(--bg-card);border-radius:var(--rs);' +
+            'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+            'border-left:4px solid ' + color + '">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+            '<div>' +
+            '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' +
+            p.menuItemName + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-light)">' +
+            'Target: ' + p.targetYield + ' units • Cost: R' +
+            (p.costPerUnit||0).toFixed(2) + '/unit</div>' +
+            '</div>' +
+            '<span style="font-size:.65rem;padding:3px 10px;border-radius:10px;' +
+            'font-weight:600;background:rgba(0,0,0,.1);color:' + color + '">' +
+            p.status.replace(/-/g,' ') + '</span>' +
+            '</div>' +
+
+            (status === 'awaiting-stock'
+                ? (p.canProcess
+                    ? '<button onclick="prodAppProcess(\'' + p.id + '\')" ' +
+                      'style="width:100%;padding:10px;background:var(--success);color:#fff;' +
+                      'border:none;border-radius:var(--rs);font-size:.82rem;font-weight:700;' +
+                      'cursor:pointer;font-family:inherit">' +
+                      '<i class="fas fa-play"></i> Stock Available — Process Now</button>'
+                    : '<div style="background:rgba(212,160,23,.1);border-radius:var(--rs);' +
+                      'padding:8px 10px;font-size:.75rem;color:var(--warning)">' +
+                      '<i class="fas fa-clock"></i> Awaiting stock — POs sent to suppliers</div>')
+                : '') +
+
+            (status === 'processing'
+                ? '<button onclick="prodAppComplete(\'' + p.id + '\')" ' +
+                  'style="width:100%;padding:10px;background:var(--success);color:#fff;' +
+                  'border:none;border-radius:var(--rs);font-size:.82rem;font-weight:700;' +
+                  'cursor:pointer;font-family:inherit">' +
+                  '<i class="fas fa-check-double"></i> Mark as Completed</button>'
+                : '') +
+
+            (status === 'completed' && p.completedAt
+                ? '<div style="font-size:.68rem;color:var(--text-muted);margin-top:6px">' +
+                  'Completed: ' + new Date(p.completedAt).toLocaleString('en-ZA') +
+                  (p.completedBy ? ' by ' + p.completedBy : '') + '</div>'
+                : '') +
+            '</div>';
+    }).join('');
+
+    return html;
+}
+
+function prodAppProcess(prodId) {
+    var prods    = PROD_APP.productions;
+    var prod     = prods.find(function(p){ return p.id === prodId; });
+    if (!prod) return;
+
+    var inv   = prodAppGetInv();
+    var total = 0;
+
+    // Deduct ingredients
+    prod.requiredIngredients.forEach(function(req){
+        var invItem = inv.find(function(i){ return i.id === req.itemId; });
+        if (invItem) {
+            invItem.quantity = Math.max(0, invItem.quantity - req.totalQty);
+            invItem.value    = parseFloat((invItem.quantity*(invItem.cost||0)).toFixed(2));
+            invItem.status   = invItem.quantity===0?'out-of-stock':
+                invItem.quantity<=(invItem.parLevel||0)?'low-stock':'in-stock';
+        }
+        total += req.lineCost || 0;
+    });
+
+    // Add produced units
+    var existing = inv.find(function(i){
+        return i.name.toLowerCase()===prod.menuItemName.toLowerCase() ||
+               i.menuItemId===prod.menuItemId;
+    });
+    var cpp = prod.targetYield > 0 ? total/prod.targetYield : 0;
+    if (existing) {
+        existing.quantity   += prod.targetYield;
+        existing.cost        = parseFloat(cpp.toFixed(2));
+        existing.value       = parseFloat((existing.quantity*existing.cost).toFixed(2));
+        existing.status      = 'in-stock';
+        existing.lastUpdated = new Date().toISOString();
+    } else {
+        inv.push({
+            id:'ITM-PROD-'+Date.now(), menuItemId:prod.menuItemId,
+            name:prod.menuItemName, category:'Produced', department:'Production',
+            location:'Main Store', unit:'each', quantity:prod.targetYield,
+            cost:parseFloat(cpp.toFixed(2)), lastCost:0,
+            value:parseFloat((prod.targetYield*cpp).toFixed(2)),
+            status:'in-stock', parLevel:0, reorder:0, isVat:true,
+            isProduced:true, linkedSuppliers:[],
+            addedDate:new Date().toISOString(), addedBy:'Production App'
+        });
+    }
+
+    prod.status      = 'processing';
+    prod.processedAt = new Date().toISOString();
+    prod.processedBy = HUB.user ? HUB.user.name : 'Production App';
+    prod.canProcess  = false;
+
+    prodAppSaveAndRefresh(prods, inv, 'prod-active',
+        '✅ Production started! ' + prod.targetYield + ' units added to stock.');
+}
+
+function prodAppComplete(prodId) {
+    var prods = PROD_APP.productions;
+    var prod  = prods.find(function(p){ return p.id === prodId; });
+    if (!prod) return;
+    prod.status      = 'completed';
+    prod.completedAt = new Date().toISOString();
+    prod.completedBy = HUB.user ? HUB.user.name : 'Production App';
+    if (prod.processedAt) {
+        prod.durationHrs = parseFloat(
+            ((new Date(prod.completedAt)-new Date(prod.processedAt))/3600000).toFixed(2)
+        );
+    }
+    prodAppSaveAndRefresh(prods, null, 'prod-completed', '🎉 Production completed!');
+}
+
+function prodAppSaveAndRefresh(prods, inv, navigateTo, successMsg) {
+    var update = {};
+    update['productions.' + HUB.entityId] = prods;
+    if (inv) update['inventory.' + HUB.entityId] = inv;
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'Production App';
+    update['lastUpdatedDevice'] = 'Production App';
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            if (HUB.accountData) {
+                if (!HUB.accountData.productions) HUB.accountData.productions = {};
+                HUB.accountData.productions[HUB.entityId] = prods;
+                if (inv) {
+                    if (!HUB.accountData.inventory) HUB.accountData.inventory = {};
+                    HUB.accountData.inventory[HUB.entityId] = inv;
+                }
+            }
+            PROD_APP.productions = prods;
+            hubToast('success', successMsg);
+            setTimeout(function(){ prodAppNav(navigateTo); }, 1000);
+        })
+        .catch(function(err){ hubToast('error','Error: '+err.message); });
+}
+
+console.log('✅ Production Manager App v1.0 loaded');
+</script>
+<script>
+/* ============================================================
+   PROCURE AI APP v2.0
+   - Pulls inventory from web app correctly
+   - Voice ordering
+   - Sends orders to web app properly
+   - Receives POs back and shows in pending tab
+   - Mark received → triggers auto GRV in web app
 ============================================================ */
 
 var PROC = {
-    currentPage: 'proc-dash',
-    cart:        [],
-    itemRequests:[] // From ItemPro
+    currentPage:   'proc-dash',
+    cart:          [],
+    itemRequests:  [],
+    voiceRecog:    null,
+    isVoiceActive: false
 };
 
 function getProcureAppHTML() {
     return '<div style="position:fixed;inset:0;display:flex;' +
         'flex-direction:column;background:var(--bg)">' +
-
-        // Header
         '<header class="hub-header" ' +
         'style="background:linear-gradient(90deg,#d97706,#f59e0b)">' +
         '<button class="return-hub-btn" onclick="closeEmbeddedApp()">' +
         '<i class="fas fa-arrow-left"></i> Hub</button>' +
-        '<div style="flex:1;display:flex;align-items:center;' +
-        'gap:8px;color:#fff">' +
+        '<div style="flex:1;display:flex;align-items:center;gap:8px;color:#fff">' +
         '<i class="fas fa-shopping-basket"></i>' +
         '<div><div style="font-size:.88rem;font-weight:700">ProcureAI</div>' +
         '<div style="font-size:.62rem;color:rgba(255,255,255,.7)">' +
         (HUB.entityName || 'Entity') + '</div></div></div>' +
+        // MIC BUTTON IN HEADER
+        '<button onclick="procVoiceOrder()" ' +
+        'style="width:38px;height:38px;border-radius:50%;' +
+        'background:rgba(255,255,255,.2);border:none;color:#fff;' +
+        'cursor:pointer;display:flex;align-items:center;' +
+        'justify-content:center;font-size:1rem;margin-right:8px" ' +
+        'title="Voice Order">' +
+        '<i class="fas fa-microphone"></i></button>' +
         '<button class="hub-hbtn" onclick="procRefresh()" ' +
         'style="background:rgba(255,255,255,.15)">' +
         '<i class="fas fa-sync-alt"></i></button>' +
         '</header>' +
-
-        // Content
         '<div id="proc-content" style="flex:1;overflow-y:auto;' +
         'padding:16px;padding-bottom:80px;' +
         '-webkit-overflow-scrolling:touch"></div>' +
-
-        // Bottom Nav
         '<nav style="height:var(--nav-h);background:var(--bg-card);' +
         'border-top:1px solid var(--border);display:flex;' +
         'align-items:center;justify-content:space-around;' +
         'flex-shrink:0;padding:0 8px 8px;z-index:50">' +
-        pNavBtn('proc-dash',     'fa-chart-pie',          'Dashboard', true)  +
-        pNavBtn('proc-new',      'fa-plus-circle',         'New Order', false) +
-        pNavBtn('proc-orders',   'fa-clock',               'Orders',   false) +
-        pNavBtn('proc-requests', 'fa-barcode',             'Requests', false) +
-        pNavBtn('proc-low',      'fa-exclamation-triangle','Low Stock',false) +
-        pNavBtn('proc-sups',     'fa-truck',               'Suppliers',false) +
+        pNavBtn('proc-dash',   'fa-chart-pie',           'Dashboard', true)  +
+        pNavBtn('proc-new',    'fa-plus-circle',          'New Order', false) +
+        pNavBtn('proc-pending','fa-clock',                'Pending',   false) +
+        pNavBtn('proc-transit','fa-truck',                'In Transit',false) +
+        pNavBtn('proc-low',    'fa-exclamation-triangle', 'Low Stock', false) +
         '</nav></div>';
 }
 
@@ -5846,29 +7176,31 @@ function pNavBtn(page, icon, label, active) {
         'gap:2px;padding:6px 8px;border-radius:var(--rs);cursor:pointer;' +
         'min-width:46px;color:' +
         (active ? 'var(--gold)' : 'var(--text-light)') + ';' +
-        'background:' +
-        (active ? 'rgba(245,158,11,.08)' : 'transparent') + '">' +
+        'background:' + (active ? 'rgba(245,158,11,.08)' : 'transparent') + '">' +
         '<i class="fas ' + icon + '" style="font-size:1rem"></i>' +
-        '<span style="font-size:.55rem;font-weight:600">' +
-        label + '</span></div>';
+        '<span style="font-size:.52rem;font-weight:600">' + label + '</span></div>';
 }
 
 function initProcureApp() {
-    PROC.cart        = [];
+    PROC.cart         = [];
     PROC.itemRequests = pGetItemRequests();
-    procNav('proc-dash');
+    // Force refresh from Firestore to get latest inventory
+    procRefresh();
 }
 
 function procRefresh() {
-    hubToast('info', 'Refreshing...');
+    if (!HUB.accountId) { procNav('proc-dash'); return; }
     db.collection('accounts').doc(HUB.accountId).get()
         .then(function(doc) {
             if (doc.exists) {
                 HUB.accountData   = doc.data();
                 PROC.itemRequests = pGetItemRequests();
                 procNav(PROC.currentPage);
-                hubToast('success', 'Refreshed');
             }
+        })
+        .catch(function(err) {
+            hubToast('error', 'Refresh failed: ' + err.message);
+            procNav(PROC.currentPage);
         });
 }
 
@@ -5876,47 +7208,46 @@ function procNav(page) {
     PROC.currentPage = page;
     document.querySelectorAll('[data-ppage]').forEach(function(el) {
         var a = el.dataset.ppage === page;
-        el.style.color      = a ? 'var(--gold)' : 'var(--text-light)';
-        el.style.background = a ? 'rgba(245,158,11,.08)' : 'transparent';
+        el.style.color      = a ? 'var(--gold)'              : 'var(--text-light)';
+        el.style.background = a ? 'rgba(245,158,11,.08)'     : 'transparent';
     });
     var c = document.getElementById('proc-content');
     if (!c) return;
     c.scrollTop = 0;
-    if      (page === 'proc-dash')     c.innerHTML = procDash();
-    else if (page === 'proc-new')      c.innerHTML = procNewOrder();
-    else if (page === 'proc-orders')   c.innerHTML = procOrders();
-    else if (page === 'proc-requests') c.innerHTML = procItemRequests();
-    else if (page === 'proc-low')      c.innerHTML = procLowStock();
-    else if (page === 'proc-sups')     c.innerHTML = procSuppliers();
+    if      (page === 'proc-dash')    c.innerHTML = procDash();
+    else if (page === 'proc-new')     c.innerHTML = procNewOrder();
+    else if (page === 'proc-pending') c.innerHTML = procPendingOrders();
+    else if (page === 'proc-transit') c.innerHTML = procTransitOrders();
+    else if (page === 'proc-low')     c.innerHTML = procLowStock();
 }
 
-/* ── Data helpers ── */
+/* ── Data helpers — Fixed to read correctly ── */
 function pGetInv() {
-    return HUB.accountData && HUB.entityId
-        ? (HUB.accountData.inventory  || {})[HUB.entityId] || [] : [];
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.inventory || {})[HUB.entityId] || [];
 }
 function pGetPurch() {
-    return HUB.accountData && HUB.entityId
-        ? (HUB.accountData.purchases  || {})[HUB.entityId] || [] : [];
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.purchases || {})[HUB.entityId] || [];
 }
 function pGetPending() {
-    return HUB.accountData && HUB.entityId
-        ? (HUB.accountData.pendingPOs || {})[HUB.entityId] || [] : [];
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.pendingPOs || {})[HUB.entityId] || [];
 }
 function pGetSups() {
-    return HUB.accountData && HUB.entityId
-        ? (HUB.accountData.suppliers  || {})[HUB.entityId] || [] : [];
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.suppliers || {})[HUB.entityId] || [];
 }
 function pGetItemRequests() {
-    return HUB.accountData && HUB.entityId
-        ? (HUB.accountData.itemProRequests || {})[HUB.entityId] || [] : [];
+    if (!HUB.accountData || !HUB.entityId) return [];
+    return (HUB.accountData.itemProRequests || {})[HUB.entityId] || [];
 }
 
 function pFmt(n) {
     n = n || 0;
-    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-    return n.toFixed(0);
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return Number(n).toFixed(0);
 }
 
 function pStat(l, v, c) {
@@ -5924,321 +7255,401 @@ function pStat(l, v, c) {
         'padding:14px 10px;box-shadow:var(--shadow);' +
         'border-left:3px solid ' + c + ';text-align:center">' +
         '<div style="font-size:.58rem;color:var(--text-light);' +
-        'text-transform:uppercase;font-weight:600;margin-bottom:3px">' +
-        l + '</div>' +
-        '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' +
-        v + '</div></div>';
-}
-
-function pStatusBadge(status) {
-    var colors = {
-        'In Transit': 'var(--primary)',
-        'Processing': 'var(--gold)',
-        'Received':   'var(--success)',
-        'Delivered':  'var(--success)',
-        'Declined':   'var(--danger)',
-        'Pending':    'var(--warning)'
-    };
-    var c = colors[status] || 'var(--text-muted)';
-    return '<span style="padding:3px 10px;border-radius:12px;' +
-        'font-size:.65rem;font-weight:600;' +
-        'background:rgba(0,0,0,.15);color:' + c + '">' +
-        status + '</span>';
+        'text-transform:uppercase;font-weight:600;margin-bottom:3px">' + l + '</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' + v + '</div></div>';
 }
 
 /* ── Dashboard ── */
 function procDash() {
-    var inv      = pGetInv();
-    var low      = inv.filter(function(i) {
+    var inv       = pGetInv();
+    var low       = inv.filter(function(i) {
         return i.status === 'low-stock' || i.status === 'out-of-stock';
     });
     var purchases = pGetPurch();
     var transit   = purchases.filter(function(p) {
         return p.status === 'In Transit' || p.status === 'Processing';
     });
-    var requests  = PROC.itemRequests.filter(function(r) {
-        return r.status === 'pending';
-    });
+    var pending   = pGetPending();
+    var requests  = PROC.itemRequests.filter(function(r) { return r.status === 'pending'; });
 
     var html =
-        // Welcome
         '<div style="background:var(--bg-card);border-radius:var(--r);' +
-        'padding:16px;box-shadow:var(--shadow);margin-bottom:14px;' +
-        'display:flex;align-items:center;gap:12px;' +
-        'border-left:4px solid var(--gold)">' +
-        '<div style="width:44px;height:44px;border-radius:12px;' +
-        'background:linear-gradient(135deg,var(--gold),var(--gold-dark));' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'color:#fff;font-size:1.1rem">' +
-        '<i class="fas fa-shopping-basket"></i></div>' +
-        '<div><div style="font-size:.92rem;font-weight:700;color:var(--text)">' +
-        'ProcureAI — ' + (HUB.entityName || '') + '</div>' +
-        '<div style="font-size:.72rem;color:var(--text-light)">' +
-        'Smart procurement & ordering</div></div></div>' +
+        'padding:16px;margin-bottom:14px;border-left:4px solid var(--gold)">' +
+        '<div style="font-size:.92rem;font-weight:700;color:var(--text)">' +
+        'ProcureAI — ' + (HUB.entityName||'') + '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">Smart procurement & ordering</div>' +
+        '</div>' +
 
-        // Stats
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);' +
-        'gap:10px;margin-bottom:14px">' +
-        pStat('Low Stock',  low.length,               'var(--danger)') +
-        pStat('In Transit', transit.length,           'var(--primary)') +
-        pStat('Requests',   requests.length,          'var(--gold)') +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">' +
+        pStat('Inventory Items', inv.length,     'var(--primary)') +
+        pStat('Low Stock',       low.length,     'var(--danger)')  +
+        pStat('In Transit',      transit.length, 'var(--gold)')    +
+        pStat('Pending POs',     pending.length, 'var(--warning)') +
+        '</div>' +
+
+        // Voice order button — prominent
+        '<div style="background:linear-gradient(135deg,#d97706,#f59e0b);' +
+        'border-radius:var(--r);padding:16px;margin-bottom:14px;' +
+        'text-align:center;cursor:pointer" onclick="procVoiceOrder()">' +
+        '<div style="font-size:2rem;margin-bottom:8px">🎤</div>' +
+        '<div style="font-size:.92rem;font-weight:700;color:#fff">' +
+        'Voice Order</div>' +
+        '<div style="font-size:.72rem;color:rgba(255,255,255,.8);margin-top:4px">' +
+        'Say your order out loud — e.g. "Order 10kg chicken breast and 5 liters cooking oil"' +
+        '</div></div>' +
+
+        (requests.length > 0
+            ? '<div style="background:rgba(245,158,11,.1);border-left:3px solid var(--gold);' +
+              'padding:12px;border-radius:var(--rs);margin-bottom:14px;cursor:pointer" ' +
+              'onclick="procNav(\'proc-new\')">' +
+              '<div style="font-size:.85rem;font-weight:700;color:var(--gold)">' +
+              '<i class="fas fa-barcode"></i> ' + requests.length + ' ItemPro Request(s) Pending</div>' +
+              '<div style="font-size:.72rem;color:var(--text-light);margin-top:4px">Tap to review</div>' +
+              '</div>'
+            : '') +
+
+        '<div style="display:flex;flex-direction:column;gap:10px">' +
+        mActionBtn('fa-plus-circle',        'var(--primary)', 'Create Manual Order', 'Select items manually',      "procNav('proc-new')")     +
+        mActionBtn('fa-clock',              'var(--gold)',     'Pending Approval',    pending.length + ' POs waiting',"procNav('proc-pending')") +
+        mActionBtn('fa-truck',              'var(--info)',     'In Transit',          transit.length + ' orders',   "procNav('proc-transit')") +
+        mActionBtn('fa-exclamation-triangle','var(--danger)',  'Low Stock',           low.length + ' items',        "procNav('proc-low')")     +
         '</div>';
-
-    // ItemPro requests alert
-    if (requests.length > 0) {
-        html +=
-            '<div style="background:rgba(245,158,11,.1);' +
-            'border-left:3px solid var(--gold);padding:12px;' +
-            'border-radius:var(--rs);margin-bottom:14px;' +
-            'cursor:pointer" onclick="procNav(\'proc-requests\')">' +
-            '<div style="font-size:.85rem;font-weight:700;color:var(--gold)">' +
-            '<i class="fas fa-barcode"></i> ' +
-            requests.length + ' ItemPro Request(s) Pending</div>' +
-            '<div style="font-size:.72rem;color:var(--text-light);' +
-            'margin-top:4px">Tap to review and add to order</div></div>';
-    }
-
-    // Weather-based recommendations
-    if (HUB.weatherData) {
-        var w = HUB.weatherData;
-        var tip = w.temp > 30
-            ? '🌡️ Hot weather — consider extra beverages & ice'
-            : w.temp < 15
-                ? '🌨️ Cold weather — consider extra hot beverages & soups'
-                : '✅ Normal conditions — standard ordering recommended';
-        html +=
-            '<div style="background:rgba(13,148,136,.08);' +
-            'border-left:3px solid #0d9488;padding:12px;' +
-            'border-radius:var(--rs);margin-bottom:14px;' +
-            'font-size:.78rem;color:var(--text-mid)">' +
-            '<i class="fas fa-cloud-sun" style="color:#0d9488"></i> ' +
-            w.temp + '°C ' + (w.desc || '') + ' — ' + tip + '</div>';
-    }
-
-    // Quick actions
-    html +=
-        '<div style="font-size:.78rem;font-weight:700;' +
-        'color:var(--text-light);text-transform:uppercase;' +
-        'letter-spacing:1px;margin:14px 0 8px">Quick Actions</div>' +
-
-        mActionBtn('fa-plus-circle', 'var(--primary)',
-            'Create New Order', 'Place a stock order',
-            "procNav('proc-new')") +
-        mActionBtn('fa-clock', 'var(--gold)',
-            'Orders In Transit', transit.length + ' orders pending',
-            "procNav('proc-orders')") +
-        mActionBtn('fa-exclamation-triangle', 'var(--danger)',
-            'Low Stock', low.length + ' items need attention',
-            "procNav('proc-low')") +
-        mActionBtn('fa-truck', 'var(--info)',
-            'Suppliers', 'View & contact suppliers',
-            "procNav('proc-sups')");
-
-    // Recent received POs
-    var received = purchases.filter(function(p) {
-        return p.status === 'Received' || p.status === 'Delivered';
-    }).slice(0, 3);
-
-    if (received.length > 0) {
-        html +=
-            '<div style="font-size:.78rem;font-weight:700;' +
-            'color:var(--text-light);text-transform:uppercase;' +
-            'letter-spacing:1px;margin:14px 0 8px">Recently Received</div>' +
-            received.map(function(p) {
-                return '<div style="display:flex;align-items:center;' +
-                    'gap:12px;padding:10px 14px;background:var(--bg-card);' +
-                    'border-radius:var(--rs);margin-bottom:8px;' +
-                    'box-shadow:var(--shadow);' +
-                    'border-left:3px solid var(--success)">' +
-                    '<i class="fas fa-check-circle" ' +
-                    'style="color:var(--success);flex-shrink:0"></i>' +
-                    '<div style="flex:1">' +
-                    '<div style="font-size:.85rem;font-weight:600;' +
-                    'color:var(--text)">' + p.id + '</div>' +
-                    '<div style="font-size:.7rem;color:var(--text-light)">' +
-                    p.supplier + ' — R' + (p.total || 0).toFixed(2) +
-                    '</div></div></div>';
-            }).join('');
-    }
 
     return html;
 }
 
-/* ── New Order ── */
+/* ── VOICE ORDER ── */
+function procVoiceOrder() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        hubToast('warning', 'Voice not supported on this browser');
+        return;
+    }
+
+    // Show listening UI
+    var c = document.getElementById('proc-content');
+    if (!c) return;
+    c.innerHTML =
+        '<div style="text-align:center;padding:40px 20px">' +
+        '<div id="proc-voice-anim" style="width:100px;height:100px;' +
+        'border-radius:50%;background:linear-gradient(135deg,#d97706,#f59e0b);' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'margin:0 auto 20px;font-size:2.5rem;' +
+        'animation:procPulse 1.5s ease-in-out infinite">' +
+        '<i class="fas fa-microphone" style="color:#fff"></i></div>' +
+        '<style>@keyframes procPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.4)}' +
+        '50%{box-shadow:0 0 0 20px rgba(217,119,6,0)}}</style>' +
+        '<h3 style="color:var(--text);margin-bottom:8px">Listening...</h3>' +
+        '<p id="proc-voice-status" style="color:var(--text-light);font-size:.85rem">' +
+        'Say your order — e.g. "10kg chicken breast and 5 liters cooking oil"</p>' +
+        '<div id="proc-voice-result" style="margin-top:20px;padding:14px;' +
+        'background:var(--bg-card);border-radius:var(--r);min-height:60px;' +
+        'font-size:.85rem;color:var(--text);text-align:left"></div>' +
+        '<button onclick="procNav(\'proc-new\')" ' +
+        'style="margin-top:20px;padding:12px 24px;background:var(--bg-card);' +
+        'border:1px solid var(--border);border-radius:var(--rs);' +
+        'color:var(--text-light);cursor:pointer;font-family:inherit;' +
+        'font-size:.88rem">Cancel</button></div>';
+
+    var SR   = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recog= new SR();
+    recog.continuous     = false;
+    recog.interimResults = false;
+    recog.lang           = 'en-ZA';
+
+    recog.onresult = function(e) {
+        var transcript = e.results[0][0].transcript;
+        var statusEl   = document.getElementById('proc-voice-status');
+        var resultEl   = document.getElementById('proc-voice-result');
+        if (statusEl) statusEl.textContent = 'Processing your order...';
+        if (resultEl) resultEl.innerHTML =
+            '<i class="fas fa-spinner fa-spin" style="color:var(--gold)"></i> ' +
+            'Heard: "' + transcript + '"<br><br>Matching to inventory...';
+
+        procProcessVoiceOrder(transcript);
+    };
+
+    recog.onerror = function(err) {
+        hubToast('error', 'Voice error — please try again');
+        procNav('proc-new');
+    };
+
+    recog.onend = function() {
+        var anim = document.getElementById('proc-voice-anim');
+        if (anim) anim.style.animation = 'none';
+    };
+
+    try { recog.start(); }
+    catch(e) { hubToast('error', 'Could not start voice'); procNav('proc-new'); }
+}
+
+function procProcessVoiceOrder(transcript) {
+    var inv   = pGetInv();
+    var words = transcript.toLowerCase().split(/\s+/);
+    var NUMS  = {
+        'one':1,'two':2,'three':3,'four':4,'five':5,
+        'six':6,'seven':7,'eight':8,'nine':9,'ten':10,
+        'eleven':11,'twelve':12,'thirteen':13,'fourteen':14,
+        'fifteen':15,'sixteen':16,'seventeen':17,'eighteen':18,
+        'nineteen':19,'twenty':20,'thirty':30,'forty':40,
+        'fifty':50,'sixty':60,'seventy':70,'eighty':80,'ninety':90,
+        'hundred':100,'a':1,'an':1
+    };
+    var UNITS = ['kg','g','liter','liters','litre','litres','ml',
+                 'each','case','cases','dozen','dozens','bottle','bottles','pack','packs'];
+
+    // Split by "and" to get individual items
+    var segments = transcript.toLowerCase().split(/\band\b/);
+    var matched  = [];
+    var unmatched= [];
+
+    segments.forEach(function(segment) {
+        segment = segment.trim();
+        if (!segment) return;
+
+        // Extract quantity
+        var qty  = null;
+        var unit = '';
+        var itemNameWords = [];
+        var segWords = segment.split(/\s+/);
+
+        segWords.forEach(function(w, idx) {
+            var num = parseFloat(w);
+            if (!isNaN(num) && qty === null) { qty = num; return; }
+            if (NUMS[w] !== undefined && qty === null) { qty = NUMS[w]; return; }
+            if (UNITS.indexOf(w) !== -1) { unit = w; return; }
+            itemNameWords.push(w);
+        });
+
+        if (qty === null) qty = 1;
+        var searchName = itemNameWords.join(' ').trim();
+        if (!searchName) return;
+
+        // Find best match in inventory
+        var best = null, bestScore = 0;
+        inv.forEach(function(item) {
+            var itemLower = item.name.toLowerCase();
+            if (itemLower.includes(searchName) ||
+                searchName.includes(itemLower.split(' ')[0])) {
+                var score = searchName.length / Math.max(itemLower.length, searchName.length);
+                if (score > bestScore) { bestScore = score; best = item; }
+            }
+        });
+
+        if (best && bestScore > 0.3) {
+            // Check if already in cart
+            var existing = PROC.cart.find(function(c) { return c.id === best.id; });
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                PROC.cart.push({
+                    id:       best.id,
+                    name:     best.name,
+                    unit:     unit || best.unit || 'each',
+                    cost:     best.cost || 0,
+                    qty:      qty,
+                    supplier: best.supplier || ''
+                });
+            }
+            matched.push(qty + ' ' + (unit||best.unit||'each') + ' of ' + best.name);
+        } else {
+            unmatched.push('"' + searchName + '"');
+        }
+    });
+
+    var resultEl = document.getElementById('proc-voice-result');
+    if (resultEl) {
+        var html = '';
+        if (matched.length > 0) {
+            html += '<div style="color:var(--success);font-weight:700;margin-bottom:8px">' +
+                '<i class="fas fa-check-circle"></i> Added to order:</div>' +
+                matched.map(function(m){
+                    return '<div style="padding:4px 0;font-size:.85rem">• ' + m + '</div>';
+                }).join('');
+        }
+        if (unmatched.length > 0) {
+            html += '<div style="color:var(--warning);font-weight:700;margin:8px 0 4px">' +
+                '<i class="fas fa-question-circle"></i> Not found in inventory:</div>' +
+                unmatched.map(function(u){
+                    return '<div style="padding:4px 0;font-size:.82rem;color:var(--text-muted)">• ' + u + '</div>';
+                }).join('');
+        }
+        if (matched.length === 0 && unmatched.length === 0) {
+            html = '<div style="color:var(--danger)">Could not understand the order. Please try again.</div>';
+        }
+        resultEl.innerHTML = html;
+    }
+
+    if (matched.length > 0) {
+        hubToast('success', '✅ ' + matched.length + ' item(s) added to cart');
+        setTimeout(function() { procNav('proc-new'); }, 2000);
+    } else {
+        hubToast('warning', 'No items matched — try the manual order');
+        setTimeout(function() { procNav('proc-new'); }, 2000);
+    }
+}
+
+/* ── New Order (Manual) ── */
 function procNewOrder() {
     var inv = pGetInv();
 
+    if (inv.length === 0) {
+        return '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;' +
+            'opacity:.3;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text)">No Inventory Found</h3>' +
+            '<p style="margin-bottom:16px">Inventory must be set up in the Web App first.</p>' +
+            '<button onclick="procRefresh()" ' +
+            'style="padding:12px 24px;background:var(--primary);color:#fff;border:none;' +
+            'border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700">' +
+            '<i class="fas fa-sync"></i> Refresh from Web App</button></div>';
+    }
+
     var html =
-        // Cart summary
+        // Cart summary bar
         (PROC.cart.length > 0
-            ? '<div style="background:rgba(46,168,113,.1);' +
-              'border-left:3px solid var(--success);padding:12px 14px;' +
-              'border-radius:var(--rs);margin-bottom:12px;' +
-              'display:flex;justify-content:space-between;' +
-              'align-items:center">' +
+            ? '<div style="background:rgba(46,168,113,.1);border-left:3px solid var(--success);' +
+              'padding:12px 14px;border-radius:var(--rs);margin-bottom:12px;' +
+              'display:flex;justify-content:space-between;align-items:center">' +
               '<div style="font-size:.82rem;color:var(--text)">' +
-              '<strong>' + PROC.cart.length + ' item(s)</strong> in cart</div>' +
+              '<strong>' + PROC.cart.length + ' item(s)</strong> in order</div>' +
+              '<div style="display:flex;gap:8px">' +
               '<button onclick="procScrollToCart()" ' +
               'style="padding:5px 12px;background:var(--success);color:#fff;' +
-              'border:none;border-radius:var(--rs);font-size:.72rem;' +
-              'font-weight:600;cursor:pointer;font-family:inherit">' +
-              'View Cart</button></div>'
-            : '') +
+              'border:none;border-radius:var(--rs);font-size:.72rem;font-weight:600;' +
+              'cursor:pointer;font-family:inherit">View Order</button>' +
+              '<button onclick="procVoiceOrder()" ' +
+              'style="padding:5px 10px;background:var(--gold);color:#fff;' +
+              'border:none;border-radius:var(--rs);font-size:.72rem;font-weight:600;' +
+              'cursor:pointer;font-family:inherit">' +
+              '<i class="fas fa-microphone"></i></button></div></div>'
+            : '<div style="background:rgba(217,119,6,.08);border-left:3px solid var(--gold);' +
+              'padding:10px 14px;border-radius:var(--rs);margin-bottom:12px;' +
+              'display:flex;justify-content:space-between;align-items:center">' +
+              '<div style="font-size:.78rem;color:var(--text-mid)">' +
+              'Tap <i class="fas fa-microphone"></i> to order by voice, or select items below</div>' +
+              '<button onclick="procVoiceOrder()" ' +
+              'style="padding:6px 12px;background:var(--gold);color:#fff;' +
+              'border:none;border-radius:var(--rs);font-size:.75rem;font-weight:600;' +
+              'cursor:pointer;font-family:inherit">' +
+              '<i class="fas fa-microphone"></i> Voice</button></div>') +
 
-        // Search
-        '<div style="display:flex;align-items:center;gap:8px;' +
-        'background:var(--bg-card);border:1.5px solid var(--border);' +
-        'border-radius:var(--r);padding:10px 14px;margin-bottom:12px">' +
+        // Department filter
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);' +
+        'border:1.5px solid var(--border);border-radius:var(--r);padding:8px 12px">' +
         '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
-        '<input type="text" id="proc-search" ' +
-        'placeholder="Search items..." oninput="procFilterItems()" ' +
-        'style="flex:1;border:none;outline:none;font-size:.88rem;' +
-        'font-family:inherit;color:var(--text);background:transparent">' +
-        '</div>' +
-
-        '<div style="font-size:.78rem;font-weight:700;' +
-        'color:var(--text-light);text-transform:uppercase;' +
-        'letter-spacing:1px;margin-bottom:10px">' +
-        'Select Items to Order</div>' +
+        '<input type="text" id="proc-search" placeholder="Search..." ' +
+        'oninput="procFilterItems()" ' +
+        'style="flex:1;border:none;outline:none;font-size:.85rem;' +
+        'font-family:inherit;color:var(--text);background:transparent"></div>' +
+        '<select id="proc-dept-filter" onchange="procFilterItems()" ' +
+        'style="padding:8px 12px;background:var(--bg-card);border:1.5px solid var(--border);' +
+        'border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.82rem">' +
+        '<option value="">All Depts</option>' +
+        (function(){
+            var depts = [];
+            inv.forEach(function(i){
+                var d = i.department || i.category || 'General';
+                if (depts.indexOf(d)===-1) depts.push(d);
+            });
+            return depts.map(function(d){
+                return '<option value="' + d + '">' + d + '</option>';
+            }).join('');
+        })() +
+        '</select></div>' +
 
         '<div id="proc-items-list">';
 
-    if (inv.length === 0) {
-        html +=
-            '<div style="text-align:center;padding:40px;' +
-            'color:var(--text-light)">' +
-            '<i class="fas fa-box" ' +
-            'style="font-size:2rem;opacity:.3;display:block;' +
-            'margin-bottom:10px"></i>' +
-            '<p>No items in inventory. Add items in Web App.</p></div>';
-    } else {
-        html += inv.map(function(item) {
-            var inCart = PROC.cart.find(function(c) {
-                return c.id === item.id;
-            });
-            var bc = item.status === 'in-stock'
-                ? 'var(--success)'
-                : item.status === 'low-stock'
-                    ? 'var(--gold)' : 'var(--danger)';
-            var st = (item.status || 'in-stock')
-                .split('-').map(function(w) {
-                    return w.charAt(0).toUpperCase() + w.slice(1);
-                }).join(' ');
-
-            return '<div class="proc-item" ' +
-                'data-name="' +
-                (item.name || '').toLowerCase() + '" ' +
-                'style="display:flex;align-items:center;gap:10px;' +
-                'padding:10px 14px;background:var(--bg-card);' +
-                'border-radius:var(--rs);margin-bottom:8px;' +
-                'box-shadow:var(--shadow);' +
-                'border-left:3px solid ' +
-                (inCart ? 'var(--success)' : 'transparent') + '">' +
-                '<div style="width:36px;height:36px;border-radius:10px;' +
-                'background:' +
-                (inCart
-                    ? 'rgba(46,168,113,.15)'
-                    : 'rgba(26,139,168,.1)') + ';' +
-                'display:flex;align-items:center;justify-content:center;' +
-                'color:' +
-                (inCart ? 'var(--success)' : 'var(--primary)') +
-                ';flex-shrink:0">' +
-                '<i class="fas ' +
-                (inCart ? 'fa-check' : 'fa-box') + '"></i></div>' +
-                '<div style="flex:1;min-width:0">' +
-                '<div style="font-size:.85rem;font-weight:600;' +
-                'color:var(--text)">' + item.name + '</div>' +
-                '<div style="font-size:.68rem;color:var(--text-light)">' +
-                (item.quantity || 0) + ' ' + (item.unit || '') +
-                ' in stock — ' + (item.supplier || 'No supplier') +
-                '</div></div>' +
-                '<div style="display:flex;flex-direction:column;' +
-                'align-items:flex-end;gap:4px">' +
-                '<span style="padding:2px 8px;border-radius:12px;' +
-                'font-size:.6rem;font-weight:600;' +
-                'background:rgba(0,0,0,.1);color:' + bc + '">' +
-                st + '</span>' +
-                (inCart
-                    ? '<button onclick="procRemoveFromCart(\'' +
-                      item.id + '\')" ' +
-                      'style="padding:3px 8px;' +
-                      'background:rgba(201,69,69,.1);color:var(--danger);' +
-                      'border:none;border-radius:6px;font-size:.65rem;' +
-                      'font-weight:600;cursor:pointer;font-family:inherit">' +
-                      '<i class="fas fa-minus"></i> Remove</button>'
-                    : '<button onclick="procAddToCart(\'' +
-                      item.id + '\')" ' +
-                      'style="padding:3px 8px;background:var(--primary);' +
-                      'color:#fff;border:none;border-radius:6px;' +
-                      'font-size:.65rem;font-weight:600;cursor:pointer;' +
-                      'font-family:inherit">' +
-                      '<i class="fas fa-plus"></i> Add</button>') +
-                '</div></div>';
-        }).join('');
-    }
+    html += inv.map(function(item) {
+        var inCart = PROC.cart.find(function(c) { return c.id === item.id; });
+        var bc = item.status==='in-stock' ? 'var(--success)' :
+                 item.status==='low-stock' ? 'var(--gold)' : 'var(--danger)';
+        var st = (item.status||'in-stock').split('-').map(function(w){
+            return w.charAt(0).toUpperCase()+w.slice(1);
+        }).join(' ');
+        return '<div class="proc-item" ' +
+            'data-name="' + (item.name||'').toLowerCase() + '" ' +
+            'data-dept="' + (item.department||item.category||'General').toLowerCase() + '" ' +
+            'style="display:flex;align-items:center;gap:10px;padding:10px 14px;' +
+            'background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;' +
+            'box-shadow:var(--shadow);' +
+            'border-left:3px solid ' + (inCart?'var(--success)':'transparent') + '">' +
+            '<div style="width:36px;height:36px;border-radius:10px;' +
+            'background:' + (inCart?'rgba(46,168,113,.15)':'rgba(26,139,168,.1)') + ';' +
+            'display:flex;align-items:center;justify-content:center;' +
+            'color:' + (inCart?'var(--success)':'var(--primary)') + ';flex-shrink:0">' +
+            '<i class="fas ' + (inCart?'fa-check':'fa-box') + '"></i></div>' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:.85rem;font-weight:600;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-light)">' +
+            (item.quantity||0) + ' ' + (item.unit||'') + ' in stock' +
+            (item.department ? ' • ' + item.department : '') +
+            (item.supplier ? ' • ' + item.supplier : '') +
+            '</div></div>' +
+            '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
+            '<span style="padding:2px 8px;border-radius:12px;font-size:.6rem;' +
+            'font-weight:600;background:rgba(0,0,0,.1);color:' + bc + '">' + st + '</span>' +
+            (inCart
+                ? '<button onclick="procRemoveFromCart(\'' + item.id + '\')" ' +
+                  'style="padding:3px 8px;background:rgba(201,69,69,.1);color:var(--danger);' +
+                  'border:none;border-radius:6px;font-size:.65rem;font-weight:600;' +
+                  'cursor:pointer;font-family:inherit">' +
+                  '<i class="fas fa-minus"></i> Remove</button>'
+                : '<button onclick="procAddToCart(\'' + item.id + '\')" ' +
+                  'style="padding:3px 8px;background:var(--primary);color:#fff;border:none;' +
+                  'border-radius:6px;font-size:.65rem;font-weight:600;cursor:pointer;' +
+                  'font-family:inherit"><i class="fas fa-plus"></i> Add</button>') +
+            '</div></div>';
+    }).join('');
 
     html += '</div>';
 
     // Cart section
     if (PROC.cart.length > 0) {
-        var total = PROC.cart.reduce(function(s, c) {
-            return s + ((c.qty || 0) * (c.cost || 0));
-        }, 0);
-
+        var total = PROC.cart.reduce(function(s,c){ return s+((c.qty||0)*(c.cost||0)); },0);
         html +=
-            '<div id="proc-cart" style="margin-top:16px">' +
-            '<div style="font-size:.82rem;font-weight:700;' +
-            'color:var(--text-light);text-transform:uppercase;' +
-            'letter-spacing:1px;margin-bottom:10px">Your Order</div>' +
-            PROC.cart.map(function(ci) {
-                return '<div style="display:flex;align-items:center;' +
-                    'gap:10px;padding:10px 14px;background:var(--bg-card);' +
-                    'border-radius:var(--rs);margin-bottom:8px;' +
+            '<div id="proc-cart" style="margin-top:20px">' +
+            '<div style="font-size:.82rem;font-weight:700;color:var(--text-light);' +
+            'text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' +
+            'Your Order (' + PROC.cart.length + ' items)</div>' +
+            PROC.cart.map(function(ci){
+                return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;' +
+                    'background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;' +
                     'box-shadow:var(--shadow)">' +
                     '<div style="flex:1;min-width:0">' +
-                    '<div style="font-size:.85rem;font-weight:600;' +
-                    'color:var(--text)">' + ci.name + '</div>' +
+                    '<div style="font-size:.85rem;font-weight:600;color:var(--text)">' + ci.name + '</div>' +
                     '<div style="font-size:.68rem;color:var(--text-light)">' +
-                    ci.unit + ' — R' + (ci.cost || 0).toFixed(2) + '/unit' +
-                    '</div></div>' +
-                    '<input type="number" value="' + ci.qty + '" ' +
-                    'min="0.1" step="0.1" ' +
-                    'id="pcqty-' + ci.id + '" ' +
-                    'onchange="procUpdateQty(\'' + ci.id + '\')" ' +
+                    ci.unit + ' — R' + (ci.cost||0).toFixed(2) + '/unit</div></div>' +
+                    '<input type="number" value="' + ci.qty + '" min="0.1" step="0.1" ' +
+                    'id="pcqty-' + ci.id + '" onchange="procUpdateQty(\'' + ci.id + '\')" ' +
                     'style="width:65px;padding:8px 4px;text-align:center;' +
                     'border:2px solid var(--border);border-radius:var(--rs);' +
                     'font-size:.95rem;font-weight:700;color:var(--text);' +
                     'background:var(--bg-dark);font-family:inherit">' +
-                    '<div style="font-size:.78rem;font-weight:700;' +
-                    'color:var(--primary);min-width:60px;text-align:right">' +
-                    'R' + ((ci.qty || 0) * (ci.cost || 0)).toFixed(2) +
-                    '</div>' +
+                    '<div style="font-size:.78rem;font-weight:700;color:var(--primary);' +
+                    'min-width:60px;text-align:right">' +
+                    'R' + ((ci.qty||0)*(ci.cost||0)).toFixed(2) + '</div>' +
                     '<button onclick="procRemoveFromCart(\'' + ci.id + '\')" ' +
                     'style="width:28px;height:28px;border-radius:50%;' +
-                    'background:rgba(201,69,69,.1);border:none;' +
-                    'color:var(--danger);cursor:pointer;display:flex;' +
-                    'align-items:center;justify-content:center;flex-shrink:0">' +
-                    '<i class="fas fa-times" style="font-size:.75rem"></i>' +
+                    'background:rgba(201,69,69,.1);border:none;color:var(--danger);' +
+                    'cursor:pointer;display:flex;align-items:center;justify-content:center;' +
+                    'flex-shrink:0"><i class="fas fa-times" style="font-size:.75rem"></i>' +
                     '</button></div>';
             }).join('') +
-
-            // Total + Place Order
-            '<div style="position:sticky;bottom:0;padding:12px 0;' +
-            'background:var(--bg);border-top:1px solid var(--border);' +
-            'margin-top:12px">' +
-            '<div style="display:flex;justify-content:space-between;' +
-            'margin-bottom:10px;font-size:.88rem;color:var(--text-light)">' +
-            '<span><strong>' + PROC.cart.length + ' item(s)</strong></span>' +
-            '<span>Est: <strong style="color:var(--primary)">R' +
-            total.toFixed(2) + '</strong></span></div>' +
+            '<div style="background:var(--bg-card);border-radius:var(--r);' +
+            'padding:14px;margin-top:10px">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:14px">' +
+            '<span style="font-size:.88rem;color:var(--text-light)">' +
+            '<strong>' + PROC.cart.length + ' item(s)</strong></span>' +
+            '<span style="font-size:.88rem">Est: <strong style="color:var(--primary)">' +
+            'R' + total.toFixed(2) + '</strong></span></div>' +
             '<button onclick="procPlaceOrder()" ' +
             'style="width:100%;padding:16px;' +
             'background:linear-gradient(135deg,var(--success),#1a7a4a);' +
-            'color:#fff;border:none;border-radius:var(--r);' +
-            'font-size:1rem;font-weight:700;cursor:pointer;' +
-            'font-family:inherit;display:flex;align-items:center;' +
-            'justify-content:center;gap:10px">' +
-            '<i class="fas fa-paper-plane"></i> Place Order</button>' +
+            'color:#fff;border:none;border-radius:var(--r);font-size:1rem;' +
+            'font-weight:700;cursor:pointer;font-family:inherit;' +
+            'display:flex;align-items:center;justify-content:center;gap:10px">' +
+            '<i class="fas fa-paper-plane"></i> Send Order to Web App</button>' +
             '</div></div>';
     }
 
@@ -6246,30 +7657,29 @@ function procNewOrder() {
 }
 
 function procFilterItems() {
-    var q = (document.getElementById('proc-search').value || '')
-                .toLowerCase();
-    document.querySelectorAll('.proc-item').forEach(function(el) {
-        el.style.display =
-            (el.dataset.name || '').includes(q) ? '' : 'none';
+    var q    = (document.getElementById('proc-search')      ? document.getElementById('proc-search').value      : '').toLowerCase();
+    var dept = (document.getElementById('proc-dept-filter') ? document.getElementById('proc-dept-filter').value : '').toLowerCase();
+    document.querySelectorAll('.proc-item').forEach(function(el){
+        var nameMatch = !q    || (el.dataset.name||'').includes(q);
+        var deptMatch = !dept || (el.dataset.dept||'').includes(dept);
+        el.style.display = (nameMatch && deptMatch) ? '' : 'none';
     });
 }
 
 function procScrollToCart() {
     var cart = document.getElementById('proc-cart');
-    if (cart) cart.scrollIntoView({ behavior: 'smooth' });
+    if (cart) cart.scrollIntoView({ behavior:'smooth' });
 }
 
 function procAddToCart(itemId) {
     var inv  = pGetInv();
-    var item = inv.find(function(i) { return i.id === itemId; });
+    var item = inv.find(function(i){ return i.id === itemId; });
     if (!item) return;
-    if (PROC.cart.find(function(c) { return c.id === itemId; })) {
+    if (PROC.cart.find(function(c){ return c.id === itemId; })) {
         hubToast('info', 'Already in order');
         return;
     }
-    // Suggested order qty = 2x par level or reorder level
-    var suggestedQty = Math.max(
-        (item.parLevel || item.reorder || 0) * 2, 1);
+    var suggestedQty = Math.max((item.parLevel||item.reorder||0)*2, 1);
     PROC.cart.push({
         id:       item.id,
         name:     item.name,
@@ -6283,190 +7693,208 @@ function procAddToCart(itemId) {
 }
 
 function procRemoveFromCart(itemId) {
-    PROC.cart = PROC.cart.filter(function(c) { return c.id !== itemId; });
+    PROC.cart = PROC.cart.filter(function(c){ return c.id !== itemId; });
     procNav('proc-new');
 }
 
 function procUpdateQty(itemId) {
     var input = document.getElementById('pcqty-' + itemId);
     if (!input) return;
-    var ci = PROC.cart.find(function(c) { return c.id === itemId; });
+    var ci = PROC.cart.find(function(c){ return c.id === itemId; });
     if (ci) ci.qty = parseFloat(input.value) || 0;
 }
 
+/* ── Place Order — Fixed Firestore write ── */
 function procPlaceOrder() {
-    if (PROC.cart.length === 0) {
-        hubToast('error', 'Cart is empty');
-        return;
-    }
-    // Sync quantities from inputs
-    PROC.cart.forEach(function(ci) {
+    if (PROC.cart.length === 0) { hubToast('error','Cart is empty'); return; }
+
+    // Sync quantities from inputs first
+    PROC.cart.forEach(function(ci){
         var input = document.getElementById('pcqty-' + ci.id);
         if (input) ci.qty = parseFloat(input.value) || ci.qty;
     });
 
-    hubToast('info', 'Generating purchase orders...');
+    hubToast('info','Sending order to Web App...');
 
-    // Group by supplier
-    var groups = {};
-    PROC.cart.forEach(function(ci) {
-        var supName = ci.supplier || 'Unknown Supplier';
-        if (!groups[supName]) groups[supName] = { name: supName, items: [] };
-        groups[supName].items.push({
-            id:    ci.id,
-            name:  ci.name,
-            qty:   ci.qty,
-            unit:  ci.unit,
-            cost:  ci.cost,
-            total: parseFloat((ci.qty * ci.cost).toFixed(2))
-        });
-    });
-
-    var purchases = pGetPurch();
-    var newPOs    = [];
-
-    Object.keys(groups).forEach(function(supName) {
-        var group = groups[supName];
-        var total = group.items.reduce(function(s, i) {
-            return s + i.total;
-        }, 0);
-        var po = {
-            id:          'PO-' + Date.now() + '-' +
-                         Math.floor(Math.random() * 1000),
-            supplier:    supName,
-            items:       group.items.length,
-            lineItems:   group.items,
-            total:       parseFloat(total.toFixed(2)),
-            status:      'In Transit',
-            type:        'Procurement',
-            createdBy:   HUB.user ? HUB.user.name : 'ProcureAI',
-            createdAt:   new Date().toISOString(),
-            entityId:    HUB.entityId,
-            entityName:  HUB.entityName
-        };
-        newPOs.push(po);
-    });
-
-    var updatedPurchases = newPOs.concat(purchases);
-
-    // ── Write to Web App (accounts collection) ──
-    var update = {};
-    update['purchases.' + HUB.entityId] = updatedPurchases;
-    update['lastUpdated'] =
-        firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'ProcureAI';
-    update['lastUpdatedDevice'] = 'ProcureAI';
+    // Write to procure_orders subcollection — this triggers web app listener
+    var orderId = 'PROC-' + Date.now();
+    var order   = {
+        id:         orderId,
+        entityId:   HUB.entityId,
+        entityName: HUB.entityName,
+        status:     'submitted',
+        submittedAt:new Date().toISOString(),
+        submittedBy:HUB.user ? HUB.user.name : 'ProcureAI',
+        items:      PROC.cart.map(function(ci){
+            return {
+                itemId: ci.id,
+                name:   ci.name,
+                qty:    ci.qty,
+                unit:   ci.unit,
+                cost:   ci.cost
+            };
+        }),
+        totalItems: PROC.cart.length,
+        estimatedTotal: PROC.cart.reduce(function(s,c){ return s+(c.qty*c.cost); },0)
+    };
 
     db.collection('accounts').doc(HUB.accountId)
-        .set(update, { merge: true })
-        .then(function() {
-            if (HUB.accountData) {
-                if (!HUB.accountData.purchases)
-                    HUB.accountData.purchases = {};
-                HUB.accountData.purchases[HUB.entityId] = updatedPurchases;
-            }
-            PROC.cart = [];
-            hubToast('success',
-                '✅ ' + newPOs.length + ' PO(s) created & sent to Web App!');
-
-            // Send PO emails to suppliers
-            newPOs.forEach(function(po) {
-                if (typeof emailPurchaseOrder === 'function') {
-                    var sup = pGetSups().find(function(s) {
-                        return s.name === po.supplier;
-                    });
-                    if (sup && sup.email) {
-                        emailPurchaseOrder({
-                            poId:         po.id,
-                            supplierName: po.supplier,
-                            supplierEmail:sup.email,
-                            entityName:   HUB.entityName,
-                            createdBy:    po.createdBy,
-                            createdAt:    new Date().toLocaleDateString('en-ZA'),
-                            items:        po.lineItems,
-                            total:        po.total
-                        });
-                    }
-                }
+        .collection('procure_orders').doc(orderId)
+        .set(order)
+        .then(function(){
+            // Also write directly to purchases as backup
+            var newPOs   = [];
+            var groups   = {};
+            PROC.cart.forEach(function(ci){
+                var supName = ci.supplier || 'Unknown Supplier';
+                if (!groups[supName]) groups[supName] = [];
+                groups[supName].push({
+                    id:    ci.id,
+                    name:  ci.name,
+                    qty:   ci.qty,
+                    unit:  ci.unit,
+                    cost:  ci.cost,
+                    total: parseFloat((ci.qty*ci.cost).toFixed(2))
+                });
             });
 
-            setTimeout(function() { procNav('proc-orders'); }, 1000);
+            Object.keys(groups).forEach(function(supName){
+                var items = groups[supName];
+                var total = items.reduce(function(s,i){ return s+i.total; },0);
+                newPOs.push({
+                    id:            'PO-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                    supplier:      supName,
+                    items:         items.length,
+                    lineItems:     items,
+                    total:         parseFloat(total.toFixed(2)),
+                    status:        'In Transit',
+                    type:          'ProcureAI',
+                    createdBy:     HUB.user ? HUB.user.name : 'ProcureAI',
+                    createdAt:     new Date().toISOString(),
+                    entityId:      HUB.entityId,
+                    entityName:    HUB.entityName,
+                    procureOrderId:orderId
+                });
+            });
+
+            var existingPurch = pGetPurch();
+            var updatedPurch  = newPOs.concat(existingPurch);
+
+            var update = {};
+            update['purchases.' + HUB.entityId] = updatedPurch;
+            update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+            update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'ProcureAI';
+            update['lastUpdatedDevice'] = 'ProcureAI';
+
+            return db.collection('accounts').doc(HUB.accountId)
+                .set(update, { merge:true })
+                .then(function(){
+                    // Update local cache
+                    if (HUB.accountData) {
+                        if (!HUB.accountData.purchases) HUB.accountData.purchases = {};
+                        HUB.accountData.purchases[HUB.entityId] = updatedPurch;
+                    }
+                    PROC.cart = [];
+                    hubToast('success', '✅ Order sent! Web App is processing POs.');
+                    setTimeout(function(){ procNav('proc-transit'); }, 1000);
+                });
         })
-        .catch(function(err) {
-            hubToast('error', 'Error: ' + err.message);
-        });
+        .catch(function(err){ hubToast('error','Error: '+err.message); });
 }
 
-/* ── Orders ── */
-function procOrders() {
-    var purchases = pGetPurch();
-    var transit   = purchases.filter(function(p) {
-        return p.status === 'In Transit' || p.status === 'Processing';
-    });
-    var received  = purchases.filter(function(p) {
-        return p.status === 'Received' || p.status === 'Delivered';
+/* ── Pending POs (from web app after processing) ── */
+function procPendingOrders() {
+    var pending = pGetPending();
+    var purchases = pGetPurch().filter(function(p){
+        return p.type === 'ProcureAI' && (p.status === 'In Transit' || p.status === 'Processing');
     });
 
-    var html =
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;' +
-        'gap:10px;margin-bottom:14px">' +
-        pStat('In Transit', transit.length,  'var(--gold)') +
-        pStat('Received',   received.length, 'var(--success)') +
-        pStat('Total',      purchases.length,'var(--primary)') +
-        '</div>';
+    var html = '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);' +
+        'text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">' +
+        'Pending Approval (' + pending.length + ')</div>';
 
-    if (transit.length > 0) {
-        html +=
-            '<div style="font-size:.78rem;font-weight:700;' +
-            'color:var(--text-light);text-transform:uppercase;' +
-            'letter-spacing:1px;margin:14px 0 8px">In Transit</div>' +
-            transit.map(function(p) {
-                return '<div style="background:var(--bg-card);' +
-                    'border-radius:var(--rs);padding:14px;' +
-                    'margin-bottom:8px;box-shadow:var(--shadow);' +
-                    'border-left:4px solid var(--primary)">' +
-                    '<div style="display:flex;justify-content:space-between;' +
-                    'margin-bottom:6px">' +
-                    '<strong style="font-size:.85rem">' + p.id + '</strong>' +
-                    pStatusBadge(p.status) + '</div>' +
-                    '<div style="font-size:.72rem;color:var(--text-light);' +
-                    'margin-bottom:10px">' +
-                    p.supplier + ' — ' +
-                    (Array.isArray(p.lineItems)
-                        ? p.lineItems.length : p.items) +
-                    ' items — R' + (p.total || 0).toFixed(2) + '</div>' +
-                    '<button onclick="procMarkReceived(\'' + p.id + '\')" ' +
-                    'style="width:100%;padding:10px;background:var(--success);' +
-                    'color:#fff;border:none;border-radius:var(--rs);' +
-                    'font-size:.82rem;font-weight:700;cursor:pointer;' +
-                    'font-family:inherit;display:flex;align-items:center;' +
-                    'justify-content:center;gap:8px">' +
-                    '<i class="fas fa-check"></i> Mark as Received</button>' +
-                    '</div>';
-            }).join('');
+    if (pending.length === 0 && purchases.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-clock" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text)">No Pending Orders</h3>' +
+            '<p>Place an order to see it here</p></div>';
+        return html;
     }
 
-    if (purchases.length === 0) {
-        html +=
-            '<div style="text-align:center;padding:40px;' +
-            'color:var(--text-light)">' +
-            '<i class="fas fa-clock" ' +
-            'style="font-size:2rem;opacity:.3;display:block;' +
-            'margin-bottom:10px"></i>' +
-            '<h3 style="color:var(--text)">No Orders</h3>' +
-            '<p>Create an order to get started</p></div>';
-    }
+    // Show POs created by web app
+    purchases.forEach(function(p){
+        html += '<div style="background:var(--bg-card);border-radius:var(--rs);' +
+            'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+            'border-left:4px solid var(--gold)">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+            '<strong>' + p.id + '</strong>' +
+            '<span style="font-size:.65rem;background:rgba(245,158,11,.1);' +
+            'color:var(--gold);padding:2px 8px;border-radius:8px;font-weight:600">' +
+            p.status + '</span></div>' +
+            '<div style="font-size:.72rem;color:var(--text-light);margin-bottom:8px">' +
+            p.supplier + ' • ' + p.items + ' items • R' + (p.total||0).toFixed(2) + '</div>' +
+            '<div style="font-size:.7rem;color:var(--success)">' +
+            '✅ PO sent to supplier by Web App automatically</div>' +
+            '</div>';
+    });
 
     return html;
 }
 
-function procMarkReceived(poId) {
-    if (!confirm('Mark PO ' + poId + ' as received?')) return;
+/* ── In Transit ── */
+function procTransitOrders() {
+    var purchases = pGetPurch();
+    var transit   = purchases.filter(function(p){
+        return p.status === 'In Transit' || p.status === 'Processing';
+    });
 
-    var purchases = pGetPurch().map(function(p) {
+    var html = '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);' +
+        'text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">' +
+        'In Transit (' + transit.length + ')</div>';
+
+    if (transit.length === 0) {
+        return html + '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-truck" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<p>No orders in transit</p></div>';
+    }
+
+    html += transit.map(function(p){
+        return '<div style="background:var(--bg-card);border-radius:var(--rs);' +
+            'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+            'border-left:4px solid var(--primary)">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px">' +
+            '<strong style="font-size:.85rem">' + p.id + '</strong>' +
+            '<span style="font-size:.65rem;background:rgba(26,139,168,.1);' +
+            'color:var(--primary);padding:2px 8px;border-radius:8px;font-weight:600">' +
+            p.status + '</span></div>' +
+            '<div style="font-size:.72rem;color:var(--text-light);margin-bottom:10px">' +
+            p.supplier + ' — ' +
+            (Array.isArray(p.lineItems) ? p.lineItems.length : p.items) +
+            ' items — R' + (p.total||0).toFixed(2) + '</div>' +
+            '<button onclick="procMarkReceived(\'' + p.id + '\')" ' +
+            'style="width:100%;padding:12px;background:var(--success);color:#fff;' +
+            'border:none;border-radius:var(--rs);font-size:.88rem;font-weight:700;' +
+            'cursor:pointer;font-family:inherit;display:flex;align-items:center;' +
+            'justify-content:center;gap:8px">' +
+            '<i class="fas fa-check"></i> Mark as Received — Trigger GRV</button>' +
+            '</div>';
+    }).join('');
+
+    return html;
+}
+
+/* ── Mark Received — triggers GRV in web app ── */
+function procMarkReceived(poId) {
+    var po = pGetPurch().find(function(p){ return p.id === poId; });
+    if (!po) { hubToast('error','PO not found'); return; }
+
+    hubToast('info','Processing delivery...');
+
+    // Update PO status in accounts collection
+    var purchases = pGetPurch().map(function(p){
         if (p.id === poId) {
             return Object.assign({}, p, {
-                status:       'Received',
+                status:       'Delivered',
                 receivedDate: new Date().toISOString(),
                 receivedBy:   HUB.user ? HUB.user.name : 'ProcureAI'
             });
@@ -6474,63 +7902,123 @@ function procMarkReceived(poId) {
         return p;
     });
 
-    // Update stock quantities from received PO
-    var po  = pGetPurch().find(function(p) { return p.id === poId; });
-    var inv = pGetInv();
-
-    if (po && po.lineItems) {
-        po.lineItems.forEach(function(li) {
-            var invItem = inv.find(function(i) { return i.id === li.id; });
-            if (invItem) {
-                invItem.quantity   = parseFloat(
-                    ((invItem.quantity || 0) + li.qty).toFixed(4));
-                invItem.lastCost   = invItem.cost;
-                invItem.cost       = li.cost || invItem.cost;
-                invItem.value      = parseFloat(
-                    (invItem.quantity * invItem.cost).toFixed(2));
-                invItem.status     = invItem.quantity === 0
-                    ? 'out-of-stock'
-                    : invItem.quantity <= (invItem.reorder || 0)
-                        ? 'low-stock' : 'in-stock';
-                invItem.lastGRV    = new Date().toISOString();
-                invItem.lastGRVBy  = HUB.user ? HUB.user.name : 'ProcureAI';
-            }
-        });
-    }
-
-    // ── Sync back to Web App ──
     var update = {};
     update['purchases.' + HUB.entityId] = purchases;
-    update['inventory.'  + HUB.entityId] = inv;
-    update['lastUpdated'] =
-        firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
     update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'ProcureAI';
-    update['lastUpdatedDevice'] = 'ProcureAI';
+    update['lastUpdatedDevice'] = 'ProcureAI';  // web app listener detects this
 
-    // Log GRV activity
-    update['activities.' + HUB.entityId] =
-        firebase.firestore.FieldValue.arrayUnion({
-            type:    'grv',
-            poId:    poId,
-            by:      HUB.user ? HUB.user.name : 'ProcureAI',
-            date:    new Date().toISOString()
-        });
+    // If linked to procure_order subcollection, update that too
+    if (po.procureOrderId) {
+        db.collection('accounts').doc(HUB.accountId)
+            .collection('procure_orders').doc(po.procureOrderId)
+            .update({
+                status:      'delivered',
+                deliveredAt: new Date().toISOString(),
+                deliveredBy: HUB.user ? HUB.user.name : 'ProcureAI',
+                grvCreated:  false   // web app will set this to true after GRV
+            }).catch(function(e){ console.warn('Procure order update:', e); });
+    }
 
     db.collection('accounts').doc(HUB.accountId)
-        .set(update, { merge: true })
-        .then(function() {
+        .set(update, { merge:true })
+        .then(function(){
             if (HUB.accountData) {
+                if (!HUB.accountData.purchases) HUB.accountData.purchases = {};
                 HUB.accountData.purchases[HUB.entityId] = purchases;
-                HUB.accountData.inventory[HUB.entityId] = inv;
             }
             hubToast('success',
-                '✅ PO received — stock updated in Web App!');
-            procNav('proc-orders');
+                '✅ Delivery confirmed! Web App is processing GRV automatically.');
+            procNav('proc-transit');
         })
-        .catch(function(err) {
-            hubToast('error', 'Error: ' + err.message);
-        });
+        .catch(function(err){ hubToast('error','Error: '+err.message); });
 }
+
+/* ── Low Stock ── */
+function procLowStock() {
+    var inv = pGetInv();
+    var low = inv.filter(function(i){
+        return i.status === 'low-stock' || i.status === 'out-of-stock';
+    });
+
+    var html = '<div style="display:flex;justify-content:space-between;' +
+        'align-items:center;margin-bottom:12px">' +
+        '<div style="font-size:.78rem;font-weight:700;color:var(--text-light);' +
+        'text-transform:uppercase;letter-spacing:1px">' +
+        'Low Stock (' + low.length + ')</div>' +
+        (low.length > 0
+            ? '<button onclick="procAddAllLowToCart()" ' +
+              'style="padding:7px 14px;background:var(--gold);color:#fff;border:none;' +
+              'border-radius:var(--rs);font-size:.75rem;font-weight:700;cursor:pointer;' +
+              'font-family:inherit"><i class="fas fa-cart-plus"></i> Add All to Order</button>'
+            : '') +
+        '</div>';
+
+    if (low.length === 0) {
+        return html +
+            '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-check-circle" style="font-size:2rem;color:var(--success);' +
+            'display:block;margin-bottom:10px"></i>' +
+            '<h3 style="color:var(--text)">All Stock OK! ✅</h3>' +
+            '<p>No items need reordering right now</p></div>';
+    }
+
+    html += low.map(function(item){
+        var bc = item.status==='out-of-stock' ? 'var(--danger)' : 'var(--gold)';
+        var inCart = PROC.cart.find(function(c){ return c.id === item.id; });
+        return '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;' +
+            'background:var(--bg-card);border-radius:var(--rs);margin-bottom:8px;' +
+            'box-shadow:var(--shadow);border-left:3px solid ' + bc + '">' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:.85rem;font-weight:700;color:var(--text)">' + item.name + '</div>' +
+            '<div style="font-size:.7rem;color:var(--text-light)">' +
+            (item.quantity||0) + ' ' + (item.unit||'') +
+            ' in stock • Par: ' + (item.parLevel||item.reorder||0) + '</div>' +
+            (item.supplier
+                ? '<div style="font-size:.65rem;color:var(--text-muted)">' +
+                  '<i class="fas fa-truck"></i> ' + item.supplier + '</div>'
+                : '') +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">' +
+            '<span style="padding:2px 8px;border-radius:12px;font-size:.62rem;' +
+            'font-weight:600;background:rgba(0,0,0,.1);color:' + bc + '">' +
+            (item.status==='out-of-stock'?'Out of Stock':'Low Stock') + '</span>' +
+            (inCart
+                ? '<span style="font-size:.65rem;color:var(--success);font-weight:600">' +
+                  '✅ In order</span>'
+                : '<button onclick="procAddToCart(\'' + item.id + '\')" ' +
+                  'style="padding:4px 10px;background:var(--primary);color:#fff;border:none;' +
+                  'border-radius:6px;font-size:.68rem;font-weight:600;cursor:pointer;' +
+                  'font-family:inherit"><i class="fas fa-plus"></i> Add</button>') +
+            '</div></div>';
+    }).join('');
+
+    return html;
+}
+
+function procAddAllLowToCart() {
+    var inv = pGetInv();
+    var low = inv.filter(function(i){
+        return i.status === 'low-stock' || i.status === 'out-of-stock';
+    });
+    var added = 0;
+    low.forEach(function(item){
+        if (PROC.cart.find(function(c){ return c.id === item.id; })) return;
+        PROC.cart.push({
+            id:       item.id,
+            name:     item.name,
+            unit:     item.unit     || 'each',
+            cost:     item.cost     || 0,
+            qty:      Math.max((item.parLevel||item.reorder||1)*2, 1),
+            supplier: item.supplier || ''
+        });
+        added++;
+    });
+    hubToast('success', added + ' low stock items added to order');
+    procNav('proc-new');
+}
+
+console.log('✅ ProcureAI v2.0 loaded');
 
 /* ── ItemPro Requests ── */
 function procItemRequests() {
@@ -10577,29 +12065,40 @@ function pbDash() {
     var specials = items.filter(function(i) { return i.specialActive; });
     var active   = items.filter(function(i) { return i.status === 'active'; });
 
-    return '<div style="background:rgba(99,102,241,.1);' +
-        'border-left:3px solid #6366f1;padding:14px;' +
-        'border-radius:var(--rs);margin-bottom:16px;' +
-        'font-size:.85rem;color:var(--text)">' +
-        '<i class="fas fa-info-circle" style="color:#6366f1"></i> ' +
-        'POS Builder links your inventory to the Restaurant POS system. ' +
-        'Items you add here appear as clickable buttons on the waiter\'s ' +
-        'POS screen.</div>' +
+    // Tab warning if no tabs exist
+    var tabWarning = tabs.length === 0
+        ? '<div style="background:rgba(201,69,69,.1);border-left:3px solid var(--danger);' +
+          'padding:14px;border-radius:var(--rs);margin-bottom:14px">' +
+          '<div style="font-size:.85rem;font-weight:700;color:var(--danger);margin-bottom:6px">' +
+          '<i class="fas fa-exclamation-circle"></i> No POS Tabs Created</div>' +
+          '<div style="font-size:.78rem;color:var(--text-mid);margin-bottom:10px">' +
+          'You need to create POS tabs (e.g. Starters, Mains, Drinks) before adding items.</div>' +
+          '<button onclick="pbCreateTabModal()" ' +
+          'style="padding:10px 20px;background:var(--danger);color:#fff;border:none;' +
+          'border-radius:var(--rs);font-size:.82rem;font-weight:700;cursor:pointer;' +
+          'font-family:inherit"><i class="fas fa-plus"></i> Create First Tab</button>' +
+          '</div>'
+        : '';
 
+    return tabWarning +
+        '<div style="background:rgba(99,102,241,.1);' +
+        'border-left:3px solid #6366f1;padding:14px;' +
+        'border-radius:var(--rs);margin-bottom:16px;font-size:.85rem;color:var(--text)">' +
+        '<i class="fas fa-info-circle" style="color:#6366f1"></i> ' +
+        'POS Builder links your inventory to the Restaurant POS system.</div>' +
         '<div style="display:grid;grid-template-columns:repeat(2,1fr);' +
         'gap:10px;margin-bottom:16px">' +
-        pbStat('POS Items',  items.length,    '#6366f1') +
-        pbStat('Menu Tabs',  tabs.length,     'var(--primary)') +
+        pbStat('POS Items',  items.length,    '#6366f1')       +
+        pbStat('Menu Tabs',  tabs.length,     'var(--primary)')+
         pbStat('Active',     active.length,   'var(--success)') +
-        pbStat('Specials',   specials.length, 'var(--gold)') +
+        pbStat('Specials',   specials.length, 'var(--gold)')   +
         '</div>' +
-
+        mActionBtn('fa-layer-group', 'var(--primary)',
+            'Manage Tabs',     tabs.length + ' tabs created',    "pbManageTabs()") +
         mActionBtn('fa-plus-circle', '#6366f1',
-            'Add Item to POS', 'Link inventory item to POS menu',
-            "pbNav('pb-add')") +
-        mActionBtn('fa-tag', 'var(--gold)',
-            'Manage Specials', specials.length + ' active specials',
-            "pbNav('pb-specials')");
+            'Add Item to POS', 'Link inventory item to POS menu', "pbNav('pb-add')") +
+        mActionBtn('fa-tag',         'var(--gold)',
+            'Manage Specials', specials.length + ' active specials',"pbNav('pb-specials')");
 }
 
 function pbStat(l, v, c) {
@@ -10611,6 +12110,154 @@ function pbStat(l, v, c) {
         l + '</div>' +
         '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">' +
         v + '</div></div>';
+}
+
+/* ── POS Tab Management ── */
+function pbManageTabs() {
+    var tabs = POS_BUILD.posTabs;
+    var COLORS = [
+        '#1a8ba8','#0d4a5c','#2ea871','#f59e0b',
+        '#d97706','#c94545','#6366f1','#ec4899',
+        '#14b8a6','#f97316','#8b5cf6','#64748b'
+    ];
+
+    showHubModal(
+        '<i class="fas fa-layer-group" style="color:var(--primary)"></i> POS Tabs',
+        '<div style="margin-bottom:14px">' +
+        (tabs.length === 0
+            ? '<p style="color:var(--text-light);font-size:.82rem;text-align:center;padding:10px">' +
+              'No tabs yet. Create your first tab below.</p>'
+            : tabs.map(function(tab, idx){
+                return '<div style="display:flex;align-items:center;gap:10px;' +
+                    'padding:10px 12px;background:var(--bg);border-radius:var(--rs);' +
+                    'margin-bottom:6px;border-left:3px solid ' + (tab.color||'var(--primary)') + '">' +
+                    '<div style="width:28px;height:28px;border-radius:6px;' +
+                    'background:' + (tab.color||'var(--primary)') + ';' +
+                    'display:flex;align-items:center;justify-content:center;' +
+                    'color:#fff;font-size:.7rem;font-weight:700">' +
+                    tab.name.charAt(0).toUpperCase() + '</div>' +
+                    '<div style="flex:1;font-size:.85rem;font-weight:600;color:var(--text)">' +
+                    tab.name + '</div>' +
+                    '<div style="font-size:.68rem;color:var(--text-muted)">' +
+                    'Code: <strong style="font-family:monospace;color:var(--gold)">' +
+                    (tab.accessCode||'—') + '</strong></div>' +
+                    '<button onclick="pbDeleteTab(\'' + tab.id + '\')" ' +
+                    'style="padding:4px 8px;background:rgba(201,69,69,.1);' +
+                    'border:none;border-radius:6px;color:var(--danger);' +
+                    'cursor:pointer;font-size:.65rem">' +
+                    '<i class="fas fa-times"></i></button></div>';
+              }).join('')) +
+        '</div>' +
+        '<div style="border-top:1px solid var(--border);padding-top:14px">' +
+        '<div style="font-size:.78rem;font-weight:700;color:var(--text-mid);' +
+        'margin-bottom:10px">Create New Tab</div>' +
+        '<div style="margin-bottom:10px">' +
+        '<input type="text" id="new-tab-name" placeholder="Tab name (e.g. Starters, Mains, Drinks)" ' +
+        'style="width:100%;padding:10px;border:1px solid var(--border);' +
+        'border-radius:var(--rs);color:var(--text);background:var(--bg-dark);' +
+        'font-family:inherit;font-size:.85rem"></div>' +
+        '<div style="margin-bottom:10px">' +
+        '<div style="font-size:.72rem;color:var(--text-mid);margin-bottom:6px">Tab Colour</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+        COLORS.map(function(c,i){
+            return '<div onclick="pbSelectTabColor(this,\'' + c + '\')" ' +
+                'class="pb-tab-color" data-color="' + c + '" ' +
+                'style="width:30px;height:30px;background:' + c + ';border-radius:6px;' +
+                'cursor:pointer;border:3px solid ' + (i===0?'#fff':'transparent') + '"></div>';
+        }).join('') +
+        '</div><input type="hidden" id="new-tab-color" value="' + COLORS[0] + '"></div>' +
+        '<div style="background:rgba(245,158,11,.08);border-left:3px solid var(--gold);' +
+        'padding:10px 12px;border-radius:var(--rs);margin-bottom:12px;font-size:.75rem;color:var(--text-mid)">' +
+        '<i class="fas fa-key" style="color:var(--gold)"></i> ' +
+        'A 4-digit access code will be auto-generated for this tab. ' +
+        'Assign it to a POS device to activate.</div>' +
+        '<button onclick="pbSaveNewTab()" ' +
+        'style="width:100%;padding:12px;background:#6366f1;color:#fff;border:none;' +
+        'border-radius:var(--rs);font-size:.88rem;font-weight:700;cursor:pointer;' +
+        'font-family:inherit"><i class="fas fa-plus"></i> Create Tab</button>' +
+        '</div>',
+        '<button onclick="closeHubModal()" ' +
+        'style="flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);' +
+        'border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Close</button>'
+    );
+}
+
+function pbSelectTabColor(el, color) {
+    document.querySelectorAll('.pb-tab-color').forEach(function(s){
+        s.style.border = '3px solid transparent';
+    });
+    el.style.border = '3px solid #fff';
+    var inp = document.getElementById('new-tab-color');
+    if (inp) inp.value = color;
+}
+
+function pbSaveNewTab() {
+    var name  = (document.getElementById('new-tab-name').value||'').trim();
+    var color = document.getElementById('new-tab-color').value || '#1a8ba8';
+    if (!name) { hubToast('error','Enter tab name'); return; }
+
+    // Generate 4-digit access code
+    var code  = String(Math.floor(1000 + Math.random() * 9000));
+    var tabId = 'TAB-' + name.replace(/\s/g,'-').toLowerCase() + '-' + Date.now();
+
+    var newTab = {
+        id:          tabId,
+        name:        name,
+        color:       color,
+        accessCode:  code,
+        icon:        'tag',
+        sectionId:   '',
+        subCategories:[],
+        status:      'active',
+        createdAt:   new Date().toISOString(),
+        createdBy:   HUB.user ? HUB.user.name : 'POS Builder'
+    };
+
+    var tabs = POS_BUILD.posTabs.slice();
+    tabs.push(newTab);
+
+    var update = {};
+    update['posMenuTabs.' + HUB.entityId] = tabs;
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'POS Builder';
+    update['lastUpdatedDevice'] = 'POS Builder';
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            POS_BUILD.posTabs = tabs;
+            if (HUB.accountData) {
+                if (!HUB.accountData.posMenuTabs) HUB.accountData.posMenuTabs = {};
+                HUB.accountData.posMenuTabs[HUB.entityId] = tabs;
+            }
+            closeHubModal();
+            hubToast('success', '✅ Tab "' + name + '" created! Access code: ' + code);
+            pbNav('pb-dash');
+        })
+        .catch(function(err){ hubToast('error', err.message); });
+}
+
+function pbDeleteTab(tabId) {
+    if (!confirm('Delete this tab? Items linked to it will lose their tab assignment.')) return;
+    var tabs = POS_BUILD.posTabs.filter(function(t){ return t.id !== tabId; });
+    var update = {};
+    update['posMenuTabs.' + HUB.entityId] = tabs;
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            POS_BUILD.posTabs = tabs;
+            if (HUB.accountData && HUB.accountData.posMenuTabs)
+                HUB.accountData.posMenuTabs[HUB.entityId] = tabs;
+            closeHubModal();
+            pbManageTabs();
+            hubToast('info','Tab deleted');
+        })
+        .catch(function(err){ hubToast('error', err.message); });
+}
+
+function pbCreateTabModal() {
+    pbManageTabs();
 }
 
 /* ── POS Items List ── */
@@ -12536,67 +14183,125 @@ function sayloProcessCommand(text) {
             function() { sayloClose(); });
     }
     // Unknown command — use AI if available
+        // Unknown command — always use AI proxy (no key check needed)
     else {
-        var apiKey = localStorage.getItem('stockai_openai_key') || '';
-        if (apiKey && apiKey.startsWith('sk-')) {
-            sayloAskOpenAI(text);
-        } else {
-            sayloSpeak(
-                'I heard you say: ' + text +
-                '. I can help you with calendar events, notes, and bookings. ' +
-                'What would you like to do?',
-                '',
-                function() {}
-            );
-        }
+        sayloAskOpenAI(text);
     }
 }
 
 function sayloAskOpenAI(userText) {
-    var apiKey = localStorage.getItem('stockai_openai_key') || '';
-    if (!apiKey) return;
+    // Use Cloudflare Worker proxy — no key needed in browser
+    var SAYLO_PROXY = 'https://bold-dust-c51b.cidraism.workers.dev/nikki';
 
-    var today    = new Date().toISOString().split('T')[0];
-    var todayEvts = SAYLO.calendar.filter(function(e) {
-        return e.date === today;
-    }).length;
+    var today     = new Date().toISOString().split('T')[0];
+    var todayEvts = SAYLO.calendar.filter(function(e){ return e.date === today; });
+    var upcomingEvts = SAYLO.calendar.filter(function(e){ return e.date >= today; });
 
-    fetch('https://api.openai.com/v1/chat/completions', {
+    fetch(SAYLO_PROXY, {
         method: 'POST',
-        headers: {
-            'Content-Type':  'application/json',
-            'Authorization': 'Bearer ' + apiKey
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            model: 'gpt-4o-mini',
             messages: [
                 {
                     role: 'system',
-                    content: 'You are Saylo, a personal AI assistant for ' +
-                        (HUB.user ? HUB.user.name : 'Miguel') +
-                        '. You help manage their calendar, notes, and bookings. ' +
-                        'Today is ' + today + '. They have ' + todayEvts +
-                        ' events today. Keep responses brief and helpful. ' +
-                        'You are voice-controlled so respond conversationally.'
+                    content:
+                        'You are Saylo, a personal AI assistant for ' +
+                        (HUB.user ? HUB.user.name : 'the user') + '. ' +
+                        'You help manage their calendar, notes, and bookings. ' +
+                        'Today is ' + today + '. ' +
+                        'They have ' + todayEvts.length + ' events today and ' +
+                        upcomingEvts.length + ' upcoming events total. ' +
+                        'When the user wants to add an event, respond with JSON: ' +
+                        '{"intent":"add_event","title":"...","date":"YYYY-MM-DD",' +
+                        '"startTime":"HH:MM","duration":"...","notes":"...","speak":"..."}. ' +
+                        'When the user wants to add a note, respond with JSON: ' +
+                        '{"intent":"add_note","title":"...","content":"...","speak":"..."}. ' +
+                        'For other requests respond with JSON: ' +
+                        '{"intent":"speak","speak":"your response here"}. ' +
+                        'Keep voice responses brief and conversational.'
                 },
                 { role: 'user', content: userText }
             ],
-            max_tokens: 150
+            model:       'gpt-4o-mini',
+            max_tokens:  300,
+            temperature: 0.3
         })
     })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        var reply = data.choices &&
-                    data.choices[0] &&
-                    data.choices[0].message
-            ? data.choices[0].message.content
-            : 'I\'m not sure how to help with that. Try asking about your calendar or notes.';
-        sayloSpeak(reply, apiKey, function() {});
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        var reply = data.choices && data.choices[0] && data.choices[0].message
+            ? data.choices[0].message.content : '';
+
+        // Try to parse as JSON action
+        var action;
+        try {
+            var jsonMatch = reply.match(/\{[\s\S]*\}/);
+            if (jsonMatch) action = JSON.parse(jsonMatch[0]);
+        } catch(e) {
+            action = { intent:'speak', speak: reply };
+        }
+
+        if (!action) action = { intent:'speak', speak: reply };
+
+        // Execute the action
+        if (action.speak) {
+            sayloSpeak(action.speak,
+                localStorage.getItem('stockai_openai_key') || '',
+                function(){});
+        }
+
+        if (action.intent === 'add_event' && action.title && action.date) {
+            // Auto-create the event
+            var now   = new Date().toISOString();
+            var start = action.date && action.startTime
+                ? new Date(action.date + 'T' + action.startTime + ':00').toISOString()
+                : null;
+            var evtId = 'EVT-' + Date.now();
+            var evt   = {
+                id:        evtId,
+                title:     action.title,
+                date:      action.date,
+                startTime: start,
+                endTime:   null,
+                duration:  action.duration || '',
+                notes:     action.notes || userText,
+                type:      'personal',
+                createdAt: now,
+                createdBy: HUB.user ? HUB.user.email : ''
+            };
+            db.collection('saylo_calendar').doc(evtId).set(evt)
+                .then(function(){
+                    SAYLO.calendar.push(evt);
+                    hubToast('success', '📅 Event added: ' + action.title);
+                    sayloNav('saylo-calendar');
+                })
+                .catch(function(err){ console.warn('Event save error:', err); });
+        }
+
+        else if (action.intent === 'add_note' && action.content) {
+            var noteId = 'NOTE-' + Date.now();
+            var note   = {
+                id:        noteId,
+                title:     action.title || 'Note ' + new Date().toLocaleDateString('en-ZA'),
+                content:   action.content,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                createdBy: HUB.user ? HUB.user.email : ''
+            };
+            db.collection('saylo_notes').doc(noteId).set(note)
+                .then(function(){
+                    SAYLO.notes.unshift(note);
+                    hubToast('success', '📝 Note saved!');
+                    sayloNav('saylo-notes');
+                })
+                .catch(function(err){ console.warn('Note save error:', err); });
+        }
     })
-    .catch(function() {
+    .catch(function(err){
+        console.warn('Saylo proxy error:', err.message);
         sayloSpeak(
             'I\'m having trouble connecting right now. Please try again.',
-            '', function() {});
+            '', function(){});
     });
 }
 
