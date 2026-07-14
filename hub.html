@@ -6224,7 +6224,8 @@ function mmSaveMenuItem(postToPOS) {
         return;
     }
 
-    var totalCost   = MMENU.selectedIngredients.reduce(function(s,i){ return s+(i.total||0); },0);
+    var totalCost   = MMENU.selectedIngredients.reduce(
+        function(s,i){ return s+(i.total||0); },0);
     var cpp         = totalCost / yieldVal;
     var ent         = HUB.entity || {};
     var targetFC    = ent.foodCostTarget || 28;
@@ -6236,7 +6237,9 @@ function mmSaveMenuItem(postToPOS) {
         id:             menuId,
         name:           name,
         department:     dept,
-        ingredients:    MMENU.selectedIngredients.map(function(i){ return Object.assign({},i); }),
+        ingredients:    MMENU.selectedIngredients.map(function(i){
+            return Object.assign({},i);
+        }),
         yield:          yieldVal,
         totalCost:      parseFloat(totalCost.toFixed(2)),
         costPerPortion: parseFloat(cpp.toFixed(2)),
@@ -6249,34 +6252,74 @@ function mmSaveMenuItem(postToPOS) {
         source:         'Menu Master App'
     };
 
-    // Get existing menu items
+    /* Save menu item first */
     var existingMenu = mmGetMenu();
     existingMenu.push(newItem);
 
     var update = {};
     update['menuItems.' + HUB.entityId] = existingMenu;
-    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'Menu Master';
+    update['lastUpdated'] =
+        firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     =
+        HUB.user ? HUB.user.name : 'Menu Master';
     update['lastUpdatedDevice'] = 'Menu Master';
 
-    // Also post to POS if requested
     if (postToPOS) {
-        var posTabs  = (HUB.accountData.posMenuTabs  || {})[HUB.entityId] || [];
-        var posItems = (HUB.accountData.posMenuItems || {})[HUB.entityId] || [];
-        var firstTab = posTabs.length > 0 ? posTabs[0].id : '';
+        /* Check if tabs exist */
+        var posTabs  = (HUB.accountData.posMenuTabs  || {})
+                       [HUB.entityId] || [];
+        var posItems = (HUB.accountData.posMenuItems || {})
+                       [HUB.entityId] || [];
 
-        posItems.push({
-            id:              'MI-' + Date.now(),
-            name:            name,
-            price:           setPrice,
-            tabId:           firstTab,
-            linkedMenuItemId:menuId,
-            portionsPerUnit: 1,
-            status:          'active',
-            specialActive:   false,
-            createdAt:       new Date().toISOString()
-        });
-        update['posMenuItems.' + HUB.entityId] = posItems;
+        if (posTabs.length === 0) {
+            /* No tabs — warn user */
+            hubToast('warning',
+                'No POS tabs found. Create tabs in POS Builder first. ' +
+                'Item saved to Menu Master only.');
+            postToPOS = false;
+        } else if (posTabs.length === 1) {
+            /* Only one tab — assign automatically */
+            posItems.push({
+                id:               'MI-' + Date.now(),
+                name:             name,
+                price:            setPrice,
+                tabId:            posTabs[0].id,
+                tabName:          posTabs[0].name,
+                linkedMenuItemId: menuId,
+                portionsPerUnit:  1,
+                status:           'active',
+                specialActive:    false,
+                createdAt:        new Date().toISOString(),
+                createdBy:        HUB.user ? HUB.user.name : 'Menu Master',
+                source:           'Menu Master'
+            });
+            update['posMenuItems.' + HUB.entityId] = posItems;
+            hubToast('info',
+                'Auto-assigned to tab: ' + posTabs[0].name);
+
+        } else {
+            /* Multiple tabs — ask user to pick */
+            hubToast('info', 'Saving...');
+
+            db.collection('accounts').doc(HUB.accountId)
+                .set(update, { merge:true })
+                .then(function(){
+                    if (HUB.accountData) {
+                        if (!HUB.accountData.menuItems)
+                            HUB.accountData.menuItems = {};
+                        HUB.accountData.menuItems[HUB.entityId] =
+                            existingMenu;
+                    }
+                    MMENU.selectedIngredients = [];
+
+                    /* Show tab selector modal */
+                    mmShowTabSelector(newItem, menuId, posItems, posTabs);
+                })
+                .catch(function(err){
+                    hubToast('error','Error: '+err.message);
+                });
+            return; /* Exit — modal handles the rest */
+        }
     }
 
     hubToast('info', 'Saving to Web App...');
@@ -6285,16 +6328,144 @@ function mmSaveMenuItem(postToPOS) {
         .set(update, { merge:true })
         .then(function(){
             if (HUB.accountData) {
-                if (!HUB.accountData.menuItems) HUB.accountData.menuItems = {};
+                if (!HUB.accountData.menuItems)
+                    HUB.accountData.menuItems = {};
                 HUB.accountData.menuItems[HUB.entityId] = existingMenu;
             }
             MMENU.selectedIngredients = [];
             hubToast('success',
-                '✅ ' + name + ' saved to Web App!' +
-                (postToPOS ? ' Also posted to POS.' : ''));
+                '✅ ' + name + ' saved!' +
+                (postToPOS ? ' Posted to POS.' : ''));
             setTimeout(function(){ mmNav('mm-items'); }, 1000);
         })
         .catch(function(err){ hubToast('error','Error: '+err.message); });
+}
+
+/* ── Tab Selector Modal ── */
+function mmShowTabSelector(menuItem, menuId, posItems, posTabs) {
+    showHubModal(
+        '<i class="fas fa-cash-register" ' +
+        'style="color:#14b8a6"></i> Select POS Tab',
+
+        '<div style="background:rgba(20,184,166,.1);' +
+        'border-left:3px solid #14b8a6;padding:12px;' +
+        'border-radius:var(--rs);margin-bottom:16px;' +
+        'font-size:.82rem;color:var(--text)">' +
+        '<strong>' + menuItem.name + '</strong> — R' +
+        menuItem.setPrice.toFixed(2) +
+        ' has been saved to Menu Master.<br>' +
+        'Which POS tab would you like to post it to?' +
+        '</div>' +
+
+        '<div style="display:flex;flex-direction:column;gap:8px">' +
+        posTabs.map(function(tab) {
+            return '<div onclick="mmPostToTab(\'' +
+                menuId + '\',\'' +
+                tab.id + '\',\'' +
+                tab.name + '\')" ' +
+                'style="display:flex;align-items:center;gap:12px;' +
+                'padding:14px;background:var(--bg);' +
+                'border-radius:var(--rs);cursor:pointer;' +
+                'border:2px solid var(--border);transition:.2s" ' +
+                'onmouseover="this.style.borderColor=\'' +
+                (tab.color||'var(--primary)') + '\'" ' +
+                'onmouseout="this.style.borderColor=\'var(--border)\'">' +
+                '<div style="width:36px;height:36px;border-radius:8px;' +
+                'background:' + (tab.color||'var(--primary)') + ';' +
+                'display:flex;align-items:center;justify-content:center;' +
+                'color:#fff;font-size:.85rem;font-weight:700;' +
+                'flex-shrink:0">' +
+                tab.name.charAt(0).toUpperCase() + '</div>' +
+                '<div style="flex:1">' +
+                '<div style="font-size:.88rem;font-weight:700;' +
+                'color:var(--text)">' + tab.name + '</div>' +
+                '<div style="font-size:.68rem;color:var(--text-muted)">' +
+                'Tap to post to this tab</div>' +
+                '</div>' +
+                '<i class="fas fa-chevron-right" ' +
+                'style="color:var(--text-muted)"></i>' +
+                '</div>';
+        }).join('') +
+        '</div>',
+
+        '<button onclick="closeHubModal()" ' +
+        'style="flex:1;padding:10px;background:var(--bg);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);' +
+        'cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Skip — Don\'t Post to POS</button>'
+    );
+}
+
+/* ── Post to Selected Tab ── */
+function mmPostToTab(menuId, tabId, tabName) {
+    /* Find the menu item */
+    var menuItem = mmGetMenu().find(function(m) {
+        return m.id === menuId;
+    });
+    if (!menuItem) {
+        hubToast('error', 'Menu item not found');
+        closeHubModal();
+        return;
+    }
+
+    var posItems = (HUB.accountData.posMenuItems || {})
+                   [HUB.entityId] || [];
+
+    /* Check if already posted to this tab */
+    var alreadyExists = posItems.find(function(p) {
+        return p.linkedMenuItemId === menuId && p.tabId === tabId;
+    });
+
+    if (alreadyExists) {
+        hubToast('warning',
+            menuItem.name + ' is already on the ' + tabName + ' tab');
+        closeHubModal();
+        return;
+    }
+
+    posItems.push({
+        id:               'MI-' + Date.now(),
+        name:             menuItem.name,
+        price:            menuItem.setPrice,
+        tabId:            tabId,
+        tabName:          tabName,
+        linkedMenuItemId: menuId,
+        portionsPerUnit:  1,
+        status:           'active',
+        specialActive:    false,
+        createdAt:        new Date().toISOString(),
+        createdBy:        HUB.user ? HUB.user.name : 'Menu Master',
+        source:           'Menu Master'
+    });
+
+    var update = {};
+    update['posMenuItems.' + HUB.entityId] = posItems;
+    update['lastUpdated'] =
+        firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     =
+        HUB.user ? HUB.user.name : 'Menu Master';
+    update['lastUpdatedDevice'] = 'Menu Master';
+
+    hubToast('info', 'Posting to POS...');
+
+    db.collection('accounts').doc(HUB.accountId)
+        .set(update, { merge: true })
+        .then(function() {
+            if (HUB.accountData) {
+                if (!HUB.accountData.posMenuItems)
+                    HUB.accountData.posMenuItems = {};
+                HUB.accountData.posMenuItems[HUB.entityId] = posItems;
+            }
+            closeHubModal();
+            hubToast('success',
+                '✅ ' + menuItem.name +
+                ' posted to POS — ' + tabName + ' tab!');
+            mmNav('mm-items');
+        })
+        .catch(function(err) {
+            hubToast('error', 'Error: ' + err.message);
+            closeHubModal();
+        });
 }
 
 /* ── Menu Items List ── */
