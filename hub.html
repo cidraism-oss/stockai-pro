@@ -15877,330 +15877,292 @@ function buildBrochureHTML(clientName, businessName, personalMessage) {
     var personalSection = personalMessage
         ? '<div style="background:#f0f9ff;border-left:4px solid #0d9488;' +
           'padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:0;' +
-          'font-style:italic;color:#374151;font-size:15px;' +
-          'line-height:1.8">' +
+          'font-style:italic;color:#374151;font-size:15px;line-height:1.8">' +
           '"' + personalMessage.replace(/</g,'&lt;').replace(/>/g,'&gt;') +
           '"' +
           '</div>'
         : '';
 
     return '<!DOCTYPE html><html lang="en"><head>' +
-        '<meta charset="UTF-8">' +
-        '<meta name="viewport" content="width=device-width,' +
-        'initial-scale=1">' +
-        '<title>StockAI-Pro</title></head>' +
-        '<body style="margin:0;padding:0;background:#f3f4f6;' +
-        'font-family:Segoe UI,Arial,sans-serif;color:#1f2937">' +
+    '<meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>StockAI-Pro</title></head>' +
+    '<body style="margin:0;padding:0;background:#f3f4f6;' +
+    'font-family:Segoe UI,Arial,sans-serif;color:#1f2937">' +
 
-        '<div style="max-width:640px;margin:0 auto;background:#ffffff;' +
-        'border-radius:0 0 16px 16px;' +
-        'box-shadow:0 4px 24px rgba(0,0,0,.08)">' +
+    '<div style="max-width:640px;margin:0 auto;background:#ffffff;' +
+    'border-radius:0 0 16px 16px;' +
+    'box-shadow:0 4px 24px rgba(0,0,0,.08)">' +
 
-        /* Header */
-        '<div style="background:linear-gradient(135deg,' +
-        '#020d10 0%,#0d4a5c 35%,#1a8ba8 65%,#0d9488 100%);' +
-        'padding:48px 40px 40px;text-align:center;' +
-        'border-radius:16px 16px 0 0">' +
-        '<div style="font-size:36px;font-weight:900;color:#ffffff;' +
-        'letter-spacing:3px;margin-bottom:10px">' +
-        'Stock<span style="color:#5eead4">AI</span>' +
-        '<span style="color:rgba(255,255,255,.5);font-weight:400">' +
-        '-Pro</span></div>' +
-        '<div style="color:rgba(255,255,255,.75);font-size:13px;' +
-        'letter-spacing:3px;text-transform:uppercase">' +
-        'Intelligence a click away</div>' +
-        '<div style="color:rgba(255,255,255,.45);font-size:12px;' +
-        'margin-top:6px">Version 2.0 — South Africa — 2025</div>' +
-        '</div>' +
+    /* ══════════════════════════════
+       HEADER BANNER
+    ══════════════════════════════ */
+    '<div style="background:linear-gradient(135deg,' +
+    '#020d10 0%,#0d4a5c 35%,#1a8ba8 65%,#0d9488 100%);' +
+    'padding:48px 40px 40px;text-align:center;' +
+    'border-radius:16px 16px 0 0">' +
+    '<div style="font-size:36px;font-weight:900;color:#ffffff;' +
+    'letter-spacing:3px;margin-bottom:10px">' +
+    'Stock<span style="color:#5eead4">AI</span>' +
+    '<span style="color:rgba(255,255,255,.5);font-weight:400">-Pro</span>' +
+    '</div>' +
+    '<div style="color:rgba(255,255,255,.75);font-size:13px;' +
+    'letter-spacing:3px;text-transform:uppercase">' +
+    'Intelligence a click away</div>' +
+    '<div style="color:rgba(255,255,255,.45);font-size:12px;margin-top:6px">' +
+    'Version 2.0 — South Africa — 2025</div>' +
+    '</div>' +
 
-        /* Intro body */
-        '<div style="padding:40px 40px 32px">' +
+    /* ══════════════════════════════
+       INTRO BODY
+    ══════════════════════════════ */
+    '<div style="padding:40px 40px 32px">' +
 
-        '<p style="font-size:17px;font-weight:700;color:#0d4a5c;' +
-        'margin:0 0 16px">' + greeting + ',</p>' +
+    '<p style="font-size:17px;font-weight:700;color:#0d4a5c;margin:0 0 16px">' +
+    greeting + ',</p>' +
 
-        '<p style="font-size:15px;color:#374151;line-height:1.8;' +
-        'margin:0 0 20px">' +
-        'I hope this message finds you well.' +
-        '</p>' +
+    '<p style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 20px">' +
+    'I hope this message finds you well.' +
+    '</p>' +
 
-        '<p style="font-size:15px;color:#374151;line-height:1.8;' +
-        'margin:0 0 20px">' +
-        'My name is <strong style="color:#0d4a5c">Miguel Cidrais' +
-        '</strong>, and I am the founder of ' +
-        '<strong style="color:#0d9488">StockAI-Pro</strong> — ' +
-        'South Africa\'s first fully integrated, AI-powered stock ' +
-        'control and restaurant management platform.' +
-        '</p>' +
+    '<p style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 20px">' +
+    'My name is <strong style="color:#0d4a5c">Miguel Cidrais</strong>, ' +
+    'and I am the founder of ' +
+    '<strong style="color:#0d9488">StockAI-Pro</strong> — ' +
+    'South Africa\'s first fully integrated, AI-powered stock ' +
+    'control and restaurant management platform.' +
+    '</p>' +
 
-        '<p style="font-size:15px;color:#374151;line-height:1.8;' +
-        'margin:0 0 20px">' +
-        'I am reaching out because I believe StockAI-Pro could make ' +
-        'a <strong>significant difference</strong> to how your ' +
-        'business manages stock, procurement, point of sale and ' +
-        'daily operations — saving you time, reducing waste and ' +
-        'giving you complete visibility over your business ' +
-        '<strong>from anywhere, on any device.</strong>' +
-        '</p>' +
+    '<p style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 20px">' +
+    'I am reaching out because I believe StockAI-Pro could make a ' +
+    '<strong>significant difference</strong> to how your business ' +
+    'manages stock, procurement, point of sale and daily operations — ' +
+    'saving you time, reducing waste and giving you complete visibility ' +
+    'over your business <strong>from anywhere, on any device.</strong>' +
+    '</p>' +
 
-        /* Highlight box */
-        '<div style="background:linear-gradient(135deg,#f0fdfa,#e0f2fe);' +
-        'border-radius:12px;padding:24px;margin-bottom:24px;' +
-        'border:1px solid #99f6e4">' +
-        '<div style="font-size:13px;font-weight:800;color:#0d4a5c;' +
-        'text-transform:uppercase;letter-spacing:1px;' +
-        'margin-bottom:14px">' +
-        'What makes StockAI-Pro different?' +
-        '</div>' +
-        bPoint('AI-Powered from the ground up — Voice ordering, ' +
-            'voice stock counts, AI reports and an AI assistant ' +
-            'called Nikki that navigates the system for you.') +
-        bPoint('One system, everything connected — POS, stock, ' +
-            'supplier orders, invoices and cashups all update ' +
-            'each other in real time.') +
-        bPoint('Built for mobile — Count stock with your voice, ' +
-            'place supplier orders by speaking. No paperwork, ' +
-            'no spreadsheets.') +
-        bPoint('Built for South Africa — VAT-compliant, ' +
-            'Rand-based, designed for our restaurants, ' +
-            'hotels, bars and retail stores.') +
-        '</div>' +
+    /* Highlight box */
+    '<div style="background:linear-gradient(135deg,#f0fdfa,#e0f2fe);' +
+    'border-radius:12px;padding:24px;margin-bottom:24px;' +
+    'border:1px solid #99f6e4">' +
+    '<div style="font-size:13px;font-weight:800;color:#0d4a5c;' +
+    'text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">' +
+    'What makes StockAI-Pro different?' +
+    '</div>' +
+    bPointNew('AI-Powered from the ground up — Voice ordering, ' +
+        'voice stock counts, AI reports and an AI assistant ' +
+        'called Nikki that navigates the system for you.') +
+    bPointNew('One system, everything connected — POS, stock, ' +
+        'supplier orders, invoices and cashups all update ' +
+        'each other in real time.') +
+    bPointNew('Built for mobile — Count stock with your voice, ' +
+        'place supplier orders by speaking. No paperwork, ' +
+        'no spreadsheets.') +
+    bPointNew('Built for South Africa — VAT-compliant, ' +
+        'Rand-based, designed for our restaurants, ' +
+        'hotels, bars and retail stores.') +
+    '</div>' +
 
-        /* Personal message */
-        (personalMessage
-            ? '<div style="margin-bottom:24px">' +
-              '<div style="font-size:12px;font-weight:700;' +
-              'color:#6b7280;text-transform:uppercase;' +
-              'letter-spacing:1px;margin-bottom:8px">' +
-              'A personal note:</div>' +
-              personalSection +
-              '</div>'
-            : '') +
+    /* Personal message */
+    (personalMessage
+        ? '<div style="margin-bottom:24px">' +
+          '<div style="font-size:12px;font-weight:700;color:#6b7280;' +
+          'text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' +
+          'A personal note:</div>' +
+          personalSection +
+          '</div>'
+        : '') +
 
-        '<p style="font-size:15px;color:#374151;line-height:1.8;' +
-        'margin:0 0 20px">' +
-        'I would love the opportunity to show you StockAI-Pro in ' +
-        'action. A <strong>free 30-minute live demo</strong> is all ' +
-        'it takes — no obligation, no pressure.' +
-        '</p>' +
+    '<p style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 20px">' +
+    'I would love the opportunity to show you StockAI-Pro in action. ' +
+    'A <strong>30-minute live demo</strong> is all it takes — ' +
+    'no obligation, no pressure.' +
+    '</p>' +
 
-        /* CTA */
-        '<div style="text-align:center;margin-bottom:28px">' +
-        '<a href="https://stockai-pro.co.za/book.html" ' +
-        'style="display:inline-block;' +
-        'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
-        'color:#ffffff;text-decoration:none;' +
-        'padding:16px 40px;border-radius:50px;' +
-        'font-weight:800;font-size:15px">' +
-        'Book Your Free Demo</a>' +
-        '<div style="margin-top:12px;font-size:12px;color:#9ca3af">' +
-        'Or reply to this email and I will get back to you personally.' +
-        '</div></div>' +
+    /* Single CTA */
+    '<div style="text-align:center;margin-bottom:28px">' +
+    '<a href="https://stockai-pro.co.za/book.html" ' +
+    'style="display:inline-block;' +
+    'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+    'color:#ffffff;text-decoration:none;' +
+    'padding:16px 40px;border-radius:50px;' +
+    'font-weight:800;font-size:15px">' +
+    'Book Your Demo Now</a>' +
+    '<div style="margin-top:12px;font-size:12px;color:#9ca3af">' +
+    'Or reply to this email and I will get back to you personally.' +
+    '</div></div>' +
 
-        '<div style="border-top:1px solid #f3f4f6;' +
-        'margin-bottom:24px"></div>' +
+    '<div style="border-top:1px solid #f3f4f6;margin-bottom:24px"></div>' +
 
-        '<p style="font-size:14px;color:#6b7280;' +
-        'text-align:center;margin:0 0 4px">' +
-        'Scroll down to explore the full StockAI-Pro ' +
-        'feature set and pricing.' +
-        '</p></div>' +
+    '<p style="font-size:14px;color:#6b7280;text-align:center;margin:0 0 4px">' +
+    'Scroll down to explore the full StockAI-Pro feature set.' +
+    '</p></div>' +
 
-        /* Divider */
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
-        'padding:20px 40px;text-align:center">' +
-        '<div style="font-size:13px;font-weight:800;color:#ffffff;' +
-        'letter-spacing:2px;text-transform:uppercase">' +
-        '— Full Product Brochure —' +
-        '</div></div>' +
+    /* ══════════════════════════════
+       DIVIDER
+    ══════════════════════════════ */
+    '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
+    'padding:20px 40px;text-align:center">' +
+    '<div style="font-size:13px;font-weight:800;color:#ffffff;' +
+    'letter-spacing:2px;text-transform:uppercase">' +
+    '— Full Product Overview —' +
+    '</div></div>' +
 
-        /* Brochure */
-        '<div style="padding:40px">' +
+    /* ══════════════════════════════
+       BROCHURE CONTENT
+    ══════════════════════════════ */
+    '<div style="padding:40px">' +
 
-        '<div style="background:linear-gradient(135deg,#f0fdfa,#e0f2fe);' +
-        'border-radius:12px;padding:24px;margin-bottom:28px;' +
-        'border:1px solid #99f6e4">' +
-        '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;' +
-        'margin:0 0 12px">The Platform</h2>' +
-        '<p style="font-size:14px;color:#374151;line-height:1.8;margin:0">' +
-        'StockAI-Pro is a cloud-based, AI-powered management system ' +
-        'built for restaurants, hotels, bars, retail stores and ' +
-        'hospitality businesses. From stock counts to supplier orders, ' +
-        'from POS to cashups — everything is automated, connected ' +
-        'and intelligent.' +
-        '</p></div>' +
+    /* Platform overview */
+    '<div style="background:linear-gradient(135deg,#f0fdfa,#e0f2fe);' +
+    'border-radius:12px;padding:24px;margin-bottom:28px;' +
+    'border:1px solid #99f6e4">' +
+    '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;margin:0 0 12px">' +
+    'The Platform</h2>' +
+    '<p style="font-size:14px;color:#374151;line-height:1.8;margin:0">' +
+    'StockAI-Pro is a cloud-based, AI-powered management system ' +
+    'built for restaurants, hotels, bars, retail stores and ' +
+    'hospitality businesses. From stock counts to supplier orders, ' +
+    'from POS to cashups — everything is automated, connected ' +
+    'and intelligent. All your staff, all your entities, ' +
+    'all your data — <strong>one platform.</strong>' +
+    '</p></div>' +
 
-        '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;' +
-        'margin:0 0 16px">All Applications</h2>' +
+    /* Features */
+    '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;margin:0 0 16px">' +
+    'All Applications Included</h2>' +
 
-        bFeat('Web App — Back of House',
-            'Complete stock management, purchasing, GRV, wastage, ' +
-            'supplier management and financial reports.') +
-        bFeat('MobileAI',
-            'Voice-powered stock counting by department. ' +
-            'Syncs instantly to the web app. No paperwork.') +
-        bFeat('ProcureAI',
-            'Voice-order from your phone. POs auto-created and ' +
-            'sent to suppliers. Receive deliveries and trigger ' +
-            'GRV automatically.') +
-        bFeat('Restaurant POS',
-            'Full table service POS. Waiters, kitchen display, ' +
-            'split bills, specials, happy hour and cashups.') +
-        bFeat('Retail POS',
-            'Barcode scanner, VAT-inclusive pricing, thermal ' +
-            'till slips, cash drops and manager cashups.') +
-        bFeat('Menu Master',
-            'Build recipes linked to live inventory costs. ' +
-            'Auto-calculates food cost % and suggests sell price.') +
-        bFeat('FunctionsAI',
-            'Events management with invoicing. Send confirmation ' +
-            'emails to clients automatically.') +
-        bFeat('Production Manager',
-            'Bulk production runs. Auto-deducts ingredients ' +
-            'and adds produced stock.') +
-        bFeat('Invoice Scanner',
-            'Scan supplier invoices. Auto-matches PO, completes ' +
-            'GRV and updates stock and pricing.') +
-        bFeat('AI Brain + Nikki',
-            'Voice AI assistant. Navigate, report and order ' +
-            'using just your voice. Wake word: Hey Nikki.') +
+    bFeatNew('Web App — Back of House',
+        'Complete stock management, purchasing, GRV, wastage, ' +
+        'supplier management and financial reports.') +
+    bFeatNew('MobileAI',
+        'Voice-powered stock counting by department. ' +
+        'Syncs instantly to the web app. No paperwork.') +
+    bFeatNew('ProcureAI',
+        'Voice-order from your phone. POs auto-created and sent ' +
+        'to suppliers. Receive deliveries and trigger GRV automatically.') +
+    bFeatNew('Restaurant POS',
+        'Full table service POS. Waiters, kitchen display, ' +
+        'split bills, specials, happy hour and cashups.') +
+    bFeatNew('Retail POS',
+        'Barcode scanner, VAT-inclusive pricing, thermal till ' +
+        'slips, cash drops and manager cashups.') +
+    bFeatNew('Menu Master',
+        'Build recipes linked to live inventory costs. ' +
+        'Auto-calculates food cost % and suggests sell price.') +
+    bFeatNew('FunctionsAI',
+        'Events management with invoicing. Send confirmation ' +
+        'emails to clients automatically.') +
+    bFeatNew('Production Manager',
+        'Bulk production runs. Auto-deducts ingredients ' +
+        'and adds produced stock.') +
+    bFeatNew('Invoice Scanner',
+        'Scan supplier invoices. Auto-matches PO, completes ' +
+        'GRV and updates stock and pricing.') +
+    bFeatNew('AI Brain + Nikki',
+        'Voice AI assistant. Navigate, report and order ' +
+        'using just your voice. Wake word: Hey Nikki.') +
 
-        /* Pricing */
-        '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;' +
-        'margin:28px 0 16px">Transparent Monthly Pricing</h2>' +
+    /* Pricing — single line */
+    '<div style="background:linear-gradient(135deg,#f0fdfa,#e0f2fe);' +
+    'border-radius:12px;padding:24px;margin:28px 0;' +
+    'border:1px solid #99f6e4;text-align:center">' +
+    '<h2 style="font-size:18px;font-weight:800;color:#0d4a5c;margin:0 0 10px">' +
+    'Pricing</h2>' +
+    '<p style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 8px">' +
+    'Starting from as little as ' +
+    '<strong style="color:#0d9488;font-size:18px">R1 398 per month</strong>' +
+    ' — which includes the base platform and your first entity.' +
+    '</p>' +
+    '<p style="font-size:13px;color:#6b7280;margin:0">' +
+    'All prices exclude VAT. No setup fees. No long-term contracts.' +
+    '</p></div>' +
 
-        '<div style="background:#f9fafb;border-radius:12px;' +
-        'padding:20px;margin-bottom:10px;border:1px solid #e5e7eb">' +
-        bPrice('Base Platform Fee',    'R 799 / month') +
-        bPrice('Per Branch / Entity',  'R 599 / month') +
-        bPrice('Restaurant POS',       'R 799 / month') +
-        bPrice('Retail POS',           'R 999 / month') +
-        bPrice('Menu Master',          'R 349 / month') +
-        bPrice('FunctionsAI',          'R 449 / month') +
-        bPrice('Invoice Scanner',      'R 499 / month') +
-        bPrice('AI Brain + Nikki',     'R 499 / month') +
-        bPrice('Production Manager',   'R 449 / month') +
-        '<div style="padding-top:12px;border-top:2px solid #0d9488;' +
-        'margin-top:8px">' +
-        '<div style="font-size:13px;color:#6b7280">' +
-        'MobileAI, ProcureAI, CashUp-Pro, POS Builder</div>' +
-        '<div style="font-size:13px;color:#0d9488;font-weight:700">' +
-        'Included FREE with every account</div>' +
-        '</div></div>' +
+    /* Final CTA — single instance */
+    '<div style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+    'border-radius:12px;padding:32px;text-align:center;margin-bottom:32px">' +
+    '<h2 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 10px">' +
+    'Ready to Transform Your Business?</h2>' +
+    '<p style="font-size:14px;color:rgba(255,255,255,.85);' +
+    'margin:0 0 24px;line-height:1.7">' +
+    'We set up your account, load your inventory and have you ' +
+    'running within 24 hours.' +
+    '</p>' +
+    '<a href="https://stockai-pro.co.za/book.html" ' +
+    'style="display:inline-block;background:#f59e0b;' +
+    'color:#ffffff;text-decoration:none;padding:16px 40px;' +
+    'border-radius:50px;font-weight:800;font-size:15px">' +
+    'Book Your Demo Now</a>' +
+    '</div>' +
 
-        '<div style="background:rgba(13,148,136,.08);' +
-        'border-radius:8px;padding:12px 16px;margin-bottom:28px;' +
-        'font-size:13px;color:#374151">' +
-        'All prices exclude VAT (15%). ' +
-        'No setup fees. No long-term contracts. Cancel anytime.' +
-        '</div>' +
+    '</div>' +
 
-        /* Final CTA */
-        '<div style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
-        'border-radius:12px;padding:32px;text-align:center;' +
-        'margin-bottom:32px">' +
-        '<h2 style="font-size:20px;font-weight:800;color:#ffffff;' +
-        'margin:0 0 10px">Ready to Transform Your Business?</h2>' +
-        '<p style="font-size:14px;color:rgba(255,255,255,.85);' +
-        'margin:0 0 24px;line-height:1.7">' +
-        'Book your free demo today. We set up your account, ' +
-        'load your inventory and have you running within 24 hours.' +
-        '</p>' +
-        '<a href="https://stockai-pro.co.za/book.html" ' +
-        'style="display:inline-block;background:#f59e0b;' +
-        'color:#ffffff;text-decoration:none;padding:16px 40px;' +
-        'border-radius:50px;font-weight:800;font-size:15px">' +
-        'Book Your Free Demo Now' +
-        '</a></div>' +
+    /* ══════════════════════════════
+       SIGNATURE FOOTER
+    ══════════════════════════════ */
+    '<div style="background:#f9fafb;border-top:3px solid #0d9488;' +
+    'padding:28px 40px">' +
 
-        '</div>' + /* end brochure padding */
+    '<table style="width:100%;border-collapse:collapse">' +
+    '<tr>' +
+    '<td style="width:70px;vertical-align:middle;padding-right:16px">' +
+    '<div style="width:64px;height:64px;border-radius:16px;' +
+    'background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
+    'display:table-cell;text-align:center;vertical-align:middle">' +
+    '<span style="font-size:10px;font-weight:900;color:#ffffff;' +
+    'display:block;padding:8px;line-height:1.4">' +
+    'Stock<span style="color:#5eead4">AI</span>-Pro</span>' +
+    '</div></td>' +
+    '<td style="vertical-align:middle">' +
+    '<div style="font-size:16px;font-weight:800;color:#0d4a5c;' +
+    'margin-bottom:2px">Miguel Cidrais</div>' +
+    '<div style="font-size:13px;font-weight:600;color:#0d9488;' +
+    'margin-bottom:10px">Owner — StockAI-Pro</div>' +
+    '<div style="font-size:13px;color:#374151;line-height:2">' +
+    '<a href="tel:0790440508" ' +
+    'style="color:#374151;text-decoration:none">079 044 0508</a>' +
+    ' &nbsp;|&nbsp; ' +
+    '<a href="mailto:miguel@stockai-pro.co.za" ' +
+    'style="color:#0d9488;text-decoration:none">' +
+    'miguel@stockai-pro.co.za</a><br>' +
+    '<a href="https://stockai-pro.co.za" ' +
+    'style="color:#0d9488;text-decoration:none">' +
+    'www.stockai-pro.co.za</a>' +
+    '</div></td></tr></table>' +
 
-        /* Signature Footer */
-        '<div style="background:#f9fafb;border-top:3px solid #0d9488;' +
-        'padding:28px 40px">' +
+    '<div style="border-top:1px solid #e5e7eb;margin-top:20px;' +
+    'padding-top:16px">' +
+    '<div style="font-size:12px;color:#6b7280;font-style:italic">' +
+    '"Designed by professionals, for professionals."' +
+    '</div></div></div>' +
 
-        '<table style="width:100%;border-collapse:collapse">' +
-        '<tr>' +
-        '<td style="width:70px;vertical-align:middle;padding-right:16px">' +
-        '<div style="width:64px;height:64px;border-radius:16px;' +
-        'background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
-        'display:table-cell;text-align:center;vertical-align:middle">' +
-        '<span style="font-size:10px;font-weight:900;color:#ffffff;' +
-        'display:block;padding:8px;line-height:1.4">' +
-        'Stock<span style="color:#5eead4">AI</span>-Pro</span>' +
-        '</div></td>' +
-        '<td style="vertical-align:middle">' +
-        '<div style="font-size:16px;font-weight:800;color:#0d4a5c;' +
-        'margin-bottom:2px">Miguel Cidrais</div>' +
-        '<div style="font-size:13px;font-weight:600;color:#0d9488;' +
-        'margin-bottom:10px">Owner — StockAI-Pro</div>' +
-        '<div style="font-size:13px;color:#374151;line-height:2">' +
-        '<a href="tel:0790440508" ' +
-        'style="color:#374151;text-decoration:none">' +
-        '079 044 0508</a>' +
-        ' &nbsp;|&nbsp; ' +
-        '<a href="mailto:miguel@stockai-pro.co.za" ' +
-        'style="color:#0d9488;text-decoration:none">' +
-        'miguel@stockai-pro.co.za</a>' +
-        '<br>' +
-        '<a href="https://wa.me/27790440508" ' +
-        'style="color:#25D366;text-decoration:none">' +
-        'WhatsApp: 079 044 0508</a>' +
-        ' &nbsp;|&nbsp; ' +
-        '<a href="https://stockai-pro.co.za" ' +
-        'style="color:#0d9488;text-decoration:none">' +
-        'www.stockai-pro.co.za</a>' +
-        '</div></td></tr></table>' +
+    /* ══════════════════════════════
+       EMAIL FOOTER
+    ══════════════════════════════ */
+    '<div style="background:#0d4a5c;padding:20px 40px;' +
+    'text-align:center;border-radius:0 0 16px 16px">' +
+    '<div style="color:rgba(255,255,255,.7);font-size:12px;margin-bottom:4px">' +
+    '2025 StockAI-Pro — All Rights Reserved' +
+    '</div>' +
+    '<div style="color:rgba(255,255,255,.4);font-size:11px">' +
+    'This email was sent from miguel@stockai-pro.co.za' +
+    '</div></div>' +
 
-        '<div style="border-top:1px solid #e5e7eb;margin-top:20px;' +
-        'padding-top:16px;display:flex;' +
-        'justify-content:space-between;align-items:center;' +
-        'flex-wrap:wrap;gap:10px">' +
-        '<div style="font-size:12px;color:#6b7280;font-style:italic">' +
-        '"Designed by professionals, for professionals."' +
-        '</div>' +
-        '<div>' +
-        '<a href="https://wa.me/27790440508" ' +
-        'style="display:inline-block;background:#25D366;color:#fff;' +
-        'text-decoration:none;padding:6px 14px;border-radius:20px;' +
-        'font-size:12px;font-weight:700;margin-left:6px">WhatsApp</a>' +
-        '<a href="https://stockai-pro.co.za/book.html" ' +
-        'style="display:inline-block;background:#0d9488;color:#fff;' +
-        'text-decoration:none;padding:6px 14px;border-radius:20px;' +
-        'font-size:12px;font-weight:700;margin-left:6px">Book Demo</a>' +
-        '<a href="https://stockai-pro.co.za" ' +
-        'style="display:inline-block;background:#0d4a5c;color:#fff;' +
-        'text-decoration:none;padding:6px 14px;border-radius:20px;' +
-        'font-size:12px;font-weight:700;margin-left:6px">Website</a>' +
-        '</div></div></div>' +
-
-        /* Email footer */
-        '<div style="background:#0d4a5c;padding:20px 40px;' +
-        'text-align:center;border-radius:0 0 16px 16px">' +
-        '<div style="color:rgba(255,255,255,.7);font-size:12px;' +
-        'margin-bottom:4px">' +
-        '2025 StockAI-Pro — All Rights Reserved' +
-        '</div>' +
-        '<div style="color:rgba(255,255,255,.4);font-size:11px">' +
-        'This email was sent from miguel@stockai-pro.co.za · ' +
-        'To unsubscribe reply with Unsubscribe in the subject.' +
-        '</div></div>' +
-
-        '</div>' + /* end wrapper */
-        '</body></html>';
+    '</div>' +
+    '</body></html>';
 }
 
-/* ── Helpers ── */
-function bPoint(text) {
+/* ── Helper: Bullet point ── */
+function bPointNew(text) {
     return '<div style="display:flex;align-items:flex-start;' +
         'gap:10px;margin-bottom:10px">' +
-        '<span style="color:#0d9488;font-weight:700;' +
-        'flex-shrink:0">✓</span>' +
+        '<span style="color:#0d9488;font-weight:700;flex-shrink:0">✓</span>' +
         '<div style="font-size:13px;color:#374151;line-height:1.7">' +
         text + '</div></div>';
 }
 
-function bFeat(title, desc) {
+/* ── Helper: Feature row ── */
+function bFeatNew(title, desc) {
     return '<div style="display:flex;gap:14px;padding:12px 0;' +
         'border-bottom:1px solid #f3f4f6">' +
         '<div style="width:8px;height:8px;border-radius:50%;' +
@@ -16211,15 +16173,6 @@ function bFeat(title, desc) {
         '<div style="font-size:12px;color:#6b7280;line-height:1.6">' +
         desc + '</div>' +
         '</div></div>';
-}
-
-function bPrice(label, price) {
-    return '<div style="display:flex;justify-content:space-between;' +
-        'align-items:center;padding:8px 0;' +
-        'border-bottom:1px solid #f3f4f6;font-size:14px">' +
-        '<span style="color:#374151">' + label + '</span>' +
-        '<span style="font-weight:700;color:#0d4a5c">' +
-        price + '</span></div>';
 }
 
 console.log('✅ Brochure Email Sender loaded');
