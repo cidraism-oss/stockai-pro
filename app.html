@@ -14381,19 +14381,86 @@ if (window.speechSynthesis) {
 var APP_LISTENERS = {};
 
 function startAllAppListeners() {
-    if (!S._accountId) {
-        console.warn('Cannot start app listeners — no account ID');
-        return;
-    }
-    console.log('🔄 Starting cross-app automation listeners...');
-    startProcureOrderSync();
-    startProcureDeliverySync();
+    if (!S._accountId) return;
+    console.log('🔄 Starting cross-app listeners...');
+    startProcureSync();
+    startProcureDeliverySync(); // This is the one we will update
     startCashUpProSync();
     startMobileAISync();
     startFunctionsAISync();
     startRetailPOSSync();
     startInvoiceScannerSync();
-    console.log('✅ All cross-app listeners active');
+    console.log('✅ All app listeners active');
+}
+
+// ── NEW/UPDATED LISTENER: Hub ProcureAI → Web App Auto GRV ──
+function startProcureDeliverySync() {
+    if (!S._accountId || !eid()) return;
+    
+    // This listens for when you click "Mark Received" in the Hub ProcureAI app
+    db.collection('accounts').doc(S._accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+            
+            // Check if the hub just sent a GRV trigger
+            if (data.lastUpdatedDevice === 'ProcureAI_GRV') {
+                console.log('📦 Received GRV trigger from Hub...');
+                
+                var purchases = (data.purchases || {})[eid()] || [];
+                // Find POs that were just marked delivered in the hub but not yet GRV'd here
+                var deliveredPOs = purchases.filter(function(p) {
+                    return p.status === 'Received' && !p.grvCompleted;
+                });
+
+                if (deliveredPOs.length > 0) {
+                    deliveredPOs.forEach(function(po) {
+                        // Automatically process this PO into a GRV
+                        autoProcessHubGRV(po);
+                    });
+                }
+            }
+        });
+}
+
+// ── Helper to actually move the stock ──
+function autoProcessHubGRV(po) {
+    var inv = getInv();
+    var grvUpdatedItems = [];
+
+    (po.lineItems || []).forEach(function(li) {
+        var invItem = inv.find(function(i) { return i.id === li.id; });
+        if (invItem) {
+            invItem.quantity += li.qty;
+            invItem.lastCost = invItem.cost;
+            invItem.cost = li.cost;
+            invItem.value = parseFloat((invItem.quantity * invItem.cost).toFixed(2));
+            invItem.status = invItem.quantity === 0 ? 'out-of-stock' :
+                             invItem.quantity <= (invItem.parLevel || 0) ? 'low-stock' : 'in-stock';
+            
+            grvUpdatedItems.push({ itemId: invItem.id, name: invItem.name, newCost: invItem.cost });
+        }
+    });
+
+    // Mark PO as GRV Complete
+    po.grvCompleted = true;
+    po.grvDate = new Date().toISOString().split('T')[0];
+    po.grvBy = 'Auto (ProcureAI Hub)';
+    po.paymentStatus = 'Pending Payment'; // As per your requirement
+
+    // Save changes
+    S.inventory[eid()] = inv;
+    S.purchases[eid()] = getPurch();
+    
+    // Update recipes
+    updateMenuCostsAfterGRV(grvUpdatedItems);
+    
+    debouncedSave();
+    renderInventory();
+    renderPurchasesTable();
+    
+    addNotif('success', 'Auto GRV Processed', 'PO ' + po.id + ' stock and costs updated.');
+    toast('success', '📦 PO ' + po.id + ' auto-GRV complete!');
 }
 
 function stopAllAppListeners() {
