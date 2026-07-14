@@ -2668,6 +2668,12 @@ function hubLogout() {
 
         // Hide Nikki
         nikkiHide();
+    /* Stop ProcureAI listener if active */
+    if (typeof _procListener === 'function') {
+        _procListener();
+        _procListener = null;
+        console.log('🔌 ProcureAI listener stopped');
+    }
 
         // Reset branding
         document.documentElement.style
@@ -7122,17 +7128,102 @@ function pNavBtn(page, icon, label, active) {
 function initProcureApp() {
     PROC.cart         = [];
     PROC.itemRequests = pGetItemRequests();
-    // Force refresh from Firestore to get latest inventory
+
+    /* Start real-time listener for purchases from web app */
+    procStartListener();
+
+    /* Initial load */
     procRefresh();
+}
+
+var _procListener = null;
+
+function procStartListener() {
+    /* Stop any existing listener */
+    if (_procListener) {
+        _procListener();
+        _procListener = null;
+    }
+
+    if (!HUB.accountId) return;
+
+    /* Watch the accounts document for any purchase updates
+       from the web app in real time */
+    _procListener = db.collection('accounts')
+        .doc(HUB.accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+
+            /* Only update if web app made the change
+               so we dont loop on our own saves */
+            var lastDevice = data.lastUpdatedDevice || '';
+            var isWebApp   = lastDevice === 'Web App' ||
+                             lastDevice === 'web_app' ||
+                             lastDevice === 'POS'     ||
+                             lastDevice === '';
+
+            if (isWebApp || lastDevice !== 'ProcureAI') {
+                HUB.accountData   = data;
+                PROC.itemRequests = pGetItemRequests();
+
+                /* If user is on transit or pending page,
+                   refresh it automatically */
+                if (PROC.currentPage === 'proc-transit' ||
+                    PROC.currentPage === 'proc-pending') {
+                    var c = document.getElementById('proc-content');
+                    if (c) {
+                        if (PROC.currentPage === 'proc-transit') {
+                            c.innerHTML = procTransitOrders();
+                        } else {
+                            c.innerHTML = procPendingOrders();
+                        }
+                        /* Show toast so user knows new data arrived */
+                        hubToast('info',
+                            '🔄 Orders updated from Web App');
+                    }
+                }
+
+                /* Update dashboard badge counts silently */
+                if (PROC.currentPage === 'proc-dash') {
+                    var dash = document.getElementById('proc-content');
+                    if (dash) dash.innerHTML = procDash();
+                }
+            }
+        }, function(err) {
+            console.warn('ProcureAI listener error:', err);
+            /* Retry after 10 seconds */
+            setTimeout(procStartListener, 10000);
+        });
+
+    console.log('✅ ProcureAI real-time listener active');
 }
 
 function procRefresh() {
     if (!HUB.accountId) { procNav('proc-dash'); return; }
+
+    hubToast('info', '🔄 Refreshing from Web App...');
+
     db.collection('accounts').doc(HUB.accountId).get()
         .then(function(doc) {
             if (doc.exists) {
                 HUB.accountData   = doc.data();
                 PROC.itemRequests = pGetItemRequests();
+
+                /* Check how many transit orders we have */
+                var transit = pGetPurch().filter(function(p) {
+                    return p.status === 'In Transit' ||
+                           p.status === 'Processing';
+                });
+
+                if (transit.length > 0) {
+                    hubToast('success',
+                        '✅ ' + transit.length +
+                        ' order(s) in transit from Web App');
+                } else {
+                    hubToast('info', 'Refreshed — no orders in transit');
+                }
+
                 procNav(PROC.currentPage);
             }
         })
@@ -7823,53 +7914,130 @@ function procTransitOrders() {
 
 /* ── Mark Received — triggers GRV in web app ── */
 function procMarkReceived(poId) {
-    var po = pGetPurch().find(function(p){ return p.id === poId; });
-    if (!po) { hubToast('error','PO not found'); return; }
+    var po = pGetPurch().find(function(p) { return p.id === poId; });
+    if (!po) { hubToast('error', 'PO not found'); return; }
 
-    hubToast('info','Processing delivery...');
+    hubToast('info', 'Processing delivery...');
 
-    // Update PO status in accounts collection
-    var purchases = pGetPurch().map(function(p){
+    var now      = new Date().toISOString();
+    var purchases = pGetPurch().map(function(p) {
         if (p.id === poId) {
             return Object.assign({}, p, {
                 status:       'Delivered',
-                receivedDate: new Date().toISOString(),
-                receivedBy:   HUB.user ? HUB.user.name : 'ProcureAI'
+                receivedDate: now,
+                receivedBy:   HUB.user ? HUB.user.name : 'ProcureAI',
+                grvPending:   true   /* ← tells web app to create GRV */
             });
         }
         return p;
     });
 
-    var update = {};
-    update['purchases.' + HUB.entityId] = purchases;
-    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy']     = HUB.user ? HUB.user.name : 'ProcureAI';
-    update['lastUpdatedDevice'] = 'ProcureAI';  // web app listener detects this
+    /* Also update inventory quantities from PO line items */
+    var inventory = pGetInv().slice();
+    if (po.lineItems && po.lineItems.length > 0) {
+        po.lineItems.forEach(function(li) {
+            var invItem = inventory.find(function(i) {
+                return i.id === li.id ||
+                       (i.name || '').toLowerCase() ===
+                       (li.name || '').toLowerCase();
+            });
+            if (invItem) {
+                invItem.quantity = parseFloat(
+                    ((invItem.quantity || 0) + (li.qty || 0)).toFixed(4));
+                invItem.value    = parseFloat(
+                    (invItem.quantity * (invItem.cost || 0)).toFixed(2));
+                invItem.status   = invItem.quantity === 0
+                    ? 'out-of-stock'
+                    : invItem.quantity <= (invItem.reorder || 0)
+                        ? 'low-stock' : 'in-stock';
+                invItem.lastGRV    = now;
+                invItem.lastGRVBy  = HUB.user
+                    ? HUB.user.name : 'ProcureAI';
+            }
+        });
+    }
 
-    // If linked to procure_order subcollection, update that too
+    /* Log the GRV activity for web app to pick up */
+    var grvRecord = {
+        id:            'GRV-PROC-' + Date.now(),
+        poId:          poId,
+        supplier:      po.supplier   || '',
+        receivedBy:    HUB.user ? HUB.user.name : 'ProcureAI',
+        receivedAt:    now,
+        entityId:      HUB.entityId,
+        entityName:    HUB.entityName,
+        itemsReceived: po.lineItems ? po.lineItems.length : 0,
+        status:        'completed',
+        source:        'ProcureAI',
+        stockUpdated:  true
+    };
+
+    var update = {};
+    update['purchases.'  + HUB.entityId] = purchases;
+    update['inventory.'  + HUB.entityId] = inventory;
+
+    /* Write GRV to grvHistory so web app and Invoice Scanner
+       can both see it */
+    update['grvHistory.' + HUB.entityId] =
+        firebase.firestore.FieldValue.arrayUnion(grvRecord);
+
+    /* Log to activities for web app day-end */
+    update['activities.' + HUB.entityId] =
+        firebase.firestore.FieldValue.arrayUnion({
+            type:     'grv_completed',
+            grvId:    grvRecord.id,
+            poId:     poId,
+            supplier: po.supplier || '',
+            by:       HUB.user ? HUB.user.name : 'ProcureAI',
+            date:     now,
+            source:   'ProcureAI'
+        });
+
+    update['lastUpdated'] =
+        firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     =
+        HUB.user ? HUB.user.name : 'ProcureAI';
+
+    /* THIS IS THE KEY LINE — web app listens for this
+       device tag and triggers GRV processing */
+    update['lastUpdatedDevice'] = 'ProcureAI_GRV';
+
+    /* Also write to procure_orders if linked */
     if (po.procureOrderId) {
         db.collection('accounts').doc(HUB.accountId)
-            .collection('procure_orders').doc(po.procureOrderId)
+            .collection('procure_orders')
+            .doc(po.procureOrderId)
             .update({
                 status:      'delivered',
-                deliveredAt: new Date().toISOString(),
+                deliveredAt: now,
                 deliveredBy: HUB.user ? HUB.user.name : 'ProcureAI',
-                grvCreated:  false   // web app will set this to true after GRV
-            }).catch(function(e){ console.warn('Procure order update:', e); });
+                grvCreated:  true,
+                grvId:       grvRecord.id
+            }).catch(function(e) {
+                console.warn('Procure order update:', e);
+            });
     }
 
     db.collection('accounts').doc(HUB.accountId)
-        .set(update, { merge:true })
-        .then(function(){
+        .set(update, { merge: true })
+        .then(function() {
+            /* Update local cache */
             if (HUB.accountData) {
-                if (!HUB.accountData.purchases) HUB.accountData.purchases = {};
+                if (!HUB.accountData.purchases)
+                    HUB.accountData.purchases = {};
                 HUB.accountData.purchases[HUB.entityId] = purchases;
+                if (!HUB.accountData.inventory)
+                    HUB.accountData.inventory = {};
+                HUB.accountData.inventory[HUB.entityId] = inventory;
             }
             hubToast('success',
-                '✅ Delivery confirmed! Web App is processing GRV automatically.');
+                '✅ Delivery confirmed! GRV created and ' +
+                'stock updated in Web App automatically.');
             procNav('proc-transit');
         })
-        .catch(function(err){ hubToast('error','Error: '+err.message); });
+        .catch(function(err) {
+            hubToast('error', 'Error: ' + err.message);
+        });
 }
 
 /* ── Low Stock ── */
