@@ -143,7 +143,16 @@ var FEATURE_REGISTRY = {
         tabs:     ['ai-brain', 'ai-voice', 'ai-insights', 'ai-settings'],
         navItems: ['nav-ai-brain', 'nav-nikki'],
         appRoutes: ['/ai', '/ai/voice', '/ai/insights']
+    },
+
+    sales_guru: {
+        name:        'SalesGuru',
+        alwaysActive: false,
+        tabs:     ['salesguru-dashboard', 'salesguru-leads', 'salesguru-customers', 'salesguru-orders', 'salesguru-       pricelists'],
+        navItems: ['nav-sales-guru'],
+        appRoutes: ['/salesguru', '/salesguru/leads', '/salesguru/customers', '/salesguru/orders',     '/salesguru/pricelists']
     }
+
 };
 
 // ── Pricing (single source of truth for feature-access displays) ──
@@ -160,7 +169,8 @@ var FA_PRICES = {
     invoice_scanner: 499,
     ai_brain:        499,
     pos_builder:     0,    // free with POS
-    cashup_pro:      0     // free with POS
+    cashup_pro:      0,     // free with POS
+    sales_guru:      399
 };
 
 // ============================================================
