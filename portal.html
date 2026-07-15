@@ -572,7 +572,8 @@ var FC = {
     invoice_scanner: { name:'Invoice Scanner',      price:499,  icon:'fa-file-invoice',    cls:'green'              },
     ai_brain:        { name:'AI Brain + Nikki',     price:499,  icon:'fa-robot',           cls:'cyan'               },
     pos_builder:     { name:'POS Builder',          price:0,    icon:'fa-tools',           cls:'indigo', freeWith:true },
-    cashup_pro:      { name:'CashUp-Pro',           price:0,    icon:'fa-calculator',      cls:'green',  freeWith:true }
+    cashup_pro:      { name:'CashUp-Pro',           price:0,    icon:'fa-calculator',      cls:'green',  freeWith:true },
+    sales_guru:      { name:'SalesGuru',             price:399,  icon:'fa-user-tie',        cls:'red'                  }
 };
 
 var ENTITY_RATE = 599;
@@ -913,10 +914,10 @@ function showFeaturesModal(idx) {
     var optionalKeys = [
         'mobile_app','procure_ai','pos_system','menu_master','functions_ai',
         'retail_pos','production','hr_module','invoice_scanner','ai_brain',
-        'pos_builder','cashup_pro'
+        'pos_builder','cashup_pro','sales_guru'
     ];
 
-    var iconColors = { teal:'linear-gradient(135deg,#1a8ba8,#0d4a5c)', gold:'linear-gradient(135deg,#f59e0b,#d97706)', cyan:'linear-gradient(135deg,#06b6d4,#0891b2)', purple:'linear-gradient(135deg,#8b5cf6,#6d28d9)', green:'linear-gradient(135deg,#10b981,#065f46)', indigo:'linear-gradient(135deg,#6366f1,#4f46e5)' };
+    var iconColors = { teal:'linear-gradient(135deg,#1a8ba8,#0d4a5c)', gold:'linear-gradient(135deg,#f59e0b,#d97706)', cyan:'linear-gradient(135deg,#06b6d4,#0891b2)', purple:'linear-gradient(135deg,#8b5cf6,#6d28d9)', green:'linear-gradient(135deg,#10b981,#065f46)', indigo:'linear-gradient(135deg,#6366f1,#4f46e5)', red:'linear-gradient(135deg,#e11d48,#be123c)' };
 
     var totalMonthly = 0;
     features.forEach(function(f) { totalMonthly += (FC[f] ? FC[f].price : 0); });
