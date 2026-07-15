@@ -39,7 +39,8 @@ var FEATURE_CATALOGUE = {
     invoice_scanner: { name:'Invoice Scanner App',      price:499,  setupHrs:2,  alwaysOn:false, icon:'fa-file-invoice',    color:'#10b981' },
     ai_brain:        { name:'AI Brain + Nikki',         price:499,  setupHrs:1,  alwaysOn:false, icon:'fa-robot',           color:'#0d9488' },
     pos_builder:     { name:'POS Builder',              price:0,    setupHrs:2,  alwaysOn:false, icon:'fa-tools',           color:'#6366f1', freeWith:['pos_system','retail_pos'] },
-    cashup_pro:      { name:'CashUp-Pro',               price:0,    setupHrs:1,  alwaysOn:false, icon:'fa-calculator',      color:'#10b981', freeWith:['pos_system','retail_pos'] }
+    cashup_pro:      { name:'CashUp-Pro',               price:0,    setupHrs:1,  alwaysOn:false, icon:'fa-calculator',      color:'#10b981', freeWith:['pos_system','retail_pos'] },
+    sales_guru:      { name:'SalesGuru',                price:399,  setupHrs:2,  alwaysOn:false, icon:'fa-user-tie',        color:'#e11d48' }
 };
 
 var ENTITY_RATE    = 599;
