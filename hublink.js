@@ -30,7 +30,8 @@ window.HUBLINK = {
         cashup_pro:      { name:'CashUp-Pro',          price:0,    always:false, free:false,
                            freeWith:['pos_system','retail_pos'] },
         item_pro:        { name:'ItemPro',             price:0,    always:false, free:false,
-                           freeWith:['retail_pos'] }
+                           freeWith:['retail_pos'] },
+        sales_guru:      { name:'SalesGuru',             price:399,  always:false, free:false }
     },
 
     // ── SSO: Read shared session written by hub ──
@@ -334,7 +335,8 @@ window.HUBLINK = {
         'ai-brain':        ['ai_brain'],
         'mobile-app':      ['mobile_app'],
         'procure-ai':      ['procure_ai'],
-        'item-pro':        ['item_pro']
+        'item-pro':        ['item_pro'],
+        'sales-guru':         ['sales_guru'],
     },
 
     isNavVisible: function(navKey, features) {
