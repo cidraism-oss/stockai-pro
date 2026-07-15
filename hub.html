@@ -16175,6 +16175,29 @@ function bFeatNew(title, desc) {
         '</div></div>';
 }
 
+/* ── Helper: Bullet point ── */
+function bPointNew(text) {
+    return '<div style="display:flex;align-items:flex-start;' +
+        'gap:10px;margin-bottom:10px">' +
+        '<span style="color:#0d9488;font-weight:700;flex-shrink:0">✓</span>' +
+        '<div style="font-size:13px;color:#374151;line-height:1.7">' +
+        text + '</div></div>';
+}
+
+/* ── Helper: Feature row ── */
+function bFeatNew(title, desc) {
+    return '<div style="display:flex;gap:14px;padding:12px 0;' +
+        'border-bottom:1px solid #f3f4f6">' +
+        '<div style="width:8px;height:8px;border-radius:50%;' +
+        'background:#0d9488;flex-shrink:0;margin-top:6px"></div>' +
+        '<div>' +
+        '<div style="font-size:13px;font-weight:700;color:#0d4a5c;' +
+        'margin-bottom:3px">' + title + '</div>' +
+        '<div style="font-size:12px;color:#6b7280;line-height:1.6">' +
+        desc + '</div>' +
+        '</div></div>';
+}
+
 console.log('✅ Brochure Email Sender loaded');
 </script>
 
