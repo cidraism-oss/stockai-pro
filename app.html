@@ -2186,7 +2186,14 @@ var S = {
     customRoles: {}, retailSales: {},
     retailCashups: {}, cashDrops: {},
     payslips: {}, grvHistory: {}, skus: {},
-    hrData: {}
+    hrData: {}, salesOrders:    {},
+    salesClients:   {},
+    salesProspects: {},
+    salesTargets:   {},
+    salesNotices:   {},
+    salesActivities:{},
+    customers:      {},
+    dispatches:     {}
 };
 
 // ============================================================
@@ -2371,7 +2378,10 @@ var NAV_ITEMS = [
     { page:'pos-builder',     icon:'fa-tv',                  label:'POS Builder',     section:null },
     { page:'invoicing',       icon:'fa-file-invoice-dollar', label:'Invoicing',       section:null },
     { page:'settings',        icon:'fa-cog',                 label:'Settings',        section:null },
-    { page:'month-end',       icon:'fa-calendar-check',      label:'Month End',       section:null }
+    { page:'month-end',       icon:'fa-calendar-check',      label:'Month End',       section:null },
+    { page:'customers',    icon:'fa-address-book',    label:'Customers',    section:null },
+    { page:'dispatch',     icon:'fa-truck-loading',   label:'Dispatch',     section:null },
+    { page:'sales-orders', icon:'fa-shopping-bag',    label:'Sales Orders', section:'SALES' },
 ];
 
 // ============================================================
@@ -2689,6 +2699,14 @@ function loadAllData(data) {
     S.payslips          = data.payslips          || {};
     S.grvHistory        = data.grvHistory        || {};
     S.skus              = data.skus              || {};
+    S.salesOrders       = data.salesOrders       || {};
+    S.salesClients      = data.salesClients      || {};
+    S.salesProspects    = data.salesProspects    || {};
+    S.salesTargets      = data.salesTargets      || {};
+    S.salesNotices      = data.salesNotices      || {};
+    S.salesActivities   = data.salesActivities   || {};
+    S.customers         = data.customers         || {};
+    S.dispatches        = data.dispatches        || {};
     S.hrData            = data.hrData            || {};
 }
 
@@ -2723,6 +2741,10 @@ function saveToCloud(extraFields) {
         update['payslips.'       + e] = S.payslips[e]       || [];
         update['skus.'           + e] = S.skus[e]           || [];
         update['grvHistory.'     + e] = S.grvHistory[e]     || [];
+        update['salesOrders.'    + e] = S.salesOrders[e]    || [];
+        update['salesClients.'   + e] = S.salesClients[e]   || [];
+        update['customers.'      + e] = S.customers[e]      || [];
+        update['salesNotices.'   + e] = S.salesNotices[e]   || {};
         update['retailSales.'    + e] = S.retailSales[e]    || [];
         update['retailCashups.'  + e] = S.retailCashups[e]  || [];
         update['cashDrops.'      + e] = S.cashDrops[e]      || [];
@@ -2797,6 +2819,23 @@ function getPayslips()       { return eid() ? (S.payslips[eid()]       || []) : 
 function getGRVHistory()     { return eid() ? (S.grvHistory[eid()]     || []) : []; }
 function getSKUs()           { return eid() ? (S.skus[eid()]           || []) : []; }
 function getClientInvoices() { return eid() ? (S.clientInvoices[eid()] || []) : []; }
+function getSalesOrders()    { return eid()?(S.salesOrders[eid()]   ||[]):[]; }
+function getSalesClients()   { return eid()?(S.salesClients[eid()]  ||[]):[]; }
+function getSalesProspects() { return eid()?(S.salesProspects[eid()]||[]):[]; }
+function getCustomers()      { return eid()?(S.customers[eid()]     ||[]):[]; }
+function getDispatches()     { return eid()?(S.dispatches[eid()]    ||[]):[]; }
+
+function getDispatchUser() {
+    var users = getUsers();
+    var dispatch = users.find(function(u){ return u.role === 'Dispatch'; });
+    return dispatch || (S.owner ? { email: S.owner.email, name: S.owner.name } : null);
+}
+
+function getRepUsers() {
+    return getUsers().filter(function(u){
+        return u.role === 'Sales Rep' || u.role === 'Sales Manager';
+    });
+}
 
 function getMaxEntities() {
     if (isMasterAccount()) return 9999;
@@ -3011,8 +3050,9 @@ function doLogout() {
 // SIDEBAR RENDER
 // ============================================================
 function renderSidebar() {
-    var nav   = document.getElementById('sidebar-nav');
-    var perms = PERMS[S.user ? S.user.role : 'Staff'] || {};
+    var nav     = document.getElementById('sidebar-nav');
+    var perms   = PERMS[S.user ? S.user.role : 'Staff'] || {};
+    var enabled = getEntityEnabledFunctions();
     var items;
 
     if (isMasterAccount()) {
@@ -3020,7 +3060,50 @@ function renderSidebar() {
     } else {
         items = NAV_ITEMS.filter(function(item) {
             if (!perms.pages) return false;
-            return perms.pages.indexOf(item.page) !== -1;
+            // Must be in user permissions AND entity enabled functions
+            return perms.pages.indexOf(item.page) !== -1 &&
+                   enabled.indexOf(item.page) !== -1;
+        });
+    }
+
+    // Hide transfers if only 1 entity
+    if (S.entities.length < 2) {
+        items = items.filter(function(i){ return i.page !== 'transfers'; });
+    }
+
+    var html = '';
+    var lastSection = null;
+
+    items.forEach(function(item) {
+        if (item.section && item.section !== lastSection) {
+            html += '<div class="nav-section-label">' + item.section + '</div>';
+            lastSection = item.section;
+        } else if (!item.section && lastSection) {
+            lastSection = null;
+        }
+        html += '<a class="nav-link" data-page="' + item.page + '" ' +
+            'onclick="navigate(\'' + item.page + '\')">' +
+            '<i class="fas ' + item.icon + '"></i>' +
+            '<span>' + item.label + '</span></a>';
+    });
+
+    nav.innerHTML = html || '<p style="padding:12px;color:var(--text-muted);font-size:.82rem">No pages available</p>';
+}
+
+function renderSidebar() {
+    var nav     = document.getElementById('sidebar-nav');
+    var perms   = PERMS[S.user ? S.user.role : 'Staff'] || {};
+    var enabled = getEntityEnabledFunctions();
+    var items;
+
+    if (isMasterAccount()) {
+        items = NAV_ITEMS.slice();
+    } else {
+        items = NAV_ITEMS.filter(function(item) {
+            if (!perms.pages) return false;
+            // Must be in user permissions AND entity enabled functions
+            return perms.pages.indexOf(item.page) !== -1 &&
+                   enabled.indexOf(item.page) !== -1;
         });
     }
 
@@ -3089,7 +3172,10 @@ function navigate(page) {
         'wastage':         function(){ try{renderWastageTable();}catch(e){} },
         'users':           function(){ try{renderUsers();}catch(e){} },
         'month-end':       function(){ /* rendered on page load */ },
-        'settings':        function(){ /* rendered on page load */ }
+        'settings':        function(){ /* rendered on page load */ },
+        'customers':    function(){ try{renderCustomers();}catch(e){} },
+        'dispatch':     function(){ try{renderDispatch();}catch(e){} },
+        'sales-orders': function(){ try{renderSalesOrders();}catch(e){} }
     };
     if (inits[page]) inits[page]();
 }
@@ -3133,7 +3219,10 @@ function renderPages() {
         'pos-builder':     pagePOSMenuBuilder,
         'invoicing':       pageInvoicing,
         'settings':        pageSettings,
-        'month-end':       pageMonthEnd
+        'month-end':       pageMonthEnd,
+        'customers':       pageCustomers,
+        'dispatch':        pageDispatch,
+        'sales-orders':    pageSalesOrders
     };
 
     Object.keys(pageBuilders).forEach(function(pageId) {
@@ -4697,6 +4786,7 @@ function showAddItemModal() {
         '<i class="fas fa-store" style="color:var(--gold)"></i> ' +
         'Retail fields are used by the Retail POS system. ' +
         'Items without a barcode cannot be scanned at the POS.</div>' +
+
         '<div class="form-row">' +
         '<div class="form-field"><label>Barcode (EAN-13 / UPC)</label>' +
         '<input type="text" id="ni-barcode" placeholder="e.g. 6001234567890" maxlength="20" ' +
@@ -9021,7 +9111,8 @@ var ALL_APPS_REF = [
     {id:'pos',       name:'POS'},
     {id:'kitchen',   name:'Kitchen'},
     {id:'functions', name:'FunctionsAI'},
-    {id:'retailpos', name:'Retail POS'}
+    {id:'retailpos', name:'Retail POS'},
+    {id:'salesguru', name:'Sales-Guru'}
 ];
 
 function isRetailRole(role) {
@@ -9176,7 +9267,10 @@ function showCreateUserForm(type) {
         'Waiter','Cashier','Floor Supervisor','Bar Supervisor',
         'Invoice Stock Controller','Invoice Stores Supervisor',
         'Invoice Stores Manager','Invoice Receiving Manager',
-        'Invoice General Manager','Invoice Owner'
+        'Invoice General Manager','Invoice Owner','Sales Manager',
+        'Sales Rep',
+        'Dispatch',
+        'House Account'
     ];
     customRoles.forEach(function(cr){
         if (baseRoles.indexOf(cr.name) === -1) baseRoles.push(cr.name);
@@ -10464,6 +10558,17 @@ function pageSettings() {
         '<div class="form-field"><label>VAT Number</label>' +
         '<input type="text" id="set-ent-vat" value="' + (ent.vatNumber||'') +
         '" placeholder="4560123456"></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Month Cycle Start (day 1-28)</label>' +
+        '<input type="number" id="set-month-cycle-start" min="1" max="28" ' +
+        'value="' + (ent.monthCycleStart||1) + '" ' +
+        'placeholder="1">' +
+        '<div class="form-hint">Day of month the reporting cycle starts</div></div>' +
+        '<div class="form-field"><label>Month Cycle End (0 = end of month)</label>' +
+        '<input type="number" id="set-month-cycle-end" min="0" max="28" ' +
+        'value="' + (ent.monthCycleEnd||0) + '" ' +
+        'placeholder="0">' +
+        '<div class="form-hint">0 means last day of month</div></div></div>' +
         '<div class="form-field"><label>Food Cost Target (%)</label>' +
         '<input type="number" id="set-fc-target" value="' + (ent.foodCostTarget||28) + '"></div></div>' +
         '<div class="form-row">' +
@@ -10481,9 +10586,11 @@ function pageSettings() {
         '<i class="fas fa-info-circle" style="color:var(--gold)"></i> ' +
         'Brand fields are used by Retail POS and other apps for white-label receipts.</div>' +
         '<div class="form-actions">' +
+        '<button class="btn-outline" onclick="showEntityFunctionSelector()" style="margin-right:auto">' +
+        '<i class="fas fa-sliders-h"></i> Manage Sidebar Functions</button>' +
         '<button class="btn-primary" onclick="saveEntitySettings()">' +
         '<i class="fas fa-save"></i> Save Entity</button></div></div>' +
-
+        
         // Sections manager
         '<div class="form-card">' +
         '<h3 class="block-title">' +
@@ -10566,7 +10673,9 @@ function saveEntitySettings() {
         'set-ent-address': 'address',
         'set-ent-vat':     'vatNumber',
         'set-brand-name':  'brandName',
-        'set-brand-logo':  'brandLogo'
+        'set-brand-logo':  'brandLogo',
+        'set-month-cycle-start': 'monthCycleStart',
+        'set-month-cycle-end':   'monthCycleEnd'
     };
     Object.keys(fields).forEach(function(elId){
         var el = document.getElementById(elId);
@@ -10635,6 +10744,105 @@ function removeSection(name) {
     toast('info', 'Section removed');
 }
 
+// ============================================================
+// ENTITY FUNCTION SELECTOR
+// Controls which sidebar functions are visible per entity
+// ============================================================
+var ALL_SIDEBAR_FUNCTIONS = [
+    { key:'dashboard',       label:'Dashboard',       icon:'fa-chart-pie',           always:true  },
+    { key:'inventory',       label:'Inventory',       icon:'fa-box',                 always:true  },
+    { key:'menu-creation',   label:'Menu Creation',   icon:'fa-utensils',            always:false },
+    { key:'production',      label:'Production',      icon:'fa-industry',            always:false },
+    { key:'stock-take',      label:'Stock Take',      icon:'fa-clipboard-list',      always:true  },
+    { key:'cashup',          label:'Cash-up',         icon:'fa-cash-register',       always:false },
+    { key:'day-end',         label:'Day End',         icon:'fa-moon',                always:false },
+    { key:'purchases',       label:'Purchases',       icon:'fa-shopping-cart',       always:true  },
+    { key:'grv',             label:'GRV',             icon:'fa-clipboard-check',     always:true  },
+    { key:'invoice-scanner', label:'Invoice Scanner', icon:'fa-file-invoice',        always:false },
+    { key:'transfers',       label:'Transfers',       icon:'fa-exchange-alt',        always:false },
+    { key:'suppliers',       label:'Suppliers',       icon:'fa-truck',               always:true  },
+    { key:'wastage',         label:'Wastage',         icon:'fa-trash-alt',           always:false },
+    { key:'reports',         label:'Reports',         icon:'fa-file-alt',            always:true  },
+    { key:'users',           label:'Users',           icon:'fa-users',               always:true  },
+    { key:'customers',       label:'Customers',       icon:'fa-address-book',        always:false },
+    { key:'dispatch',        label:'Dispatch',        icon:'fa-truck-loading',       always:false },
+    { key:'retail-pos',      label:'Retail POS',      icon:'fa-store',               always:false },
+    { key:'pos-builder',     label:'POS Builder',     icon:'fa-tv',                  always:false },
+    { key:'invoicing',       label:'Invoicing',       icon:'fa-file-invoice-dollar', always:false },
+    { key:'sales-orders',    label:'Sales Orders',    icon:'fa-shopping-bag',        always:false },
+    { key:'settings',        label:'Settings',        icon:'fa-cog',                 always:true  },
+    { key:'month-end',       label:'Month End',       icon:'fa-calendar-check',      always:false }
+];
+
+function getEntityEnabledFunctions() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+    if (!ent.enabledFunctions || ent.enabledFunctions.length === 0) {
+        return ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+    }
+    return ent.enabledFunctions;
+}
+
+function showEntityFunctionSelector() {
+    var ent     = S.entities[S.activeEntity];
+    if (!ent) return;
+    var enabled = ent.enabledFunctions || ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+
+    var html =
+        '<div style="background:rgba(26,139,168,.08);border-left:3px solid var(--accent);' +
+        'padding:12px;border-radius:var(--radius-sm);margin-bottom:16px;font-size:.82rem;' +
+        'color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Select which functions appear in the sidebar for <strong>' + ent.name + '</strong>. ' +
+        'Always-on functions (marked ✅) cannot be disabled.</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        ALL_SIDEBAR_FUNCTIONS.map(function(f){
+            var isEnabled = enabled.indexOf(f.key) !== -1;
+            var isAlways  = f.always;
+            return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;' +
+                'background:' + (isEnabled?'rgba(26,139,168,.1)':'var(--bg)') + ';' +
+                'border-radius:var(--radius-sm);cursor:' + (isAlways?'default':'pointer') + ';' +
+                'border:1px solid ' + (isEnabled?'var(--accent)':'var(--border)') + '">' +
+                '<input type="checkbox" value="' + f.key + '" ' +
+                (isEnabled?'checked':'') + ' ' +
+                (isAlways?'disabled':'') + ' ' +
+                'style="width:16px;height:16px;accent-color:var(--accent)">' +
+                '<i class="fas ' + f.icon + '" style="color:' +
+                (isEnabled?'var(--accent)':'var(--text-muted)') + ';width:16px;text-align:center"></i>' +
+                '<span style="font-size:.82rem;color:var(--text)">' + f.label + '</span>' +
+                (isAlways?'<span style="font-size:.6rem;color:var(--success);margin-left:auto">✅ Always</span>':'') +
+                '</label>';
+        }).join('') +
+        '</div>';
+
+    showModal(
+        '<i class="fas fa-sliders-h" style="color:var(--accent)"></i> Manage Sidebar Functions — ' + ent.name,
+        html,
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveEntityFunctions()">' +
+        '<i class="fas fa-save"></i> Save & Apply</button>'
+    );
+}
+
+function saveEntityFunctions() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return;
+    var selected = [];
+    // Always include the always-on ones
+    ALL_SIDEBAR_FUNCTIONS.forEach(function(f){
+        if (f.always) selected.push(f.key);
+    });
+    // Add the checked ones
+    document.querySelectorAll('#modal-container input[type="checkbox"]:checked').forEach(function(cb){
+        if (selected.indexOf(cb.value) === -1) selected.push(cb.value);
+    });
+    ent.enabledFunctions = selected;
+    debouncedSave();
+    closeModal();
+    renderSidebar();
+    toast('success', '✅ Sidebar functions updated for ' + ent.name);
+}
+
 function renderFeatureWidget() {
     var features = ['web_boh'];
     try { features = JSON.parse(localStorage.getItem('stockai_user_features')||'["web_boh"]'); }
@@ -10666,6 +10874,105 @@ function renderFeatureWidget() {
                       f.price + '/mo</span>') +
                 '</div></div>';
         }).join('') + '</div>';
+}
+
+// ============================================================
+// ENTITY FUNCTION SELECTOR
+// Controls which sidebar functions are visible per entity
+// ============================================================
+var ALL_SIDEBAR_FUNCTIONS = [
+    { key:'dashboard',       label:'Dashboard',       icon:'fa-chart-pie',           always:true  },
+    { key:'inventory',       label:'Inventory',       icon:'fa-box',                 always:true  },
+    { key:'menu-creation',   label:'Menu Creation',   icon:'fa-utensils',            always:false },
+    { key:'production',      label:'Production',      icon:'fa-industry',            always:false },
+    { key:'stock-take',      label:'Stock Take',      icon:'fa-clipboard-list',      always:true  },
+    { key:'cashup',          label:'Cash-up',         icon:'fa-cash-register',       always:false },
+    { key:'day-end',         label:'Day End',         icon:'fa-moon',                always:false },
+    { key:'purchases',       label:'Purchases',       icon:'fa-shopping-cart',       always:true  },
+    { key:'grv',             label:'GRV',             icon:'fa-clipboard-check',     always:true  },
+    { key:'invoice-scanner', label:'Invoice Scanner', icon:'fa-file-invoice',        always:false },
+    { key:'transfers',       label:'Transfers',       icon:'fa-exchange-alt',        always:false },
+    { key:'suppliers',       label:'Suppliers',       icon:'fa-truck',               always:true  },
+    { key:'wastage',         label:'Wastage',         icon:'fa-trash-alt',           always:false },
+    { key:'reports',         label:'Reports',         icon:'fa-file-alt',            always:true  },
+    { key:'users',           label:'Users',           icon:'fa-users',               always:true  },
+    { key:'customers',       label:'Customers',       icon:'fa-address-book',        always:false },
+    { key:'dispatch',        label:'Dispatch',        icon:'fa-truck-loading',       always:false },
+    { key:'retail-pos',      label:'Retail POS',      icon:'fa-store',               always:false },
+    { key:'pos-builder',     label:'POS Builder',     icon:'fa-tv',                  always:false },
+    { key:'invoicing',       label:'Invoicing',       icon:'fa-file-invoice-dollar', always:false },
+    { key:'sales-orders',    label:'Sales Orders',    icon:'fa-shopping-bag',        always:false },
+    { key:'settings',        label:'Settings',        icon:'fa-cog',                 always:true  },
+    { key:'month-end',       label:'Month End',       icon:'fa-calendar-check',      always:false }
+];
+
+function getEntityEnabledFunctions() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+    if (!ent.enabledFunctions || ent.enabledFunctions.length === 0) {
+        return ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+    }
+    return ent.enabledFunctions;
+}
+
+function showEntityFunctionSelector() {
+    var ent     = S.entities[S.activeEntity];
+    if (!ent) return;
+    var enabled = ent.enabledFunctions || ALL_SIDEBAR_FUNCTIONS.map(function(f){ return f.key; });
+
+    var html =
+        '<div style="background:rgba(26,139,168,.08);border-left:3px solid var(--accent);' +
+        'padding:12px;border-radius:var(--radius-sm);margin-bottom:16px;font-size:.82rem;' +
+        'color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Select which functions appear in the sidebar for <strong>' + ent.name + '</strong>. ' +
+        'Always-on functions (marked ✅) cannot be disabled.</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+        ALL_SIDEBAR_FUNCTIONS.map(function(f){
+            var isEnabled = enabled.indexOf(f.key) !== -1;
+            var isAlways  = f.always;
+            return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;' +
+                'background:' + (isEnabled?'rgba(26,139,168,.1)':'var(--bg)') + ';' +
+                'border-radius:var(--radius-sm);cursor:' + (isAlways?'default':'pointer') + ';' +
+                'border:1px solid ' + (isEnabled?'var(--accent)':'var(--border)') + '">' +
+                '<input type="checkbox" value="' + f.key + '" ' +
+                (isEnabled?'checked':'') + ' ' +
+                (isAlways?'disabled':'') + ' ' +
+                'style="width:16px;height:16px;accent-color:var(--accent)">' +
+                '<i class="fas ' + f.icon + '" style="color:' +
+                (isEnabled?'var(--accent)':'var(--text-muted)') + ';width:16px;text-align:center"></i>' +
+                '<span style="font-size:.82rem;color:var(--text)">' + f.label + '</span>' +
+                (isAlways?'<span style="font-size:.6rem;color:var(--success);margin-left:auto">✅ Always</span>':'') +
+                '</label>';
+        }).join('') +
+        '</div>';
+
+    showModal(
+        '<i class="fas fa-sliders-h" style="color:var(--accent)"></i> Manage Sidebar Functions — ' + ent.name,
+        html,
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveEntityFunctions()">' +
+        '<i class="fas fa-save"></i> Save & Apply</button>'
+    );
+}
+
+function saveEntityFunctions() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return;
+    var selected = [];
+    // Always include the always-on ones
+    ALL_SIDEBAR_FUNCTIONS.forEach(function(f){
+        if (f.always) selected.push(f.key);
+    });
+    // Add the checked ones
+    document.querySelectorAll('#modal-container input[type="checkbox"]:checked').forEach(function(cb){
+        if (selected.indexOf(cb.value) === -1) selected.push(cb.value);
+    });
+    ent.enabledFunctions = selected;
+    debouncedSave();
+    closeModal();
+    renderSidebar();
+    toast('success', '✅ Sidebar functions updated for ' + ent.name);
 }
 
 // ============================================================
@@ -11050,6 +11357,367 @@ function viewTransferReport() {
 }
 
 // ============================================================
+// PAGE: DISPATCH
+// ============================================================
+function pageDispatch() {
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading">Dispatch</h1>' +
+        '<div class="tab-nav-app" id="dispatch-tab-nav">' +
+        '<button class="tab-btn-app active" ' +
+        'onclick="switchDispatchTab(\'pending\',this)">📦 Pending Dispatch</button>' +
+        '<button class="tab-btn-app" ' +
+        'onclick="switchDispatchTab(\'out\',this)">🚚 Out for Delivery</button>' +
+        '<button class="tab-btn-app" ' +
+        'onclick="switchDispatchTab(\'completed\',this)">✅ Completed</button>' +
+        '</div>' +
+        '<div id="dispatch-tab-pending"  class="tab-panel active">' +
+        '<div id="dispatch-pending-list"></div></div>' +
+        '<div id="dispatch-tab-out"      class="tab-panel">' +
+        '<div id="dispatch-out-list"></div></div>' +
+        '<div id="dispatch-tab-completed" class="tab-panel">' +
+        '<div id="dispatch-completed-list"></div></div>';
+}
+
+function switchDispatchTab(tab, btn) {
+    var page = document.getElementById('page-dispatch');
+    if (!page) return;
+    page.querySelectorAll('.tab-btn-app').forEach(function(b){ b.classList.remove('active'); });
+    page.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById('dispatch-tab-' + tab);
+    if (panel) panel.classList.add('active');
+    renderDispatch();
+}
+
+function renderDispatch() {
+    var invs = getClientInvoices();
+    var sym  = getCurrencySymbol();
+
+    var pending   = invs.filter(function(i){ return !i.status || i.status === 'unpaid' || i.status === 'invoiced'; });
+    var outForDel = invs.filter(function(i){ return i.status === 'out-for-delivery'; });
+    var completed = invs.filter(function(i){ return i.status === 'delivered' || i.status === 'paid'; });
+
+    function renderInvoiceRow(inv, showActions) {
+        var cust = getCustomers().find(function(c){ return c.id === inv.clientId || c.companyName === inv.clientName; });
+        return '<div style="background:var(--bg-card);border-radius:var(--radius-sm);' +
+            'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+            'border-left:4px solid ' +
+            (inv.status==='out-for-delivery'?'var(--info)':inv.status==='delivered'?'var(--success)':'var(--gold)') + '">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">' +
+            '<div>' +
+            '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' + inv.invoiceNumber + '</div>' +
+            '<div style="font-size:.78rem;color:var(--text-light)">' +
+            (inv.clientCompany||inv.clientName||'—') + '</div>' +
+            '<div style="font-size:.72rem;color:var(--text-muted)">' + fmtDate(inv.createdAt) + '</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+            '<div style="font-size:.95rem;font-weight:800;color:var(--accent)">' +
+            sym + convertCurrency(inv.totalIncl||0).toFixed(2) + '</div>' +
+            '<span class="status-badge ' +
+            (inv.status==='out-for-delivery'?'on-order':inv.status==='delivered'?'in-stock':'pending') + '">' +
+            (inv.status||'Pending') + '</span>' +
+            '</div></div>' +
+            (showActions
+                ? '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+                  '<button class="btn-outline btn-sm" onclick="printClientInvoice(\'' + inv.id + '\')">' +
+                  '<i class="fas fa-print"></i> Print Invoice</button>' +
+                  '<button class="btn-outline btn-sm" onclick="printDeliveryNote(\'' + inv.id + '\')">' +
+                  '<i class="fas fa-file-alt"></i> Delivery Note</button>' +
+                  (inv.status !== 'out-for-delivery'
+                      ? '<button class="btn-primary btn-sm" onclick="markOutForDelivery(\'' + inv.id + '\')">' +
+                        '<i class="fas fa-truck"></i> Out for Delivery</button>'
+                      : '') +
+                  '<button class="btn-success btn-sm" onclick="markDeliveryComplete(\'' + inv.id + '\')">' +
+                  '<i class="fas fa-check"></i> Mark Completed</button>' +
+                  '</div>'
+                : '') +
+            '</div>';
+    }
+
+    var pendingEl = document.getElementById('dispatch-pending-list');
+    if (pendingEl) {
+        pendingEl.innerHTML = pending.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+              '<i class="fas fa-inbox" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+              '<p>No pending dispatches</p></div>'
+            : pending.map(function(inv){ return renderInvoiceRow(inv, true); }).join('');
+    }
+
+    var outEl = document.getElementById('dispatch-out-list');
+    if (outEl) {
+        outEl.innerHTML = outForDel.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+              '<i class="fas fa-truck" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+              '<p>No deliveries out</p></div>'
+            : outForDel.map(function(inv){ return renderInvoiceRow(inv, true); }).join('');
+    }
+
+    var compEl = document.getElementById('dispatch-completed-list');
+    if (compEl) {
+        compEl.innerHTML = completed.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+              '<i class="fas fa-check-circle" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+              '<p>No completed deliveries yet</p></div>'
+            : completed.slice(0,20).map(function(inv){ return renderInvoiceRow(inv, false); }).join('');
+    }
+}
+
+function markOutForDelivery(invoiceId) {
+    var invs = getClientInvoices();
+    var inv  = invs.find(function(i){ return i.id === invoiceId; });
+    if (!inv) return;
+    inv.status          = 'out-for-delivery';
+    inv.dispatchedAt    = new Date().toISOString();
+    inv.dispatchedBy    = S.user ? S.user.name : 'Dispatch';
+    S.clientInvoices[eid()] = invs;
+    debouncedSave();
+    renderDispatch();
+    toast('success', '🚚 ' + inv.invoiceNumber + ' marked as Out for Delivery');
+}
+
+function markDeliveryComplete(invoiceId) {
+    var invs = getClientInvoices();
+    var inv  = invs.find(function(i){ return i.id === invoiceId; });
+    if (!inv) return;
+
+    showModal(
+        '✅ Confirm Delivery Complete',
+        '<p style="color:var(--text);margin-bottom:8px">Mark <strong>' +
+        inv.invoiceNumber + '</strong> as delivered?</p>' +
+        '<p style="font-size:.82rem;color:var(--text-light)">' +
+        'This will move the invoice to the customer\'s account and mark it as delivered. ' +
+        'Confirm you have received the signed delivery note.</p>',
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-success" onclick="confirmDeliveryComplete(\'' + invoiceId + '\')">' +
+        '<i class="fas fa-check"></i> Confirm Delivered</button>'
+    );
+}
+
+function confirmDeliveryComplete(invoiceId) {
+    var invs = getClientInvoices();
+    var inv  = invs.find(function(i){ return i.id === invoiceId; });
+    if (!inv) return;
+    inv.status       = 'delivered';
+    inv.deliveredAt  = new Date().toISOString();
+    inv.deliveredBy  = S.user ? S.user.name : 'Dispatch';
+    S.clientInvoices[eid()] = invs;
+
+    // Update Sales-Guru order status if linked
+    if (inv.salesOrderId && S.salesOrders && S.salesOrders[eid()]) {
+        var orders = S.salesOrders[eid()];
+        var order  = orders.find(function(o){ return o.id === inv.salesOrderId; });
+        if (order) { order.status = 'delivered'; order.deliveredAt = new Date().toISOString(); }
+        S.salesOrders[eid()] = orders;
+    }
+
+    logAction('Delivery Complete', inv.invoiceNumber + ' delivered');
+    debouncedSave();
+    closeModal();
+    renderDispatch();
+    toast('success', '✅ ' + inv.invoiceNumber + ' delivered and moved to customer account');
+}
+
+function printDeliveryNote(invoiceId) {
+    var inv = getClientInvoices().find(function(i){ return i.id === invoiceId; });
+    if (!inv) return;
+    var ent = S.entities[S.activeEntity] || {};
+
+    var itemsHtml = (inv.items||[]).map(function(item){
+        return '<tr><td>' + item.description + '</td>' +
+            '<td style="text-align:center">' + item.quantity + '</td>' +
+            '<td style="text-align:center"></td></tr>';
+    }).join('');
+
+    var html =
+        '<html><head><title>Delivery Note — ' + inv.invoiceNumber + '</title>' +
+        '<style>body{font-family:Arial;padding:30px;color:#0d4a5c}' +
+        'table{width:100%;border-collapse:collapse;margin-top:20px}' +
+        'th,td{border:1px solid #ccc;padding:10px;text-align:left;font-size:12px}' +
+        'th{background:#1a8ba8;color:#fff}' +
+        '.sig{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px}' +
+        '.sig div{border-top:2px solid #ccc;padding-top:8px;font-size:11px;color:#5a8a96}' +
+        '</style></head><body>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:20px">' +
+        '<div><h1 style="color:#1a8ba8;margin:0">DELIVERY NOTE</h1>' +
+        '<p style="color:#5a8a96;margin:4px 0">' + ent.name + '</p></div>' +
+        '<div style="text-align:right">' +
+        '<strong>DN — ' + inv.invoiceNumber + '</strong><br>' +
+        '<span style="font-size:12px;color:#5a8a96">Date: ' + new Date().toLocaleDateString('en-ZA') + '</span></div></div>' +
+        '<div style="background:#f5f9fa;padding:14px;border-radius:8px;margin-bottom:20px">' +
+        '<strong>Deliver to:</strong><br>' +
+        (inv.clientCompany||inv.clientName||'') + '<br>' +
+        (inv.contactPerson ? inv.contactPerson + '<br>' : '') +
+        (inv.clientPhone   ? inv.clientPhone   + '<br>' : '') +
+        '</div>' +
+        '<table><thead><tr>' +
+        '<th>Description</th><th style="text-align:center;width:80px">Qty</th>' +
+        '<th style="text-align:center;width:100px">Received ✓</th>' +
+        '</tr></thead><tbody>' + itemsHtml + '</tbody></table>' +
+        '<div class="sig">' +
+        '<div>Driver Signature<br><br>Name: _______________________<br>Date: _______________________</div>' +
+        '<div>Received By<br><br>Name: _______________________<br>Date: _______________________</div>' +
+        '</div>' +
+        '<p style="margin-top:30px;font-size:11px;color:#8aabb5">Generated by StockAI-Pro | ' +
+        new Date().toLocaleString('en-ZA') + '</p>' +
+        '</body></html>';
+
+    var w = window.open('','_blank');
+    if (w){ w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); },500); }
+    logAction('Print','Delivery Note — ' + inv.invoiceNumber);
+}
+
+// ============================================================
+// PAGE: SALES ORDERS (from Sales-Guru reps)
+// ============================================================
+function pageSalesOrders() {
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading">Sales Orders</h1>' +
+        '<div style="background:rgba(26,139,168,.1);border-left:3px solid var(--accent);' +
+        'padding:12px;border-radius:var(--radius-sm);margin-bottom:14px;font-size:.82rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Orders placed by Sales-Guru reps appear here. Mark them as invoiced or delivered to notify the rep.</div>' +
+        '<div class="tab-nav-app" id="sales-orders-nav">' +
+        '<button class="tab-btn-app active" onclick="switchSalesOrderTab(\'new\',this)">🆕 New Orders</button>' +
+        '<button class="tab-btn-app" onclick="switchSalesOrderTab(\'invoiced\',this)">📄 Invoiced</button>' +
+        '<button class="tab-btn-app" onclick="switchSalesOrderTab(\'delivered\',this)">✅ Delivered</button>' +
+        '</div>' +
+        '<div id="sales-order-tab-new"       class="tab-panel active"><div id="so-new-list"></div></div>' +
+        '<div id="sales-order-tab-invoiced"   class="tab-panel"><div id="so-invoiced-list"></div></div>' +
+        '<div id="sales-order-tab-delivered"  class="tab-panel"><div id="so-delivered-list"></div></div>';
+}
+
+function switchSalesOrderTab(tab, btn) {
+    var page = document.getElementById('page-sales-orders');
+    if (!page) return;
+    page.querySelectorAll('.tab-btn-app').forEach(function(b){ b.classList.remove('active'); });
+    page.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('sales-order-tab-' + tab).classList.add('active');
+    renderSalesOrders();
+}
+
+function renderSalesOrders() {
+    var orders = getSalesOrders();
+    var sym    = getCurrencySymbol();
+
+    var newOrders       = orders.filter(function(o){ return o.status === 'pending'; });
+    var invoicedOrders  = orders.filter(function(o){ return o.status === 'invoiced'; });
+    var deliveredOrders = orders.filter(function(o){ return o.status === 'delivered'; });
+
+    function renderOrderCard(order, showActions) {
+        return '<div style="background:var(--bg-card);border-radius:var(--radius-sm);' +
+            'padding:14px;margin-bottom:10px;box-shadow:var(--shadow);' +
+            'border-left:4px solid ' +
+            (order.status==='delivered'?'var(--success)':order.status==='invoiced'?'var(--accent)':'var(--gold)') + '">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+            '<div>' +
+            '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' +
+            (order.invoiceNo || order.id) + '</div>' +
+            '<div style="font-size:.75rem;color:var(--text-light)">' +
+            (order.clientName||'—') + ' • Rep: ' + (order.repName||'—') + '</div>' +
+            '<div style="font-size:.68rem;color:var(--text-muted)">' + fmtDate(order.createdAt||order.date) + '</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+            '<div style="font-size:.95rem;font-weight:800;color:var(--accent)">' +
+            sym + convertCurrency(order.total||0).toFixed(2) + '</div>' +
+            '<span class="status-badge ' +
+            (order.status==='delivered'?'in-stock':order.status==='invoiced'?'on-order':'pending') + '">' +
+            (order.status||'pending') + '</span>' +
+            '</div></div>' +
+            // Items
+            '<div style="margin-bottom:8px">' +
+            (order.items||[]).slice(0,3).map(function(item){
+                return '<div style="font-size:.75rem;color:var(--text-mid);padding:2px 0">' +
+                    '• ' + item.name + ' × ' + item.qty + ' ' + (item.unit||'') + '</div>';
+            }).join('') +
+            (order.items && order.items.length > 3
+                ? '<div style="font-size:.68rem;color:var(--text-muted)">+' +
+                  (order.items.length-3) + ' more items</div>'
+                : '') +
+            '</div>' +
+            // Out of stock warning
+            (order.outOfStockItems && order.outOfStockItems.length > 0
+                ? '<div style="background:rgba(201,69,69,.1);border-left:3px solid var(--danger);' +
+                  'padding:8px;border-radius:4px;margin-bottom:8px;font-size:.75rem;color:var(--danger)">' +
+                  '<i class="fas fa-exclamation-triangle"></i> Out of stock: ' +
+                  order.outOfStockItems.join(', ') + '</div>'
+                : '') +
+            (showActions
+                ? '<div style="display:flex;gap:8px">' +
+                  (order.status === 'pending'
+                      ? '<button class="btn-primary btn-sm" onclick="markSalesOrderInvoiced(\'' + order.id + '\')">' +
+                        '<i class="fas fa-file-invoice"></i> Mark Invoiced</button>'
+                      : '') +
+                  (order.status === 'invoiced'
+                      ? '<button class="btn-success btn-sm" onclick="markSalesOrderDelivered(\'' + order.id + '\')">' +
+                        '<i class="fas fa-check"></i> Mark Delivered</button>'
+                      : '') +
+                  '</div>'
+                : '') +
+            '</div>';
+    }
+
+    var newEl  = document.getElementById('so-new-list');
+    if (newEl) {
+        newEl.innerHTML = newOrders.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)">' +
+              '<i class="fas fa-shopping-bag" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+              '<p>No new orders from reps</p></div>'
+            : newOrders.map(function(o){ return renderOrderCard(o, true); }).join('');
+    }
+
+    var invEl = document.getElementById('so-invoiced-list');
+    if (invEl) {
+        invEl.innerHTML = invoicedOrders.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)"><p>No invoiced orders</p></div>'
+            : invoicedOrders.map(function(o){ return renderOrderCard(o, true); }).join('');
+    }
+
+    var delEl = document.getElementById('so-delivered-list');
+    if (delEl) {
+        delEl.innerHTML = deliveredOrders.length === 0
+            ? '<div style="text-align:center;padding:40px;color:var(--text-light)"><p>No delivered orders yet</p></div>'
+            : deliveredOrders.slice(0,20).map(function(o){ return renderOrderCard(o, false); }).join('');
+    }
+}
+
+function markSalesOrderInvoiced(orderId) {
+    updateSalesOrderStatus(orderId, 'invoiced');
+    toast('success', '📄 Order marked as invoiced — rep notified');
+}
+
+function markSalesOrderDelivered(orderId) {
+    updateSalesOrderStatus(orderId, 'delivered');
+    toast('success', '✅ Order marked as delivered — rep notified');
+}
+
+function updateSalesOrderStatus(orderId, newStatus) {
+    if (!S.salesOrders) S.salesOrders = {};
+    if (!S.salesOrders[eid()]) S.salesOrders[eid()] = [];
+    var orders = S.salesOrders[eid()];
+    var order  = orders.find(function(o){ return o.id === orderId; });
+    if (!order) return;
+    order.status    = newStatus;
+    order.updatedAt = new Date().toISOString();
+    order.updatedBy = S.user ? S.user.name : 'BOH';
+
+    var update = {};
+    update['salesOrders.' + eid()] = orders;
+    update['lastUpdated']           = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']         = S.user ? S.user.name : 'Web App';
+    update['lastUpdatedDevice']     = 'Web App';
+
+    db.collection('accounts').doc(S._accountId)
+        .set(update, { merge:true })
+        .then(function(){
+            S.salesOrders[eid()] = orders;
+            renderSalesOrders();
+            logAction('Sales Order Updated', orderId + ' → ' + newStatus);
+        })
+        .catch(function(err){ toast('error','Update failed: '+err.message); });
+}
+
+// ============================================================
 // PAGE: MONTH END
 // ============================================================
 function pageMonthEnd() {
@@ -11189,6 +11857,387 @@ function confirmExecuteMonthEnd() {
 }
 
 // ============================================================
+// PAGE: CUSTOMERS
+// ============================================================
+function pageCustomers() {
+    return '<div class="page-watermark">STOCKAI-PRO</div>' +
+        '<h1 class="page-heading">Customers</h1>' +
+        '<div class="action-bar">' +
+        '<button class="btn-primary" onclick="showCreateCustomerModal()">' +
+        '<i class="fas fa-plus"></i> Create Customer</button>' +
+        '<div class="search-mini" style="margin-left:auto">' +
+        '<i class="fas fa-search"></i>' +
+        '<input type="text" id="customer-search" placeholder="Search customers..." ' +
+        'oninput="filterCustomers()"></div></div>' +
+        '<div id="customers-grid" style="display:grid;' +
+        'grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>';
+}
+
+function renderCustomers() {
+    var customers = getCustomers();
+    var grid      = document.getElementById('customers-grid');
+    if (!grid) return;
+    var sym = getCurrencySymbol();
+
+    if (customers.length === 0) {
+        grid.innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-light)">' +
+            '<i class="fas fa-address-book" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
+            '<h3>No customers yet</h3>' +
+            '<p>Create your first customer to get started</p></div>';
+        return;
+    }
+
+    var q = ((document.getElementById('customer-search')||{}).value||'').toLowerCase();
+    var filtered = q ? customers.filter(function(c){
+        return (c.companyName||'').toLowerCase().includes(q) ||
+               (c.contactName||'').toLowerCase().includes(q) ||
+               (c.email||'').toLowerCase().includes(q);
+    }) : customers;
+
+    grid.innerHTML = filtered.map(function(c){
+        var rep = getUsers().find(function(u){ return u.id === c.repId; });
+        // Get this month's invoices for this customer
+        var invs = getClientInvoices().filter(function(i){
+            return i.clientId === c.id || i.clientName === c.companyName;
+        });
+        var outstanding = invs.filter(function(i){ return i.status !== 'paid'; })
+            .reduce(function(s,i){ return s+(i.totalIncl||0); },0);
+
+        return '<div class="user-card" style="cursor:pointer" ' +
+            'onclick="viewCustomerDetail(\'' + c.id + '\')">' +
+            '<div class="user-head">' +
+            '<div class="user-avatar" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">' +
+            (c.companyName||'C').charAt(0).toUpperCase() + '</div>' +
+            '<div style="flex:1">' +
+            '<div class="user-name">' + (c.companyName||'Unknown') + '</div>' +
+            '<div class="user-role">' + (c.contactName||'') + '</div>' +
+            (c.contactNumber
+                ? '<div style="font-size:.68rem;color:var(--text-light);margin-top:1px">' +
+                  '<i class="fas fa-phone"></i> ' + c.contactNumber + '</div>'
+                : '') +
+            (c.email
+                ? '<div style="font-size:.68rem;color:var(--text-light)">' +
+                  '<i class="fas fa-envelope"></i> ' + c.email + '</div>'
+                : '') +
+            '</div></div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
+            '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
+            '<div style="font-size:.6rem;color:var(--text-muted)">Invoices</div>' +
+            '<div style="font-size:.88rem;font-weight:700">' + invs.length + '</div></div>' +
+            '<div style="padding:8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">' +
+            '<div style="font-size:.6rem;color:var(--text-muted)">Outstanding</div>' +
+            '<div style="font-size:.82rem;font-weight:700;color:' +
+            (outstanding>0?'var(--danger)':'var(--success)') + '">' +
+            sym + fmtNum(convertCurrency(outstanding)) + '</div></div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<span style="font-size:.72rem;color:var(--text-muted)">' +
+            (c.isHouseAccount
+                ? '<span class="status-badge on-order">House Account</span>'
+                : rep
+                    ? '<i class="fas fa-user-tie"></i> Rep: ' + rep.name
+                    : '<i class="fas fa-user-tie"></i> No rep assigned') +
+            '</span>' +
+            '<button class="btn-primary btn-sm" onclick="event.stopPropagation();viewCustomerDetail(\'' + c.id + '\')">' +
+            '<i class="fas fa-eye"></i> View</button>' +
+            '</div></div>';
+    }).join('');
+}
+
+function filterCustomers() { renderCustomers(); }
+
+function showCreateCustomerModal() {
+    var reps  = getRepUsers();
+    var repOpts = '<option value="">No rep (House Account)</option>' +
+        reps.map(function(r){
+            return '<option value="' + r.id + '">' + r.name + ' (' + r.role + ')</option>';
+        }).join('');
+
+    showModal(
+        '<i class="fas fa-address-book" style="color:#14b8a6"></i> Create Customer',
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Company Name *</label>' +
+        '<input type="text" id="cust-company" placeholder="e.g. ABC Stores"></div>' +
+        '<div class="form-field"><label>Contact Person *</label>' +
+        '<input type="text" id="cust-contact" placeholder="Full name"></div></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Contact Number *</label>' +
+        '<input type="tel" id="cust-phone" placeholder="082 555 0000"></div>' +
+        '<div class="form-field"><label>Alternative Number</label>' +
+        '<input type="tel" id="cust-altphone" placeholder="011 555 0000"></div></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Email Address</label>' +
+        '<input type="email" id="cust-email" placeholder="customer@email.com"></div>' +
+        '<div class="form-field"><label>Assign to Rep</label>' +
+        '<select id="cust-rep">' + repOpts + '</select></div></div>' +
+        '<div class="form-row"><div class="form-field full"><label>Physical Address</label>' +
+        '<textarea id="cust-address" rows="2" style="resize:vertical" ' +
+        'placeholder="Street, City, Province, Postal Code"></textarea></div></div>' +
+        '<div class="form-row"><div class="form-field">' +
+        '<label>Account Type</label>' +
+        '<div class="toggle-wrap"><label class="toggle-track">' +
+        '<input type="checkbox" id="cust-house">' +
+        '<span class="toggle-slider"></span></label>' +
+        '<span id="cust-house-label" style="font-size:.85rem;color:var(--text)">Rep Account</span>' +
+        '</div></div></div>',
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveNewCustomer()">' +
+        '<i class="fas fa-save"></i> Create Customer</button>'
+    );
+
+    // Toggle label
+    setTimeout(function(){
+        var cb = document.getElementById('cust-house');
+        if (cb) cb.addEventListener('change', function(){
+            var lbl = document.getElementById('cust-house-label');
+            if (lbl) lbl.textContent = this.checked ? 'House Account' : 'Rep Account';
+            var repSel = document.getElementById('cust-rep');
+            if (repSel) repSel.disabled = this.checked;
+        });
+    },100);
+}
+
+function saveNewCustomer() {
+    var company = (document.getElementById('cust-company').value||'').trim();
+    var contact = (document.getElementById('cust-contact').value||'').trim();
+    var phone   = (document.getElementById('cust-phone').value||'').trim();
+
+    if (!company){ toast('error','Enter company name');   return; }
+    if (!contact){ toast('error','Enter contact person'); return; }
+    if (!phone)  { toast('error','Enter contact number'); return; }
+
+    var repSel     = document.getElementById('cust-rep');
+    var repId      = repSel ? repSel.value : '';
+    var isHouse    = document.getElementById('cust-house')    ? document.getElementById('cust-house').checked    : false;
+    var altPhone   = document.getElementById('cust-altphone') ? document.getElementById('cust-altphone').value   : '';
+    var email      = document.getElementById('cust-email')    ? document.getElementById('cust-email').value      : '';
+    var address    = document.getElementById('cust-address')  ? document.getElementById('cust-address').value    : '';
+
+    var rep = repId ? getUsers().find(function(u){ return u.id === repId; }) : null;
+
+    var newCust = {
+        id:            'CUST-' + Date.now(),
+        companyName:   company,
+        contactName:   contact,
+        contactNumber: phone,
+        altNumber:     altPhone,
+        email:         email,
+        address:       address,
+        repId:         isHouse ? '' : repId,
+        repName:       rep ? rep.name : '',
+        isHouseAccount:isHouse,
+        linkedItems:   [],
+        createdAt:     new Date().toISOString(),
+        createdBy:     S.user ? S.user.name : 'Unknown'
+    };
+
+    if (!S.customers) S.customers = {};
+    if (!S.customers[eid()]) S.customers[eid()] = [];
+    S.customers[eid()].push(newCust);
+
+    // Also write to salesClients for Sales-Guru sync
+    if (!S.salesClients) S.salesClients = {};
+    if (!S.salesClients[eid()]) S.salesClients[eid()] = [];
+    S.salesClients[eid()].push({
+        id:            newCust.id,
+        storeName:     company,
+        contactName:   contact,
+        contactNumber: phone,
+        email:         email,
+        address:       address,
+        repId:         repId,
+        linkedItems:   []
+    });
+
+    logAction('Customer Created', company);
+    debouncedSave();
+    closeModal();
+    renderCustomers();
+    toast('success', '✅ Customer "' + company + '" created');
+}
+
+function viewCustomerDetail(custId) {
+    var cust = getCustomers().find(function(c){ return c.id === custId; });
+    if (!cust) return;
+    var rep  = cust.repId ? getUsers().find(function(u){ return u.id === cust.repId; }) : null;
+    var sym  = getCurrencySymbol();
+
+    // Get all invoices for this customer
+    var allInvs = getClientInvoices().filter(function(i){
+        return i.clientId === custId || i.clientName === cust.companyName;
+    });
+
+    // Get current month cycle invoices
+    var ent        = S.entities[S.activeEntity] || {};
+    var cycleStart = ent.monthCycleStart || 1;
+    var now        = new Date();
+    var cycleDate  = new Date(now.getFullYear(), now.getMonth(), cycleStart);
+    if (now.getDate() < cycleStart) {
+        cycleDate = new Date(now.getFullYear(), now.getMonth()-1, cycleStart);
+    }
+
+    var monthInvs  = allInvs.filter(function(i){
+        return new Date(i.createdAt) >= cycleDate;
+    });
+
+    var outstanding = monthInvs.filter(function(i){ return i.status !== 'paid'; })
+        .reduce(function(s,i){ return s+(i.totalIncl||0); },0);
+    var paid = monthInvs.filter(function(i){ return i.status === 'paid'; })
+        .reduce(function(s,i){ return s+(i.totalIncl||0); },0);
+
+    showModal(
+        '<i class="fas fa-building" style="color:#14b8a6"></i> ' + cust.companyName,
+
+        // Customer details
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+        '<div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted);font-weight:600;margin-bottom:6px">CONTACT</div>' +
+        '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' + cust.contactName + '</div>' +
+        '<div style="font-size:.78rem;color:var(--text-light)">' + cust.contactNumber + '</div>' +
+        (cust.altNumber ? '<div style="font-size:.78rem;color:var(--text-light)">' + cust.altNumber + '</div>' : '') +
+        (cust.email ? '<div style="font-size:.75rem;color:var(--accent)">' + cust.email + '</div>' : '') +
+        '</div>' +
+        '<div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted);font-weight:600;margin-bottom:6px">ACCOUNT</div>' +
+        '<div style="font-size:.82rem;color:var(--text)">' +
+        (cust.isHouseAccount
+            ? '<span class="status-badge on-order">House Account</span>'
+            : '<span class="status-badge in-stock">Rep Account</span>') +
+        '</div>' +
+        (rep ? '<div style="font-size:.78rem;color:var(--text-light);margin-top:4px">' +
+            '<i class="fas fa-user-tie"></i> ' + rep.name + '</div>' : '') +
+        (cust.address ? '<div style="font-size:.72rem;color:var(--text-muted);margin-top:4px">' + cust.address + '</div>' : '') +
+        '</div></div>' +
+
+        // Month stats
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">' +
+        '<div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--accent)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted)">This Cycle</div>' +
+        '<div style="font-size:.92rem;font-weight:800">' + monthInvs.length + ' invoices</div></div>' +
+        '<div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--success)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted)">Paid</div>' +
+        '<div style="font-size:.88rem;font-weight:800;color:var(--success)">' + sym + fmtNum(convertCurrency(paid)) + '</div></div>' +
+        '<div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);text-align:center;border-left:3px solid var(--danger)">' +
+        '<div style="font-size:.6rem;color:var(--text-muted)">Outstanding</div>' +
+        '<div style="font-size:.88rem;font-weight:800;color:' + (outstanding>0?'var(--danger)':'var(--success)') + '">' +
+        sym + fmtNum(convertCurrency(outstanding)) + '</div></div>' +
+        '</div>' +
+
+        // Invoice search
+        '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+        '<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card);' +
+        'border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;flex:1">' +
+        '<i class="fas fa-search" style="color:var(--text-muted)"></i>' +
+        '<input type="text" id="cust-inv-search" placeholder="Search invoice number..." ' +
+        'oninput="filterCustomerInvoices(\'' + custId + '\')" ' +
+        'style="background:none;border:none;outline:none;flex:1;font-family:inherit;' +
+        'font-size:.85rem;color:var(--text)"></div>' +
+        '<button class="btn-primary btn-sm" onclick="closeModal();showCreateClientInvoice(\'' + custId + '\')">' +
+        '<i class="fas fa-plus"></i> New Invoice</button></div>' +
+
+        // Invoices list
+        '<div id="cust-inv-list">' +
+        (monthInvs.length === 0
+            ? '<div style="text-align:center;padding:20px;color:var(--text-light)">' +
+              '<i class="fas fa-file-invoice" style="font-size:1.5rem;opacity:.3;display:block;margin-bottom:8px"></i>' +
+              '<p>No invoices this cycle</p></div>'
+            : '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+              '<th>Invoice #</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th>' +
+              '</tr></thead><tbody>' +
+              monthInvs.map(function(inv){
+                  return '<tr>' +
+                      '<td><strong>' + inv.invoiceNumber + '</strong></td>' +
+                      '<td>' + fmtDate(inv.createdAt) + '</td>' +
+                      '<td>' + sym + convertCurrency(inv.totalIncl||0).toFixed(2) + '</td>' +
+                      '<td><span class="status-badge ' + (inv.status==='paid'?'paid':inv.status==='dispatched'?'on-order':'unpaid') + '">' +
+                      (inv.status||'unpaid') + '</span></td>' +
+                      '<td><div class="row-actions">' +
+                      '<button class="row-btn" onclick="closeModal();printClientInvoice(\'' + inv.id + '\')">' +
+                      '<i class="fas fa-print"></i></button>' +
+                      '</div></td></tr>';
+              }).join('') +
+              '</tbody></table></div>') +
+        '</div>',
+
+        '<button class="btn-outline" onclick="closeModal()">Close</button>' +
+        '<button class="btn-outline" onclick="closeModal();editCustomer(\'' + custId + '\')">' +
+        '<i class="fas fa-edit"></i> Edit</button>'
+    );
+}
+
+function filterCustomerInvoices(custId) {
+    var q    = (document.getElementById('cust-inv-search')||{}).value || '';
+    var rows = document.querySelectorAll('#cust-inv-list tbody tr');
+    rows.forEach(function(row){
+        row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+    });
+}
+
+function editCustomer(custId) {
+    var cust = getCustomers().find(function(c){ return c.id === custId; });
+    if (!cust) return;
+    var reps    = getRepUsers();
+    var repOpts = '<option value="">No rep (House Account)</option>' +
+        reps.map(function(r){
+            return '<option value="' + r.id + '"' + (cust.repId===r.id?' selected':'') + '>' +
+                r.name + ' (' + r.role + ')</option>';
+        }).join('');
+
+    showModal(
+        '<i class="fas fa-edit" style="color:#14b8a6"></i> Edit — ' + cust.companyName,
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Company Name *</label>' +
+        '<input type="text" id="edit-cust-company" value="' + (cust.companyName||'') + '"></div>' +
+        '<div class="form-field"><label>Contact Person *</label>' +
+        '<input type="text" id="edit-cust-contact" value="' + (cust.contactName||'') + '"></div></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Contact Number</label>' +
+        '<input type="tel" id="edit-cust-phone" value="' + (cust.contactNumber||'') + '"></div>' +
+        '<div class="form-field"><label>Alternative Number</label>' +
+        '<input type="tel" id="edit-cust-altphone" value="' + (cust.altNumber||'') + '"></div></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Email</label>' +
+        '<input type="email" id="edit-cust-email" value="' + (cust.email||'') + '"></div>' +
+        '<div class="form-field"><label>Assign to Rep</label>' +
+        '<select id="edit-cust-rep">' + repOpts + '</select></div></div>' +
+        '<div class="form-row"><div class="form-field full"><label>Physical Address</label>' +
+        '<textarea id="edit-cust-address" rows="2" style="resize:vertical">' + (cust.address||'') + '</textarea></div></div>',
+        '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn-primary" onclick="saveEditedCustomer(\'' + custId + '\')">' +
+        '<i class="fas fa-save"></i> Save</button>'
+    );
+}
+
+function saveEditedCustomer(custId) {
+    var custs = getCustomers();
+    var cust  = custs.find(function(c){ return c.id === custId; });
+    if (!cust) return;
+    var company = (document.getElementById('edit-cust-company').value||'').trim();
+    if (!company){ toast('error','Company name required'); return; }
+    var repSel = document.getElementById('edit-cust-rep');
+    var repId  = repSel ? repSel.value : '';
+    var rep    = repId ? getUsers().find(function(u){ return u.id === repId; }) : null;
+
+    cust.companyName   = company;
+    cust.contactName   = (document.getElementById('edit-cust-contact').value||'').trim();
+    cust.contactNumber = (document.getElementById('edit-cust-phone').value||'').trim();
+    cust.altNumber     = (document.getElementById('edit-cust-altphone').value||'').trim();
+    cust.email         = (document.getElementById('edit-cust-email').value||'').trim();
+    cust.address       = (document.getElementById('edit-cust-address').value||'').trim();
+    cust.repId         = repId;
+    cust.repName       = rep ? rep.name : '';
+    cust.updatedAt     = new Date().toISOString();
+
+    S.customers[eid()] = custs;
+    logAction('Customer Updated', company);
+    debouncedSave();
+    closeModal();
+    renderCustomers();
+    toast('success', '✅ ' + company + ' updated');
+}
+
+// ============================================================
 // PAGE: INVOICING (Client Invoices)
 // ============================================================
 function pageInvoicing() {
@@ -11273,12 +12322,24 @@ function renderClientInvoices() {
           }).join('');
 }
 
-function showCreateClientInvoice() {
-    var menu  = getMenu();
-    var now   = new Date();
-    var invNum= 'CI-'+now.getFullYear()+
+function showCreateClientInvoice(preloadCustomerId) {
+    var menu      = getMenu();
+    var customers = getCustomers();
+    var now       = new Date();
+    var invNum    = 'CI-'+now.getFullYear()+
         (now.getMonth()+1<10?'0':'')+(now.getMonth()+1)+
         now.getDate()+'-'+Math.floor(Math.random()*1000);
+
+    var custOpts = '<option value="">— Select customer or walk-in —</option>' +
+        customers.map(function(c){
+            return '<option value="' + c.id + '" ' +
+                'data-name="' + c.companyName + '" ' +
+                'data-email="' + (c.email||'') + '" ' +
+                'data-rep="' + (c.repId||'') + '"' +
+                (preloadCustomerId === c.id ? ' selected' : '') + '>' +
+                c.companyName + (c.isHouseAccount ? ' (House)' : '') +
+                '</option>';
+        }).join('');
 
     showModal(
         '<i class="fas fa-file-invoice-dollar" style="color:var(--accent)"></i> Create Invoice',
@@ -11287,9 +12348,19 @@ function showCreateClientInvoice() {
         '<input type="text" id="ci-num" value="' + invNum + '"></div>' +
         '<div class="form-field"><label>Date</label>' +
         '<input type="date" id="ci-date" value="' + now.toISOString().split('T')[0] + '"></div></div>' +
+
+        // Customer search
+        '<div class="form-row"><div class="form-field full">' +
+        '<label>Customer *</label>' +
+        '<select id="ci-customer-select" onchange="onCICustomerSelect()" ' +
+        'style="width:100%;padding:10px;border:1px solid var(--border);' +
+        'border-radius:var(--radius-sm);background:var(--bg-dark);' +
+        'color:var(--text);font-family:inherit;font-size:.88rem">' +
+        custOpts + '</select></div></div>' +
+
         '<div class="form-row">' +
         '<div class="form-field"><label>Client/Company *</label>' +
-        '<input type="text" id="ci-client" placeholder="e.g. ABC Conference"></div>' +
+        '<input type="text" id="ci-client" placeholder="Company name"></div>' +
         '<div class="form-field"><label>Contact</label>' +
         '<input type="text" id="ci-contact" placeholder="Contact person"></div></div>' +
         '<div class="form-row">' +
@@ -11297,11 +12368,13 @@ function showCreateClientInvoice() {
         '<input type="email" id="ci-email" placeholder="client@email.com"></div>' +
         '<div class="form-field"><label>Phone</label>' +
         '<input type="tel" id="ci-phone" placeholder="082 555 0000"></div></div>' +
+
         '<h4 style="font-size:.85rem;color:var(--text);margin:14px 0 8px">' +
         '<i class="fas fa-list"></i> Line Items</h4>' +
         '<div id="ci-lines"></div>' +
-        '<button class="btn-outline" onclick="addCILine()" ' +
-        'style="width:100%;margin-top:8px"><i class="fas fa-plus"></i> Add Line</button>' +
+        '<button class="btn-outline" onclick="addCILine()" style="width:100%;margin-top:8px">' +
+        '<i class="fas fa-plus"></i> Add Line</button>' +
+
         '<div style="display:flex;justify-content:flex-end;margin-top:14px">' +
         '<div style="width:260px;background:var(--bg);padding:14px;border-radius:var(--radius-sm)">' +
         '<div style="display:flex;justify-content:space-between;padding:6px 0;' +
@@ -11309,20 +12382,41 @@ function showCreateClientInvoice() {
         '<span>Subtotal (excl.)</span><strong id="ci-sub">R0.00</strong></div>' +
         '<div style="display:flex;justify-content:space-between;padding:6px 0;' +
         'font-size:.85rem;color:var(--text-mid);border-bottom:1px solid var(--border)">' +
-        '<span>VAT (15%)</span><strong id="ci-vat">R0.00</strong></div>' +
+        '<span>VAT (' + (VAT_RATE*100) + '%)</span><strong id="ci-vat">R0.00</strong></div>' +
         '<div style="display:flex;justify-content:space-between;padding:10px 0;' +
         'font-size:1.1rem;font-weight:900;color:var(--accent)">' +
         '<span>TOTAL</span><strong id="ci-total">R0.00</strong></div></div></div>' +
+
         '<div class="form-field" style="margin-top:14px"><label>Notes</label>' +
         '<textarea id="ci-notes" rows="2" style="resize:vertical" ' +
-        'placeholder="e.g. Payment due within 7 days"></textarea></div>',
+        'placeholder="Payment terms, delivery notes etc."></textarea></div>',
+
         '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
         '<button class="btn-primary" onclick="saveClientInvoice()">' +
         '<i class="fas fa-save"></i> Save</button>' +
-        '<button class="btn-success" onclick="saveAndEmailClientInvoice()">' +
-        '<i class="fas fa-paper-plane"></i> Save &amp; Email</button>'
+        '<button class="btn-success" onclick="saveAndSendClientInvoice()">' +
+        '<i class="fas fa-paper-plane"></i> Save &amp; Send</button>'
     );
+
     addCILine();
+
+    // Preload customer if provided
+    if (preloadCustomerId) {
+        setTimeout(function(){
+            var sel = document.getElementById('ci-customer-select');
+            if (sel) { sel.value = preloadCustomerId; onCICustomerSelect(); }
+        }, 100);
+    }
+}
+
+function onCICustomerSelect() {
+    var sel = document.getElementById('ci-customer-select');
+    if (!sel || sel.selectedIndex < 1) return;
+    var opt = sel.options[sel.selectedIndex];
+    var clientEl  = document.getElementById('ci-client');
+    var emailEl   = document.getElementById('ci-email');
+    if (clientEl) clientEl.value = opt.dataset.name  || '';
+    if (emailEl)  emailEl.value  = opt.dataset.email || '';
 }
 
 function addCILine() {
@@ -11432,15 +12526,132 @@ function buildCIData() {
 function saveClientInvoice() {
     var data = buildCIData();
     if (!data) return;
+
+    // Link to customer
+    var custSel = document.getElementById('ci-customer-select');
+    if (custSel && custSel.value) {
+        data.clientId  = custSel.value;
+        var cust = getCustomers().find(function(c){ return c.id === custSel.value; });
+        if (cust) {
+            data.repId    = cust.repId;
+            data.repName  = cust.repName;
+        }
+    }
+
     if (!S.clientInvoices) S.clientInvoices = {};
     if (!S.clientInvoices[eid()]) S.clientInvoices[eid()] = [];
     S.clientInvoices[eid()].unshift(data);
-    logAction('Invoice Created',
-        data.invoiceNumber + ' — R' + data.totalIncl.toFixed(2));
+
+    // Auto-deduct stock for invoiced items
+    autoDeductInvoiceStock(data);
+
+    logAction('Invoice Created', data.invoiceNumber + ' — R' + data.totalIncl.toFixed(2));
     debouncedSave();
     closeModal();
     renderClientInvoices();
     toast('success', '✅ Invoice ' + data.invoiceNumber + ' created');
+}
+
+function saveAndSendClientInvoice() {
+    var data = buildCIData();
+    if (!data) return;
+    if (!data.clientEmail) { toast('error', 'Enter client email to send'); return; }
+
+    // Link to customer
+    var custSel = document.getElementById('ci-customer-select');
+    if (custSel && custSel.value) {
+        data.clientId = custSel.value;
+        var cust = getCustomers().find(function(c){ return c.id === custSel.value; });
+        if (cust) { data.repId = cust.repId; data.repName = cust.repName; }
+    }
+
+    if (!S.clientInvoices) S.clientInvoices = {};
+    if (!S.clientInvoices[eid()]) S.clientInvoices[eid()] = [];
+    S.clientInvoices[eid()].unshift(data);
+
+    // Auto-deduct stock
+    autoDeductInvoiceStock(data);
+
+    // Build recipient list — client + dispatch + rep
+    var recipients = [data.clientEmail];
+    var dispatchUser = getDispatchUser();
+    if (dispatchUser && dispatchUser.email) recipients.push(dispatchUser.email);
+    if (data.repId) {
+        var rep = getUsers().find(function(u){ return u.id === data.repId; });
+        if (rep && rep.email) recipients.push(rep.email);
+    }
+
+    // Send invoice email
+    if (typeof sendEmail === 'function') {
+        var ent = S.entities[S.activeEntity] || {};
+        try {
+            sendEmail(
+                recipients,
+                'Invoice ' + data.invoiceNumber + ' — ' + ent.name,
+                emailHeader('Tax Invoice', ent.name) +
+                '<p style="color:#5a8a96;font-size:13px">Dear ' + data.clientName + ',</p>' +
+                '<p style="color:#5a8a96;font-size:13px">Please find your invoice below.</p>' +
+                '<table style="width:100%;border-collapse:collapse;margin:14px 0">' +
+                '<tr><td style="padding:8px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Invoice #</td>' +
+                '<td style="padding:8px;font-weight:700">' + data.invoiceNumber + '</td></tr>' +
+                '<tr><td style="padding:8px;background:#f0f7f9;font-size:12px;color:#5a8a96;font-weight:600">Total (incl. VAT)</td>' +
+                '<td style="padding:8px;font-weight:700;color:#1a8ba8">R' + data.totalIncl.toFixed(2) + '</td></tr>' +
+                '</table>' +
+                (data.notes ? '<p style="color:#5a8a96;font-size:13px"><strong>Notes:</strong> ' + data.notes + '</p>' : '') +
+                emailFooter()
+            );
+        } catch(e){ console.warn('Invoice email error:', e); }
+    }
+
+    logAction('Invoice Created & Sent', data.invoiceNumber);
+    debouncedSave();
+    closeModal();
+    renderClientInvoices();
+    toast('success', '✅ Invoice created and emailed to ' + recipients.length + ' recipient(s)');
+}
+
+function autoDeductInvoiceStock(invoiceData) {
+    var inv     = getInv();
+    var updated = false;
+    var menu    = getMenu();
+
+    (invoiceData.items||[]).forEach(function(lineItem){
+        // Try to match line item to inventory or menu item
+        var invItem = inv.find(function(i){
+            return i.name.toLowerCase() === (lineItem.description||'').toLowerCase();
+        });
+        if (!invItem) {
+            // Try menu item
+            var menuItem = menu.find(function(m){
+                return m.name.toLowerCase() === (lineItem.description||'').toLowerCase();
+            });
+            if (menuItem) {
+                // Deduct ingredients for each portion sold
+                (menuItem.ingredients||[]).forEach(function(ing){
+                    var ingItem = inv.find(function(i){ return i.id === ing.itemId; });
+                    if (ingItem) {
+                        var deductQty    = ing.qty * (lineItem.quantity||1);
+                        ingItem.quantity = Math.max(0, ingItem.quantity - deductQty);
+                        ingItem.value    = parseFloat((ingItem.quantity*ingItem.cost).toFixed(2));
+                        ingItem.status   = ingItem.quantity===0?'out-of-stock':
+                            ingItem.quantity<=(ingItem.parLevel||0)?'low-stock':'in-stock';
+                        updated = true;
+                    }
+                });
+            }
+        } else {
+            invItem.quantity = Math.max(0, invItem.quantity - (lineItem.quantity||1));
+            invItem.value    = parseFloat((invItem.quantity*invItem.cost).toFixed(2));
+            invItem.status   = invItem.quantity===0?'out-of-stock':
+                invItem.quantity<=(invItem.parLevel||0)?'low-stock':'in-stock';
+            updated = true;
+        }
+    });
+
+    if (updated) {
+        S.inventory[eid()] = inv;
+        addNotif('info', 'Stock Deducted', 'Invoice ' + invoiceData.invoiceNumber + ' — stock updated');
+    }
 }
 
 function saveAndEmailClientInvoice() {
@@ -14384,12 +15595,13 @@ function startAllAppListeners() {
     if (!S._accountId) return;
     console.log('🔄 Starting cross-app listeners...');
     startProcureSync();
-    startProcureDeliverySync(); // This is the one we will update
+    startProcureDeliverySync();
     startCashUpProSync();
     startMobileAISync();
     startFunctionsAISync();
     startRetailPOSSync();
     startInvoiceScannerSync();
+    startSalesGuruSync();        
     console.log('✅ All app listeners active');
 }
 
@@ -14945,6 +16157,118 @@ function startInvoiceScannerSync() {
                 }
             }
         }, function(err){ console.warn('Invoice Scanner sync error:', err.message); });
+}
+
+function startSalesGuruSync() {
+    if (!S._accountId || !eid()) return;
+    if (APP_LISTENERS.salesGuru) { try{APP_LISTENERS.salesGuru();}catch(e){} }
+
+    APP_LISTENERS.salesGuru = db.collection('accounts').doc(S._accountId)
+        .onSnapshot(function(doc) {
+            if (!doc.exists) return;
+            var data = doc.data();
+            if (data.lastUpdatedDevice !== 'Sales-Guru') return;
+
+            // Load new sales orders
+            var newOrders = (data.salesOrders || {})[eid()] || [];
+            var existing  = getSalesOrders().map(function(o){ return o.id; });
+            var brandNew  = newOrders.filter(function(o){ return existing.indexOf(o.id) === -1; });
+
+            if (brandNew.length > 0) {
+                S.salesOrders[eid()] = newOrders;
+
+                // Run stock check on each new order
+                brandNew.forEach(function(order){
+                    checkSalesOrderStock(order);
+                });
+
+                safeCall(renderSalesOrders);
+                addNotif('info', 'New Sales Orders', brandNew.length + ' order(s) from reps');
+                toast('info', '🛍️ ' + brandNew.length + ' new sales order(s) from reps');
+            }
+
+            // Load updated clients
+            var newClients = (data.salesClients || {})[eid()] || [];
+            if (newClients.length > 0) S.salesClients[eid()] = newClients;
+        }, function(err){ console.warn('Sales-Guru sync error:', err); });
+}
+
+function checkSalesOrderStock(order) {
+    var inv           = getInv();
+    var outOfStock    = [];
+
+    (order.items||[]).forEach(function(item){
+        var invItem = inv.find(function(i){
+            return i.id === item.itemId ||
+                   i.name.toLowerCase() === (item.name||'').toLowerCase();
+        });
+        if (!invItem || invItem.quantity < (item.qty||1)) {
+            outOfStock.push(item.name);
+        }
+    });
+
+    if (outOfStock.length > 0) {
+        // Write notice to salesNotices for rep
+        var notice = {
+            id:             'NOTICE-' + Date.now(),
+            type:           'out-of-stock',
+            orderId:        order.id,
+            outOfStockItems:outOfStock,
+            message:        'Order ' + (order.invoiceNo||order.id) +
+                            ': The following items are out of stock: ' +
+                            outOfStock.join(', '),
+            createdAt:      new Date().toISOString(),
+            read:           false
+        };
+
+        var update = {};
+        if (!S.salesNotices) S.salesNotices = {};
+        if (!S.salesNotices[eid()]) S.salesNotices[eid()] = {};
+        if (!S.salesNotices[eid()][order.repId]) {
+            S.salesNotices[eid()][order.repId] = [];
+        }
+        S.salesNotices[eid()][order.repId].push(notice);
+
+        update['salesNotices.' + eid()] = S.salesNotices[eid()];
+        update['lastUpdated']           = firebase.firestore.FieldValue.serverTimestamp();
+        update['lastUpdatedBy']         = 'Web App';
+        update['lastUpdatedDevice']     = 'Web App';
+
+        db.collection('accounts').doc(S._accountId)
+            .set(update, { merge:true })
+            .catch(function(e){ console.warn('Notice write error:', e); });
+
+        // Email client if we have email and dispatch user
+        var dispatchUser = getDispatchUser();
+        if (order.dispatchEmail || (dispatchUser && dispatchUser.email)) {
+            var recipients = [];
+            if (order.dispatchEmail) recipients.push(order.dispatchEmail);
+            if (dispatchUser && dispatchUser.email &&
+                recipients.indexOf(dispatchUser.email) === -1) {
+                recipients.push(dispatchUser.email);
+            }
+            if (typeof sendEmail === 'function' && recipients.length > 0) {
+                try {
+                    sendEmail(
+                        recipients,
+                        'Out of Stock Alert — Order ' + (order.invoiceNo||order.id),
+                        emailHeader('Out of Stock Alert', (S.entities[S.activeEntity]||{}).name) +
+                        '<p style="color:#5a8a96;font-size:13px">The following items on order ' +
+                        '<strong>' + (order.invoiceNo||order.id) + '</strong> for ' +
+                        '<strong>' + (order.clientName||'client') + '</strong> are out of stock:</p>' +
+                        '<ul>' + outOfStock.map(function(item){
+                            return '<li style="color:#c94545;font-size:13px">' + item + '</li>';
+                        }).join('') + '</ul>' +
+                        emailFooter()
+                    );
+                } catch(e){ console.warn('Stock alert email error:', e); }
+            }
+        }
+
+        addNotif('warning', 'Out of Stock Alert',
+            outOfStock.length + ' item(s) out of stock on order ' + (order.invoiceNo||order.id));
+        toast('warning', '⚠️ ' + outOfStock.length + ' items out of stock on new order');
+    }
 }
 
 function applyGRVToInventory(grv) {
