@@ -1172,7 +1172,7 @@ var ROLE_DEFAULTS = {
     'Invoice Receiving Manager': ['invoicescanner','procure','boh','itempro'],
     'Invoice General Manager':   ['invoicescanner','procure','boh','itempro'],
     'Invoice Owner':             ['invoicescanner','procure','boh',
-                                   'menumaster','itempro']
+                                   'menumaster','itempro'],
     'Sales Manager':      ['salesguru','boh'],
     'Sales Rep':          ['salesguru']
 };
@@ -5058,7 +5058,7 @@ function saveMasterEntity() {
         status:          'active',
         paymentStatus:   'paid',
         plan:            'master',
-        createdAt:       new Date().toISOString()
+        createdAt:       new Date().toISOString(),
         monthCycleStart: 1,    /* ← ADD — default to 1st */
                      monthCycleEnd:   0     /* ← ADD — 0 means end of month */
     };
@@ -15755,7 +15755,6 @@ function processSaveProfile() {
    GLOBAL ALIASES + EVENT LISTENERS
 ============================================================ */
 
-// Global aliases for embedded apps
 window.hubToast   = hubToast;
 window.showModal  = showHubModal;
 window.closeModal = closeHubModal;
