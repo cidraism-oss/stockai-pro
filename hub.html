@@ -1855,11 +1855,10 @@ function checkHubAuth() {
     if (isReturn) {
         sessionStorage.removeItem('hub_return');
 
-        /* Hide login screen */
+        /* Hide login screen — user already authenticated */
         var loginEl = document.getElementById('login-screen');
         if (loginEl) loginEl.classList.add('hidden');
 
-        /* Try to restore from session cache first */
         if (restoreSessionCache()) {
             if (HUB.accountId) {
                 db.collection('accounts').doc(HUB.accountId).get()
@@ -1898,8 +1897,9 @@ function checkHubAuth() {
             return;
         }
 
-        /* No cache — check Firebase auth */
-        auth.onAuthStateChanged(function(firebaseUser) {
+        /* No cache — check Firebase */
+        var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
+            unsubReturn();
             if (firebaseUser) {
                 findHubAccount(firebaseUser.email, function(found) {
                     if (found) {
@@ -1916,57 +1916,17 @@ function checkHubAuth() {
         return;
     }
 
-    /* ── Normal flow — check remember me ── */
-    var remembered = localStorage.getItem('stockai_remember');
-    var remEmail   = localStorage.getItem('stockai_email');
-
-    if (remembered === 'yes' && remEmail) {
-        /* Has remember me — try to auto-login */
-        /* Login screen is already visible from handleWelcomeEnter
-           so user sees something while Firebase loads */
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(function() {
-                return new Promise(function(resolve) {
-                    var unsub = auth.onAuthStateChanged(function(user) {
-                        unsub();
-                        resolve(user);
-                    });
-                });
-            })
-            .then(function(firebaseUser) {
-                if (firebaseUser) {
-                    /* Auto-login successful — hide login screen */
-                    var loginEl = document.getElementById('login-screen');
-                    if (loginEl) loginEl.classList.add('hidden');
-
-                    hubToast('info', '🔄 Loading your workspace...');
-
-                    findHubAccount(firebaseUser.email, function(found) {
-                        if (found) {
-                            var loginScreen =
-                                document.getElementById('login-screen');
-                            if (loginScreen)
-                                loginScreen.classList.add('hidden');
-                            saveSessionCache();
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
-                        }
-                    });
-                } else {
-                    /* No Firebase session — stay on login screen */
-                    /* Login screen already visible — do nothing */
-                }
-            })
-            .catch(function() {
-                /* Error — login screen already visible */
-            });
-    } else {
-        /* No remember me — sign out and show login */
-        auth.signOut()
-            .then(function() { showLoginScreen(); })
-            .catch(function() { showLoginScreen(); });
+    /* ── Normal flow — ALWAYS show login screen ── */
+    /* Pre-fill email if remembered */
+    var remEmail = localStorage.getItem('stockai_email');
+    if (remEmail) {
+        var emailInput = document.getElementById('hub-email');
+        if (emailInput) emailInput.value = remEmail;
+        var remCheck = document.getElementById('hub-remember');
+        if (remCheck) remCheck.checked = true;
     }
+
+    showLoginScreen();
 }
 
 // Separated normal auth into its own function for clean fallback
