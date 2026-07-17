@@ -965,6 +965,7 @@ var SG = {
     accountData:   null,
     isManager:     false,
     _dataLoaded:   false,
+    _firstSnapDone:false,
     _loggingOut:   false,   /* NEW — prevents re-entry on logout */
     _authReady:    false,   /* NEW — prevents acting before auth resolves */
     inventory:     [],
@@ -1396,9 +1397,9 @@ function sgEnterApp() {
     sgTickClock();
     sgStartClock();
 
-    /* Load data — navigation happens inside sgApplyData */
+    /* ONE call — sgLoadData now handles both
+       initial fetch AND real-time sync via onSnapshot */
     sgLoadData();
-    sgStartSync();
 }
 
 /* ============================================================
@@ -1406,105 +1407,119 @@ function sgEnterApp() {
 ============================================================ */
 function sgLoadData() {
     if (!SG.accountId) return;
-    SG._dataLoaded = false;
 
-    db.collection('accounts').doc(SG.accountId).get()
-        .then(function (doc) {
+    /* Stop any existing listener first */
+    if (SG.syncListener) {
+        SG.syncListener();
+        SG.syncListener = null;
+    }
+
+    SG._dataLoaded = false;
+    SG._firstSnapDone = false; /* NEW flag */
+
+    /* Single onSnapshot does BOTH initial load AND real-time sync */
+    SG.syncListener = db.collection('accounts').doc(SG.accountId)
+        .onSnapshot(function (doc) {
+
+            /* Ignore all snapshots while logging out */
             if (SG._loggingOut) return;
+
             if (!doc.exists) {
-                SG._dataLoaded = true;
-                sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+                if (!SG._firstSnapDone) {
+                    SG._firstSnapDone = true;
+                    SG._dataLoaded    = true;
+                    sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+                }
                 return;
             }
+
             sgApplyData(doc.data());
-        })
-        .catch(function (err) {
+
+        }, function (err) {
             if (SG._loggingOut) return;
-            console.warn('SG load error:', err);
-            SG._dataLoaded = true;
-            sgToast('error', 'Failed to load data.');
+            console.warn('SG sync error:', err);
+            if (!SG._firstSnapDone) {
+                sgToast('error', 'Failed to load data. Please refresh.');
+            }
         });
+}
+
+/* sgStartSync is now just an alias — loading IS syncing */
+function sgStartSync() {
+    /* Intentionally empty — sgLoadData() handles everything now */
 }
 
 function sgApplyData(data) {
     /* Ignore updates while logging out */
     if (SG._loggingOut) return;
 
-    SG.accountData = data;
-    SG.inventory   = (data.inventory       || {})[SG.entityId] || [];
-    SG.clients     = (data.salesClients    || {})[SG.entityId] || [];
-    SG.prospects   = (data.salesProspects  || {})[SG.entityId] || [];
-    SG.orders      = (data.salesOrders     || {})[SG.entityId] || [];
-    SG.targets     = (data.salesTargets    || {})[SG.entityId] || {};
-    SG.leads       = (data.salesLeads      || {})[SG.entityId] || [];
-    SG.kmRecords   = (data.salesKmRecords  || {})[SG.entityId] || [];
-    SG.shiftHistory= (data.salesShiftHistory||{})[SG.entityId] || [];
+    SG.accountData  = data;
+    SG.inventory    = (data.inventory        || {})[SG.entityId] || [];
+    SG.clients      = (data.salesClients     || {})[SG.entityId] || [];
+    SG.prospects    = (data.salesProspects   || {})[SG.entityId] || [];
+    SG.orders       = (data.salesOrders      || {})[SG.entityId] || [];
+    SG.targets      = (data.salesTargets     || {})[SG.entityId] || {};
+    SG.leads        = (data.salesLeads       || {})[SG.entityId] || [];
+    SG.kmRecords    = (data.salesKmRecords   || {})[SG.entityId] || [];
+    SG.shiftHistory = (data.salesShiftHistory|| {})[SG.entityId] || [];
 
-    var uid        = SG.user ? SG.user.uid : '';
-    var allNotices = (data.salesNotices || {})[SG.entityId] || {};
-    SG.notices     = allNotices[uid] || [];
+    var uid         = SG.user ? SG.user.uid : '';
+    var allNotices  = (data.salesNotices     || {})[SG.entityId] || {};
+    SG.notices      = allNotices[uid] || [];
     sgUpdateNoticeBadge();
 
-    var profiles  = (data.salesProfiles || {})[SG.entityId] || {};
-    SG.repProfile = profiles[uid] || null;
+    var profiles    = (data.salesProfiles    || {})[SG.entityId] || {};
+    SG.repProfile   = profiles[uid] || null;
 
-    var shifts    = (data.salesShifts || {})[SG.entityId] || {};
+    var shifts      = (data.salesShifts      || {})[SG.entityId] || {};
     SG.currentShift = shifts[uid] || null;
 
     var entityUsers = (data.users || {})[SG.entityId] || [];
-    var dispatch = entityUsers.find(function (u) {
+    var dispatch    = entityUsers.find(function (u) {
         return (u.role || '').toLowerCase().includes('dispatch');
     });
     SG.dispatchEmail = dispatch
         ? dispatch.email
         : (data.owner ? data.owner.email : null);
 
-    var wasLoaded  = SG._dataLoaded;
-    SG._dataLoaded = true;
+    /* ── NAVIGATION LOGIC ── */
+    if (!SG._firstSnapDone) {
+        /* ══ FIRST snapshot — decide where to land ══ */
+        SG._firstSnapDone = true;
+        SG._dataLoaded    = true;
 
-    if (!wasLoaded) {
-        /* ── FIRST LOAD — decide where to go ── */
         if (!SG.repProfile || !SG.repProfile.setupComplete) {
-            /* Profile incomplete — show setup */
+            /* Profile not set up yet */
             SG.currentPage = 'setup';
             sgShowSetupForm(SG.repProfile || {});
         } else {
             /* Profile complete — go to dashboard */
             sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
         }
+
     } else {
-        /* ── SUBSEQUENT UPDATES (real-time sync) ── */
-        /* Only refresh if we are NOT on setup */
-        if (SG.currentPage && SG.currentPage !== 'setup') {
+        /* ══ SUBSEQUENT snapshots — real-time updates ══ */
+
+        if (SG.currentPage === 'setup') {
+            /* Only leave setup if profile is now complete */
+            if (SG.repProfile && SG.repProfile.setupComplete) {
+                sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+            }
+            /* Otherwise stay on setup — don't re-render */
+            return;
+        }
+
+        /* On any other page — just refresh the current page */
+        if (SG.currentPage) {
             sgRenderCurrentPage();
         }
-        /* If profile was just completed, navigate to dashboard */
-        if (SG.currentPage === 'setup' &&
-            SG.repProfile && SG.repProfile.setupComplete) {
-            sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
-        }
     }
-}
-
-function sgStartSync() {
-    if (!SG.accountId) return;
-    if (SG.syncListener) { SG.syncListener(); SG.syncListener = null; }
-
-    SG.syncListener = db.collection('accounts').doc(SG.accountId)
-        .onSnapshot(function (doc) {
-            if (SG._loggingOut) return;
-            if (!doc.exists) return;
-            sgApplyData(doc.data());
-        }, function (err) {
-            if (SG._loggingOut) return;
-            console.warn('SG sync error:', err);
-        });
 }
 
 function sgStopAll() {
     if (SG.syncListener) {
         SG.syncListener();
-        SG.syncListener = null;
+        SG.syncListener  = null;
     }
     if (SG.clockInterval) {
         clearInterval(SG.clockInterval);
@@ -1514,6 +1529,9 @@ function sgStopAll() {
         clearInterval(SG.shiftInterval);
         SG.shiftInterval = null;
     }
+    /* Reset data flags */
+    SG._dataLoaded    = false;
+    SG._firstSnapDone = false;
 }
 
 function sgSave(fields) {
