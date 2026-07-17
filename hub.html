@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0d4a5c">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="/apple-StockAi-Pro_180x180.png">
+<link rel="apple-touch-icon" href="/apple-StockAI-Pro_180x180.png">
 <title>StockAI-Pro 2.0 — Hub</title>
 <link rel="manifest" href="/manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -579,7 +579,7 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
 <!-- ============================================================
      WELCOME SCREEN
 ============================================================ -->
-<div id="welcome-screen">
+<div id="welcome-screen" class="hidden">
     <!-- Background effects -->
     <div class="w-orb" style="width:400px;height:400px;
         background:radial-gradient(circle,rgba(26,139,168,.4),transparent);
@@ -1809,13 +1809,35 @@ console.log('✅ Welcome + Auth screen functions loaded');
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-    // ── Always hide welcome screen ──
+    /* Check URL parameter for return flag */
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('return') === 'true') {
+        sessionStorage.setItem('hub_return', 'true');
+        /* Clean URL */
+        window.history.replaceState({}, '',
+            window.location.pathname);
+    }
+    /* ── Always hide welcome screen when returning from an app ── */
     var welcomeEl = document.getElementById('welcome-screen');
-    if (welcomeEl) {
-        welcomeEl.style.display    = 'none';
-        welcomeEl.style.opacity    = '0';
-        welcomeEl.style.pointerEvents = 'none';
-        welcomeEl.classList.add('hidden');
+    var isReturn  = sessionStorage.getItem('hub_return') === 'true';
+    var remembered = localStorage.getItem('stockai_remember');
+
+    if (isReturn || remembered === 'yes') {
+        /* Coming back from an app or has remember me —
+           skip welcome screen completely */
+        if (welcomeEl) {
+            welcomeEl.style.display     = 'none';
+            welcomeEl.style.opacity     = '0';
+            welcomeEl.style.pointerEvents = 'none';
+            welcomeEl.classList.add('hidden');
+        }
+    } else {
+        /* Fresh visit — show welcome screen */
+        if (welcomeEl) {
+            welcomeEl.classList.remove('hidden');
+            welcomeEl.style.display = '';
+            welcomeEl.style.opacity = '1';
+        }
     }
 
     // Check if returning from external app (POS, App etc)
