@@ -17,20 +17,45 @@
    CSS VARIABLES
 ============================================================ */
 :root{
-    --primary:#1a8ba8;--primary-dark:#0d4a5c;
-    --bg:#f0f7f9;--bg-card:#fff;
-    --text:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
-    --gold:#f59e0b;--success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;
-    --border:#c4dde4;
-    --shadow:0 2px 12px rgba(13,74,92,.08);
-    --shadow-lg:0 8px 30px rgba(13,74,92,.15);
-    --r:12px;--rs:8px
+    --primary:#1a8ba8;
+    --primary-dark:#0d4a5c;
+    --primary-light:#4dbdd5;
+    --primary-pale:#d4f0f7;
+    --bg:#0d3d4f;
+    --bg-card:#0f4d62;
+    --bg-hover:#1a6070;
+    --bg-dark:#0b3344;
+    --text:#e0f4f8;
+    --text-mid:#a8d8e8;
+    --text-light:#7bb8c8;
+    --text-muted:#4a8a9a;
+    --gold:#f59e0b;
+    --gold-dark:#d97706;
+    --success:#2ea871;
+    --danger:#c94545;
+    --warning:#d4a017;
+    --info:#2b8eb3;
+    --border:#1a5a6e;
+    --shadow:0 2px 12px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.4);
+    --shadow-xl:0 20px 60px rgba(0,0,0,.5);
+    --r:14px;
+    --rs:8px;
+    --header-h:56px;
+    --nav-h:65px;
+    --brand-primary:#1a8ba8;
+    --brand-dark:#0d4a5c;
 }
 @media(prefers-color-scheme:dark){
     :root{
-        --bg:#0a1a1f;--bg-card:#0f2a33;
-        --text:#e0f0f4;--text-mid:#a0c8d4;--text-light:#6a9aaa;--text-muted:#4a7a8a;
-        --border:#1a3a44;--shadow:0 2px 12px rgba(0,0,0,.3)
+        --bg:#0a2a36;
+        --bg-card:#0d3a48;
+        --text:#e0f4f8;
+        --text-mid:#a8d8e8;
+        --text-light:#7bb8c8;
+        --text-muted:#4a8a9a;
+        --border:#1a5a6e;
+        --shadow:0 2px 12px rgba(0,0,0,.4)
     }
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -45,7 +70,7 @@ button{font-family:inherit}
 ============================================================ */
 .pos-login{
     position:fixed;inset:0;
-    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    background:linear-gradient(135deg,#0b3344,#0d3d4f);
     display:flex;align-items:center;justify-content:center;
     padding:24px;z-index:9999}
 .pos-login-card{
@@ -81,7 +106,7 @@ button{font-family:inherit}
 .pos-app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
 .pos-header{
     height:50px;
-    background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    background:linear-gradient(90deg,#0b3344,#1a6070);
     display:flex;align-items:center;padding:0 16px;gap:12px;
     flex-shrink:0;color:#fff;font-size:.88rem;font-weight:700}
 .pos-header-info{flex:1;display:flex;flex-direction:column}
@@ -103,7 +128,7 @@ button{font-family:inherit}
     display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)}
 .dash-avatar{
     width:50px;height:50px;border-radius:50%;
-    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    background:linear-gradient(135deg,#1a8ba8,#0b3344);
     display:flex;align-items:center;justify-content:center;
     color:#fff;font-size:1.2rem;font-weight:700;flex-shrink:0}
 .dash-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
@@ -134,7 +159,7 @@ button{font-family:inherit}
     background:var(--bg);z-index:80}
 .order-header{
     height:50px;
-    background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    background:linear-gradient(90deg,#0b3344,#1a6070);
     display:flex;align-items:center;padding:0 12px;
     gap:10px;color:#fff;flex-shrink:0}
 .order-header h3{font-size:.92rem;font-weight:700;flex:1}
