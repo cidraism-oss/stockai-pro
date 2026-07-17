@@ -75,10 +75,98 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
 /* ============================================================
-   LOGIN
+   SPLASH / WELCOME SCREEN
+============================================================ */
+.sg-splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg,
+        var(--primary-dark) 0%,
+        var(--accent-dark)  50%,
+        var(--primary-dark) 100%);
+    display: flex; align-items: center;
+    justify-content: center; padding: 24px;
+    flex-direction: column; gap: 0;
+}
+.sg-splash-card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 48px 36px;
+    width: 100%; max-width: 420px;
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+    position: relative; overflow: hidden;
+}
+.sg-splash-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg,
+        var(--primary-dark), var(--accent),
+        var(--gold), var(--accent));
+    background-size: 200% 100%;
+    animation: sgBar 3s linear infinite;
+}
+@keyframes sgBar {
+    0%   { background-position: 0%; }
+    100% { background-position: 200%; }
+}
+.sg-splash-logo {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: 20px;
+    display: flex; align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem; color: #fff;
+    box-shadow: 0 8px 24px rgba(124,58,237,.4);
+    animation: sgLogoPulse 2s ease-in-out infinite;
+}
+@keyframes sgLogoPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(124,58,237,.4); }
+    50%       { transform: scale(1.05); box-shadow: 0 12px 32px rgba(124,58,237,.6); }
+}
+.sg-splash-card h1 {
+    font-size: 1.8rem; font-weight: 900;
+    color: var(--text); letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.sg-splash-card h1 span { color: var(--accent-light); }
+.sg-splash-card .sub {
+    font-size: .85rem; color: var(--text-light);
+    margin-bottom: 32px;
+}
+.sg-splash-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff; border: none;
+    border-radius: var(--rs);
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: .3s;
+    display: flex; align-items: center;
+    justify-content: center; gap: 10px;
+    margin-bottom: 12px;
+}
+.sg-splash-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124,58,237,.4);
+}
+.sg-splash-back {
+    display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1.5px solid var(--border);
+    border-radius: var(--rs);
+    color: var(--text-mid); font-size: .82rem;
+    font-weight: 600; text-decoration: none;
+    width: 100%; transition: .2s;
+}
+.sg-splash-back:hover { border-color: var(--accent); color: var(--accent-light); }
+
+/* ============================================================
+   LOGIN SCREEN
 ============================================================ */
 .sg-login {
-    position: fixed; inset: 0; z-index: 9999;
+    position: fixed; inset: 0; z-index: 9998;
     background: linear-gradient(135deg,
         var(--primary-dark) 0%,
         var(--accent-dark)  50%,
@@ -104,29 +192,25 @@ input, textarea, select {
     background-size: 200% 100%;
     animation: sgBar 3s linear infinite;
 }
-@keyframes sgBar {
-    0%   { background-position: 0%; }
-    100% { background-position: 200%; }
-}
 .sg-login-logo {
-    width: 72px; height: 72px;
+    width: 64px; height: 64px;
     background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    border-radius: 18px;
+    border-radius: 16px;
     display: flex; align-items: center;
     justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 1.8rem; color: #fff;
+    margin: 0 auto 16px;
+    font-size: 1.6rem; color: #fff;
     box-shadow: 0 8px 24px rgba(124,58,237,.4);
 }
 .sg-login-card h1 {
-    font-size: 1.6rem; font-weight: 900;
+    font-size: 1.5rem; font-weight: 900;
     color: var(--text); letter-spacing: 1px;
     margin-bottom: 4px;
 }
 .sg-login-card h1 span { color: var(--accent-light); }
 .sg-login-card .sub {
     font-size: .82rem; color: var(--text-light);
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 .sg-input {
     width: 100%; padding: 13px 16px;
@@ -166,6 +250,20 @@ input, textarea, select {
     font-size: .82rem;
     margin-bottom: 14px;
     display: none;
+}
+/* Remember me checkbox */
+.sg-remember {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px; text-align: left;
+    cursor: pointer;
+}
+.sg-remember input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer; flex-shrink: 0;
+}
+.sg-remember span {
+    font-size: .82rem; color: var(--text-mid); font-weight: 500;
 }
 
 /* ============================================================
@@ -601,6 +699,27 @@ input, textarea, select {
 .sg-toast.warning { background: rgba(212,160,23,.9);  color: #fff; border-left: 3px solid #b8860b; }
 
 /* ============================================================
+   LOADING OVERLAY
+============================================================ */
+.sg-loading {
+    position: fixed; inset: 0; z-index: 9997;
+    background: var(--bg);
+    display: flex; align-items: center;
+    justify-content: center; flex-direction: column; gap: 16px;
+}
+.sg-loading-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: sgSpin .8s linear infinite;
+}
+@keyframes sgSpin { to { transform: rotate(360deg); } }
+.sg-loading p {
+    font-size: .88rem; color: var(--text-light); font-weight: 600;
+}
+
+/* ============================================================
    RESPONSIVE
 ============================================================ */
 @media (min-width: 768px) {
@@ -615,15 +734,46 @@ input, textarea, select {
 <body>
 
 <!-- ============================================================
+     LOADING OVERLAY — shown while Firebase initialises
+============================================================ -->
+<div class="sg-loading" id="sg-loading">
+    <div class="sg-loading-spinner"></div>
+    <p>Loading Sales-Guru...</p>
+</div>
+
+<!-- ============================================================
+     SPLASH / WELCOME SCREEN
+     Shown after logout — user taps Enter to go to dashboard
+============================================================ -->
+<div class="sg-splash hidden" id="sg-splash">
+    <div class="sg-splash-card">
+        <div class="sg-splash-logo">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <h1>Sales<span>-Guru</span></h1>
+        <p class="sub">StockAI-Pro Sales Management</p>
+
+        <button class="sg-splash-btn" id="sg-splash-enter"
+                onclick="sgSplashEnter()">
+            <i class="fas fa-arrow-right"></i> Enter Sales-Guru
+        </button>
+
+        <a href="hub.html" class="sg-splash-back">
+            <i class="fas fa-th"></i> Back to Hub
+        </a>
+    </div>
+</div>
+
+<!-- ============================================================
      LOGIN SCREEN
 ============================================================ -->
-<div class="sg-login" id="sg-login">
+<div class="sg-login hidden" id="sg-login">
     <div class="sg-login-card">
         <div class="sg-login-logo">
             <i class="fas fa-chart-line"></i>
         </div>
         <h1>Sales<span>-Guru</span></h1>
-        <p class="sub">StockAI-Pro Sales Management</p>
+        <p class="sub">Sign in to your account</p>
         <div id="sg-login-error" class="sg-login-error"></div>
         <form id="sg-login-form">
             <input type="email" class="sg-input" id="sg-email"
@@ -632,6 +782,13 @@ input, textarea, select {
             <input type="password" class="sg-input" id="sg-password"
                    placeholder="Password"
                    autocomplete="current-password" required>
+
+            <!-- Remember Me -->
+            <label class="sg-remember">
+                <input type="checkbox" id="sg-remember-me" checked>
+                <span>Remember me on this device</span>
+            </label>
+
             <button type="submit" class="sg-btn" id="sg-login-btn">
                 <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
@@ -808,6 +965,8 @@ var SG = {
     accountData:   null,
     isManager:     false,
     _dataLoaded:   false,
+    _loggingOut:   false,   /* NEW — prevents re-entry on logout */
+    _authReady:    false,   /* NEW — prevents acting before auth resolves */
     inventory:     [],
     clients:       [],
     prospects:     [],
@@ -818,6 +977,7 @@ var SG = {
     repProfile:    null,
     currentShift:  null,
     kmRecords:     [],
+    shiftHistory:  [],
     monthCycle:    { startDay: 1, endDay: 0 },
     currentPage:   null,
     syncListener:  null,
@@ -833,6 +993,27 @@ var SG_MANAGER_ROLES = [
 var SG_WORKER_URL = 'https://bold-dust-c51b.cidraism.workers.dev';
 
 /* ============================================================
+   UI STATE MACHINE
+   Only ONE screen is ever visible at a time.
+   sgShow('loading')  — spinner while Firebase resolves
+   sgShow('splash')   — welcome screen (after logout)
+   sgShow('login')    — sign-in form
+   sgShow('app')      — main app shell
+============================================================ */
+function sgShow(screen) {
+    var ids = ['sg-loading', 'sg-splash', 'sg-login', 'sg-app'];
+    ids.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (id === 'sg-' + screen) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    });
+}
+
+/* ============================================================
    SSO — READ HUB SESSION
 ============================================================ */
 (function () {
@@ -846,29 +1027,57 @@ var SG_WORKER_URL = 'https://bold-dust-c51b.cidraism.workers.dev';
 })();
 
 /* ============================================================
-   AUTH
+   AUTH — single source of truth
 ============================================================ */
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .then(function () {
-        auth.onAuthStateChanged(function (u) {
-            if (u) {
-                sgFindAccount(u.email, function (found) {
-                    if (found) {
-                        document.getElementById('sg-login')
-                            .classList.add('hidden');
-                        sgEnterApp();
-                    } else {
-                        document.getElementById('sg-login')
-                            .classList.remove('hidden');
-                    }
-                });
-            } else {
-                document.getElementById('sg-login')
-                    .classList.remove('hidden');
-            }
-        });
-    });
+/* Start with loading spinner */
+sgShow('loading');
 
+/* Set persistence based on remember-me preference.
+   We read the stored preference BEFORE onAuthStateChanged fires. */
+var sgRemembered = localStorage.getItem('sg_remember') !== 'false';
+var sgPersistence = sgRemembered
+    ? firebase.auth.Auth.Persistence.LOCAL
+    : firebase.auth.Auth.Persistence.SESSION;
+
+auth.setPersistence(sgPersistence).then(function () {
+
+    auth.onAuthStateChanged(function (firebaseUser) {
+        /* Ignore all auth events while logging out */
+        if (SG._loggingOut) return;
+
+        SG._authReady = true;
+
+        if (firebaseUser) {
+            /* User is signed in — find their account */
+            sgFindAccount(firebaseUser.email, function (found) {
+                if (SG._loggingOut) return; /* guard again */
+                if (found) {
+                    sgEnterApp();
+                } else {
+                    /* Signed into Firebase but no Sales-Guru account */
+                    auth.signOut();
+                    sgShow('login');
+                    sgShowLoginError(
+                        'No Sales-Guru access found for this account.');
+                }
+            });
+        } else {
+            /* Not signed in */
+            var wasLoggedIn = localStorage.getItem('sg_was_logged_in');
+            if (wasLoggedIn === 'true') {
+                /* Previously logged in — show splash */
+                sgShow('splash');
+            } else {
+                /* First visit or cleared storage — show login */
+                sgShow('login');
+            }
+        }
+    });
+});
+
+/* ============================================================
+   LOGIN FORM
+============================================================ */
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('sg-login-form');
     if (form) {
@@ -879,57 +1088,50 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-/* ── Login ── */
 function sgLogin() {
     var email = (document.getElementById('sg-email').value || '')
                     .trim().toLowerCase();
     var pw    = (document.getElementById('sg-password').value || '')
                     .trim();
-    var errEl = document.getElementById('sg-login-error');
-    if (errEl) errEl.style.display = 'none';
+    var rememberEl = document.getElementById('sg-remember-me');
+    var remember   = rememberEl ? rememberEl.checked : true;
+
+    sgClearLoginError();
 
     if (!email || !pw) {
-        if (errEl) {
-            errEl.textContent   = 'Please enter email and password.';
-            errEl.style.display = 'block';
-        }
+        sgShowLoginError('Please enter email and password.');
         return;
     }
 
     var btn = document.getElementById('sg-login-btn');
     if (btn) {
         btn.disabled  = true;
-        btn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
     }
 
-    auth.signInWithEmailAndPassword(email, pw)
+    /* Store remember preference */
+    localStorage.setItem('sg_remember', remember ? 'true' : 'false');
+
+    /* Set persistence then sign in */
+    var persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+    auth.setPersistence(persistence)
         .then(function () {
-            return sgFindAccount(email, function (found) {
-                if (btn) {
-                    btn.disabled  = false;
-                    btn.innerHTML =
-                        '<i class="fas fa-sign-in-alt"></i> Sign In';
-                }
-                if (found) {
-                    document.getElementById('sg-login')
-                        .classList.add('hidden');
-                    sgEnterApp();
-                } else {
-                    if (errEl) {
-                        errEl.textContent =
-                            'No Sales-Guru access found for this account.';
-                        errEl.style.display = 'block';
-                    }
-                    auth.signOut();
-                }
-            });
+            return auth.signInWithEmailAndPassword(email, pw);
+        })
+        .then(function () {
+            /* onAuthStateChanged will handle the rest */
+            if (btn) {
+                btn.disabled  = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
         })
         .catch(function (err) {
             if (btn) {
                 btn.disabled  = false;
-                btn.innerHTML =
-                    '<i class="fas fa-sign-in-alt"></i> Sign In';
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
             }
             var msg = 'Login failed. Please try again.';
             if (err.code === 'auth/wrong-password' ||
@@ -941,21 +1143,27 @@ function sgLogin() {
                 msg = 'Invalid email address.';
             if (err.code === 'auth/too-many-requests')
                 msg = 'Too many attempts. Try again later.';
-            if (errEl) {
-                errEl.textContent   = msg;
-                errEl.style.display = 'block';
-            }
+            sgShowLoginError(msg);
         });
+}
+
+function sgShowLoginError(msg) {
+    var errEl = document.getElementById('sg-login-error');
+    if (errEl) {
+        errEl.textContent   = msg;
+        errEl.style.display = 'block';
+    }
+}
+
+function sgClearLoginError() {
+    var errEl = document.getElementById('sg-login-error');
+    if (errEl) errEl.style.display = 'none';
 }
 
 function sgForgotPw() {
     var email = (document.getElementById('sg-email').value || '').trim();
     if (!email) {
-        var errEl = document.getElementById('sg-login-error');
-        if (errEl) {
-            errEl.textContent   = 'Enter your email address first.';
-            errEl.style.display = 'block';
-        }
+        sgShowLoginError('Enter your email address first.');
         return;
     }
     auth.sendPasswordResetEmail(email.toLowerCase())
@@ -963,7 +1171,43 @@ function sgForgotPw() {
         .catch(function (err) { sgToast('error', err.message); });
 }
 
-/* ── Find Account ── */
+/* ============================================================
+   SPLASH SCREEN — Enter button
+============================================================ */
+function sgSplashEnter() {
+    var btn = document.getElementById('sg-splash-enter');
+    if (btn) {
+        btn.disabled  = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    }
+
+    /* If user is already authenticated (remembered), go straight to app */
+    var currentUser = auth.currentUser;
+    if (currentUser) {
+        sgFindAccount(currentUser.email, function (found) {
+            if (found) {
+                sgEnterApp();
+            } else {
+                sgShow('login');
+            }
+            if (btn) {
+                btn.disabled  = false;
+                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Enter Sales-Guru';
+            }
+        });
+    } else {
+        /* Not authenticated — go to login */
+        sgShow('login');
+        if (btn) {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-arrow-right"></i> Enter Sales-Guru';
+        }
+    }
+}
+
+/* ============================================================
+   FIND ACCOUNT
+============================================================ */
 function sgFindAccount(email, cb) {
     var cachedId = localStorage.getItem('sg_account_id');
     if (cachedId) {
@@ -998,14 +1242,12 @@ function sgScanAccounts(email, cb) {
 function sgMatchAccount(doc, email) {
     var data = doc.data();
 
-    /* Check owner */
     if (data.owner && data.owner.email &&
         data.owner.email.toLowerCase() === email.toLowerCase()) {
         sgSetAccount(doc.id, data, email, 'owner', null, null);
         return true;
     }
 
-    /* Check entity users */
     var users = data.users || {};
     var found  = false;
     Object.keys(users).forEach(function (eid) {
@@ -1056,7 +1298,6 @@ function sgSetAccount(docId, data, email, type, eid, userObj) {
         SG.entityName = SG.entity ? SG.entity.name : '';
     }
 
-    /* Month cycle */
     if (SG.entity && SG.entity.monthCycleStart) {
         SG.monthCycle = {
             startDay: parseInt(SG.entity.monthCycleStart) || 1,
@@ -1064,7 +1305,6 @@ function sgSetAccount(docId, data, email, type, eid, userObj) {
         };
     }
 
-    /* Dispatch email */
     var entityUsers = (data.users || {})[SG.entityId] || [];
     var dispatch = entityUsers.find(function (u) {
         return (u.role || '').toLowerCase().includes('dispatch');
@@ -1074,27 +1314,54 @@ function sgSetAccount(docId, data, email, type, eid, userObj) {
         : (data.owner ? data.owner.email : null);
 }
 
-/* ── Logout ── */
+/* ============================================================
+   LOGOUT
+============================================================ */
 function sgLogout() {
-    sgStopAll();
-    auth.signOut().then(function () {
-        SG.user          = null;
-        SG.accountId     = null;
-        SG._dataLoaded   = false;
-        SG.clients       = [];
-        SG.prospects     = [];
-        SG.orders        = [];
-        SG.notices       = [];
-        SG.leads         = [];
-        SG.currentPage   = null;
-        SG.repProfile    = null;
-        SG.currentShift  = null;
-        SG.kmRecords     = [];
+    /* Set flag FIRST to block any snapshot/auth callbacks */
+    SG._loggingOut = true;
 
-        document.getElementById('sg-app')
-            .classList.add('hidden');
-        document.getElementById('sg-login')
-            .classList.remove('hidden');
+    /* Stop all timers and listeners immediately */
+    sgStopAll();
+
+    /* Mark as was-logged-in so splash shows next time */
+    localStorage.setItem('sg_was_logged_in', 'true');
+
+    /* Show splash immediately — don't wait for signOut */
+    sgShow('splash');
+
+    /* Reset all state */
+    SG.user          = null;
+    SG.accountId     = null;
+    SG._dataLoaded   = false;
+    SG.clients       = [];
+    SG.prospects     = [];
+    SG.orders        = [];
+    SG.notices       = [];
+    SG.leads         = [];
+    SG.currentPage   = null;
+    SG.repProfile    = null;
+    SG.currentShift  = null;
+    SG.kmRecords     = [];
+    SG.shiftHistory  = [];
+    SG.accountData   = null;
+
+    /* Clear content so it doesn't flash on next login */
+    var content = document.getElementById('sg-content');
+    if (content) content.innerHTML = '';
+
+    /* Sign out from Firebase */
+    auth.signOut().then(function () {
+        /* Re-enable auth callbacks after a short delay
+           to prevent the signOut event from triggering
+           the splash→login redirect */
+        setTimeout(function () {
+            SG._loggingOut = false;
+        }, 500);
+    }).catch(function () {
+        setTimeout(function () {
+            SG._loggingOut = false;
+        }, 500);
     });
 }
 
@@ -1102,7 +1369,8 @@ function sgLogout() {
    ENTER APP
 ============================================================ */
 function sgEnterApp() {
-    document.getElementById('sg-app').classList.remove('hidden');
+    /* Mark as logged in for splash-screen logic */
+    localStorage.setItem('sg_was_logged_in', 'true');
 
     /* Update header */
     var nameEl = document.getElementById('sg-user-name');
@@ -1121,12 +1389,14 @@ function sgEnterApp() {
         document.getElementById('sg-nav-mgr').classList.add('hidden');
     }
 
-    /* Start clock — first tick immediately so no 'Loading...' */
+    /* Show app shell */
+    sgShow('app');
+
+    /* Start clock */
     sgTickClock();
     sgStartClock();
 
-    /* Load data — navigation happens INSIDE sgApplyData
-       after Firestore responds. NO setTimeout. NO nav here. */
+    /* Load data — navigation happens inside sgApplyData */
     sgLoadData();
     sgStartSync();
 }
@@ -1140,13 +1410,16 @@ function sgLoadData() {
 
     db.collection('accounts').doc(SG.accountId).get()
         .then(function (doc) {
+            if (SG._loggingOut) return;
             if (!doc.exists) {
                 SG._dataLoaded = true;
+                sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
                 return;
             }
             sgApplyData(doc.data());
         })
         .catch(function (err) {
+            if (SG._loggingOut) return;
             console.warn('SG load error:', err);
             SG._dataLoaded = true;
             sgToast('error', 'Failed to load data.');
@@ -1154,6 +1427,9 @@ function sgLoadData() {
 }
 
 function sgApplyData(data) {
+    /* Ignore updates while logging out */
+    if (SG._loggingOut) return;
+
     SG.accountData = data;
     SG.inventory   = (data.inventory       || {})[SG.entityId] || [];
     SG.clients     = (data.salesClients    || {})[SG.entityId] || [];
@@ -1162,22 +1438,19 @@ function sgApplyData(data) {
     SG.targets     = (data.salesTargets    || {})[SG.entityId] || {};
     SG.leads       = (data.salesLeads      || {})[SG.entityId] || [];
     SG.kmRecords   = (data.salesKmRecords  || {})[SG.entityId] || [];
+    SG.shiftHistory= (data.salesShiftHistory||{})[SG.entityId] || [];
 
-    /* Notices for this user */
     var uid        = SG.user ? SG.user.uid : '';
     var allNotices = (data.salesNotices || {})[SG.entityId] || {};
     SG.notices     = allNotices[uid] || [];
     sgUpdateNoticeBadge();
 
-    /* Profile */
     var profiles  = (data.salesProfiles || {})[SG.entityId] || {};
     SG.repProfile = profiles[uid] || null;
 
-    /* Shift */
     var shifts    = (data.salesShifts || {})[SG.entityId] || {};
     SG.currentShift = shifts[uid] || null;
 
-    /* Dispatch email */
     var entityUsers = (data.users || {})[SG.entityId] || [];
     var dispatch = entityUsers.find(function (u) {
         return (u.role || '').toLowerCase().includes('dispatch');
@@ -1186,24 +1459,29 @@ function sgApplyData(data) {
         ? dispatch.email
         : (data.owner ? data.owner.email : null);
 
-    var wasLoaded   = SG._dataLoaded;
-    SG._dataLoaded  = true;
+    var wasLoaded  = SG._dataLoaded;
+    SG._dataLoaded = true;
 
-    /* ── NAVIGATION DECISION — only on first load ── */
     if (!wasLoaded) {
-        /* If no profile or profile incomplete → show setup */
+        /* ── FIRST LOAD — decide where to go ── */
         if (!SG.repProfile || !SG.repProfile.setupComplete) {
+            /* Profile incomplete — show setup */
             SG.currentPage = 'setup';
             sgShowSetupForm(SG.repProfile || {});
         } else {
-            /* Go to correct dashboard */
+            /* Profile complete — go to dashboard */
             sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
         }
     } else {
-        /* Subsequent snapshot updates — refresh current page
-           but never redirect away from setup */
+        /* ── SUBSEQUENT UPDATES (real-time sync) ── */
+        /* Only refresh if we are NOT on setup */
         if (SG.currentPage && SG.currentPage !== 'setup') {
             sgRenderCurrentPage();
+        }
+        /* If profile was just completed, navigate to dashboard */
+        if (SG.currentPage === 'setup' &&
+            SG.repProfile && SG.repProfile.setupComplete) {
+            sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
         }
     }
 }
@@ -1214,9 +1492,11 @@ function sgStartSync() {
 
     SG.syncListener = db.collection('accounts').doc(SG.accountId)
         .onSnapshot(function (doc) {
+            if (SG._loggingOut) return;
             if (!doc.exists) return;
             sgApplyData(doc.data());
         }, function (err) {
+            if (SG._loggingOut) return;
             console.warn('SG sync error:', err);
         });
 }
@@ -1280,7 +1560,6 @@ function sgStartClock() {
 function sgNav(page) {
     SG.currentPage = page;
 
-    /* Update nav highlights */
     var navId = SG.isManager ? 'sg-nav-mgr' : 'sg-nav-rep';
     document.querySelectorAll('#' + navId + ' .sg-nav-item')
         .forEach(function (item) {
@@ -1292,6 +1571,7 @@ function sgNav(page) {
 }
 
 function sgRenderCurrentPage() {
+    if (SG._loggingOut) return;
     var content = document.getElementById('sg-content');
     if (!content) return;
     content.scrollTop = 0;
@@ -1303,7 +1583,6 @@ function sgRenderCurrentPage() {
                 break;
             case 'dashboard':
                 content.innerHTML = sgRepDashboard();
-                /* Start shift timer if active shift exists */
                 if (SG.currentShift &&
                     SG.currentShift.status === 'active') {
                     sgStartShiftTimer();
@@ -1524,7 +1803,7 @@ function sgFmtDate(d) {
         return new Date(d).toLocaleDateString('en-ZA', {
             day: 'numeric', month: 'short', year: 'numeric'
         });
-    } catch (e) { return d; }
+    } catch (e) { return '—'; }
 }
 
 function sgFmtCurrency(n) {
@@ -1569,7 +1848,7 @@ if ('serviceWorker' in navigator) {
 
     navigator.serviceWorker.addEventListener('message', function (e) {
         if (e.data && e.data.type === 'SYNC') {
-            if (SG.accountId) sgStartSync();
+            if (SG.accountId && !SG._loggingOut) sgStartSync();
         }
     });
 }
@@ -1579,20 +1858,19 @@ if ('serviceWorker' in navigator) {
 ============================================================ */
 window.addEventListener('online', function () {
     sgToast('success', '✅ Back online');
-    if (SG.accountId && !SG.syncListener) sgStartSync();
+    if (SG.accountId && !SG.syncListener && !SG._loggingOut)
+        sgStartSync();
 });
 window.addEventListener('offline', function () {
     sgToast('warning', '📵 No internet connection');
 });
 
-/* ============================================================
-   PREVENT RIGHT CLICK
-============================================================ */
+/* Prevent right click */
 document.addEventListener('contextmenu', function (e) {
     e.preventDefault();
 });
 
-console.log('✅ Sales-Guru — Core loaded');
+console.log('✅ Sales-Guru Core loaded');
 </script>
 <script>
 /* ============================================================
@@ -1988,10 +2266,13 @@ function sgSaveProfile() {
     update['salesProfiles.' + SG.entityId + '.' + uid] = profile;
 
     sgSave(update).then(function () {
-        SG.repProfile = profile;
-        sgToast('success', '✅ Profile saved! Welcome to Sales-Guru.');
-        sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
-    });
+    SG.repProfile = profile;
+    sgToast('success', '✅ Profile saved! Welcome to Sales-Guru.');
+    /* Navigate directly — sync update will not redirect
+       because setupComplete is now true */
+    SG.currentPage = SG.isManager ? 'mgr-dashboard' : 'dashboard';
+    sgNav(SG.currentPage);
+});
 }
 
 /* ── Edit Profile — accessible from dashboard ── */
@@ -6512,9 +6793,7 @@ function sgRefreshTTPreview(repUid, repName) {
 }
 
 function sgMergeTimeTravel(repUid, sd, ed) {
-    var shiftHistory = (SG.accountData
-        ? (SG.accountData.salesShiftHistory || {})[SG.entityId] || []
-        : []);
+    var shiftHistory = SG.shiftHistory || [];
     var shifts = shiftHistory.filter(function (s) {
         return s.uid === repUid &&
                s.date >= sd && s.date <= ed;
