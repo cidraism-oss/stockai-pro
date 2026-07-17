@@ -959,7 +959,10 @@ var db   = firebase.firestore();
 var SG = {
     user:          null,
     accountId:     null,
-    entityId:      null,
+
+    /* Remembers that this device has completed profile setup */
+    setupKey:       null,
+    setupComplete:  false,    entityId:      null,
     entityName:    null,
     entity:        null,
     accountData:   null,
@@ -993,6 +996,56 @@ var SG_MANAGER_ROLES = [
     'Operations Manager', 'Sales Manager'
 ];
 var SG_WORKER_URL = 'https://bold-dust-c51b.cidraism.workers.dev';
+/* ============================================================
+   PROFILE SETUP MEMORY
+============================================================ */
+
+function sgGetSetupKey() {
+    if (!SG.user || !SG.user.uid || !SG.entityId) {
+        return null;
+    }
+
+    return 'sg_setup_complete_' +
+        SG.accountId + '_' +
+        SG.entityId + '_' +
+        SG.user.uid;
+}
+
+function sgHasCompletedSetup() {
+    var key = sgGetSetupKey();
+
+    if (!key) {
+        return false;
+    }
+
+    return localStorage.getItem(key) === 'true';
+}
+
+function sgRememberSetupComplete() {
+    var key = sgGetSetupKey();
+
+    if (!key) {
+        console.warn('Sales-Guru: Could not create setup memory key');
+        return;
+    }
+
+    localStorage.setItem(key, 'true');
+    SG.setupKey = key;
+    SG.setupComplete = true;
+
+    console.log('Sales-Guru: Profile setup remembered');
+}
+
+function sgClearSetupMemory() {
+    var key = sgGetSetupKey();
+
+    if (key) {
+        localStorage.removeItem(key);
+    }
+
+    SG.setupKey = null;
+    SG.setupComplete = false;
+}
 
 /* ============================================================
    UI STATE MACHINE
@@ -1371,35 +1424,47 @@ function sgLogout() {
    ENTER APP
 ============================================================ */
 function sgEnterApp() {
-    /* Mark as logged in for splash-screen logic */
-    localStorage.setItem('sg_was_logged_in', 'true');
-
-    /* Update header */
-    var nameEl = document.getElementById('sg-user-name');
-    var roleEl = document.getElementById('sg-user-role');
-    if (nameEl) nameEl.textContent = SG.user ? SG.user.name : 'User';
-    if (roleEl) roleEl.textContent =
-        (SG.user ? SG.user.role : '') +
-        (SG.entityName ? ' — ' + SG.entityName : '');
-
-    /* Show correct nav */
-    if (SG.isManager) {
-        document.getElementById('sg-nav-rep').classList.add('hidden');
-        document.getElementById('sg-nav-mgr').classList.remove('hidden');
-    } else {
-        document.getElementById('sg-nav-rep').classList.remove('hidden');
-        document.getElementById('sg-nav-mgr').classList.add('hidden');
+    if (SG._loggingOut) {
+        return;
     }
 
-    /* Show app shell */
+    var nameEl = document.getElementById('sg-user-name');
+    var roleEl = document.getElementById('sg-user-role');
+
+    if (nameEl) {
+        nameEl.textContent =
+            SG.user ? SG.user.name : 'User';
+    }
+
+    if (roleEl) {
+        roleEl.textContent =
+            (SG.user ? SG.user.role : '') +
+            (SG.entityName ? ' — ' + SG.entityName : '');
+    }
+
+    if (SG.isManager) {
+        document.getElementById('sg-nav-rep')
+            .classList.add('hidden');
+
+        document.getElementById('sg-nav-mgr')
+            .classList.remove('hidden');
+    } else {
+        document.getElementById('sg-nav-rep')
+            .classList.remove('hidden');
+
+        document.getElementById('sg-nav-mgr')
+            .classList.add('hidden');
+    }
+
     sgShow('app');
 
-    /* Start clock */
     sgTickClock();
     sgStartClock();
 
-    /* ONE call — sgLoadData now handles both
-       initial fetch AND real-time sync via onSnapshot */
+    /*
+     * sgLoadData / onSnapshot decides whether to show
+     * setup or dashboard.
+     */
     sgLoadData();
 }
 
@@ -1441,108 +1506,110 @@ function sgStartSync() {
 }
 
 function sgApplyData(data) {
-    if (SG._loggingOut) return;
+    if (SG._loggingOut) {
+        return;
+    }
 
-    /* ── Assign all data ── */
-    SG.accountData  = data;
-    SG.inventory    = (data.inventory         || {})[SG.entityId] || [];
-    SG.clients      = (data.salesClients      || {})[SG.entityId] || [];
-    SG.prospects    = (data.salesProspects    || {})[SG.entityId] || [];
-    SG.orders       = (data.salesOrders       || {})[SG.entityId] || [];
-    SG.targets      = (data.salesTargets      || {})[SG.entityId] || {};
-    SG.leads        = (data.salesLeads        || {})[SG.entityId] || [];
-    SG.kmRecords    = (data.salesKmRecords    || {})[SG.entityId] || [];
-    SG.shiftHistory = (data.salesShiftHistory || {})[SG.entityId] || [];
+    SG.accountData = data;
 
-    var uid         = SG.user ? SG.user.uid : '';
-    var allNotices  = (data.salesNotices      || {})[SG.entityId] || {};
-    SG.notices      = allNotices[uid] || [];
+    SG.inventory =
+        (data.inventory || {})[SG.entityId] || [];
+
+    SG.clients =
+        (data.salesClients || {})[SG.entityId] || [];
+
+    SG.prospects =
+        (data.salesProspects || {})[SG.entityId] || [];
+
+    SG.orders =
+        (data.salesOrders || {})[SG.entityId] || [];
+
+    SG.targets =
+        (data.salesTargets || {})[SG.entityId] || {};
+
+    SG.leads =
+        (data.salesLeads || {})[SG.entityId] || [];
+
+    SG.kmRecords =
+        (data.salesKmRecords || {})[SG.entityId] || [];
+
+    SG.shiftHistory =
+        (data.salesShiftHistory || {})[SG.entityId] || [];
+
+    var uid = SG.user ? SG.user.uid : '';
+
+    var allNotices =
+        (data.salesNotices || {})[SG.entityId] || {};
+
+    SG.notices = allNotices[uid] || [];
     sgUpdateNoticeBadge();
 
-    var profiles    = (data.salesProfiles     || {})[SG.entityId] || {};
-    SG.repProfile   = profiles[uid] || null;
+    var profiles =
+        (data.salesProfiles || {})[SG.entityId] || {};
 
-    var shifts      = (data.salesShifts       || {})[SG.entityId] || {};
+    SG.repProfile = profiles[uid] || null;
+
+    var shifts =
+        (data.salesShifts || {})[SG.entityId] || {};
+
     SG.currentShift = shifts[uid] || null;
 
-    var entityUsers = (data.users || {})[SG.entityId] || [];
-    var dispatch    = entityUsers.find(function (u) {
-        return (u.role || '').toLowerCase().includes('dispatch');
+    var entityUsers =
+        (data.users || {})[SG.entityId] || [];
+
+    var dispatch = entityUsers.find(function (u) {
+        return (u.role || '')
+            .toLowerCase()
+            .includes('dispatch');
     });
+
     SG.dispatchEmail = dispatch
         ? dispatch.email
         : (data.owner ? data.owner.email : null);
 
-    /* ── Read setupComplete ONCE clearly ── */
-    var isSetupComplete = !!(SG.repProfile &&
-                             SG.repProfile.setupComplete === true);
+    /*
+     * Check both Firestore and localStorage.
+     */
+    var firestoreSetupComplete =
+        !!(SG.repProfile &&
+           SG.repProfile.setupComplete === true);
 
-    /* ══════════════════════════════════════════════════
-       FIRST SNAPSHOT
-    ══════════════════════════════════════════════════ */
-    if (!SG._firstSnapDone) {
-        SG._firstSnapDone = true;
-        SG._dataLoaded    = true;
+    var localSetupComplete =
+        sgHasCompletedSetup();
 
-        if (isSetupComplete) {
-            /* Profile complete — go straight to dashboard */
-            SG._setupPending = false;
-            sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+    /*
+     * Once setup is complete, remember it permanently
+     * on this device.
+     */
+    if (firestoreSetupComplete || localSetupComplete) {
+        SG.setupComplete = true;
 
-        } else {
-            /* Profile NOT complete.
-               We delay showing setup by 800ms.
-               This window allows a second snapshot (which
-               sometimes fires within milliseconds carrying
-               the SAME complete data) to cancel it via
-               the _setupPending flag. */
-            SG._setupPending = true;
-
-            setTimeout(function () {
-                if (SG._loggingOut)    return;
-                if (!SG._setupPending) return; /* cancelled */
-
-                /* Double-check profile is still incomplete */
-                if (SG.repProfile && SG.repProfile.setupComplete) {
-                    SG._setupPending = false;
-                    sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
-                    return;
-                }
-
-                SG._setupPending   = false;
-                SG.currentPage     = 'setup';
-                sgShowSetupForm(SG.repProfile || {});
-            }, 800);
+        if (firestoreSetupComplete && !localSetupComplete) {
+            sgRememberSetupComplete();
         }
 
-        return; /* Always return after first snap */
-    }
+        /*
+         * Do not open setup.
+         */
+        if (!SG.currentPage ||
+            SG.currentPage === 'setup') {
+            SG.currentPage =
+                SG.isManager ? 'mgr-dashboard' : 'dashboard';
 
-    /* ══════════════════════════════════════════════════
-       SUBSEQUENT SNAPSHOTS (real-time updates)
-    ══════════════════════════════════════════════════ */
+            sgNav(SG.currentPage);
+        } else if (SG.currentPage !== 'setup') {
+            sgRenderCurrentPage();
+        }
 
-    /* If setup is pending and profile is now complete — cancel setup */
-    if (SG._setupPending && isSetupComplete) {
-        SG._setupPending = false;
-        sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
         return;
     }
 
-    /* If currently on setup page */
-    if (SG.currentPage === 'setup') {
-        if (isSetupComplete) {
-            /* Profile just got saved — leave setup */
-            sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
-        }
-        /* Otherwise stay on setup — don't re-render the form */
-        return;
-    }
-
-    /* On any other page — refresh current page content */
-    if (SG.currentPage) {
-        sgRenderCurrentPage();
-    }
+    /*
+     * Setup has not yet been completed.
+     */
+    SG.setupComplete = false;
+    SG.currentPage = 'setup';
+    sgShowSetupForm(SG.repProfile || {});
 }
 
 function sgStopAll() {
@@ -2241,84 +2308,150 @@ function sgTestEmail() {
 
 /* ── Save Profile ── */
 function sgSaveProfile() {
-    var name     = (document.getElementById('sp-name')
-        ? document.getElementById('sp-name').value : '').trim();
-    var phone    = (document.getElementById('sp-phone')
-        ? document.getElementById('sp-phone').value : '').trim();
-    var title    = (document.getElementById('sp-title')
-        ? document.getElementById('sp-title').value : '').trim();
-    var email    = (document.getElementById('sp-email')
-        ? document.getElementById('sp-email').value : '').trim();
-    var smtpHost = (document.getElementById('sp-smtp-host')
-        ? document.getElementById('sp-smtp-host').value : '').trim();
+    var name = document.getElementById('sp-name')
+        ? document.getElementById('sp-name').value.trim()
+        : '';
+
+    var phone = document.getElementById('sp-phone')
+        ? document.getElementById('sp-phone').value.trim()
+        : '';
+
+    var title = document.getElementById('sp-title')
+        ? document.getElementById('sp-title').value.trim()
+        : '';
+
+    var email = document.getElementById('sp-email')
+        ? document.getElementById('sp-email').value.trim()
+        : '';
+
+    var smtpHost = document.getElementById('sp-smtp-host')
+        ? document.getElementById('sp-smtp-host').value.trim()
+        : '';
+
     var smtpPort = document.getElementById('sp-smtp-port')
-        ? document.getElementById('sp-smtp-port').value : '587';
-    var smtpPass = (document.getElementById('sp-smtp-pass')
-        ? document.getElementById('sp-smtp-pass').value : '').trim();
-    var smtpSec  = document.getElementById('sp-smtp-secure')
-        ? document.getElementById('sp-smtp-secure').value : 'tls';
-    var logoUrl  = (document.getElementById('sp-logo-url')
-        ? document.getElementById('sp-logo-url').value : '').trim();
-    var whatsapp = (document.getElementById('sp-whatsapp')
-        ? document.getElementById('sp-whatsapp').value : '').trim();
+        ? document.getElementById('sp-smtp-port').value
+        : '587';
+
+    var smtpPass = document.getElementById('sp-smtp-pass')
+        ? document.getElementById('sp-smtp-pass').value.trim()
+        : '';
+
+    var smtpSecure = document.getElementById('sp-smtp-secure')
+        ? document.getElementById('sp-smtp-secure').value
+        : 'tls';
+
+    var logoUrl = document.getElementById('sp-logo-url')
+        ? document.getElementById('sp-logo-url').value.trim()
+        : '';
+
+    var whatsapp = document.getElementById('sp-whatsapp')
+        ? document.getElementById('sp-whatsapp').value.trim()
+        : '';
 
     /* Validation */
-    if (!name)     { sgToast('error', 'Enter your full name');       return; }
-    if (!phone)    { sgToast('error', 'Enter your contact number');  return; }
-    if (!email)    { sgToast('error', 'Enter your email address');   return; }
-    if (!smtpHost) { sgToast('error', 'Enter your SMTP server');     return; }
-    if (!whatsapp) { sgToast('error', 'Enter your WhatsApp number'); return; }
+    if (!name) {
+        sgToast('error', 'Enter your full name');
+        return;
+    }
 
-    /* Handle existing password */
+    if (!phone) {
+        sgToast('error', 'Enter your contact number');
+        return;
+    }
+
+    if (!email) {
+        sgToast('error', 'Enter your email address');
+        return;
+    }
+
+    if (!smtpHost) {
+        sgToast('error', 'Enter your SMTP server');
+        return;
+    }
+
+    if (!whatsapp) {
+        sgToast('error', 'Enter your WhatsApp number');
+        return;
+    }
+
+    /* Keep the existing SMTP password when editing */
     if (!smtpPass || smtpPass === '••••••••') {
-        var existing = SG.repProfile || {};
-        if (existing.smtpPass) {
-            smtpPass = existing.smtpPass;
+        var existingProfile = SG.repProfile || {};
+
+        if (existingProfile.smtpPass) {
+            smtpPass = existingProfile.smtpPass;
         } else {
             sgToast('error', 'Enter your email password');
             return;
         }
     }
 
-    /* Clean WhatsApp number */
-    var cleanWA = whatsapp.replace(/[\s\-\(\)]/g, '');
-    if (cleanWA.startsWith('0')) cleanWA = cleanWA.substring(1);
+    var cleanWhatsApp = whatsapp.replace(/[\s\-\(\)]/g, '');
+
+    if (cleanWhatsApp.indexOf('0') === 0) {
+        cleanWhatsApp = cleanWhatsApp.substring(1);
+    }
 
     var uid = SG.user ? SG.user.uid : '';
+
+    if (!uid || !SG.entityId || !SG.accountId) {
+        sgToast('error', 'Your account is not ready. Please sign in again.');
+        return;
+    }
+
     var profile = {
         name:          name,
         phone:         phone,
         title:         title,
         email:         email,
         smtpHost:      smtpHost,
-        smtpPort:      parseInt(smtpPort) || 587,
+        smtpPort:      parseInt(smtpPort, 10) || 587,
         smtpPass:      smtpPass,
-        smtpSecure:    smtpSec,
+        smtpSecure:    smtpSecure,
         logoUrl:       logoUrl,
-        whatsapp:      cleanWA,
-        whatsappFull:  '27' + cleanWA,
+        whatsapp:      cleanWhatsApp,
+        whatsappFull:  '27' + cleanWhatsApp,
+
+        /* This must be the boolean value true */
         setupComplete: true,
-        updatedAt:     new Date().toISOString()
+
+        updatedAt: new Date().toISOString()
     };
 
-    /* Preserve pricelist if it exists */
     if (SG.repProfile && SG.repProfile.pricelistUrl) {
-        profile.pricelistUrl       = SG.repProfile.pricelistUrl;
-        profile.pricelistUpdatedAt = SG.repProfile.pricelistUpdatedAt;
+        profile.pricelistUrl = SG.repProfile.pricelistUrl;
+        profile.pricelistUpdatedAt =
+            SG.repProfile.pricelistUpdatedAt;
     }
 
     sgToast('info', 'Saving profile...');
 
     var update = {};
+
     update['salesProfiles.' + SG.entityId + '.' + uid] = profile;
 
     sgSave(update).then(function () {
-    SG.repProfile      = profile;
-    SG._setupPending   = false; /* cancel any pending setup */
-    SG.currentPage     = SG.isManager ? 'mgr-dashboard' : 'dashboard';
-    sgToast('success', '✅ Profile saved! Welcome to Sales-Guru.');
-    sgNav(SG.currentPage);
-});
+        /*
+         * Remember setup locally immediately.
+         * This prevents the setup page from appearing again
+         * on this device.
+         */
+        SG.repProfile = profile;
+        sgRememberSetupComplete();
+
+        SG.currentPage =
+            SG.isManager ? 'mgr-dashboard' : 'dashboard';
+
+        sgCloseModal();
+
+        sgToast(
+            'success',
+            'Profile saved. Welcome to Sales-Guru!'
+        );
+
+        sgShow('app');
+        sgNav(SG.currentPage);
+    });
 }
 
 /* ── Edit Profile — accessible from dashboard ── */
