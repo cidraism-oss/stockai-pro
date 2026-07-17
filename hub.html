@@ -577,33 +577,24 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
 <body>
 
 <script>
-/* ── Instant welcome screen check — runs before page renders ── */
 (function() {
     var skip = false;
     try {
-        /* Only skip if explicitly returning from an app */
-        if (sessionStorage.getItem('hub_return') === 'true') {
-            skip = true;
-        }
-        var params = new URLSearchParams(window.location.search);
-        if (params.get('return') === 'true') {
+        if (sessionStorage.getItem('hub_return') === 'true') skip = true;
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('return') === 'true') {
             skip = true;
             sessionStorage.setItem('hub_return', 'true');
-            window.history.replaceState({}, '',
-                window.location.pathname);
+            window.history.replaceState({}, '', window.location.pathname);
         }
     } catch(e) {}
     if (skip) {
-        document.write(
-            '<style>#welcome-screen{display:none!important}</style>'
-        );
+        document.write('<style>#welcome-screen{display:none!important}</style>');
     }
 })();
 </script>
 
-<!-- ============================================================
-     WELCOME SCREEN
-============================================================ -->
+<!-- WELCOME SCREEN -->
 <div id="welcome-screen">
     <!-- Background effects -->
     <div class="w-orb" style="width:400px;height:400px;
@@ -1676,32 +1667,39 @@ function playWelcomeTTSSafe(text) {
 
 function handleWelcomeEnter() {
     try {
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if ('speechSynthesis' in window)
+            window.speechSynthesis.cancel();
     } catch(e) {}
     window._welcomeVoiceFired = true;
 
     var screen = document.getElementById('welcome-screen');
+
+    function proceed() {
+        /* Hide welcome screen */
+        if (screen) {
+            screen.style.display = 'none';
+            screen.classList.add('hidden');
+        }
+
+        /* Show login screen immediately so
+           there is never a blank page */
+        var loginScreen = document.getElementById('login-screen');
+        if (loginScreen) loginScreen.classList.remove('hidden');
+
+        /* Now check auth — if already logged in via
+           remember me, checkHubAuth will hide login
+           and show dashboard */
+        checkHubAuth();
+    }
+
     if (screen) {
         screen.style.transition    = 'opacity 0.6s ease, transform 0.6s ease';
         screen.style.opacity       = '0';
         screen.style.transform     = 'scale(1.03)';
         screen.style.pointerEvents = 'none';
-        setTimeout(function() {
-            screen.style.display = 'none';
-            screen.classList.add('hidden');
-
-            /* Always show login screen first —
-               Firebase auth listener will auto-redirect
-               to dashboard if already logged in */
-            document.getElementById('login-screen')
-                .classList.remove('hidden');
-
-            checkHubAuth();
-        }, 600);
+        setTimeout(proceed, 600);
     } else {
-        document.getElementById('login-screen')
-            .classList.remove('hidden');
-        checkHubAuth();
+        proceed();
     }
 }
 
@@ -1845,73 +1843,30 @@ console.log('✅ Welcome + Auth screen functions loaded');
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
+    /* ── Hide welcome screen always ── */
     var welcomeEl = document.getElementById('welcome-screen');
-
-    /* If returning from app — welcome already hidden by
-       inline script, just process auth */
-    var isReturn = sessionStorage.getItem('hub_return') === 'true';
-    if (isReturn) {
-        sessionStorage.removeItem('hub_return');
-        if (welcomeEl) {
-            welcomeEl.style.display = 'none';
-            welcomeEl.classList.add('hidden');
-        }
-
-    /* ── DECIDE: Show or skip welcome screen ── */
-    if (isReturn || remembered === 'yes') {
-        /* Returning from an app OR remembered user
-           → skip welcome screen completely */
-        if (welcomeEl) {
-            welcomeEl.style.display      = 'none';
-            welcomeEl.style.opacity      = '0';
-            welcomeEl.style.pointerEvents = 'none';
-            welcomeEl.classList.add('hidden');
-        }
-        /* Stop any welcome audio */
-        try {
-            if ('speechSynthesis' in window)
-                window.speechSynthesis.cancel();
-        } catch(e) {}
-        window._welcomeVoiceFired = true;
+    if (welcomeEl) {
+        welcomeEl.style.display = 'none';
+        welcomeEl.classList.add('hidden');
     }
-    /* If NOT returning and NOT remembered:
-       welcome screen stays visible as normal —
-       user must press ENTER to proceed */
 
-    // Check if returning from external app (POS, App etc)
+    /* ── Check if returning from external app ── */
     var isReturn = sessionStorage.getItem('hub_return') === 'true';
     if (isReturn) {
         sessionStorage.removeItem('hub_return');
 
-        var welcomeEl = document.getElementById('welcome-screen');
-        var loginEl   = document.getElementById('login-screen');
-        if (welcomeEl) welcomeEl.style.display = 'none';
-        if (loginEl)   loginEl.classList.add('hidden');
+        /* Hide login screen */
+        var loginEl = document.getElementById('login-screen');
+        if (loginEl) loginEl.classList.add('hidden');
 
+        /* Try to restore from session cache first */
         if (restoreSessionCache()) {
-
-            try {
-                var rawSSO = sessionStorage.getItem('sso_session');
-                if (rawSSO) {
-                    var sso = JSON.parse(rawSSO);
-                    if (sso && sso.valid) {
-                        if (sso.features && sso.features.length) {
-                            HUB.features = sso.features;
-                            if (typeof cacheUserFeatures === 'function') {
-                                cacheUserFeatures(sso.features);
-                            }
-                        }
-                    }
-                }
-            } catch(e) {}
-
             if (HUB.accountId) {
                 db.collection('accounts').doc(HUB.accountId).get()
                     .then(function(doc) {
                         if (doc.exists) {
                             HUB.accountData = doc.data();
                             HUB.entities    = doc.data().entities || [];
-
                             if (HUB.entityId) {
                                 var ent = HUB.entities.find(function(e) {
                                     return e.id === HUB.entityId;
@@ -1919,8 +1874,7 @@ function checkHubAuth() {
                                 if (ent) {
                                     HUB.entity   = ent;
                                     HUB.features = getEntityFeatures(
-                                        HUB.accountData,
-                                        HUB.entityId);
+                                        HUB.accountData, HUB.entityId);
                                 }
                             }
                             startHubSync();
@@ -1944,8 +1898,8 @@ function checkHubAuth() {
             return;
         }
 
-        var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
-            unsubReturn();
+        /* No cache — check Firebase auth */
+        auth.onAuthStateChanged(function(firebaseUser) {
             if (firebaseUser) {
                 findHubAccount(firebaseUser.email, function(found) {
                     if (found) {
@@ -1962,26 +1916,37 @@ function checkHubAuth() {
         return;
     }
 
-    // Normal auth check — remember me
+    /* ── Normal flow — check remember me ── */
     var remembered = localStorage.getItem('stockai_remember');
     var remEmail   = localStorage.getItem('stockai_email');
 
     if (remembered === 'yes' && remEmail) {
+        /* Has remember me — try to auto-login */
+        /* Login screen is already visible from handleWelcomeEnter
+           so user sees something while Firebase loads */
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(function() {
                 return new Promise(function(resolve) {
                     var unsub = auth.onAuthStateChanged(function(user) {
-                        unsub(); resolve(user);
+                        unsub();
+                        resolve(user);
                     });
                 });
             })
             .then(function(firebaseUser) {
                 if (firebaseUser) {
+                    /* Auto-login successful — hide login screen */
+                    var loginEl = document.getElementById('login-screen');
+                    if (loginEl) loginEl.classList.add('hidden');
+
                     hubToast('info', '🔄 Loading your workspace...');
+
                     findHubAccount(firebaseUser.email, function(found) {
                         if (found) {
-                            document.getElementById('login-screen')
-                                .classList.add('hidden');
+                            var loginScreen =
+                                document.getElementById('login-screen');
+                            if (loginScreen)
+                                loginScreen.classList.add('hidden');
                             saveSessionCache();
                             routeAfterLogin();
                         } else {
@@ -1989,12 +1954,18 @@ function checkHubAuth() {
                         }
                     });
                 } else {
-                    showLoginScreen();
+                    /* No Firebase session — stay on login screen */
+                    /* Login screen already visible — do nothing */
                 }
             })
-            .catch(function() { showLoginScreen(); });
+            .catch(function() {
+                /* Error — login screen already visible */
+            });
     } else {
-        auth.signOut().then(showLoginScreen).catch(showLoginScreen);
+        /* No remember me — sign out and show login */
+        auth.signOut()
+            .then(function() { showLoginScreen(); })
+            .catch(function() { showLoginScreen(); });
     }
 }
 
