@@ -966,6 +966,7 @@ var SG = {
     isManager:     false,
     _dataLoaded:   false,
     _firstSnapDone:false,
+    _setupPending:  false,
     _loggingOut:   false,   /* NEW — prevents re-entry on logout */
     _authReady:    false,   /* NEW — prevents acting before auth resolves */
     inventory:     [],
@@ -1403,27 +1404,23 @@ function sgEnterApp() {
 }
 
 /* ============================================================
-   DATA LOADING + SYNC
+   DATA LOADING + SYNC — FINAL FIX
 ============================================================ */
 function sgLoadData() {
     if (!SG.accountId) return;
 
-    /* Stop any existing listener first */
     if (SG.syncListener) {
         SG.syncListener();
         SG.syncListener = null;
     }
 
-    SG._dataLoaded = false;
-    SG._firstSnapDone = false; /* NEW flag */
+    SG._dataLoaded     = false;
+    SG._firstSnapDone  = false;
+    SG._setupPending   = false; /* NEW — cancellable setup flag */
 
-    /* Single onSnapshot does BOTH initial load AND real-time sync */
     SG.syncListener = db.collection('accounts').doc(SG.accountId)
         .onSnapshot(function (doc) {
-
-            /* Ignore all snapshots while logging out */
             if (SG._loggingOut) return;
-
             if (!doc.exists) {
                 if (!SG._firstSnapDone) {
                     SG._firstSnapDone = true;
@@ -1432,46 +1429,40 @@ function sgLoadData() {
                 }
                 return;
             }
-
             sgApplyData(doc.data());
-
         }, function (err) {
             if (SG._loggingOut) return;
             console.warn('SG sync error:', err);
-            if (!SG._firstSnapDone) {
-                sgToast('error', 'Failed to load data. Please refresh.');
-            }
         });
 }
 
-/* sgStartSync is now just an alias — loading IS syncing */
 function sgStartSync() {
-    /* Intentionally empty — sgLoadData() handles everything now */
+    /* Intentionally empty — sgLoadData() handles everything */
 }
 
 function sgApplyData(data) {
-    /* Ignore updates while logging out */
     if (SG._loggingOut) return;
 
+    /* ── Assign all data ── */
     SG.accountData  = data;
-    SG.inventory    = (data.inventory        || {})[SG.entityId] || [];
-    SG.clients      = (data.salesClients     || {})[SG.entityId] || [];
-    SG.prospects    = (data.salesProspects   || {})[SG.entityId] || [];
-    SG.orders       = (data.salesOrders      || {})[SG.entityId] || [];
-    SG.targets      = (data.salesTargets     || {})[SG.entityId] || {};
-    SG.leads        = (data.salesLeads       || {})[SG.entityId] || [];
-    SG.kmRecords    = (data.salesKmRecords   || {})[SG.entityId] || [];
-    SG.shiftHistory = (data.salesShiftHistory|| {})[SG.entityId] || [];
+    SG.inventory    = (data.inventory         || {})[SG.entityId] || [];
+    SG.clients      = (data.salesClients      || {})[SG.entityId] || [];
+    SG.prospects    = (data.salesProspects    || {})[SG.entityId] || [];
+    SG.orders       = (data.salesOrders       || {})[SG.entityId] || [];
+    SG.targets      = (data.salesTargets      || {})[SG.entityId] || {};
+    SG.leads        = (data.salesLeads        || {})[SG.entityId] || [];
+    SG.kmRecords    = (data.salesKmRecords    || {})[SG.entityId] || [];
+    SG.shiftHistory = (data.salesShiftHistory || {})[SG.entityId] || [];
 
     var uid         = SG.user ? SG.user.uid : '';
-    var allNotices  = (data.salesNotices     || {})[SG.entityId] || {};
+    var allNotices  = (data.salesNotices      || {})[SG.entityId] || {};
     SG.notices      = allNotices[uid] || [];
     sgUpdateNoticeBadge();
 
-    var profiles    = (data.salesProfiles    || {})[SG.entityId] || {};
+    var profiles    = (data.salesProfiles     || {})[SG.entityId] || {};
     SG.repProfile   = profiles[uid] || null;
 
-    var shifts      = (data.salesShifts      || {})[SG.entityId] || {};
+    var shifts      = (data.salesShifts       || {})[SG.entityId] || {};
     SG.currentShift = shifts[uid] || null;
 
     var entityUsers = (data.users || {})[SG.entityId] || [];
@@ -1482,37 +1473,75 @@ function sgApplyData(data) {
         ? dispatch.email
         : (data.owner ? data.owner.email : null);
 
-    /* ── NAVIGATION LOGIC ── */
+    /* ── Read setupComplete ONCE clearly ── */
+    var isSetupComplete = !!(SG.repProfile &&
+                             SG.repProfile.setupComplete === true);
+
+    /* ══════════════════════════════════════════════════
+       FIRST SNAPSHOT
+    ══════════════════════════════════════════════════ */
     if (!SG._firstSnapDone) {
-        /* ══ FIRST snapshot — decide where to land ══ */
         SG._firstSnapDone = true;
         SG._dataLoaded    = true;
 
-        if (!SG.repProfile || !SG.repProfile.setupComplete) {
-            /* Profile not set up yet */
-            SG.currentPage = 'setup';
-            sgShowSetupForm(SG.repProfile || {});
+        if (isSetupComplete) {
+            /* Profile complete — go straight to dashboard */
+            SG._setupPending = false;
+            sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+
         } else {
-            /* Profile complete — go to dashboard */
+            /* Profile NOT complete.
+               We delay showing setup by 800ms.
+               This window allows a second snapshot (which
+               sometimes fires within milliseconds carrying
+               the SAME complete data) to cancel it via
+               the _setupPending flag. */
+            SG._setupPending = true;
+
+            setTimeout(function () {
+                if (SG._loggingOut)    return;
+                if (!SG._setupPending) return; /* cancelled */
+
+                /* Double-check profile is still incomplete */
+                if (SG.repProfile && SG.repProfile.setupComplete) {
+                    SG._setupPending = false;
+                    sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+                    return;
+                }
+
+                SG._setupPending   = false;
+                SG.currentPage     = 'setup';
+                sgShowSetupForm(SG.repProfile || {});
+            }, 800);
+        }
+
+        return; /* Always return after first snap */
+    }
+
+    /* ══════════════════════════════════════════════════
+       SUBSEQUENT SNAPSHOTS (real-time updates)
+    ══════════════════════════════════════════════════ */
+
+    /* If setup is pending and profile is now complete — cancel setup */
+    if (SG._setupPending && isSetupComplete) {
+        SG._setupPending = false;
+        sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
+        return;
+    }
+
+    /* If currently on setup page */
+    if (SG.currentPage === 'setup') {
+        if (isSetupComplete) {
+            /* Profile just got saved — leave setup */
             sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
         }
+        /* Otherwise stay on setup — don't re-render the form */
+        return;
+    }
 
-    } else {
-        /* ══ SUBSEQUENT snapshots — real-time updates ══ */
-
-        if (SG.currentPage === 'setup') {
-            /* Only leave setup if profile is now complete */
-            if (SG.repProfile && SG.repProfile.setupComplete) {
-                sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
-            }
-            /* Otherwise stay on setup — don't re-render */
-            return;
-        }
-
-        /* On any other page — just refresh the current page */
-        if (SG.currentPage) {
-            sgRenderCurrentPage();
-        }
+    /* On any other page — refresh current page content */
+    if (SG.currentPage) {
+        sgRenderCurrentPage();
     }
 }
 
@@ -1529,9 +1558,9 @@ function sgStopAll() {
         clearInterval(SG.shiftInterval);
         SG.shiftInterval = null;
     }
-    /* Reset data flags */
     SG._dataLoaded    = false;
     SG._firstSnapDone = false;
+    SG._setupPending  = false;
 }
 
 function sgSave(fields) {
@@ -2284,11 +2313,10 @@ function sgSaveProfile() {
     update['salesProfiles.' + SG.entityId + '.' + uid] = profile;
 
     sgSave(update).then(function () {
-    SG.repProfile = profile;
+    SG.repProfile      = profile;
+    SG._setupPending   = false; /* cancel any pending setup */
+    SG.currentPage     = SG.isManager ? 'mgr-dashboard' : 'dashboard';
     sgToast('success', '✅ Profile saved! Welcome to Sales-Guru.');
-    /* Navigate directly — sync update will not redirect
-       because setupComplete is now true */
-    SG.currentPage = SG.isManager ? 'mgr-dashboard' : 'dashboard';
     sgNav(SG.currentPage);
 });
 }
