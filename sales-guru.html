@@ -1251,9 +1251,11 @@ function sgEnterApp() {
     document.getElementById('sg-app').classList.remove('hidden');
 
     /* Update header */
-    document.getElementById('sg-user-name').textContent =
+    var nameEl = document.getElementById('sg-user-name');
+    var roleEl = document.getElementById('sg-user-role');
+    if (nameEl) nameEl.textContent =
         SG.user ? SG.user.name : 'User';
-    document.getElementById('sg-user-role').textContent =
+    if (roleEl) roleEl.textContent =
         (SG.user ? SG.user.role : '') +
         (SG.entityName ? ' — ' + SG.entityName : '');
 
@@ -1266,7 +1268,19 @@ function sgEnterApp() {
         document.getElementById('sg-nav-mgr').classList.add('hidden');
     }
 
-    /* Start clock */
+    /* Force first clock tick immediately so it does not show Loading */
+    var now = new Date();
+    var ts  = now.toLocaleTimeString('en-ZA', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    var ds  = now.toLocaleDateString('en-ZA', {
+        day: 'numeric', month: 'short', year: 'numeric'
+    });
+    var clockEl = document.getElementById('sg-header-time');
+    if (clockEl) clockEl.innerHTML =
+        '<strong>' + ts + '</strong><span>' + ds + '</span>';
+
+    /* Start clock interval */
     sgStartClock();
 
     /* Load data and start sync */
