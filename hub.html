@@ -4715,7 +4715,29 @@ function showHubNotifications() {
 /* ============================================================
    INSTALL GUIDE
 ============================================================ */
+var _deferredInstallPrompt = null;
+
+/* Capture the install prompt before it fires */
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    console.log('✅ Install prompt captured');
+});
+
 function showInstallGuide() {
+    /* Try native install prompt first */
+    if (_deferredInstallPrompt) {
+        _deferredInstallPrompt.prompt();
+        _deferredInstallPrompt.userChoice.then(function(result) {
+            if (result.outcome === 'accepted') {
+                hubToast('success', '✅ App installed successfully!');
+            }
+            _deferredInstallPrompt = null;
+        });
+        return;
+    }
+
+    /* Fallback — show manual instructions */
     var ua    = navigator.userAgent || '';
     var isIOS = /iPad|iPhone|iPod/.test(ua);
     var steps = isIOS
@@ -4726,8 +4748,10 @@ function showInstallGuide() {
           '<p>4. Tap <strong>"Add"</strong></p></div>'
         : '<div style="font-size:.85rem;color:var(--text);line-height:2">' +
           '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>' +
-          '<p>2. Tap <strong>"Add to Home screen"</strong></p>' +
-          '<p>3. Tap <strong>"Add"</strong></p></div>';
+          '<p>2. Tap <strong>"Install App"</strong> or ' +
+          '<strong>"Add to Home screen"</strong></p>' +
+          '<p>3. Tap <strong>"Install"</strong></p></div>';
+
     showHubModal(
         '<i class="fas fa-mobile-alt" ' +
         'style="color:var(--primary)"></i> Install App',
