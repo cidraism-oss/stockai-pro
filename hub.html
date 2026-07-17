@@ -579,19 +579,24 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
 <script>
 /* ── Instant welcome screen check — runs before page renders ── */
 (function() {
-    var isReturn = false;
+    var skip = false;
     try {
-        if (sessionStorage.getItem('hub_return') === 'true') isReturn = true;
-        if (localStorage.getItem('stockai_remember') === 'yes') isReturn = true;
+        /* Only skip if explicitly returning from an app */
+        if (sessionStorage.getItem('hub_return') === 'true') {
+            skip = true;
+        }
         var params = new URLSearchParams(window.location.search);
         if (params.get('return') === 'true') {
-            isReturn = true;
+            skip = true;
             sessionStorage.setItem('hub_return', 'true');
-            window.history.replaceState({}, '', window.location.pathname);
+            window.history.replaceState({}, '',
+                window.location.pathname);
         }
     } catch(e) {}
-    if (isReturn) {
-        document.write('<style>#welcome-screen{display:none!important}</style>');
+    if (skip) {
+        document.write(
+            '<style>#welcome-screen{display:none!important}</style>'
+        );
     }
 })();
 </script>
@@ -1829,17 +1834,17 @@ console.log('✅ Welcome + Auth screen functions loaded');
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-    var welcomeEl  = document.getElementById('welcome-screen');
-    var isReturn   = sessionStorage.getItem('hub_return') === 'true';
-    var remembered = localStorage.getItem('stockai_remember');
+    var welcomeEl = document.getElementById('welcome-screen');
 
-    /* Check URL parameter */
-    var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('return') === 'true') {
-        isReturn = true;
-        sessionStorage.setItem('hub_return', 'true');
-        window.history.replaceState({}, '', window.location.pathname);
-    }
+    /* If returning from app — welcome already hidden by
+       inline script, just process auth */
+    var isReturn = sessionStorage.getItem('hub_return') === 'true';
+    if (isReturn) {
+        sessionStorage.removeItem('hub_return');
+        if (welcomeEl) {
+            welcomeEl.style.display = 'none';
+            welcomeEl.classList.add('hidden');
+        }
 
     /* ── DECIDE: Show or skip welcome screen ── */
     if (isReturn || remembered === 'yes') {
