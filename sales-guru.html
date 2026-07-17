@@ -961,7 +961,10 @@ var SG = {
     currentPage:  'dashboard',
     syncListener: null,
     clockInterval:null,
-    dispatchEmail:null
+    dispatchEmail:null,
+    currentShift: null,
+    kmRecords:    [],
+    repProfile:   null
 };
 
 /* ── Manager roles ── */
@@ -5279,58 +5282,55 @@ console.log('✅ Sales-Guru Part 5 — Leads + Manager Dashboard loaded');
 </script>
 <script>
 /* ============================================================
-   REP PROFILE SETUP
-   First-time setup form + profile management
+   REP PROFILE + SHIFT + KM TRACKING
 ============================================================ */
 
-/* ── Check if rep needs setup on first entry ── */
-function sgCheckRepSetup() {
-    if (!SG.user || !SG.accountId || !SG.entityId) return;
+/* ── Check profile on data load — not on timer ── */
+var _sgOriginalApplyData = sgApplyData;
+sgApplyData = function(data) {
+    _sgOriginalApplyData(data);
 
-    var uid = SG.user.uid || '';
+    var uid = SG.user ? SG.user.uid : '';
+    var profiles = (data.salesProfiles || {})[SG.entityId] || {};
+    SG.repProfile = profiles[uid] || null;
+    SG._dataLoaded = true;
 
-    /* Wait for data to load first */
-    if (!SG.accountData || !SG._dataLoaded) {
-        /* Data not loaded yet — wait and retry */
-        setTimeout(sgCheckRepSetup, 500);
-        return;
+    /* Load shift data */
+    var shifts = (data.salesShifts || {})[SG.entityId] || {};
+    SG.currentShift = shifts[uid] || null;
+
+    /* Load KM data */
+    SG.kmRecords = (data.salesKmRecords || {})[SG.entityId] || [];
+
+    /* Check if profile setup needed — only redirect if
+       we are currently on dashboard, not already on setup */
+    if (SG.currentPage !== 'setup' &&
+        (!SG.repProfile || !SG.repProfile.setupComplete)) {
+        SG.currentPage = 'setup';
+        var content = document.getElementById('sg-content');
+        if (content) sgShowSetupForm(SG.repProfile || {});
     }
+};
 
-    var profiles = (SG.accountData.salesProfiles || {})[SG.entityId] || {};
-    var profile  = profiles[uid];
-
-    if (!profile || !profile.setupComplete) {
-        sgShowSetupForm(profile || {});
-        return false;
-    }
-
-    /* Store profile for use throughout app */
-    SG.repProfile = profile;
-    return true;
-}
-
-/* ── Override sgEnterApp to check setup ── */
+/* ── Override sgEnterApp — remove the old setTimeout check ── */
 var _sgOriginalEnterApp = sgEnterApp;
 sgEnterApp = function() {
     _sgOriginalEnterApp();
-
-    /* After original enter runs, check if setup needed */
-    setTimeout(function() {
-        sgCheckRepSetup();
-    }, 500);
+    /* Profile check now happens inside sgApplyData
+       when data loads — no setTimeout needed */
 };
 
 /* ============================================================
-   SETUP FORM — First Time Entry
+   SETUP FORM
 ============================================================ */
 function sgShowSetupForm(existing) {
+    SG.currentPage = 'setup';
     var content = document.getElementById('sg-content');
     if (!content) return;
 
     content.innerHTML =
         '<div style="max-width:520px;margin:0 auto;padding:20px 0">' +
 
-        /* Header */
         '<div style="text-align:center;margin-bottom:24px">' +
         '<div style="width:70px;height:70px;border-radius:50%;' +
         'background:linear-gradient(135deg,var(--accent),var(--accent-dark));' +
@@ -5340,13 +5340,11 @@ function sgShowSetupForm(existing) {
         '<h2 style="font-size:1.2rem;font-weight:800;color:var(--text);' +
         'margin-bottom:4px">Set Up Your Profile</h2>' +
         '<p style="font-size:.82rem;color:var(--text-light)">' +
-        'Complete your profile to start using Sales-Guru. ' +
-        'This information is used on your pricelists and emails.' +
-        '</p></div>' +
+        'Complete your profile to start using Sales-Guru.</p></div>' +
 
         '<div class="sg-card" style="border-top:3px solid var(--accent)">' +
 
-        /* ── Personal Details ── */
+        /* Personal Details */
         '<div style="font-size:.88rem;font-weight:700;color:var(--accent);' +
         'margin-bottom:14px;padding-bottom:8px;' +
         'border-bottom:2px solid var(--accent)">' +
@@ -5356,35 +5354,34 @@ function sgShowSetupForm(existing) {
         '<div class="sg-form-group">' +
         '<label>Full Name *</label>' +
         '<input type="text" class="sg-form-input" id="sp-name" ' +
-        'value="' + sgEsc(existing.name || (SG.user ? SG.user.name : '')) + '" ' +
+        'value="' + sgEsc(existing.name ||
+            (SG.user ? SG.user.name : '')) + '" ' +
         'placeholder="e.g. John Smith"></div>' +
         '<div class="sg-form-group">' +
         '<label>Contact Number *</label>' +
         '<input type="tel" class="sg-form-input" id="sp-phone" ' +
         'value="' + sgEsc(existing.phone || '') + '" ' +
-        'placeholder="e.g. 082 555 0000"></div>' +
-        '</div>' +
+        'placeholder="e.g. 082 555 0000"></div></div>' +
 
         '<div class="sg-form-group">' +
         '<label>Job Title</label>' +
         '<input type="text" class="sg-form-input" id="sp-title" ' +
-        'value="' + sgEsc(existing.title || (SG.user ? SG.user.role : '')) + '" ' +
+        'value="' + sgEsc(existing.title ||
+            (SG.user ? SG.user.role : '')) + '" ' +
         'placeholder="e.g. Sales Representative"></div>' +
 
-        /* ── Logo Upload ── */
+        /* Logo Upload */
         '<div style="font-size:.88rem;font-weight:700;color:var(--accent);' +
         'margin:20px 0 14px;padding-bottom:8px;' +
         'border-bottom:2px solid var(--accent)">' +
-        '<i class="fas fa-image"></i> Company / Personal Logo</div>' +
+        '<i class="fas fa-image"></i> Company Logo</div>' +
 
         '<div style="background:rgba(124,58,237,.06);' +
         'border-left:3px solid var(--accent);padding:10px 14px;' +
         'border-radius:var(--rs);margin-bottom:14px;' +
         'font-size:.78rem;color:var(--text-mid)">' +
-        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
-        'This logo appears on your pricelists and email brochures. ' +
-        'Recommended size: 200x60px. PNG or JPG.' +
-        '</div>' +
+        'This logo appears on your pricelists and emails. ' +
+        'Recommended: 200x60px PNG or JPG.</div>' +
 
         '<div style="display:flex;align-items:center;gap:14px;' +
         'margin-bottom:14px">' +
@@ -5405,8 +5402,7 @@ function sgShowSetupForm(existing) {
         'class="btn btn-outline btn-sm" style="margin-bottom:6px">' +
         '<i class="fas fa-upload"></i> Upload Logo</button>' +
         '<div style="font-size:.72rem;color:var(--text-muted)">' +
-        'PNG, JPG — max 500KB</div>' +
-        '</div></div>' +
+        'Max 500KB</div></div></div>' +
 
         '<div class="sg-form-group">' +
         '<label>Or paste logo URL</label>' +
@@ -5415,7 +5411,7 @@ function sgShowSetupForm(existing) {
         'placeholder="https://example.com/logo.png" ' +
         'oninput="sgPreviewLogoUrl(this.value)"></div>' +
 
-        /* ── Email Configuration ── */
+        /* Email Configuration */
         '<div style="font-size:.88rem;font-weight:700;color:var(--accent);' +
         'margin:20px 0 14px;padding-bottom:8px;' +
         'border-bottom:2px solid var(--accent)">' +
@@ -5425,13 +5421,9 @@ function sgShowSetupForm(existing) {
         'border-left:3px solid var(--accent);padding:10px 14px;' +
         'border-radius:var(--rs);margin-bottom:14px;' +
         'font-size:.78rem;color:var(--text-mid)">' +
-        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
-        'Pricelists and brochures will be sent from your email address. ' +
-        'Enter your email SMTP details below. ' +
-        'Common providers: Gmail (smtp.gmail.com:587), ' +
-        'Outlook (smtp.office365.com:587), ' +
-        'Custom (ask your IT administrator).' +
-        '</div>' +
+        'Pricelists and brochures will be sent from your email. ' +
+        'Common SMTP: Gmail (smtp.gmail.com:587), ' +
+        'Outlook (smtp.office365.com:587).</div>' +
 
         '<div class="sg-form-group">' +
         '<label>Email Address *</label>' +
@@ -5445,24 +5437,22 @@ function sgShowSetupForm(existing) {
         '<label>SMTP Server *</label>' +
         '<input type="text" class="sg-form-input" id="sp-smtp-host" ' +
         'value="' + sgEsc(existing.smtpHost || '') + '" ' +
-        'placeholder="e.g. smtp.gmail.com"></div>' +
+        'placeholder="smtp.gmail.com"></div>' +
         '<div class="sg-form-group">' +
         '<label>SMTP Port *</label>' +
         '<input type="number" class="sg-form-input" id="sp-smtp-port" ' +
         'value="' + (existing.smtpPort || 587) + '" ' +
-        'placeholder="587"></div>' +
-        '</div>' +
+        'placeholder="587"></div></div>' +
 
         '<div class="sg-form-group">' +
         '<label>SMTP Password / App Password *</label>' +
         '<input type="password" class="sg-form-input" id="sp-smtp-pass" ' +
         'value="' + (existing.smtpPass ? '••••••••' : '') + '" ' +
-        'placeholder="Enter your email password or app password">' +
+        'placeholder="Enter your email password">' +
         '<div class="sg-form-hint">' +
-        'For Gmail: use an App Password — ' +
+        'For Gmail use an App Password — ' +
         '<a href="https://myaccount.google.com/apppasswords" ' +
-        'target="_blank" style="color:var(--accent)">Generate here</a>. ' +
-        'Your password is stored securely.' +
+        'target="_blank" style="color:var(--accent)">Generate here</a>' +
         '</div></div>' +
 
         '<div class="sg-form-group">' +
@@ -5476,66 +5466,47 @@ function sgShowSetupForm(existing) {
         '>SSL</option>' +
         '<option value="none"' +
         (existing.smtpSecure === 'none' ? ' selected' : '') +
-        '>None</option>' +
-        '</select></div>' +
+        '>None</option></select></div>' +
 
-        '<button onclick="sgTestEmail()" ' +
-        'class="btn btn-outline btn-sm" style="margin-bottom:14px">' +
-        '<i class="fas fa-paper-plane"></i> Send Test Email to Myself</button>' +
-
-        /* ── WhatsApp Number ── */
+        /* WhatsApp */
         '<div style="font-size:.88rem;font-weight:700;color:var(--accent);' +
         'margin:20px 0 14px;padding-bottom:8px;' +
         'border-bottom:2px solid var(--accent)">' +
         '<i class="fab fa-whatsapp"></i> WhatsApp Number</div>' +
 
         '<div class="sg-form-group">' +
-        '<label>WhatsApp Number * ' +
-        '<span style="font-size:.72rem;color:var(--text-muted);' +
-        'font-weight:400">(used for sending messages)</span></label>' +
+        '<label>WhatsApp Number *</label>' +
         '<div style="display:flex;gap:8px;align-items:center">' +
         '<div style="padding:11px 14px;background:var(--bg);' +
         'border:1.5px solid var(--border);border-radius:var(--rs);' +
-        'font-size:.88rem;color:var(--text-muted);white-space:nowrap">+27</div>' +
+        'font-size:.88rem;color:var(--text-muted)">+27</div>' +
         '<input type="tel" class="sg-form-input" id="sp-whatsapp" ' +
         'value="' + sgEsc(existing.whatsapp || '') + '" ' +
-        'placeholder="82 555 0000" ' +
-        'style="margin-bottom:0">' +
+        'placeholder="82 555 0000" style="margin-bottom:0">' +
         '</div>' +
-        '<div class="sg-form-hint">' +
-        'Enter without leading 0 — this is the number WhatsApp ' +
-        'messages will be sent from.</div></div>' +
+        '<div class="sg-form-hint">Enter without leading 0</div></div>' +
 
-        /* ── Save Button ── */
         '<button onclick="sgSaveProfile()" ' +
-        'class="btn btn-accent btn-block" style="margin-top:20px;padding:16px">' +
-        '<i class="fas fa-save"></i> Save Profile &amp; Start Using Sales-Guru' +
-        '</button>' +
+        'class="btn btn-accent btn-block" ' +
+        'style="margin-top:20px;padding:16px">' +
+        '<i class="fas fa-save"></i> Save Profile &amp; Start</button>' +
 
-        '</div>' + /* end card */
-        '</div>';  /* end max-width wrapper */
+        '</div></div>';
 }
 
-/* ── Logo Preview ── */
+/* ── Logo helpers ── */
 function sgPreviewLogo(input) {
     var file = input.files[0];
     if (!file) return;
-
-    /* Check size — max 500KB */
     if (file.size > 500 * 1024) {
-        sgToast('error', 'Logo file too large. Maximum 500KB.');
-        return;
+        sgToast('error', 'Logo too large. Max 500KB.'); return;
     }
-
     var reader = new FileReader();
     reader.onload = function(e) {
         var preview = document.getElementById('sp-logo-preview');
-        if (preview) {
-            preview.innerHTML =
-                '<img src="' + e.target.result + '" ' +
-                'style="max-width:100%;max-height:100%;object-fit:contain">';
-        }
-        /* Store base64 in hidden field */
+        if (preview) preview.innerHTML =
+            '<img src="' + e.target.result + '" ' +
+            'style="max-width:100%;max-height:100%;object-fit:contain">';
         var urlInput = document.getElementById('sp-logo-url');
         if (urlInput) urlInput.value = e.target.result;
     };
@@ -5545,70 +5516,10 @@ function sgPreviewLogo(input) {
 function sgPreviewLogoUrl(url) {
     if (!url) return;
     var preview = document.getElementById('sp-logo-preview');
-    if (preview) {
-        preview.innerHTML =
-            '<img src="' + sgEsc(url) + '" ' +
-            'style="max-width:100%;max-height:100%;object-fit:contain" ' +
-            'onerror="this.parentElement.innerHTML=\'' +
-            '<i class=&quot;fas fa-exclamation-triangle&quot; ' +
-            'style=&quot;color:var(--danger)&quot;></i>\'">';
-    }
-}
-
-/* ── Test Email ── */
-function sgTestEmail() {
-    var email    = (document.getElementById('sp-email')
-        ? document.getElementById('sp-email').value : '').trim();
-    var smtpHost = (document.getElementById('sp-smtp-host')
-        ? document.getElementById('sp-smtp-host').value : '').trim();
-    var smtpPort = document.getElementById('sp-smtp-port')
-        ? document.getElementById('sp-smtp-port').value : '587';
-    var smtpPass = (document.getElementById('sp-smtp-pass')
-        ? document.getElementById('sp-smtp-pass').value : '').trim();
-    var name     = (document.getElementById('sp-name')
-        ? document.getElementById('sp-name').value : '').trim();
-
-    if (!email || !smtpHost || !smtpPass) {
-        sgToast('error', 'Fill in email, SMTP server and password first');
-        return;
-    }
-
-    sgToast('info', 'Sending test email to ' + email + '...');
-
-    fetch(SG_WORKER_URL + '/smtp-test', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            smtpHost:   smtpHost,
-            smtpPort:   parseInt(smtpPort) || 587,
-            smtpUser:   email,
-            smtpPass:   smtpPass,
-            smtpSecure: document.getElementById('sp-smtp-secure')
-                ? document.getElementById('sp-smtp-secure').value : 'tls',
-            fromName:   name || 'Sales-Guru Test',
-            fromEmail:  email,
-            toEmail:    email,
-            subject:    'Sales-Guru — Email Test',
-            html:       '<div style="font-family:Arial;padding:24px;' +
-                        'text-align:center">' +
-                        '<h2 style="color:#7c3aed">Email Test Successful!</h2>' +
-                        '<p>Your Sales-Guru email setup is working correctly.</p>' +
-                        '<p style="color:#6b7280;font-size:12px;margin-top:20px">' +
-                        'Powered by StockAI-Pro</p></div>'
-        })
-    })
-    .then(function(r) {
-        if (!r.ok) throw new Error('Test failed');
-        return r.json();
-    })
-    .then(function() {
-        sgToast('success', '✅ Test email sent! Check your inbox.');
-    })
-    .catch(function(err) {
-        sgToast('error',
-            'Email test failed. Check your SMTP settings. ' +
-            'For Gmail, make sure you use an App Password.');
-    });
+    if (preview) preview.innerHTML =
+        '<img src="' + sgEsc(url) + '" ' +
+        'style="max-width:100%;max-height:100%;object-fit:contain" ' +
+        'onerror="this.style.display=\'none\'">';
 }
 
 /* ── Save Profile ── */
@@ -5634,67 +5545,815 @@ function sgSaveProfile() {
     var whatsapp = (document.getElementById('sp-whatsapp')
         ? document.getElementById('sp-whatsapp').value : '').trim();
 
-    /* Validation */
     if (!name)     { sgToast('error', 'Enter your full name');      return; }
     if (!phone)    { sgToast('error', 'Enter your contact number'); return; }
     if (!email)    { sgToast('error', 'Enter your email address');  return; }
     if (!smtpHost) { sgToast('error', 'Enter your SMTP server');    return; }
+    if (!whatsapp) { sgToast('error', 'Enter your WhatsApp number'); return; }
+
+    /* Handle existing password */
     if (!smtpPass || smtpPass === '••••••••') {
-        /* Keep existing password if not changed */
-        var existing = (SG.accountData
-            ? ((SG.accountData.salesProfiles || {})[SG.entityId] || {})
-                [SG.user ? SG.user.uid : ''] || {}
-            : {});
+        var existing = SG.repProfile || {};
         if (existing.smtpPass) {
             smtpPass = existing.smtpPass;
         } else {
-            sgToast('error', 'Enter your email password');
-            return;
+            sgToast('error', 'Enter your email password'); return;
         }
     }
-    if (!whatsapp) { sgToast('error', 'Enter your WhatsApp number'); return; }
 
-    /* Clean WhatsApp number */
     var cleanWA = whatsapp.replace(/[\s\-\(\)]/g, '');
     if (cleanWA.startsWith('0')) cleanWA = cleanWA.substring(1);
 
     var uid = SG.user ? SG.user.uid : '';
     var profile = {
-        name:          name,
-        phone:         phone,
-        title:         title,
-        email:         email,
-        smtpHost:      smtpHost,
-        smtpPort:      parseInt(smtpPort) || 587,
-        smtpPass:      smtpPass,
-        smtpSecure:    smtpSec,
-        logoUrl:       logoUrl,
-        whatsapp:      cleanWA,
-        whatsappFull:  '27' + cleanWA,
+        name: name, phone: phone, title: title,
+        email: email, smtpHost: smtpHost,
+        smtpPort: parseInt(smtpPort) || 587,
+        smtpPass: smtpPass, smtpSecure: smtpSec,
+        logoUrl: logoUrl, whatsapp: cleanWA,
+        whatsappFull: '27' + cleanWA,
         setupComplete: true,
-        updatedAt:     new Date().toISOString()
+        updatedAt: new Date().toISOString()
     };
 
     sgToast('info', 'Saving profile...');
-
     var update = {};
     update['salesProfiles.' + SG.entityId + '.' + uid] = profile;
 
     sgSave(update).then(function() {
         SG.repProfile = profile;
-        sgToast('success', '✅ Profile saved! Welcome to Sales-Guru.');
+        sgToast('success', '✅ Profile saved!');
         sgNav(SG.isManager ? 'mgr-dashboard' : 'dashboard');
     });
 }
 
-/* ── Edit Profile (accessible from dashboard) ── */
 function sgEditProfile() {
-    var existing = SG.repProfile || {};
-    sgShowSetupForm(existing);
+    sgShowSetupForm(SG.repProfile || {});
 }
 
 /* ============================================================
-   PRICELIST UPLOAD & MANAGEMENT
+   SHIFT MANAGEMENT — Clock In / Clock Out
+============================================================ */
+function sgStartShift() {
+    var uid = SG.user ? SG.user.uid : '';
+    var now = new Date().toISOString();
+
+    SG.currentShift = {
+        uid:       uid,
+        repName:   SG.user ? SG.user.name : '',
+        clockIn:   now,
+        clockOut:  null,
+        status:    'active',
+        date:      now.split('T')[0]
+    };
+
+    var update = {};
+    update['salesShifts.' + SG.entityId + '.' + uid] = SG.currentShift;
+    sgSave(update).then(function() {
+        sgToast('success', '✅ Shift started — clock running');
+        sgRenderCurrentPage();
+    });
+}
+
+function sgEndShift() {
+    if (!SG.currentShift || SG.currentShift.status !== 'active') {
+        sgToast('error', 'No active shift to end');
+        return;
+    }
+    if (!confirm('End your shift now?')) return;
+
+    var uid = SG.user ? SG.user.uid : '';
+    var now = new Date().toISOString();
+
+    SG.currentShift.clockOut = now;
+    SG.currentShift.status   = 'completed';
+
+    /* Calculate hours worked */
+    var clockIn  = new Date(SG.currentShift.clockIn);
+    var clockOut = new Date(now);
+    var diffMs   = clockOut - clockIn;
+    var hours    = Math.floor(diffMs / 3600000);
+    var mins     = Math.floor((diffMs % 3600000) / 60000);
+    SG.currentShift.hoursWorked =
+        parseFloat((diffMs / 3600000).toFixed(2));
+    SG.currentShift.hoursDisplay =
+        ('0' + hours).slice(-2) + ':' + ('0' + mins).slice(-2);
+
+    /* Save completed shift to history */
+    var update = {};
+    update['salesShifts.' + SG.entityId + '.' + uid] = null;
+    update['salesShiftHistory.' + SG.entityId] =
+        firebase.firestore.FieldValue.arrayUnion(SG.currentShift);
+
+    sgSave(update).then(function() {
+        sgToast('success',
+            '✅ Shift ended — ' + SG.currentShift.hoursDisplay +
+            ' hours worked');
+        SG.currentShift = null;
+        sgRenderCurrentPage();
+    });
+}
+
+function sgGetShiftTime() {
+    if (!SG.currentShift || !SG.currentShift.clockIn ||
+        SG.currentShift.status !== 'active') {
+        return 'Not clocked in';
+    }
+    var start = new Date(SG.currentShift.clockIn);
+    var diff  = Date.now() - start.getTime();
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    return ('0'+h).slice(-2) + ':' +
+           ('0'+m).slice(-2) + ':' +
+           ('0'+s).slice(-2);
+}
+
+/* ============================================================
+   KM TRACKING
+============================================================ */
+function sgShowKmEntry() {
+    var today = new Date().toISOString().split('T')[0];
+    var uid   = SG.user ? SG.user.uid : '';
+
+    /* Check if already logged today */
+    var todayRecord = SG.kmRecords.find(function(r) {
+        return r.date === today && r.repId === uid;
+    });
+
+    sgShowModal(
+        '<i class="fas fa-road" style="color:var(--accent)"></i> ' +
+        'Daily KM Log',
+
+        '<div style="background:rgba(124,58,237,.06);' +
+        'border-left:3px solid var(--accent);padding:12px;' +
+        'border-radius:var(--rs);margin-bottom:16px;' +
+        'font-size:.82rem;color:var(--text-mid)">' +
+        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
+        'Enter your start and end odometer readings. ' +
+        'The system will calculate kilometres travelled.' +
+        '</div>' +
+
+        '<div class="sg-form-group">' +
+        '<label>Date</label>' +
+        '<input type="date" class="sg-form-input" id="km-date" ' +
+        'value="' + today + '"></div>' +
+
+        '<div class="sg-form-row">' +
+        '<div class="sg-form-group">' +
+        '<label>Start KM (Morning) *</label>' +
+        '<input type="number" class="sg-form-input" id="km-start" ' +
+        'value="' + (todayRecord ? todayRecord.startKm : '') + '" ' +
+        'placeholder="e.g. 45230" step="1" min="0" ' +
+        'oninput="sgCalcKm()"></div>' +
+        '<div class="sg-form-group">' +
+        '<label>End KM (End of Day)</label>' +
+        '<input type="number" class="sg-form-input" id="km-end" ' +
+        'value="' + (todayRecord && todayRecord.endKm
+            ? todayRecord.endKm : '') + '" ' +
+        'placeholder="e.g. 45380" step="1" min="0" ' +
+        'oninput="sgCalcKm()"></div></div>' +
+
+        '<div id="km-calc" style="background:var(--bg-dark);' +
+        'border-radius:var(--rs);padding:16px;text-align:center;' +
+        'margin-bottom:14px">' +
+        '<div style="font-size:.72rem;color:var(--text-muted);' +
+        'text-transform:uppercase;font-weight:600;margin-bottom:4px">' +
+        'KM Travelled</div>' +
+        '<div id="km-total" style="font-size:1.5rem;font-weight:900;' +
+        'color:var(--accent)">—</div></div>',
+
+        '<button onclick="sgCloseModal()" ' +
+        'style="flex:1;padding:11px;background:var(--bg);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);' +
+        'cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Cancel</button>' +
+        '<button onclick="sgSaveKm()" ' +
+        'class="btn btn-accent" style="flex:2;padding:11px;' +
+        'justify-content:center">' +
+        '<i class="fas fa-save"></i> Save KM</button>'
+    );
+
+    /* Calculate if values exist */
+    setTimeout(sgCalcKm, 200);
+}
+
+function sgCalcKm() {
+    var startEl = document.getElementById('km-start');
+    var endEl   = document.getElementById('km-end');
+    var totalEl = document.getElementById('km-total');
+    if (!startEl || !endEl || !totalEl) return;
+
+    var start = parseFloat(startEl.value) || 0;
+    var end   = parseFloat(endEl.value)   || 0;
+
+    if (start > 0 && end > 0 && end >= start) {
+        totalEl.textContent = (end - start) + ' km';
+        totalEl.style.color = 'var(--success)';
+    } else if (start > 0 && end === 0) {
+        totalEl.textContent = 'Enter end KM';
+        totalEl.style.color = 'var(--text-muted)';
+    } else {
+        totalEl.textContent = '—';
+        totalEl.style.color = 'var(--accent)';
+    }
+}
+
+function sgSaveKm() {
+    var date    = document.getElementById('km-date')
+        ? document.getElementById('km-date').value : '';
+    var startKm = parseFloat(document.getElementById('km-start')
+        ? document.getElementById('km-start').value : 0) || 0;
+    var endKm   = parseFloat(document.getElementById('km-end')
+        ? document.getElementById('km-end').value : 0) || 0;
+
+    if (!date)     { sgToast('error', 'Select a date');       return; }
+    if (startKm <= 0) { sgToast('error', 'Enter start KM'); return; }
+
+    var uid = SG.user ? SG.user.uid : '';
+    var totalKm = endKm > 0 && endKm >= startKm
+        ? endKm - startKm : 0;
+
+    var record = {
+        repId:    uid,
+        repName:  SG.user ? SG.user.name : '',
+        date:     date,
+        startKm:  startKm,
+        endKm:    endKm || null,
+        totalKm:  totalKm,
+        savedAt:  new Date().toISOString()
+    };
+
+    /* Update or add record */
+    var records = SG.kmRecords.slice();
+    var existingIdx = records.findIndex(function(r) {
+        return r.date === date && r.repId === uid;
+    });
+    if (existingIdx > -1) {
+        records[existingIdx] = record;
+    } else {
+        records.push(record);
+    }
+
+    var update = {};
+    update['salesKmRecords.' + SG.entityId] = records;
+
+    sgSave(update).then(function() {
+        SG.kmRecords = records;
+        sgCloseModal();
+        sgToast('success',
+            '✅ KM saved' +
+            (totalKm > 0 ? ' — ' + totalKm + ' km travelled' : ''));
+    });
+}
+
+/* ============================================================
+   KM REPORT — Print for Rep or Manager
+============================================================ */
+function sgShowKmReport(repUid, repName) {
+    var uid  = repUid || (SG.user ? SG.user.uid : '');
+    var name = repName || (SG.user ? SG.user.name : 'Rep');
+
+    /* Default date range — current month */
+    var now      = new Date();
+    var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    var startDate = firstDay.toISOString().split('T')[0];
+    var endDate   = now.toISOString().split('T')[0];
+
+    sgShowModal(
+        '<i class="fas fa-road" style="color:var(--accent)"></i> ' +
+        'KM Report — ' + sgEsc(name),
+
+        '<div class="sg-form-row" style="margin-bottom:14px">' +
+        '<div class="sg-form-group">' +
+        '<label>From Date</label>' +
+        '<input type="date" class="sg-form-input" id="kmr-start" ' +
+        'value="' + startDate + '" ' +
+        'onchange="sgRefreshKmReport(\'' + uid + '\',\'' +
+        sgEsc(name) + '\')"></div>' +
+        '<div class="sg-form-group">' +
+        '<label>To Date</label>' +
+        '<input type="date" class="sg-form-input" id="kmr-end" ' +
+        'value="' + endDate + '" ' +
+        'onchange="sgRefreshKmReport(\'' + uid + '\',\'' +
+        sgEsc(name) + '\')"></div></div>' +
+
+        '<div id="kmr-results"></div>',
+
+        '<button onclick="sgCloseModal()" ' +
+        'style="flex:1;padding:10px;background:var(--bg);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);' +
+        'cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Close</button>' +
+        '<button onclick="sgPrintKmReport(\'' + uid + '\',\'' +
+        sgEsc(name) + '\')" ' +
+        'class="btn btn-outline" style="padding:10px 16px">' +
+        '<i class="fas fa-print"></i> Print</button>'
+    );
+
+    setTimeout(function() {
+        sgRefreshKmReport(uid, name);
+    }, 200);
+}
+
+function sgRefreshKmReport(repUid, repName) {
+    var startDate = document.getElementById('kmr-start')
+        ? document.getElementById('kmr-start').value : '';
+    var endDate   = document.getElementById('kmr-end')
+        ? document.getElementById('kmr-end').value : '';
+    var el        = document.getElementById('kmr-results');
+    if (!el) return;
+
+    var records = SG.kmRecords.filter(function(r) {
+        return r.repId === repUid &&
+               r.date >= startDate &&
+               r.date <= endDate;
+    }).sort(function(a, b) {
+        return a.date.localeCompare(b.date);
+    });
+
+    var totalKm = records.reduce(function(s, r) {
+        return s + (r.totalKm || 0);
+    }, 0);
+
+    if (records.length === 0) {
+        el.innerHTML =
+            '<div style="text-align:center;padding:20px;' +
+            'color:var(--text-muted);font-size:.82rem">' +
+            'No KM records for this period</div>';
+        return;
+    }
+
+    el.innerHTML =
+        '<div style="background:var(--bg-dark);border-radius:var(--rs);' +
+        'padding:14px;margin-bottom:14px;text-align:center">' +
+        '<div style="font-size:.72rem;color:var(--text-muted);' +
+        'text-transform:uppercase;font-weight:600;margin-bottom:4px">' +
+        'Total KM Travelled</div>' +
+        '<div style="font-size:1.5rem;font-weight:900;color:var(--accent)">' +
+        totalKm + ' km</div>' +
+        '<div style="font-size:.72rem;color:var(--text-muted)">' +
+        records.length + ' day(s)</div></div>' +
+
+        records.map(function(r) {
+            var day = new Date(r.date + 'T00:00:00').toLocaleDateString(
+                'en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
+            return '<div style="display:flex;align-items:center;gap:12px;' +
+                'padding:10px 0;border-bottom:1px solid var(--border);' +
+                'font-size:.82rem">' +
+                '<div style="min-width:90px;color:var(--text-light);' +
+                'font-weight:600">' + day + '</div>' +
+                '<div style="flex:1;color:var(--text-muted)">' +
+                'Start: ' + (r.startKm || '—') +
+                ' | End: ' + (r.endKm || '—') + '</div>' +
+                '<div style="font-weight:700;color:' +
+                (r.totalKm > 0 ? 'var(--accent)' : 'var(--text-muted)') + '">' +
+                (r.totalKm > 0 ? r.totalKm + ' km' : '—') +
+                '</div></div>';
+        }).join('');
+}
+
+function sgPrintKmReport(repUid, repName) {
+    var startDate = document.getElementById('kmr-start')
+        ? document.getElementById('kmr-start').value : '';
+    var endDate   = document.getElementById('kmr-end')
+        ? document.getElementById('kmr-end').value : '';
+
+    var records = SG.kmRecords.filter(function(r) {
+        return r.repId === repUid &&
+               r.date >= startDate &&
+               r.date <= endDate;
+    }).sort(function(a, b) {
+        return a.date.localeCompare(b.date);
+    });
+
+    var totalKm = records.reduce(function(s, r) {
+        return s + (r.totalKm || 0);
+    }, 0);
+
+    var rows = records.map(function(r) {
+        var day = new Date(r.date + 'T00:00:00').toLocaleDateString(
+            'en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
+        return '<tr>' +
+            '<td style="padding:8px 10px;border:1px solid #1a5a6e;' +
+            'color:#a8d8e8">' + day + '</td>' +
+            '<td style="padding:8px 10px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' +
+            (r.startKm || '—') + '</td>' +
+            '<td style="padding:8px 10px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' +
+            (r.endKm || '—') + '</td>' +
+            '<td style="padding:8px 10px;border:1px solid #1a5a6e;' +
+            'text-align:center;font-weight:700;color:#4dbdd5">' +
+            (r.totalKm > 0 ? r.totalKm : '—') + '</td></tr>';
+    }).join('');
+
+    var w = window.open('', '_blank');
+    if (!w) { sgToast('error', 'Allow popups to print'); return; }
+
+    w.document.write(
+        '<!DOCTYPE html><html><head><title>KM Report</title>' +
+        '<style>' +
+        'body{font-family:Poppins,Arial;padding:24px;' +
+        'background:#0d3d4f;color:#e0f4f8}' +
+        'h1{font-size:16px;color:#4dbdd5;margin-bottom:4px}' +
+        'p{font-size:11px;color:#7bb8c8;margin-bottom:16px}' +
+        'table{width:100%;border-collapse:collapse}' +
+        'th{background:#0d4a5c;color:#4dbdd5;padding:8px 10px;' +
+        'font-size:11px;text-align:left;text-transform:uppercase;' +
+        'border:1px solid #1a5a6e}' +
+        '.total{background:#0f4d62;padding:16px;border-radius:8px;' +
+        'text-align:center;margin-bottom:16px}' +
+        '.total h2{font-size:24px;color:#4dbdd5;margin:0}' +
+        '.total p{font-size:12px;color:#7bb8c8;margin:4px 0 0}' +
+        '.pb{padding:10px 20px;background:#1a8ba8;color:#fff;border:none;' +
+        'border-radius:6px;cursor:pointer;font-size:12px;margin-bottom:16px}' +
+        '.sig{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px}' +
+        '.sig-line{border-bottom:1px solid #1a5a6e;height:40px;margin-bottom:6px}' +
+        '.sig-label{font-size:10px;color:#7bb8c8;text-align:center}' +
+        '@media print{.pb{display:none}body{background:#0d3d4f!important;' +
+        '-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}' +
+        '</style></head><body>' +
+        '<button class="pb" onclick="window.print()">🖨️ Print</button>' +
+        '<h1>KM Travel Report — ' + sgEsc(repName) + '</h1>' +
+        '<p>' + sgEsc(SG.entityName || '') +
+        ' | ' + startDate + ' to ' + endDate + '</p>' +
+        '<div class="total">' +
+        '<h2>' + totalKm + ' km</h2>' +
+        '<p>Total KM Travelled | ' + records.length + ' days</p></div>' +
+        '<table><thead><tr>' +
+        '<th>Date</th><th>Start KM</th><th>End KM</th><th>KM Travelled</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="sig">' +
+        '<div><div class="sig-line"></div>' +
+        '<div class="sig-label">' + sgEsc(repName) +
+        ' — Rep Signature</div></div>' +
+        '<div><div class="sig-line"></div>' +
+        '<div class="sig-label">Manager Signature</div></div></div>' +
+        '<div style="margin-top:20px;font-size:10px;color:#4a8a9a;' +
+        'text-align:center">Generated by Sales-Guru — StockAI-Pro</div>' +
+        '</body></html>');
+    w.document.close();
+    setTimeout(function() { w.print(); }, 500);
+}
+
+/* ============================================================
+   TIME & TRAVEL REPORT — Manager Print
+   Combined shift hours + KM for a rep
+============================================================ */
+function sgShowTimeAndTravel(repUid, repName) {
+    var now       = new Date();
+    var firstDay  = new Date(now.getFullYear(), now.getMonth(), 1);
+    var startDate = firstDay.toISOString().split('T')[0];
+    var endDate   = now.toISOString().split('T')[0];
+
+    sgShowModal(
+        '<i class="fas fa-clipboard-list" ' +
+        'style="color:var(--accent)"></i> ' +
+        'Time & Travel — ' + sgEsc(repName),
+
+        '<div class="sg-form-row" style="margin-bottom:14px">' +
+        '<div class="sg-form-group">' +
+        '<label>From Date</label>' +
+        '<input type="date" class="sg-form-input" id="ttr-start" ' +
+        'value="' + startDate + '"></div>' +
+        '<div class="sg-form-group">' +
+        '<label>To Date</label>' +
+        '<input type="date" class="sg-form-input" id="ttr-end" ' +
+        'value="' + endDate + '"></div></div>',
+
+        '<button onclick="sgCloseModal()" ' +
+        'style="flex:1;padding:10px;background:var(--bg);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);' +
+        'cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Close</button>' +
+        '<button onclick="sgPrintTimeAndTravel(\'' + repUid + '\',\'' +
+        sgEsc(repName) + '\')" ' +
+        'class="btn btn-accent" style="padding:10px 16px">' +
+        '<i class="fas fa-print"></i> Print Report</button>'
+    );
+}
+
+function sgPrintTimeAndTravel(repUid, repName) {
+    var startDate = document.getElementById('ttr-start')
+        ? document.getElementById('ttr-start').value : '';
+    var endDate   = document.getElementById('ttr-end')
+        ? document.getElementById('ttr-end').value : '';
+
+    /* Get shift history */
+    var shiftHistory = (SG.accountData
+        ? (SG.accountData.salesShiftHistory || {})[SG.entityId] || []
+        : []);
+    var shifts = shiftHistory.filter(function(s) {
+        return s.uid === repUid &&
+               s.date >= startDate &&
+               s.date <= endDate;
+    }).sort(function(a, b) {
+        return a.date.localeCompare(b.date);
+    });
+
+    /* Get KM records */
+    var kmRecords = SG.kmRecords.filter(function(r) {
+        return r.repId === repUid &&
+               r.date >= startDate &&
+               r.date <= endDate;
+    });
+
+    /* Merge by date */
+    var allDates = {};
+    shifts.forEach(function(s) {
+        if (!allDates[s.date]) allDates[s.date] = {};
+        allDates[s.date].clockIn    = s.clockIn;
+        allDates[s.date].clockOut   = s.clockOut;
+        allDates[s.date].hours      = s.hoursDisplay || '—';
+        allDates[s.date].hoursNum   = s.hoursWorked  || 0;
+    });
+    kmRecords.forEach(function(r) {
+        if (!allDates[r.date]) allDates[r.date] = {};
+        allDates[r.date].startKm = r.startKm;
+        allDates[r.date].endKm   = r.endKm;
+        allDates[r.date].totalKm = r.totalKm || 0;
+    });
+
+    var sortedDates = Object.keys(allDates).sort();
+    var totalHours  = sortedDates.reduce(function(s, d) {
+        return s + (allDates[d].hoursNum || 0);
+    }, 0);
+    var totalKm = sortedDates.reduce(function(s, d) {
+        return s + (allDates[d].totalKm || 0);
+    }, 0);
+
+    var rows = sortedDates.map(function(d) {
+        var data = allDates[d];
+        var day  = new Date(d + 'T00:00:00').toLocaleDateString(
+            'en-ZA', { weekday:'short', day:'numeric', month:'short' });
+        var clockIn  = data.clockIn
+            ? new Date(data.clockIn).toLocaleTimeString('en-ZA',
+                { hour:'2-digit', minute:'2-digit' }) : '—';
+        var clockOut = data.clockOut
+            ? new Date(data.clockOut).toLocaleTimeString('en-ZA',
+                { hour:'2-digit', minute:'2-digit' }) : '—';
+
+        return '<tr>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;color:#a8d8e8">' +
+            day + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' + clockIn + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' + clockOut + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;font-weight:700;color:#4dbdd5">' +
+            (data.hours || '—') + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' +
+            (data.startKm || '—') + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;color:#e0f4f8">' +
+            (data.endKm || '—') + '</td>' +
+            '<td style="padding:8px;border:1px solid #1a5a6e;' +
+            'text-align:center;font-weight:700;color:#4dbdd5">' +
+            (data.totalKm > 0 ? data.totalKm : '—') + '</td></tr>';
+    }).join('');
+
+    var w = window.open('', '_blank');
+    if (!w) { sgToast('error', 'Allow popups to print'); return; }
+
+    w.document.write(
+        '<!DOCTYPE html><html><head><title>Time & Travel Report</title>' +
+        '<style>' +
+        'body{font-family:Poppins,Arial;padding:24px;' +
+        'background:#0d3d4f;color:#e0f4f8}' +
+        'h1{font-size:16px;color:#4dbdd5;margin-bottom:4px}' +
+        'p{font-size:11px;color:#7bb8c8;margin-bottom:16px}' +
+        'table{width:100%;border-collapse:collapse;font-size:12px}' +
+        'th{background:#0d4a5c;color:#4dbdd5;padding:8px;' +
+        'font-size:10px;text-transform:uppercase;border:1px solid #1a5a6e}' +
+        '.totals{display:grid;grid-template-columns:1fr 1fr;gap:16px;' +
+        'margin-bottom:16px}' +
+        '.total-card{background:#0f4d62;border-radius:8px;padding:16px;' +
+        'text-align:center}' +
+        '.total-card h2{font-size:24px;color:#4dbdd5;margin:0}' +
+        '.total-card p{font-size:11px;color:#7bb8c8;margin:4px 0 0}' +
+        '.pb{padding:10px 20px;background:#1a8ba8;color:#fff;border:none;' +
+        'border-radius:6px;cursor:pointer;font-size:12px;margin-bottom:16px}' +
+        '.sig{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px}' +
+        '.sig-line{border-bottom:1px solid #1a5a6e;height:40px;margin-bottom:6px}' +
+        '.sig-label{font-size:10px;color:#7bb8c8;text-align:center}' +
+        '@media print{.pb{display:none}body{background:#0d3d4f!important;' +
+        '-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}' +
+        '</style></head><body>' +
+        '<button class="pb" onclick="window.print()">🖨️ Print</button>' +
+        '<h1>Time & Travel Report — ' + sgEsc(repName) + '</h1>' +
+        '<p>' + sgEsc(SG.entityName || '') +
+        ' | ' + startDate + ' to ' + endDate + '</p>' +
+        '<div class="totals">' +
+        '<div class="total-card">' +
+        '<h2>' + totalHours.toFixed(1) + 'h</h2>' +
+        '<p>Total Hours Worked</p></div>' +
+        '<div class="total-card">' +
+        '<h2>' + totalKm + ' km</h2>' +
+        '<p>Total KM Travelled</p></div></div>' +
+        '<table><thead><tr>' +
+        '<th>Date</th><th>Clock In</th><th>Clock Out</th>' +
+        '<th>Hours</th><th>Start KM</th><th>End KM</th><th>KM</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="sig">' +
+        '<div><div class="sig-line"></div>' +
+        '<div class="sig-label">' + sgEsc(repName) +
+        ' — Rep Signature</div></div>' +
+        '<div><div class="sig-line"></div>' +
+        '<div class="sig-label">Manager Signature</div></div></div>' +
+        '<div style="margin-top:20px;font-size:10px;color:#4a8a9a;' +
+        'text-align:center">Generated by Sales-Guru — StockAI-Pro</div>' +
+        '</body></html>');
+    w.document.close();
+    sgCloseModal();
+    setTimeout(function() { w.print(); }, 500);
+}
+
+/* ============================================================
+   DASHBOARD BUTTONS — Override to add shift + KM
+============================================================ */
+var _sgOrigRepDash = sgRepDashboard;
+sgRepDashboard = function() {
+    var html = _sgOrigRepDash();
+
+    var isOnShift = SG.currentShift &&
+                    SG.currentShift.status === 'active';
+
+    /* Build shift + KM buttons */
+    var shiftKmBlock =
+        '<div class="sg-card" style="border-left:4px solid ' +
+        (isOnShift ? 'var(--success)' : 'var(--text-muted)') + ';' +
+        'display:flex;align-items:center;gap:14px;' +
+        'justify-content:space-between;flex-wrap:wrap">' +
+
+        '<div>' +
+        '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' +
+        '<i class="fas fa-clock" style="color:' +
+        (isOnShift ? 'var(--success)' : 'var(--text-muted)') + '"></i> ' +
+        (isOnShift ? 'On Shift — ' + sgGetShiftTime() : 'Not Clocked In') +
+        '</div>' +
+        '<div style="font-size:.72rem;color:var(--text-light)">' +
+        (isOnShift
+            ? 'Started: ' + new Date(SG.currentShift.clockIn)
+                .toLocaleTimeString('en-ZA',
+                    { hour: '2-digit', minute: '2-digit' })
+            : 'Tap Start Shift to clock in') +
+        '</div></div>' +
+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        (isOnShift
+            ? '<button onclick="sgEndShift()" ' +
+              'class="btn btn-danger btn-sm">' +
+              '<i class="fas fa-stop"></i> End Shift</button>'
+            : '<button onclick="sgStartShift()" ' +
+              'class="btn btn-success btn-sm">' +
+              '<i class="fas fa-play"></i> Start Shift</button>') +
+
+        '<button onclick="sgShowKmEntry()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-road"></i> Log KM</button>' +
+
+        '<button onclick="sgShowKmReport()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-print"></i> KM Report</button>' +
+
+        '</div></div>';
+
+    /* Also add profile + pricelist buttons */
+    var profileBtns =
+        '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">' +
+        '<button onclick="sgEditProfile()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-user-cog"></i> My Profile</button>' +
+        '<button onclick="sgShowPricelistUpload()" ' +
+        'class="btn btn-sm" ' +
+        'style="background:linear-gradient(135deg,var(--accent),' +
+        'var(--accent-dark));color:#fff">' +
+        '<i class="fas fa-file-pdf"></i> My Pricelist</button>' +
+        '<button onclick="sgSendPricelistToNew(\'email\')" ' +
+        'class="btn btn-sm" ' +
+        'style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+        'color:#fff">' +
+        '<i class="fas fa-envelope"></i> Email Pricelist</button>' +
+        '<button onclick="sgSendPricelistToNew(\'whatsapp\')" ' +
+        'class="btn btn-sm" style="background:#25D366;color:#fff">' +
+        '<i class="fab fa-whatsapp"></i> WA Pricelist</button>' +
+        '</div>';
+
+    /* Insert after welcome card */
+    var insertPoint = '<div class="sg-progress-wrap">';
+    var insertIdx   = html.indexOf(insertPoint);
+    if (insertIdx > -1) {
+        html = html.substring(0, insertIdx) +
+               shiftKmBlock + profileBtns +
+               html.substring(insertIdx);
+    } else {
+        html = shiftKmBlock + profileBtns + html;
+    }
+
+    return html;
+};
+
+/* ── Manager Dashboard — Add Time & Travel button to rep cards ── */
+var _sgOrigMgrRepCard = sgMgrRepCard;
+sgMgrRepCard = function(rep) {
+    var html = _sgOrigMgrRepCard(rep);
+    var repUid = rep.uid || '';
+
+    /* Add Time & Travel + KM Report buttons */
+    var extraBtns =
+        '<button onclick="sgShowTimeAndTravel(\'' + repUid + '\',\'' +
+        sgEsc(rep.name || '') + '\')" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-clipboard-list"></i> Time & Travel</button>' +
+        '<button onclick="sgShowKmReport(\'' + repUid + '\',\'' +
+        sgEsc(rep.name || '') + '\')" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-road"></i> KM Report</button>';
+
+    /* Insert before the closing </div> of actions */
+    var lastDiv = html.lastIndexOf('</div></div>');
+    if (lastDiv > -1) {
+        html = html.substring(0, lastDiv) +
+               extraBtns +
+               html.substring(lastDiv);
+    }
+
+    return html;
+};
+
+/* ── Manager Dashboard — Add shift + KM + profile buttons ── */
+var _sgOrigMgrDash = sgMgrDashboard;
+sgMgrDashboard = function() {
+    var html = _sgOrigMgrDash();
+
+    var isOnShift = SG.currentShift &&
+                    SG.currentShift.status === 'active';
+
+    var mgrShiftBlock =
+        '<div class="sg-card" style="border-left:4px solid ' +
+        (isOnShift ? 'var(--success)' : 'var(--text-muted)') + ';' +
+        'display:flex;align-items:center;gap:14px;' +
+        'justify-content:space-between;flex-wrap:wrap">' +
+        '<div>' +
+        '<div style="font-size:.88rem;font-weight:700;color:var(--text)">' +
+        '<i class="fas fa-clock" style="color:' +
+        (isOnShift ? 'var(--success)' : 'var(--text-muted)') + '"></i> ' +
+        (isOnShift ? 'On Shift — ' + sgGetShiftTime() : 'Not Clocked In') +
+        '</div></div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        (isOnShift
+            ? '<button onclick="sgEndShift()" ' +
+              'class="btn btn-danger btn-sm">' +
+              '<i class="fas fa-stop"></i> End Shift</button>'
+            : '<button onclick="sgStartShift()" ' +
+              'class="btn btn-success btn-sm">' +
+              '<i class="fas fa-play"></i> Start Shift</button>') +
+        '<button onclick="sgShowKmEntry()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-road"></i> Log KM</button>' +
+        '<button onclick="sgShowKmReport()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-print"></i> KM Report</button>' +
+        '</div></div>';
+
+    var mgrProfileBtns =
+        '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">' +
+        '<button onclick="sgEditProfile()" ' +
+        'class="btn btn-outline btn-sm">' +
+        '<i class="fas fa-user-cog"></i> My Profile</button>' +
+        '<button onclick="sgShowPricelistUpload()" ' +
+        'class="btn btn-sm" ' +
+        'style="background:linear-gradient(135deg,var(--accent),' +
+        'var(--accent-dark));color:#fff">' +
+        '<i class="fas fa-file-pdf"></i> My Pricelist</button>' +
+        '<button onclick="sgSendPricelistToNew(\'email\')" ' +
+        'class="btn btn-sm" ' +
+        'style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+        'color:#fff">' +
+        '<i class="fas fa-envelope"></i> Email Pricelist</button>' +
+        '<button onclick="sgSendPricelistToNew(\'whatsapp\')" ' +
+        'class="btn btn-sm" style="background:#25D366;color:#fff">' +
+        '<i class="fab fa-whatsapp"></i> WA Pricelist</button>' +
+        '</div>';
+
+    /* Insert after welcome card — before stats */
+    var beforeStats = html.indexOf('<div class="sg-stat-grid"');
+    if (beforeStats > -1) {
+        html = html.substring(0, beforeStats) +
+               mgrShiftBlock + mgrProfileBtns +
+               html.substring(beforeStats);
+    } else {
+        html = mgrShiftBlock + mgrProfileBtns + html;
+    }
+
+    return html;
+};
+
+/* ============================================================
+   PRICELIST UPLOAD
 ============================================================ */
 function sgShowPricelistUpload() {
     var existing = SG.repProfile ? SG.repProfile.pricelistUrl : null;
@@ -5707,30 +6366,20 @@ function sgShowPricelistUpload() {
         'border-left:3px solid var(--accent);padding:12px;' +
         'border-radius:var(--rs);margin-bottom:16px;' +
         'font-size:.82rem;color:var(--text-mid)">' +
-        '<i class="fas fa-info-circle" style="color:var(--accent)"></i> ' +
-        'Upload your latest pricelist. When a new one is uploaded ' +
-        'it replaces the previous version. ' +
-        'Accepted formats: PDF, JPG, PNG (max 2MB).' +
-        '</div>' +
+        'Upload your latest pricelist. New uploads replace the previous version. ' +
+        'Accepted: PDF, JPG, PNG (max 2MB).</div>' +
 
-        /* Current pricelist preview */
         (existing
-            ? '<div class="sg-card" style="margin-bottom:14px;' +
-              'text-align:center">' +
+            ? '<div class="sg-card" style="margin-bottom:14px;text-align:center">' +
               '<div style="font-size:.78rem;font-weight:600;' +
-              'color:var(--text-mid);margin-bottom:8px">' +
-              'Current Pricelist:</div>' +
+              'color:var(--text-mid);margin-bottom:8px">Current Pricelist:</div>' +
               '<a href="' + sgEsc(existing) + '" target="_blank" ' +
-              'style="color:var(--accent);text-decoration:none;' +
-              'font-size:.85rem">' +
-              '<i class="fas fa-file-pdf"></i> View Current Pricelist</a>' +
-              '</div>'
+              'style="color:var(--accent);text-decoration:none;font-size:.85rem">' +
+              '<i class="fas fa-file-pdf"></i> View Current Pricelist</a></div>'
             : '<div style="text-align:center;padding:20px;' +
               'color:var(--text-muted);font-size:.82rem;' +
-              'margin-bottom:14px">' +
-              'No pricelist uploaded yet</div>') +
+              'margin-bottom:14px">No pricelist uploaded yet</div>') +
 
-        /* Upload area */
         '<div onclick="document.getElementById(\'pl-file\').click()" ' +
         'style="border:2px dashed var(--border);border-radius:var(--r);' +
         'padding:32px;text-align:center;cursor:pointer;transition:.2s;' +
@@ -5741,23 +6390,18 @@ function sgShowPricelistUpload() {
         'style="font-size:2.5rem;color:var(--accent);opacity:.4;' +
         'display:block;margin-bottom:10px"></i>' +
         '<div style="font-size:.88rem;font-weight:600;color:var(--text)">' +
-        'Click to upload new pricelist</div>' +
-        '<div style="font-size:.72rem;color:var(--text-muted);margin-top:4px">' +
-        'PDF, JPG, PNG — max 2MB</div>' +
-        '</div>' +
+        'Click to upload</div></div>' +
         '<input type="file" id="pl-file" accept=".pdf,.jpg,.jpeg,.png" ' +
         'style="display:none" onchange="sgUploadPricelist(this)">' +
 
-        /* Or paste URL */
         '<div class="sg-form-group">' +
-        '<label>Or paste a link to your pricelist</label>' +
+        '<label>Or paste a link</label>' +
         '<input type="url" class="sg-form-input" id="pl-url" ' +
         'value="' + sgEsc(existing || '') + '" ' +
         'placeholder="https://example.com/pricelist.pdf">' +
         '<button onclick="sgSavePricelistUrl()" ' +
         'class="btn btn-outline btn-sm" style="margin-top:8px">' +
-        '<i class="fas fa-link"></i> Save URL</button>' +
-        '</div>',
+        '<i class="fas fa-link"></i> Save URL</button></div>',
 
         '<button onclick="sgCloseModal()" ' +
         'style="flex:1;padding:10px;background:var(--bg);' +
@@ -5770,18 +6414,13 @@ function sgShowPricelistUpload() {
 function sgUploadPricelist(input) {
     var file = input.files[0];
     if (!file) return;
-
     if (file.size > 2 * 1024 * 1024) {
-        sgToast('error', 'File too large. Maximum 2MB.');
-        return;
+        sgToast('error', 'File too large. Max 2MB.'); return;
     }
-
-    sgToast('info', 'Processing pricelist...');
-
+    sgToast('info', 'Processing...');
     var reader = new FileReader();
     reader.onload = function(e) {
-        var dataUrl = e.target.result;
-        sgSavePricelistData(dataUrl);
+        sgSavePricelistData(e.target.result);
     };
     reader.readAsDataURL(file);
 }
@@ -5789,10 +6428,7 @@ function sgUploadPricelist(input) {
 function sgSavePricelistUrl() {
     var url = (document.getElementById('pl-url')
         ? document.getElementById('pl-url').value : '').trim();
-    if (!url) {
-        sgToast('error', 'Enter a pricelist URL');
-        return;
-    }
+    if (!url) { sgToast('error', 'Enter a URL'); return; }
     sgSavePricelistData(url);
 }
 
@@ -5810,59 +6446,48 @@ function sgSavePricelistData(urlOrData) {
 
     sgSave(update).then(function() {
         sgCloseModal();
-        sgToast('success', '✅ Pricelist saved and ready to send');
+        sgToast('success', '✅ Pricelist saved');
     });
 }
 
 /* ============================================================
-   SEND PRICELIST TO PROSPECT/CUSTOMER
+   SEND PRICELIST TO NEW PROSPECT/CUSTOMER
 ============================================================ */
 function sgSendPricelistToNew(method) {
     if (!SG.repProfile || !SG.repProfile.pricelistUrl) {
-        sgToast('warning',
-            'Upload a pricelist first. ' +
-            'Tap "My Pricelist" on your dashboard.');
+        sgToast('warning', 'Upload a pricelist first.');
         return;
     }
 
-    var promptTitle = method === 'email'
-        ? '<i class="fas fa-envelope" style="color:var(--accent)"></i> ' +
-          'Email Pricelist'
-        : '<i class="fab fa-whatsapp" style="color:#25D366"></i> ' +
-          'WhatsApp Pricelist';
+    var title = method === 'email'
+        ? '<i class="fas fa-envelope" style="color:var(--accent)"></i> Email Pricelist'
+        : '<i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp Pricelist';
 
-    sgShowModal(
-        promptTitle,
-
+    sgShowModal(title,
         '<div class="sg-form-group">' +
         '<label>Customer Name *</label>' +
         '<input type="text" class="sg-form-input" id="spl-name" ' +
         'placeholder="e.g. John Smith"></div>' +
-
         '<div class="sg-form-group">' +
-        '<label>Establishment / Business</label>' +
+        '<label>Business</label>' +
         '<input type="text" class="sg-form-input" id="spl-business" ' +
         'placeholder="e.g. The Grand Hotel"></div>' +
-
         (method === 'email'
-            ? '<div class="sg-form-group">' +
-              '<label>Email Address *</label>' +
+            ? '<div class="sg-form-group"><label>Email *</label>' +
               '<input type="email" class="sg-form-input" id="spl-email" ' +
               'placeholder="customer@email.com"></div>'
-            : '<div class="sg-form-group">' +
-              '<label>WhatsApp Number *</label>' +
+            : '<div class="sg-form-group"><label>WhatsApp Number *</label>' +
               '<div style="display:flex;gap:8px;align-items:center">' +
               '<div style="padding:11px 14px;background:var(--bg);' +
               'border:1.5px solid var(--border);border-radius:var(--rs);' +
-              'font-size:.88rem;color:var(--text-muted)">+27</div>' +
+              'color:var(--text-muted)">+27</div>' +
               '<input type="tel" class="sg-form-input" id="spl-phone" ' +
-              'placeholder="82 555 0000" ' +
-              'style="margin-bottom:0"></div></div>') +
-
+              'placeholder="82 555 0000" style="margin-bottom:0">' +
+              '</div></div>') +
         '<div class="sg-form-group">' +
-        '<label>Personal Message (optional)</label>' +
+        '<label>Message (optional)</label>' +
         '<textarea class="sg-form-input" id="spl-message" rows="2" ' +
-        'placeholder="e.g. Please find our latest pricelist attached..." ' +
+        'placeholder="e.g. Please find our latest pricelist..." ' +
         'style="resize:vertical;min-height:60px"></textarea></div>',
 
         '<button onclick="sgCloseModal()" ' +
@@ -5877,11 +6502,8 @@ function sgSendPricelistToNew(method) {
             ? 'background:#25D366;color:#fff;border:none;' +
               'border-radius:var(--rs);font-weight:700;cursor:pointer'
             : '') + '">' +
-        '<i class="fas fa-' +
-        (method === 'email' ? 'paper-plane' : '') + '"></i>' +
-        '<i class="fab fa-' +
-        (method === 'whatsapp' ? 'whatsapp' : '') + '"></i>' +
-        ' Send Pricelist</button>'
+        '<i class="fa' + (method === 'email' ? 's fa-paper-plane' :
+            'b fa-whatsapp') + '"></i> Send</button>'
     );
 }
 
@@ -5892,40 +6514,31 @@ function sgConfirmSendPricelist(method) {
         ? document.getElementById('spl-business').value : '').trim();
     var message  = (document.getElementById('spl-message')
         ? document.getElementById('spl-message').value : '').trim();
+    var profile  = SG.repProfile || {};
 
-    if (!name) {
-        sgToast('error', 'Enter the customer name');
-        return;
-    }
-
-    var profile = SG.repProfile || {};
+    if (!name) { sgToast('error', 'Enter customer name'); return; }
 
     if (method === 'email') {
         var toEmail = (document.getElementById('spl-email')
             ? document.getElementById('spl-email').value : '').trim();
         if (!toEmail || toEmail.indexOf('@') === -1) {
-            sgToast('error', 'Enter a valid email address');
-            return;
+            sgToast('error', 'Enter a valid email'); return;
         }
 
-        sgToast('info', 'Sending pricelist...');
-
+        sgToast('info', 'Sending...');
         var greeting = business
             ? 'Dear ' + name + ' from ' + business
             : 'Dear ' + name;
-
         var logoHtml = profile.logoUrl
             ? '<img src="' + sgEsc(profile.logoUrl) + '" ' +
-              'style="max-height:60px;max-width:200px;' +
-              'margin-bottom:16px" alt="Logo">'
+              'style="max-height:60px;max-width:200px;margin-bottom:16px" alt="">'
             : '';
 
-        var emailHtml =
+        var html =
             '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
             '<body style="margin:0;padding:0;background:#f3f4f6;' +
-            'font-family:Segoe UI,Arial,sans-serif">' +
-            '<div style="max-width:600px;margin:0 auto;background:#fff;' +
-            'padding:32px">' +
+            'font-family:Segoe UI,Arial">' +
+            '<div style="max-width:600px;margin:0 auto;background:#fff;padding:32px">' +
             logoHtml +
             '<p style="font-size:16px;color:#1a1a1a;margin:0 0 16px">' +
             greeting + ',</p>' +
@@ -5933,225 +6546,66 @@ function sgConfirmSendPricelist(method) {
                 ? '<p style="font-size:15px;color:#374151;line-height:1.8;' +
                   'margin:0 0 20px">' + sgEsc(message) + '</p>'
                 : '<p style="font-size:15px;color:#374151;line-height:1.8;' +
-                  'margin:0 0 20px">' +
-                  'Please find our latest pricelist below. ' +
-                  'Feel free to contact me directly for any queries.' +
-                  '</p>') +
+                  'margin:0 0 20px">Please find our latest pricelist below.</p>') +
             '<div style="text-align:center;margin:24px 0">' +
-            '<a href="' + sgEsc(profile.pricelistUrl || '') + '" ' +
-            'target="_blank" style="display:inline-block;' +
-            'background:linear-gradient(135deg,#7c3aed,#4c1d95);' +
-            'color:#fff;text-decoration:none;padding:14px 32px;' +
-            'border-radius:50px;font-weight:700;font-size:14px">' +
-            '<i class="fas fa-file-pdf"></i> View Pricelist</a></div>' +
-            '<p style="font-size:15px;margin:0 0 4px;color:#1a1a1a">' +
-            'Kind regards,</p>' +
-            '<p style="font-size:15px;font-weight:700;margin:0 0 4px;' +
-            'color:#1a1a1a">' + sgEsc(profile.name || '') + '</p>' +
+            '<a href="' + sgEsc(profile.pricelistUrl || '') + '" target="_blank" ' +
+            'style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#4c1d95);' +
+            'color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;' +
+            'font-weight:700">View Pricelist</a></div>' +
+            '<p style="font-size:15px;margin:0 0 4px">Kind regards,</p>' +
+            '<p style="font-size:15px;font-weight:700;margin:0 0 4px">' +
+            sgEsc(profile.name || '') + '</p>' +
             '<p style="font-size:13px;color:#555;margin:0 0 4px">' +
-            sgEsc(profile.title || '') +
-            ' — ' + sgEsc(SG.entityName || '') + '</p>' +
-            '<p style="font-size:13px;color:#555;margin:0 0 4px">' +
-            '<a href="tel:' + sgEsc(profile.phone || '') + '" ' +
-            'style="color:#555;text-decoration:none">' +
-            sgEsc(profile.phone || '') + '</a></p>' +
-            '<p style="font-size:13px;color:#7c3aed;margin:0 0 20px">' +
-            '<a href="mailto:' + sgEsc(profile.email || '') + '" ' +
-            'style="color:#7c3aed;text-decoration:none">' +
-            sgEsc(profile.email || '') + '</a></p>' +
-            '<div style="border-top:1px solid #e5e5e5;padding-top:12px;' +
-            'font-size:11px;color:#9ca3af;text-align:center">' +
-            'Powered by StockAI-Pro</div>' +
+            sgEsc(profile.title || '') + ' — ' + sgEsc(SG.entityName || '') + '</p>' +
+            '<p style="font-size:13px;color:#555;margin:0">' +
+            sgEsc(profile.phone || '') + ' | ' + sgEsc(profile.email || '') + '</p>' +
+            '<div style="border-top:1px solid #e5e5e5;margin-top:20px;padding-top:12px;' +
+            'font-size:11px;color:#9ca3af;text-align:center">Powered by StockAI-Pro</div>' +
             '</div></body></html>';
 
-        /* Try to send via rep's own SMTP */
-        fetch(SG_WORKER_URL + '/smtp-send', {
-            method:  'POST',
+        fetch(SG_WORKER_URL + '/email', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                smtpHost:   profile.smtpHost,
-                smtpPort:   profile.smtpPort || 587,
-                smtpUser:   profile.email,
-                smtpPass:   profile.smtpPass,
-                smtpSecure: profile.smtpSecure || 'tls',
-                fromName:   profile.name || 'Sales Rep',
-                fromEmail:  profile.email,
-                toEmail:    toEmail,
-                subject:    'Pricelist from ' +
-                    sgEsc(profile.name || SG.entityName || ''),
-                html:       emailHtml
+                from: (profile.name || 'Sales Rep') + ' <noreply@stockai-pro.co.za>',
+                to: [toEmail],
+                subject: 'Pricelist from ' + sgEsc(profile.name || SG.entityName || ''),
+                html: html
             })
         })
-        .then(function(r) {
-            if (!r.ok) throw new Error('SMTP failed');
-            return r.json();
-        })
+        .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
         .then(function() {
             sgCloseModal();
-            sgToast('success', '✅ Pricelist sent from ' + profile.email);
+            sgToast('success', '✅ Pricelist sent to ' + toEmail);
         })
-        .catch(function() {
-            /* Fallback to Resend with rep name */
-            fetch(SG_WORKER_URL + '/email', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    from: (profile.name || 'Sales Rep') +
-                          ' <noreply@stockai-pro.co.za>',
-                    to:   [toEmail],
-                    subject: 'Pricelist from ' +
-                        sgEsc(profile.name || SG.entityName || ''),
-                    html: emailHtml
-                })
-            })
-            .then(function(r) {
-                if (!r.ok) throw new Error('Fallback failed');
-                sgCloseModal();
-                sgToast('success',
-                    '✅ Pricelist sent (via system email — ' +
-                    'check your SMTP settings for direct sending)');
-            })
-            .catch(function() {
-                sgToast('error', 'Failed to send pricelist');
-            });
-        });
+        .catch(function() { sgToast('error', 'Failed to send'); });
 
     } else {
-        /* WhatsApp */
         var phone = (document.getElementById('spl-phone')
             ? document.getElementById('spl-phone').value : '').trim();
-        if (!phone) {
-            sgToast('error', 'Enter the WhatsApp number');
-            return;
-        }
+        if (!phone) { sgToast('error', 'Enter WhatsApp number'); return; }
         var cleanNum = phone.replace(/[\s\-\(\)]/g, '');
         if (cleanNum.startsWith('0')) cleanNum = cleanNum.substring(1);
-        var fullNum = '27' + cleanNum;
 
-        var waMsg =
-            'Hi ' + name +
+        var waMsg = 'Hi ' + name +
             (business ? ' from ' + business : '') + ',' +
             (message ? '\n\n' + message : '') +
             '\n\nPlease find our latest pricelist here:\n' +
             (profile.pricelistUrl || '') +
-            '\n\nKind regards\n' +
-            (profile.name || '') + '\n' +
-            (profile.title || '') + '\n' +
-            (SG.entityName || '') + '\n' +
-            (profile.phone || '') +
+            '\n\nKind regards\n' + (profile.name || '') +
+            '\n' + (profile.title || '') +
+            '\n' + (SG.entityName || '') +
+            '\n' + (profile.phone || '') +
             '\n\nPowered by StockAI-Pro';
 
-        window.open('https://wa.me/' + fullNum +
+        window.open('https://wa.me/27' + cleanNum +
             '?text=' + encodeURIComponent(waMsg), '_blank');
         sgCloseModal();
-        sgToast('success', 'WhatsApp opened — send the message');
+        sgToast('success', 'WhatsApp opened');
     }
 }
 
-/* ============================================================
-   ADD PROFILE BUTTON + PRICELIST BUTTON TO DASHBOARD
-   Override the dashboard to include these buttons
-============================================================ */
-var _sgOriginalRepDashboard = sgRepDashboard;
-sgRepDashboard = function() {
-    var html = _sgOriginalRepDashboard();
-
-    /* Insert profile + pricelist buttons before the quick actions */
-    var insertPoint = '<div style="display:grid;' +
-        'grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-
-    var profileBtns =
-        '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">' +
-
-        '<button onclick="sgEditProfile()" ' +
-        'class="btn btn-outline btn-sm">' +
-        '<i class="fas fa-user-cog"></i> My Profile</button>' +
-
-        '<button onclick="sgShowPricelistUpload()" ' +
-        'class="btn btn-sm" ' +
-        'style="background:linear-gradient(135deg,var(--accent),' +
-        'var(--accent-dark));color:#fff">' +
-        '<i class="fas fa-file-pdf"></i> My Pricelist</button>' +
-
-        '<button onclick="sgSendPricelistToNew(\'email\')" ' +
-        'class="btn btn-sm" ' +
-        'style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
-        'color:#fff">' +
-        '<i class="fas fa-envelope"></i> Email Pricelist</button>' +
-
-        '<button onclick="sgSendPricelistToNew(\'whatsapp\')" ' +
-        'class="btn btn-sm" style="background:#25D366;color:#fff">' +
-        '<i class="fab fa-whatsapp"></i> WA Pricelist</button>' +
-
-        '</div>';
-
-    /* Insert before quick actions grid */
-    html = html.replace(insertPoint, profileBtns + insertPoint);
-
-    return html;
-};
-
-/* ── Also add to Manager Dashboard ── */
-var _sgOriginalMgrDashboard = sgMgrDashboard;
-sgMgrDashboard = function() {
-    var html = _sgOriginalMgrDashboard();
-
-    var mgrBtns =
-        '<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">' +
-        '<button onclick="sgEditProfile()" ' +
-        'class="btn btn-outline btn-sm">' +
-        '<i class="fas fa-user-cog"></i> My Profile</button>' +
-        '<button onclick="sgShowPricelistUpload()" ' +
-        'class="btn btn-sm" ' +
-        'style="background:linear-gradient(135deg,var(--accent),' +
-        'var(--accent-dark));color:#fff">' +
-        '<i class="fas fa-file-pdf"></i> My Pricelist</button>' +
-        '<button onclick="sgSendPricelistToNew(\'email\')" ' +
-        'class="btn btn-sm" ' +
-        'style="background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
-        'color:#fff">' +
-        '<i class="fas fa-envelope"></i> Email Pricelist</button>' +
-        '<button onclick="sgSendPricelistToNew(\'whatsapp\')" ' +
-        'class="btn btn-sm" style="background:#25D366;color:#fff">' +
-        '<i class="fab fa-whatsapp"></i> WA Pricelist</button>' +
-        '</div>';
-
-    /* Insert after the welcome card */
-    var afterWelcome = 'Cycle Sales</small>';
-    var insertIdx = html.indexOf(afterWelcome);
-    if (insertIdx === -1) {
-        /* Fallback — insert at beginning */
-        html = mgrBtns + html;
-    } else {
-        /* Find the closing div of the welcome card before stats */
-        var beforeStats = html.indexOf('<div class="sg-stat-grid"');
-        if (beforeStats > -1) {
-            html = html.substring(0, beforeStats) +
-                   mgrBtns +
-                   html.substring(beforeStats);
-        }
-    }
-
-    return html;
-};
-
-/* ============================================================
-   UPDATE sgApplyData TO LOAD PROFILE
-============================================================ */
-var _sgOriginalApplyData = sgApplyData;
-sgApplyData = function(data) {
-    _sgOriginalApplyData(data);
-
-    /* Load rep profile */
-    var uid = SG.user ? SG.user.uid : '';
-    var profiles = (data.salesProfiles || {})[SG.entityId] || {};
-    SG.repProfile = profiles[uid] || null;
-
-    /* Mark data as loaded */
-    SG._dataLoaded = true;
-};
-
-console.log('✅ Sales-Guru — Profile Setup + Pricelist loaded');
+console.log('✅ Sales-Guru — Profile + Shift + KM + Reports loaded');
 </script>
 
 <script>
