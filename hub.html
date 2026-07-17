@@ -576,6 +576,26 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
 </head>
 <body>
 
+<script>
+/* ── Instant welcome screen check — runs before page renders ── */
+(function() {
+    var isReturn = false;
+    try {
+        if (sessionStorage.getItem('hub_return') === 'true') isReturn = true;
+        if (localStorage.getItem('stockai_remember') === 'yes') isReturn = true;
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('return') === 'true') {
+            isReturn = true;
+            sessionStorage.setItem('hub_return', 'true');
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    } catch(e) {}
+    if (isReturn) {
+        document.write('<style>#welcome-screen{display:none!important}</style>');
+    }
+})();
+</script>
+
 <!-- ============================================================
      WELCOME SCREEN
 ============================================================ -->
