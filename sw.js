@@ -1,8 +1,8 @@
 // ============================================================
-// StockAI-Pro — sw.js v4.0
+// StockAI-Pro — sw.js v4.1
 // ============================================================
 
-var CACHE_NAME = 'stockai-pro-v4';
+var CACHE_NAME = 'stockai-pro-v4-1';
 
 var CACHE_FILES = [
     '/index.html',
@@ -11,16 +11,24 @@ var CACHE_FILES = [
     '/setup.html',
     '/upgrade.html',
     '/hub.html',
+    '/pos.html',
+    '/pos-setup.html',
+    '/sales-guru.html',
+    '/info-sheet.html',
     '/email-templates.js',
     '/feature-access.js',
     '/manifest.json',
+    '/icon-192.png',
+    '/icon-512.png',
+    '/apple-icon-180.png',
+    '/logo.svg',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
 // ── INSTALL ──
 self.addEventListener('install', function(e) {
-    console.log('📦 StockAI-Pro v4 Service Worker installing...');
+    console.log('📦 StockAI-Pro v4.1 Service Worker installing...');
     e.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
             return Promise.allSettled(
@@ -38,7 +46,7 @@ self.addEventListener('install', function(e) {
 
 // ── ACTIVATE ──
 self.addEventListener('activate', function(e) {
-    console.log('✅ StockAI-Pro v4 Service Worker activated');
+    console.log('✅ StockAI-Pro v4.1 Service Worker activated');
     e.waitUntil(
         caches.keys().then(function(names) {
             return Promise.all(
@@ -62,12 +70,12 @@ self.addEventListener('fetch', function(e) {
     // Skip non-GET and external API calls
     if (e.request.method !== 'GET') return;
     if (url.includes('firestore.googleapis.com')) return;
-    if (url.includes('firebase'))      return;
+    if (url.includes('firebase'))       return;
     if (url.includes('identitytoolkit')) return;
-    if (url.includes('securetoken'))   return;
-    if (url.includes('paystack'))      return;
-    if (url.includes('resend.com'))    return;
-    if (url.includes('workers.dev'))   return;
+    if (url.includes('securetoken'))     return;
+    if (url.includes('paystack'))        return;
+    if (url.includes('resend.com'))      return;
+    if (url.includes('workers.dev'))     return;
 
     // HTML pages — network first, cache fallback
     if (e.request.headers.get('accept') &&
@@ -115,15 +123,18 @@ self.addEventListener('push', function(e) {
     var data    = e.data.json();
     var options = {
         body:    data.body    || 'You have a new notification',
+        icon:    '/icon-192.png',
+        badge:   '/icon-192.png',
         tag:     data.tag     || 'stockai-notif',
         data:    data.url     || '/hub.html',
         actions: [
-            { action:'open',    title:'Open App' },
-            { action:'dismiss', title:'Dismiss'  }
+            { action: 'open',    title: 'Open App' },
+            { action: 'dismiss', title: 'Dismiss'  }
         ]
     };
     e.waitUntil(
-        self.registration.showNotification(data.title || 'StockAI-Pro', options)
+        self.registration.showNotification(
+            data.title || 'StockAI-Pro', options)
     );
 });
 
@@ -132,9 +143,10 @@ self.addEventListener('notificationclick', function(e) {
     if (e.action === 'dismiss') return;
     var url = e.notification.data || '/hub.html';
     e.waitUntil(
-        clients.matchAll({ type:'window' }).then(function(list) {
+        clients.matchAll({ type: 'window' }).then(function(list) {
             for (var i = 0; i < list.length; i++) {
-                if (list[i].url.includes('hub.html') && 'focus' in list[i]) {
+                if (list[i].url.includes('hub.html') &&
+                    'focus' in list[i]) {
                     return list[i].focus();
                 }
             }
@@ -176,8 +188,8 @@ function offlinePage() {
         '<p>StockAI-Pro needs an internet connection to sync your data. ' +
         'Please check your connection and try again.</p>' +
         '<button onclick="window.location.reload()">🔄 Try Again</button>' +
-        '<div class="ver">StockAI-Pro v4.0 • Offline Mode</div>' +
+        '<div class="ver">StockAI-Pro v4.1 • Offline Mode</div>' +
         '</div></body></html>';
 }
 
-console.log('✅ StockAI-Pro sw.js v4.0 ready');
+console.log('✅ StockAI-Pro sw.js v4.1 ready');
