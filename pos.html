@@ -2294,7 +2294,26 @@ function posToast(type, msg) {
 /* ============================================================
    INSTALL GUIDE
 ============================================================ */
+var _deferredPosInstall = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _deferredPosInstall = e;
+    console.log('✅ POS install prompt captured');
+});
+
 function showPosInstallGuide() {
+    if (_deferredPosInstall) {
+        _deferredPosInstall.prompt();
+        _deferredPosInstall.userChoice.then(function(result) {
+            if (result.outcome === 'accepted') {
+                posToast('success', '✅ POS app installed!');
+            }
+            _deferredPosInstall = null;
+        });
+        return;
+    }
+
     var ua    = navigator.userAgent || '';
     var isIOS = /iPad|iPhone|iPod/.test(ua);
     var steps = isIOS
@@ -2303,8 +2322,9 @@ function showPosInstallGuide() {
           '<p>3. Tap <strong>"Add to Home Screen"</strong></p>' +
           '<p>4. Tap <strong>"Add"</strong></p>'
         : '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>' +
-          '<p>2. Tap <strong>"Add to Home screen"</strong></p>' +
-          '<p>3. Tap <strong>"Add"</strong></p>';
+          '<p>2. Tap <strong>"Install App"</strong> or ' +
+          '<strong>"Add to Home screen"</strong></p>' +
+          '<p>3. Tap <strong>"Install"</strong></p>';
 
     removeModal('install-modal');
     var modal = document.createElement('div');
