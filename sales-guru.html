@@ -1229,7 +1229,7 @@ function sgSetAccount(docId, data, email, type, eid, userObj) {
    LOGOUT
 ============================================================ */
 function sgLogout() {
-    sgStopSync();
+    sgStopAll();
     auth.signOut().then(function() {
         SG.user        = null;
         SG.accountId   = null;
@@ -1339,7 +1339,13 @@ function sgApplyData(data) {
 ============================================================ */
 function sgStartSync() {
     if (!SG.accountId) return;
-    sgStopSync();
+
+    /* Stop only the Firestore listener — NOT the clock */
+    if (SG.syncListener) {
+        SG.syncListener();
+        SG.syncListener = null;
+    }
+
     SG.syncListener = db.collection('accounts').doc(SG.accountId)
         .onSnapshot(function(doc) {
             if (!doc.exists) return;
@@ -1359,6 +1365,10 @@ function sgStopSync() {
         SG.syncListener();
         SG.syncListener = null;
     }
+}
+
+function sgStopAll() {
+    sgStopSync();
     if (SG.clockInterval) {
         clearInterval(SG.clockInterval);
         SG.clockInterval = null;
