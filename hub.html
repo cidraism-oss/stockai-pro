@@ -1832,6 +1832,14 @@ setTimeout(function() {
         }
     }, 4000);
 
+    // ── Auto-check auth if returning from app ──
+    var wsCheck = document.getElementById('welcome-screen');
+    if (wsCheck && (wsCheck.classList.contains('hidden') ||
+        wsCheck.style.display === 'none' ||
+        getComputedStyle(wsCheck).display === 'none')) {
+        checkHubAuth();
+    }
+
     console.log('✅ DOM Ready — StockAI-Pro Hub 2.0');
 
 }); /* ← closes DOMContentLoaded */
@@ -1843,81 +1851,50 @@ console.log('✅ Welcome + Auth screen functions loaded');
    AUTH — CHECK ON LOAD
 ============================================================ */
 function checkHubAuth() {
-    /* ── Hide welcome screen always ── */
+    /* ── Hide welcome screen ── */
     var welcomeEl = document.getElementById('welcome-screen');
     if (welcomeEl) {
         welcomeEl.style.display = 'none';
         welcomeEl.classList.add('hidden');
     }
 
-    /* ── Check if returning from external app ── */
+    /* ── Check if returning from an app ── */
     var isReturn = sessionStorage.getItem('hub_return') === 'true';
     if (isReturn) {
         sessionStorage.removeItem('hub_return');
 
-        /* Hide login screen — user already authenticated */
-        var loginEl = document.getElementById('login-screen');
-        if (loginEl) loginEl.classList.add('hidden');
+        /* Hide login — user is already authenticated */
+        document.getElementById('login-screen')
+            .classList.add('hidden');
 
-        if (restoreSessionCache()) {
-            if (HUB.accountId) {
-                db.collection('accounts').doc(HUB.accountId).get()
-                    .then(function(doc) {
-                        if (doc.exists) {
-                            HUB.accountData = doc.data();
-                            HUB.entities    = doc.data().entities || [];
-                            if (HUB.entityId) {
-                                var ent = HUB.entities.find(function(e) {
-                                    return e.id === HUB.entityId;
-                                });
-                                if (ent) {
-                                    HUB.entity   = ent;
-                                    HUB.features = getEntityFeatures(
-                                        HUB.accountData, HUB.entityId);
-                                }
-                            }
-                            startHubSync();
-                            hubLoadBranding();
-                            hubLoadWeather();
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
-                        }
-                    })
-                    .catch(function() {
-                        if (HUB.user && HUB.accountId) {
-                            routeAfterLogin();
-                        } else {
-                            showLoginScreen();
-                        }
-                    });
-            } else {
-                routeAfterLogin();
-            }
-            return;
-        }
-
-        /* No cache — check Firebase */
+        /* Wait for Firebase to confirm auth state */
         var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
             unsubReturn();
+
             if (firebaseUser) {
+                /* User is authenticated — find their account */
                 findHubAccount(firebaseUser.email, function(found) {
                     if (found) {
                         saveSessionCache();
+                        writeSharedSession();
+                        startHubSync();
+                        hubLoadBranding();
+                        hubLoadWeather();
                         routeAfterLogin();
                     } else {
+                        /* Account not found — show login */
                         showLoginScreen();
                     }
                 });
             } else {
+                /* Not authenticated — show login */
                 showLoginScreen();
             }
         });
         return;
     }
 
-    /* ── Normal flow — ALWAYS show login screen ── */
-    /* Pre-fill email if remembered */
+    /* ── Normal flow — always show login ── */
     var remEmail = localStorage.getItem('stockai_email');
     if (remEmail) {
         var emailInput = document.getElementById('hub-email');
@@ -2138,6 +2115,8 @@ function hubLogin() {
                     var ls = document.getElementById('login-screen');
                     if (ls) ls.classList.add('hidden');
                     saveSessionCache();
+                    writeSharedSession();
+                    startHubSync();
                     routeAfterLogin();
                 } else {
                     if (errorDiv) {
