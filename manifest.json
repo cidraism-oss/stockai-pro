@@ -9,20 +9,20 @@
     "theme_color": "#0d4a5c",
     "icons": [
         {
-            "src": "/StockAI_Pro_108x180.png",
+            "src": "/StockAI-Pro_108x180.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "/StockAI_Pro_192x192.png",
+            "src": "/StockAI-Pro_192x192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
 
         {
-            "src": "/Stock_AI_Pro_512x512.png",
+            "src": "/Stock_AI-Pro_512x512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
