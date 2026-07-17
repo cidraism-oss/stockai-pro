@@ -75,94 +75,6 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
 /* ============================================================
-   SPLASH / WELCOME SCREEN
-============================================================ */
-.sg-splash {
-    position: fixed; inset: 0; z-index: 9999;
-    background: linear-gradient(135deg,
-        var(--primary-dark) 0%,
-        var(--accent-dark)  50%,
-        var(--primary-dark) 100%);
-    display: flex; align-items: center;
-    justify-content: center; padding: 24px;
-    flex-direction: column; gap: 0;
-}
-.sg-splash-card {
-    background: var(--bg-card);
-    border-radius: 24px;
-    padding: 48px 36px;
-    width: 100%; max-width: 420px;
-    box-shadow: var(--shadow-xl);
-    text-align: center;
-    position: relative; overflow: hidden;
-}
-.sg-splash-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg,
-        var(--primary-dark), var(--accent),
-        var(--gold), var(--accent));
-    background-size: 200% 100%;
-    animation: sgBar 3s linear infinite;
-}
-@keyframes sgBar {
-    0%   { background-position: 0%; }
-    100% { background-position: 200%; }
-}
-.sg-splash-logo {
-    width: 80px; height: 80px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    border-radius: 20px;
-    display: flex; align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 2rem; color: #fff;
-    box-shadow: 0 8px 24px rgba(124,58,237,.4);
-    animation: sgLogoPulse 2s ease-in-out infinite;
-}
-@keyframes sgLogoPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(124,58,237,.4); }
-    50%       { transform: scale(1.05); box-shadow: 0 12px 32px rgba(124,58,237,.6); }
-}
-.sg-splash-card h1 {
-    font-size: 1.8rem; font-weight: 900;
-    color: var(--text); letter-spacing: 1px;
-    margin-bottom: 6px;
-}
-.sg-splash-card h1 span { color: var(--accent-light); }
-.sg-splash-card .sub {
-    font-size: .85rem; color: var(--text-light);
-    margin-bottom: 32px;
-}
-.sg-splash-btn {
-    width: 100%; padding: 16px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    color: #fff; border: none;
-    border-radius: var(--rs);
-    font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: .3s;
-    display: flex; align-items: center;
-    justify-content: center; gap: 10px;
-    margin-bottom: 12px;
-}
-.sg-splash-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(124,58,237,.4);
-}
-.sg-splash-back {
-    display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    padding: 12px;
-    background: var(--bg-dark);
-    border: 1.5px solid var(--border);
-    border-radius: var(--rs);
-    color: var(--text-mid); font-size: .82rem;
-    font-weight: 600; text-decoration: none;
-    width: 100%; transition: .2s;
-}
-.sg-splash-back:hover { border-color: var(--accent); color: var(--accent-light); }
-
-/* ============================================================
    LOGIN SCREEN
 ============================================================ */
 .sg-login {
@@ -742,29 +654,6 @@ input, textarea, select {
 </div>
 
 <!-- ============================================================
-     SPLASH / WELCOME SCREEN
-     Shown after logout — user taps Enter to go to dashboard
-============================================================ -->
-<div class="sg-splash hidden" id="sg-splash">
-    <div class="sg-splash-card">
-        <div class="sg-splash-logo">
-            <i class="fas fa-chart-line"></i>
-        </div>
-        <h1>Sales<span>-Guru</span></h1>
-        <p class="sub">StockAI-Pro Sales Management</p>
-
-        <button class="sg-splash-btn" id="sg-splash-enter"
-                onclick="sgSplashEnter()">
-            <i class="fas fa-arrow-right"></i> Enter Sales-Guru
-        </button>
-
-        <a href="hub.html" class="sg-splash-back">
-            <i class="fas fa-th"></i> Back to Hub
-        </a>
-    </div>
-</div>
-
-<!-- ============================================================
      LOGIN SCREEN
 ============================================================ -->
 <div class="sg-login hidden" id="sg-login">
@@ -849,9 +738,11 @@ input, textarea, select {
             </button>
             <div class="notice-badge hidden" id="sg-notice-badge">0</div>
         </div>
-        <button class="sg-hbtn" onclick="sgLogout()" title="Sign Out">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
+        <a href="hub.html" class="sg-hbtn" title="Return to Hub"
+   style="display:flex;align-items:center;
+          justify-content:center;text-decoration:none;color:#fff">
+    <i class="fas fa-th"></i>
+</a>
     </header>
 
     <!-- Content -->
@@ -970,8 +861,6 @@ var SG = {
     _dataLoaded:   false,
     _firstSnapDone:false,
     _setupPending:  false,
-    _loggingOut:   false,   /* NEW — prevents re-entry on logout */
-    _authReady:    false,   /* NEW — prevents acting before auth resolves */
     inventory:     [],
     clients:       [],
     prospects:     [],
@@ -1056,7 +945,7 @@ function sgClearSetupMemory() {
    sgShow('app')      — main app shell
 ============================================================ */
 function sgShow(screen) {
-    var ids = ['sg-loading', 'sg-splash', 'sg-login', 'sg-app'];
+    var ids = ['sg-loading', 'sg-login', 'sg-app'];
     ids.forEach(function(id) {
         var el = document.getElementById(id);
         if (!el) return;
@@ -1097,37 +986,22 @@ var sgPersistence = sgRemembered
 auth.setPersistence(sgPersistence).then(function () {
 
     auth.onAuthStateChanged(function (firebaseUser) {
-        /* Ignore all auth events while logging out */
-        if (SG._loggingOut) return;
+    SG._authReady = true;
 
-        SG._authReady = true;
-
-        if (firebaseUser) {
-            /* User is signed in — find their account */
-            sgFindAccount(firebaseUser.email, function (found) {
-                if (SG._loggingOut) return; /* guard again */
-                if (found) {
-                    sgEnterApp();
-                } else {
-                    /* Signed into Firebase but no Sales-Guru account */
-                    auth.signOut();
-                    sgShow('login');
-                    sgShowLoginError(
-                        'No Sales-Guru access found for this account.');
-                }
-            });
-        } else {
-            /* Not signed in */
-            var wasLoggedIn = localStorage.getItem('sg_was_logged_in');
-            if (wasLoggedIn === 'true') {
-                /* Previously logged in — show splash */
-                sgShow('splash');
+    if (firebaseUser) {
+        sgFindAccount(firebaseUser.email, function (found) {
+            if (found) {
+                sgEnterApp();
             } else {
-                /* First visit or cleared storage — show login */
                 sgShow('login');
+                sgShowLoginError(
+                    'No Sales-Guru access found for this account.');
             }
-        }
-    });
+        });
+    } else {
+        sgShow('login');
+    }
+});
 });
 
 /* ============================================================
@@ -1224,40 +1098,6 @@ function sgForgotPw() {
     auth.sendPasswordResetEmail(email.toLowerCase())
         .then(function () { sgToast('success', 'Reset link sent to ' + email); })
         .catch(function (err) { sgToast('error', err.message); });
-}
-
-/* ============================================================
-   SPLASH SCREEN — Enter button
-============================================================ */
-function sgSplashEnter() {
-    var btn = document.getElementById('sg-splash-enter');
-    if (btn) {
-        btn.disabled  = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-    }
-
-    /* If user is already authenticated (remembered), go straight to app */
-    var currentUser = auth.currentUser;
-    if (currentUser) {
-        sgFindAccount(currentUser.email, function (found) {
-            if (found) {
-                sgEnterApp();
-            } else {
-                sgShow('login');
-            }
-            if (btn) {
-                btn.disabled  = false;
-                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Enter Sales-Guru';
-            }
-        });
-    } else {
-        /* Not authenticated — go to login */
-        sgShow('login');
-        if (btn) {
-            btn.disabled  = false;
-            btn.innerHTML = '<i class="fas fa-arrow-right"></i> Enter Sales-Guru';
-        }
-    }
 }
 
 /* ============================================================
@@ -1367,57 +1207,6 @@ function sgSetAccount(docId, data, email, type, eid, userObj) {
     SG.dispatchEmail = dispatch
         ? dispatch.email
         : (data.owner ? data.owner.email : null);
-}
-
-/* ============================================================
-   LOGOUT
-============================================================ */
-function sgLogout() {
-    /* Set flag FIRST to block any snapshot/auth callbacks */
-    SG._loggingOut = true;
-
-    /* Stop all timers and listeners immediately */
-    sgStopAll();
-
-    /* Mark as was-logged-in so splash shows next time */
-    localStorage.setItem('sg_was_logged_in', 'true');
-
-    /* Show splash immediately — don't wait for signOut */
-    sgShow('splash');
-
-    /* Reset all state */
-    SG.user          = null;
-    SG.accountId     = null;
-    SG._dataLoaded   = false;
-    SG.clients       = [];
-    SG.prospects     = [];
-    SG.orders        = [];
-    SG.notices       = [];
-    SG.leads         = [];
-    SG.currentPage   = null;
-    SG.repProfile    = null;
-    SG.currentShift  = null;
-    SG.kmRecords     = [];
-    SG.shiftHistory  = [];
-    SG.accountData   = null;
-
-    /* Clear content so it doesn't flash on next login */
-    var content = document.getElementById('sg-content');
-    if (content) content.innerHTML = '';
-
-    /* Sign out from Firebase */
-    auth.signOut().then(function () {
-        /* Re-enable auth callbacks after a short delay
-           to prevent the signOut event from triggering
-           the splash→login redirect */
-        setTimeout(function () {
-            SG._loggingOut = false;
-        }, 500);
-    }).catch(function () {
-        setTimeout(function () {
-            SG._loggingOut = false;
-        }, 500);
-    });
 }
 
 /* ============================================================
@@ -1625,9 +1414,6 @@ function sgStopAll() {
         clearInterval(SG.shiftInterval);
         SG.shiftInterval = null;
     }
-    SG._dataLoaded    = false;
-    SG._firstSnapDone = false;
-    SG._setupPending  = false;
 }
 
 function sgSave(fields) {
