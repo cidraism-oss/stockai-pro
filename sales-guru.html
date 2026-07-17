@@ -949,6 +949,7 @@ var SG = {
     entity:       null,
     accountData:  null,
     isManager:    false,
+    _dataLoaded:  false,
     inventory:    [],
     clients:      [],
     prospects:    [],
@@ -1233,6 +1234,7 @@ function sgLogout() {
     auth.signOut().then(function() {
         SG.user        = null;
         SG.accountId   = null;
+        SG._dataLoaded = false;
         SG.clients     = [];
         SG.prospects   = [];
         SG.orders      = [];
@@ -1296,13 +1298,17 @@ function sgEnterApp() {
 ============================================================ */
 function sgLoadData() {
     if (!SG.accountId) return;
+    SG._dataLoaded = false;
+
     db.collection('accounts').doc(SG.accountId).get()
         .then(function(doc) {
             if (!doc.exists) return;
             sgApplyData(doc.data());
+            SG._dataLoaded = true;
         })
         .catch(function(err) {
             console.warn('Sales-Guru load error:', err);
+            SG._dataLoaded = true;
             sgToast('error', 'Failed to load data.');
         });
 }
@@ -5282,10 +5288,16 @@ function sgCheckRepSetup() {
     if (!SG.user || !SG.accountId || !SG.entityId) return;
 
     var uid = SG.user.uid || '';
-    var profiles = (SG.accountData
-        ? (SG.accountData.salesProfiles || {})[SG.entityId] || {}
-        : {});
-    var profile = profiles[uid];
+
+    /* Wait for data to load first */
+    if (!SG.accountData || !SG._dataLoaded) {
+        /* Data not loaded yet — wait and retry */
+        setTimeout(sgCheckRepSetup, 500);
+        return;
+    }
+
+    var profiles = (SG.accountData.salesProfiles || {})[SG.entityId] || {};
+    var profile  = profiles[uid];
 
     if (!profile || !profile.setupComplete) {
         sgShowSetupForm(profile || {});
@@ -6134,6 +6146,9 @@ sgApplyData = function(data) {
     var uid = SG.user ? SG.user.uid : '';
     var profiles = (data.salesProfiles || {})[SG.entityId] || {};
     SG.repProfile = profiles[uid] || null;
+
+    /* Mark data as loaded */
+    SG._dataLoaded = true;
 };
 
 console.log('✅ Sales-Guru — Profile Setup + Pricelist loaded');
