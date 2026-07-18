@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Up Your Account — StockAI-Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+var firebaseConfig = {
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+var db   = firebase.firestore();
+var auth = firebase.auth();
+</script>
+<style>
+/* ── Reset & Base ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#0d3d4f 0%,#0b2d38 50%,#0d4a5c 100%);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    color:#e0f4f8;
+}
+
+/* ── Background effects ── */
+.bg-orb {
+    position:fixed;
+    border-radius:50%;
+    pointer-events:none;
+    animation:orbFloat 8s ease-in-out infinite;
+}
+@keyframes orbFloat {
+    0%,100% { transform:translateY(0) scale(1); }
+    50%      { transform:translateY(-20px) scale(1.05); }
+}
+
+/* ── Card ── */
+.reg-card {
+    background:rgba(15,77,98,.85);
+    backdrop-filter:blur(20px);
+    border-radius:24px;
+    padding:40px 36px;
+    width:100%;
+    max-width:460px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    border:1px solid rgba(26,139,168,.3);
+    position:relative;
+    z-index:10;
+}
+
+/* ── Logo ── */
+.reg-logo {
+    text-align:center;
+    margin-bottom:28px;
+}
+.reg-logo-text {
+    font-size:1.6rem;
+    font-weight:900;
+    letter-spacing:2px;
+}
+.reg-logo-text span { color:#14b8a6; }
+.reg-tagline {
+    font-size:.72rem;
+    color:#7bb8c8;
+    letter-spacing:3px;
+    margin-top:4px;
+}
+
+/* ── Steps ── */
+.steps {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    margin-bottom:28px;
+}
+.step {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+}
+.step-circle {
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:rgba(26,139,168,.2);
+    border:2px solid rgba(26,139,168,.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.82rem;
+    font-weight:700;
+    color:#7bb8c8;
+    transition:.3s;
+}
+.step-circle.active {
+    background:#1a8ba8;
+    border-color:#1a8ba8;
+    color:#fff;
+    box-shadow:0 0 20px rgba(26,139,168,.5);
+}
+.step-circle.done {
+    background:#2ea871;
+    border-color:#2ea871;
+    color:#fff;
+}
+.step-label {
+    font-size:.58rem;
+    color:#7bb8c8;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+.step-label.active { color:#e0f4f8; }
+.step-line {
+    width:40px;
+    height:2px;
+    background:rgba(26,139,168,.3);
+    margin:0 4px;
+    margin-bottom:16px;
+    transition:.3s;
+}
+.step-line.done { background:#2ea871; }
+
+/* ── Section title ── */
+.section-title {
+    font-size:1.1rem;
+    font-weight:700;
+    color:#e0f4f8;
+    margin-bottom:6px;
+    text-align:center;
+}
+.section-sub {
+    font-size:.78rem;
+    color:#7bb8c8;
+    text-align:center;
+    margin-bottom:20px;
+    line-height:1.6;
+}
+
+/* ── Form Fields ── */
+.field-group { margin-bottom:14px; }
+.field-label {
+    display:block;
+    font-size:.72rem;
+    font-weight:600;
+    color:#a8d8e8;
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+.field-input {
+    width:100%;
+    padding:12px 16px;
+    background:rgba(11,51,68,.8);
+    border:1px solid rgba(26,139,168,.4);
+    border-radius:12px;
+    color:#e0f4f8;
+    font-family:'Poppins',sans-serif;
+    font-size:.88rem;
+    transition:.2s;
+    outline:none;
+}
+.field-input:focus {
+    border-color:#1a8ba8;
+    box-shadow:0 0 0 3px rgba(26,139,168,.2);
+}
+.field-input:disabled {
+    opacity:.6;
+    cursor:default;
+}
+
+/* ── Role Badge ── */
+.role-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    background:rgba(26,139,168,.15);
+    border:1px solid rgba(26,139,168,.3);
+    border-radius:20px;
+    font-size:.8rem;
+    font-weight:600;
+    color:#4dbdd5;
+    margin-bottom:20px;
+}
+
+/* ── PIN Keypad ── */
+.pin-display {
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-bottom:20px;
+}
+.pin-dot {
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    border:2px solid rgba(26,139,168,.5);
+    background:transparent;
+    transition:.2s;
+}
+.pin-dot.filled {
+    background:#1a8ba8;
+    border-color:#1a8ba8;
+    box-shadow:0 0 12px rgba(26,139,168,.6);
+}
+.pin-dot.success {
+    background:#2ea871;
+    border-color:#2ea871;
+    box-shadow:0 0 12px rgba(46,168,113,.6);
+}
+.pin-dot.error {
+    background:#c94545;
+    border-color:#c94545;
+    animation:shake .4s ease;
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    25%      { transform:translateX(-8px); }
+    75%      { transform:translateX(8px); }
+}
+
+.keypad {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    max-width:260px;
+    margin:0 auto 20px;
+}
+.key {
+    padding:18px;
+    background:rgba(15,77,98,.8);
+    border:1px solid rgba(26,139,168,.3);
+    border-radius:14px;
+    font-size:1.3rem;
+    font-weight:700;
+    color:#e0f4f8;
+    cursor:pointer;
+    text-align:center;
+    transition:.15s;
+    user-select:none;
+    font-family:'Poppins',sans-serif;
+}
+.key:hover {
+    background:rgba(26,139,168,.25);
+    border-color:#1a8ba8;
+    transform:scale(1.05);
+}
+.key:active {
+    transform:scale(.95);
+    background:rgba(26,139,168,.4);
+}
+.key.del {
+    background:rgba(201,69,69,.1);
+    border-color:rgba(201,69,69,.3);
+    color:#c94545;
+    font-size:1rem;
+}
+.key.del:hover {
+    background:rgba(201,69,69,.2);
+    border-color:#c94545;
+}
+.key.zero {
+    grid-column:2;
+}
+
+/* ── PIN hint ── */
+.pin-hint {
+    text-align:center;
+    font-size:.75rem;
+    color:#7bb8c8;
+    margin-bottom:16px;
+}
+
+/* ── Error / Success messages ── */
+.msg-box {
+    padding:12px 16px;
+    border-radius:10px;
+    font-size:.82rem;
+    margin-bottom:14px;
+    display:none;
+    align-items:center;
+    gap:10px;
+}
+.msg-box.error {
+    background:rgba(201,69,69,.1);
+    border:1px solid rgba(201,69,69,.3);
+    color:#f87171;
+    display:flex;
+}
+.msg-box.success {
+    background:rgba(46,168,113,.1);
+    border:1px solid rgba(46,168,113,.3);
+    color:#4ade80;
+    display:flex;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg,#1a8ba8,#0d4a5c);
+    border:none;
+    border-radius:14px;
+    color:#fff;
+    font-family:'Poppins',sans-serif;
+    font-size:.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,139,168,.4); }
+.btn-primary:disabled { opacity:.5; cursor:default; transform:none; }
+
+.btn-outline {
+    width:100%;
+    padding:12px;
+    background:transparent;
+    border:1px solid rgba(26,139,168,.4);
+    border-radius:14px;
+    color:#7bb8c8;
+    font-family:'Poppins',sans-serif;
+    font-size:.88rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+    margin-top:10px;
+}
+.btn-outline:hover { border-color:#1a8ba8; color:#e0f4f8; }
+
+/* ── Loading spinner ── */
+.spinner {
+    width:20px;
+    height:20px;
+    border:2px solid rgba(255,255,255,.3);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    display:inline-block;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Success screen ── */
+.success-screen {
+    text-align:center;
+    padding:20px 0;
+}
+.success-icon {
+    width:80px;
+    height:80px;
+    background:rgba(46,168,113,.15);
+    border:2px solid #2ea871;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:2rem;
+    margin:0 auto 20px;
+    color:#2ea871;
+    animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55);
+}
+@keyframes popIn {
+    from { transform:scale(0); opacity:0; }
+    to   { transform:scale(1); opacity:1; }
+}
+
+/* ── Responsive ── */
+@media(max-width:480px) {
+    .reg-card { padding:28px 20px; }
+    .key { padding:15px; font-size:1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="bg-orb" style="width:300px;height:300px;
+    background:radial-gradient(circle,rgba(26,139,168,.15),transparent);
+    top:-80px;right:-80px;animation-delay:0s"></div>
+<div class="bg-orb" style="width:250px;height:250px;
+    background:radial-gradient(circle,rgba(20,184,166,.1),transparent);
+    bottom:-60px;left:-60px;animation-delay:3s"></div>
+
+<div class="reg-card" id="reg-card">
+
+    <!-- Logo -->
+    <div class="reg-logo">
+        <div class="reg-logo-text">STOCK<span>AI</span>-PRO</div>
+        <div class="reg-tagline">INTELLIGENCE A CLICK AWAY</div>
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="steps" id="steps-indicator">
+        <div class="step">
+            <div class="step-circle active" id="step1-circle">1</div>
+            <div class="step-label active" id="step1-label">Details</div>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step">
+            <div class="step-circle" id="step2-circle">2</div>
+            <div class="step-label" id="step2-label">Set PIN</div>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step">
+            <div class="step-circle" id="step3-circle">3</div>
+            <div class="step-label" id="step3-label">Confirm</div>
+        </div>
+    </div>
+
+    <!-- Message box -->
+    <div class="msg-box" id="msg-box">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="msg-text"></span>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         STEP 1 — Your Details
+    ═══════════════════════════════════ -->
+    <div id="step-1">
+        <div class="section-title">Welcome to StockAI-Pro</div>
+        <div class="section-sub">
+            Please confirm your details below.<br>
+            Fields marked with * are required.
+        </div>
+
+        <div id="role-badge-wrap" style="text-align:center"></div>
+
+        <div class="field-group">
+            <label class="field-label">Full Name *</label>
+            <input type="text" id="reg-name" class="field-input"
+                placeholder="Your full name">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Email Address *</label>
+            <input type="email" id="reg-email" class="field-input"
+                placeholder="your@email.com">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Phone Number</label>
+            <input type="tel" id="reg-phone" class="field-input"
+                placeholder="082 555 0000">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Role</label>
+            <input type="text" id="reg-role" class="field-input"
+                disabled style="opacity:.6">
+        </div>
+
+        <button class="btn-primary" onclick="goToStep2()">
+            <i class="fas fa-arrow-right"></i> Continue to Set PIN
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         STEP 2 — Choose PIN
+    ═══════════════════════════════════ -->
+    <div id="step-2" style="display:none">
+        <div class="section-title">Choose Your PIN</div>
+        <div class="section-sub">
+            Enter a 4-digit PIN. You will use this every time<br>
+            you log into StockAI-Pro.
+        </div>
+
+        <!-- PIN dots -->
+        <div class="pin-display" id="pin-display-1">
+            <div class="pin-dot" id="p1-1"></div>
+            <div class="pin-dot" id="p1-2"></div>
+            <div class="pin-dot" id="p1-3"></div>
+            <div class="pin-dot" id="p1-4"></div>
+        </div>
+
+        <div class="pin-hint">Tap the numbers below to enter your PIN</div>
+
+        <!-- Keypad -->
+        <div class="keypad" id="keypad-1">
+            <div class="key" onclick="pinKey(1,'1')">1</div>
+            <div class="key" onclick="pinKey(1,'2')">2</div>
+            <div class="key" onclick="pinKey(1,'3')">3</div>
+            <div class="key" onclick="pinKey(1,'4')">4</div>
+            <div class="key" onclick="pinKey(1,'5')">5</div>
+            <div class="key" onclick="pinKey(1,'6')">6</div>
+            <div class="key" onclick="pinKey(1,'7')">7</div>
+            <div class="key" onclick="pinKey(1,'8')">8</div>
+            <div class="key" onclick="pinKey(1,'9')">9</div>
+            <div class="key del" onclick="pinDel(1)">
+                <i class="fas fa-backspace"></i>
+            </div>
+            <div class="key zero" onclick="pinKey(1,'0')">0</div>
+        </div>
+
+        <button class="btn-outline" onclick="goToStep1()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         STEP 3 — Confirm PIN
+    ═══════════════════════════════════ -->
+    <div id="step-3" style="display:none">
+        <div class="section-title">Confirm Your PIN</div>
+        <div class="section-sub">
+            Enter your PIN again to confirm.<br>
+            Make sure it matches what you chose.
+        </div>
+
+        <!-- PIN dots -->
+        <div class="pin-display" id="pin-display-2">
+            <div class="pin-dot" id="p2-1"></div>
+            <div class="pin-dot" id="p2-2"></div>
+            <div class="pin-dot" id="p2-3"></div>
+            <div class="pin-dot" id="p2-4"></div>
+        </div>
+
+        <div class="pin-hint" id="pin-hint-2">Re-enter your 4-digit PIN</div>
+
+        <!-- Keypad -->
+        <div class="keypad" id="keypad-2">
+            <div class="key" onclick="pinKey(2,'1')">1</div>
+            <div class="key" onclick="pinKey(2,'2')">2</div>
+            <div class="key" onclick="pinKey(2,'3')">3</div>
+            <div class="key" onclick="pinKey(2,'4')">4</div>
+            <div class="key" onclick="pinKey(2,'5')">5</div>
+            <div class="key" onclick="pinKey(2,'6')">6</div>
+            <div class="key" onclick="pinKey(2,'7')">7</div>
+            <div class="key" onclick="pinKey(2,'8')">8</div>
+            <div class="key" onclick="pinKey(2,'9')">9</div>
+            <div class="key del" onclick="pinDel(2)">
+                <i class="fas fa-backspace"></i>
+            </div>
+            <div class="key zero" onclick="pinKey(2,'0')">0</div>
+        </div>
+
+        <button class="btn-outline" onclick="goToStep2()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         SUCCESS SCREEN
+    ═══════════════════════════════════ -->
+    <div id="step-success" style="display:none">
+        <div class="success-screen">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="section-title">Account Created!</div>
+            <div class="section-sub" id="success-msg">
+                Your account has been set up successfully.<br>
+                Redirecting you to the login screen...
+            </div>
+            <div style="margin-top:20px">
+                <div class="spinner" style="margin:0 auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         INVALID LINK SCREEN
+    ═══════════════════════════════════ -->
+    <div id="step-invalid" style="display:none">
+        <div class="success-screen">
+            <div class="success-icon" style="background:rgba(201,69,69,.1);
+                border-color:#c94545;color:#c94545">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="section-title">Invalid Link</div>
+            <div class="section-sub">
+                This registration link is invalid or has already been used.<br><br>
+                Please contact your administrator for a new invitation.
+            </div>
+            <a href="hub.html" style="display:inline-block;margin-top:20px;
+                padding:12px 24px;background:#1a8ba8;color:#fff;border-radius:12px;
+                text-decoration:none;font-weight:700;font-size:.88rem">
+                <i class="fas fa-arrow-left"></i> Back to Login
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ============================================================
+// REGISTER.HTML — Account Setup for New Users
+// ============================================================
+
+var REG = {
+    name:       '',
+    email:      '',
+    phone:      '',
+    role:       '',
+    accountId:  '',
+    entityId:   '',
+    userId:     '',
+    token:      '',
+    pin1:       '',
+    pin2:       ''
+};
+
+// ── Read URL Parameters ──
+function getParam(name) {
+    var url    = new URLSearchParams(window.location.search);
+    var value  = url.get(name);
+    return value ? decodeURIComponent(value) : '';
+}
+
+// ── Initialize page ──
+window.addEventListener('DOMContentLoaded', function() {
+    REG.name      = getParam('name');
+    REG.email     = getParam('email');
+    REG.phone     = getParam('phone');
+    REG.role      = getParam('role');
+    REG.accountId = getParam('account');
+    REG.entityId  = getParam('entity');
+    REG.userId    = getParam('userId');
+    REG.token     = getParam('token');
+
+    // Validate we have minimum required data
+    if (!REG.email || !REG.accountId) {
+        showScreen('step-invalid');
+        return;
+    }
+
+    // Pre-fill form fields
+    var nameEl  = document.getElementById('reg-name');
+    var emailEl = document.getElementById('reg-email');
+    var phoneEl = document.getElementById('reg-phone');
+    var roleEl  = document.getElementById('reg-role');
+
+    if (nameEl)  nameEl.value  = REG.name;
+    if (emailEl) emailEl.value = REG.email;
+    if (phoneEl) phoneEl.value = REG.phone;
+    if (roleEl)  roleEl.value  = REG.role || 'Staff';
+
+    // Show role badge
+    var badgeWrap = document.getElementById('role-badge-wrap');
+    if (badgeWrap && REG.role) {
+        badgeWrap.innerHTML =
+            '<div class="role-badge" style="margin-bottom:16px">' +
+            '<i class="fas fa-shield-alt"></i>' + REG.role +
+            '</div>';
+    }
+
+    // Check if token is valid in Firestore
+    validateToken();
+});
+
+function validateToken() {
+    if (!REG.token || !REG.accountId) return;
+    db.collection('accounts').doc(REG.accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) {
+                showScreen('step-invalid');
+                return;
+            }
+            var data = doc.data();
+            // Check if token exists and has not been used
+            var tokens = data.inviteTokens || {};
+            if (REG.token && tokens[REG.token]) {
+                var tokenData = tokens[REG.token];
+                if (tokenData.used) {
+                    showScreen('step-invalid');
+                    return;
+                }
+                // Token is valid — continue
+                console.log('✅ Token valid — registration allowed');
+            }
+            // If no token system, still allow (backwards compatible)
+        })
+        .catch(function(err) {
+            console.warn('Token validation error:', err.message);
+            // Allow anyway if Firestore check fails
+        });
+}
+
+// ── Screen Management ──
+function showScreen(id) {
+    var screens = ['step-1','step-2','step-3','step-success','step-invalid'];
+    screens.forEach(function(s) {
+        var el = document.getElementById(s);
+        if (el) el.style.display = s === id ? 'block' : 'none';
+    });
+}
+
+function showMsg(text, type) {
+    var box  = document.getElementById('msg-box');
+    var txt  = document.getElementById('msg-text');
+    if (!box || !txt) return;
+    box.className  = 'msg-box ' + (type || 'error');
+    txt.textContent= text;
+    box.style.display = 'flex';
+    setTimeout(function() {
+        box.style.display = 'none';
+    }, 5000);
+}
+
+function hideMsg() {
+    var box = document.getElementById('msg-box');
+    if (box) box.style.display = 'none';
+}
+
+// ── Step Navigation ──
+function goToStep1() {
+    showScreen('step-1');
+    updateStepIndicator(1);
+    REG.pin1 = '';
+    REG.pin2 = '';
+    clearPinDisplay(1);
+    clearPinDisplay(2);
+    hideMsg();
+}
+
+function goToStep2() {
+    hideMsg();
+    // Validate Step 1
+    var name  = document.getElementById('reg-name').value.trim();
+    var email = document.getElementById('reg-email').value.trim().toLowerCase();
+    if (!name)  { showMsg('Please enter your full name.');     return; }
+    if (!email) { showMsg('Please enter your email address.'); return; }
+    if (!email.includes('@')) { showMsg('Please enter a valid email address.'); return; }
+    REG.name  = name;
+    REG.email = email;
+    REG.phone = document.getElementById('reg-phone').value.trim();
+    REG.pin1  = '';
+    clearPinDisplay(1);
+    showScreen('step-2');
+    updateStepIndicator(2);
+}
+
+function goToStep3() {
+    REG.pin2 = '';
+    clearPinDisplay(2);
+    showScreen('step-3');
+    updateStepIndicator(3);
+    document.getElementById('pin-hint-2').textContent = 'Re-enter your 4-digit PIN';
+}
+
+// ── Step Indicator ──
+function updateStepIndicator(step) {
+    for (var i = 1; i <= 3; i++) {
+        var circle = document.getElementById('step' + i + '-circle');
+        var label  = document.getElementById('step' + i + '-label');
+        if (!circle || !label) continue;
+        if (i < step) {
+            circle.className  = 'step-circle done';
+            circle.innerHTML  = '<i class="fas fa-check" style="font-size:.7rem"></i>';
+            label.className   = 'step-label';
+        } else if (i === step) {
+            circle.className  = 'step-circle active';
+            circle.textContent= i;
+            label.className   = 'step-label active';
+        } else {
+            circle.className  = 'step-circle';
+            circle.textContent= i;
+            label.className   = 'step-label';
+        }
+    }
+    var line1 = document.getElementById('line1');
+    var line2 = document.getElementById('line2');
+    if (line1) line1.className = 'step-line' + (step > 1 ? ' done' : '');
+    if (line2) line2.className = 'step-line' + (step > 2 ? ' done' : '');
+}
+
+// ── PIN Functions ──
+function pinKey(step, digit) {
+    if (step === 1) {
+        if (REG.pin1.length >= 4) return;
+        REG.pin1 += digit;
+        updatePinDisplay(1, REG.pin1.length);
+        if (REG.pin1.length === 4) {
+            setTimeout(function() { goToStep3(); }, 300);
+        }
+    } else {
+        if (REG.pin2.length >= 4) return;
+        REG.pin2 += digit;
+        updatePinDisplay(2, REG.pin2.length);
+        if (REG.pin2.length === 4) {
+            setTimeout(function() { submitRegistration(); }, 300);
+        }
+    }
+}
+
+function pinDel(step) {
+    if (step === 1) {
+        if (REG.pin1.length === 0) return;
+        REG.pin1 = REG.pin1.slice(0,-1);
+        updatePinDisplay(1, REG.pin1.length);
+    } else {
+        if (REG.pin2.length === 0) return;
+        REG.pin2 = REG.pin2.slice(0,-1);
+        updatePinDisplay(2, REG.pin2.length);
+    }
+}
+
+function updatePinDisplay(step, count) {
+    for (var i = 1; i <= 4; i++) {
+        var dot = document.getElementById('p' + step + '-' + i);
+        if (dot) {
+            dot.className = 'pin-dot' + (i <= count ? ' filled' : '');
+        }
+    }
+}
+
+function clearPinDisplay(step) {
+    for (var i = 1; i <= 4; i++) {
+        var dot = document.getElementById('p' + step + '-' + i);
+        if (dot) dot.className = 'pin-dot';
+    }
+}
+
+function flashPinError(step) {
+    for (var i = 1; i <= 4; i++) {
+        var dot = document.getElementById('p' + step + '-' + i);
+        if (dot) dot.className = 'pin-dot error';
+    }
+    setTimeout(function() {
+        clearPinDisplay(step);
+        if (step === 1) REG.pin1 = '';
+        else            REG.pin2 = '';
+    }, 600);
+}
+
+// ── Submit Registration ──
+function submitRegistration() {
+    hideMsg();
+
+    // Check PINs match
+    if (REG.pin1 !== REG.pin2) {
+        showMsg('PINs do not match. Please try again.');
+        flashPinError(2);
+        document.getElementById('pin-hint-2').textContent = '❌ PINs do not match — try again';
+        setTimeout(function() {
+            REG.pin2 = '';
+            clearPinDisplay(2);
+            document.getElementById('pin-hint-2').textContent = 'Re-enter your 4-digit PIN';
+        }, 800);
+        return;
+    }
+
+    // Check PIN length
+    if (REG.pin1.length !== 4) {
+        showMsg('PIN must be exactly 4 digits.');
+        return;
+    }
+
+    // Check PIN uniqueness in entity
+    checkPINUnique(REG.pin1, function(isUnique) {
+        if (!isUnique) {
+            showMsg('This PIN is already in use. Please go back and choose a different PIN.');
+            flashPinError(2);
+            REG.pin1 = '';
+            REG.pin2 = '';
+            setTimeout(function() { goToStep2(); }, 800);
+            return;
+        }
+        createAccount();
+    });
+}
+
+function checkPINUnique(pin, callback) {
+    db.collection('accounts').doc(REG.accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) { callback(true); return; }
+            var data    = doc.data();
+            var users   = (data.users || {})[REG.entityId] || [];
+            var conflict= users.find(function(u){ return u.loginPin === pin; });
+            callback(!conflict);
+        })
+        .catch(function() { callback(true); }); // allow if check fails
+}
+
+function createAccount() {
+    // Generate a secure password from PIN + random suffix
+    // PIN is stored separately — this password is never shown to user
+    var securePassword = 'SAP-' + REG.pin1 + '-' + Math.random().toString(36).slice(2,10).toUpperCase();
+
+    // Disable keypad during submission
+    document.querySelectorAll('.key').forEach(function(k){ k.style.pointerEvents='none'; });
+
+    // Show dots as success
+    for (var i = 1; i <= 4; i++) {
+        var dot = document.getElementById('p2-' + i);
+        if (dot) dot.className = 'pin-dot success';
+    }
+
+    // Check if Firebase user already exists
+    auth.fetchSignInMethodsForEmail(REG.email)
+        .then(function(methods) {
+            if (methods && methods.length > 0) {
+                // User already exists in Firebase Auth
+                // Just update their profile in Firestore
+                return updateUserInFirestore(null);
+            } else {
+                // Create new Firebase Auth user
+                return auth.createUserWithEmailAndPassword(REG.email, securePassword)
+                    .then(function(result) {
+                        return updateUserInFirestore(result.user.uid);
+                    });
+            }
+        })
+        .then(function() {
+            // Mark token as used
+            if (REG.token) markTokenUsed();
+            // Show success
+            showSuccessScreen();
+        })
+        .catch(function(err) {
+            console.warn('Registration error:', err.code, err.message);
+            document.querySelectorAll('.key').forEach(function(k){ k.style.pointerEvents=''; });
+            clearPinDisplay(2);
+            REG.pin2 = '';
+            var msg = 'Registration failed. Please try again.';
+            if (err.code === 'auth/email-already-in-use') {
+                // Still try to update Firestore
+                updateUserInFirestore(null)
+                    .then(function(){ if(REG.token) markTokenUsed(); showSuccessScreen(); })
+                    .catch(function(){ showMsg(msg); });
+                return;
+            }
+            if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
+            if (err.code === 'auth/weak-password')  msg = 'PIN too weak — please choose a different PIN.';
+            showMsg(msg);
+        });
+}
+
+function updateUserInFirestore(uid) {
+    return db.collection('accounts').doc(REG.accountId).get()
+        .then(function(doc) {
+            if (!doc.exists) throw new Error('Account not found');
+            var data  = doc.data();
+            var users = (data.users || {})[REG.entityId] || [];
+
+            // Find existing user record by userId or email
+            var existingIdx = -1;
+            users.forEach(function(u, i) {
+                if ((REG.userId && u.id === REG.userId) ||
+                    u.email.toLowerCase() === REG.email.toLowerCase()) {
+                    existingIdx = i;
+                }
+            });
+
+            var now = new Date().toISOString();
+
+            if (existingIdx !== -1) {
+                // Update existing user record
+                users[existingIdx].loginPin       = REG.pin1;
+                users[existingIdx].name           = REG.name;
+                users[existingIdx].phone          = REG.phone || users[existingIdx].phone;
+                users[existingIdx].registeredAt   = now;
+                users[existingIdx].accountActive  = true;
+                if (uid) users[existingIdx].firebaseUid = uid;
+            } else {
+                // Create new user record if not found
+                users.push({
+                    id:            REG.userId || 'USR-' + Date.now(),
+                    name:          REG.name,
+                    email:         REG.email,
+                    phone:         REG.phone || '',
+                    role:          REG.role  || 'Staff',
+                    loginPin:      REG.pin1,
+                    firebaseUid:   uid || '',
+                    registeredAt:  now,
+                    accountActive: true,
+                    appAccess:     ['boh'],
+                    staffType:     'hospitality'
+                });
+            }
+
+            var update = {};
+            update['users.' + REG.entityId] = users;
+            update['lastUpdated']           = firebase.firestore.FieldValue.serverTimestamp();
+            update['lastUpdatedBy']         = REG.name;
+            update['lastUpdatedDevice']     = 'Registration';
+
+            // Also create userMappings for fast login lookup
+            if (uid) {
+                db.collection('userMappings').doc(uid).set({
+                    accountId: REG.accountId,
+                    entityId:  REG.entityId,
+                    email:     REG.email,
+                    name:      REG.name,
+                    role:      REG.role || 'Staff',
+                    loginPin:  REG.pin1
+                });
+            }
+
+            return db.collection('accounts').doc(REG.accountId)
+                .set(update, { merge:true });
+        });
+}
+
+function markTokenUsed() {
+    var update = {};
+    update['inviteTokens.' + REG.token + '.used']   = true;
+    update['inviteTokens.' + REG.token + '.usedAt'] = new Date().toISOString();
+    db.collection('accounts').doc(REG.accountId)
+        .set(update, { merge:true })
+        .catch(function(e){ console.warn('Token mark error:', e); });
+}
+
+function showSuccessScreen() {
+    showScreen('step-success');
+    document.getElementById('steps-indicator').style.display = 'none';
+
+    var msg = document.getElementById('success-msg');
+    if (msg) {
+        msg.innerHTML =
+            'Welcome, <strong>' + REG.name + '</strong>!<br>' +
+            'Your account has been set up successfully.<br><br>' +
+            'You can now log in using your 4-digit PIN.<br>' +
+            'Redirecting you to the login screen...';
+    }
+
+    // Set session so hub knows who this is
+    sessionStorage.setItem('reg_name',      REG.name);
+    sessionStorage.setItem('reg_email',     REG.email);
+    sessionStorage.setItem('reg_pin',       REG.pin1);
+    sessionStorage.setItem('reg_accountId', REG.accountId);
+    sessionStorage.setItem('reg_entityId',  REG.entityId);
+    sessionStorage.setItem('reg_role',      REG.role);
+
+    // Redirect to hub after 3 seconds
+    setTimeout(function() {
+        window.location.href = 'hub.html?newuser=true';
+    }, 3000);
+}
+
+console.log('✅ StockAI-Pro Registration Page loaded');
+</script>
+</body>
+</html>
