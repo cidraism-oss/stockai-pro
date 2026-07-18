@@ -10310,7 +10310,11 @@ function rposLogoutToPinPad() {
 
     /* Clear float from session */
     var cashierName = RPOS.pinUser
-        ? RPOS.pinUser.name : '';
+    ? RPOS.pinUser.name
+    : (RPOS.user ? RPOS.user.name : 'Cashier');
+var cashierRole = RPOS.pinUser
+    ? RPOS.pinUser.role
+    : (RPOS.user ? RPOS.user.role : 'Cashier');
     sessionStorage.removeItem(
         'rpos_float_' + RPOS.entityId + '_' + cashierName);
 
