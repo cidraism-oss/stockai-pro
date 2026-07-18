@@ -10291,30 +10291,39 @@ function rposPinSuccess(userName, userRole) {
 function rposLogoutToPinPad() {
     if (!confirm('Log out and return to PIN screen?')) return;
 
-    /* Clear current PIN user */
-    RPOS.pinUser    = null;
-    RPOS.cart       = [];
-    RPOS.float      = 0;
-    RPOS.floatLocked = false;
-    RPOS.todaySales = [];
-    RPOS.totalCashSales = 0;
-    RPOS.totalCardSales = 0;
-    RPOS.receiptCounter = 0;
-    RPOS.currentView    = 'float';
+    /* Get cashier name before clearing */
+    var prevName = RPOS.pinUser
+        ? RPOS.pinUser.name
+        : (RPOS.user ? RPOS.user.name : '');
 
-    /* Clear shift data */
+    /* Clear float from session */
+    sessionStorage.removeItem(
+        'rpos_float_' + RPOS.entityId + '_' + prevName);
+
+    /* Clear current session */
+    RPOS.pinUser         = null;
+    RPOS.cart            = [];
+    RPOS.float           = 0;
+    RPOS.floatLocked     = false;
+    RPOS.todaySales      = [];
+    RPOS.totalCashSales  = 0;
+    RPOS.totalCardSales  = 0;
+    RPOS.receiptCounter  = 0;
+    RPOS.currentView     = 'float';
+
+    /* Clear clock */
     if (RPOS.clockInterval) {
         clearInterval(RPOS.clockInterval);
         RPOS.clockInterval = null;
     }
 
-    /* Clear float from session */
-    var cashierName = RPOS.pinUser
-    ? RPOS.pinUser.name
-    : (RPOS.user ? RPOS.user.name : 'Cashier');
-var cashierRole = RPOS.pinUser
-    ? RPOS.pinUser.role
-    : (RPOS.user ? RPOS.user.role : 'Cashier');
+    /* Show PIN pad */
+    _rposPinInput = '';
+    var frame = document.getElementById('app-frame');
+    if (frame) {
+        frame.innerHTML = getRposPinHTML();
+    }
+}
     sessionStorage.removeItem(
         'rpos_float_' + RPOS.entityId + '_' + cashierName);
 
@@ -10662,10 +10671,12 @@ function rposConfirmFloat() {
     RPOS.shiftStart  = new Date();
 
     // Save float to session
-    sessionStorage.setItem(
-        'rpos_float_' + RPOS.entityId + '_' +
-        (RPOS.user ? RPOS.user.name : ''),
-        amount);
+    var floatName = RPOS.pinUser
+    ? RPOS.pinUser.name
+    : (RPOS.user ? RPOS.user.name : '');
+sessionStorage.setItem(
+    'rpos_float_' + RPOS.entityId + '_' + floatName,
+    amount);
 
     // Log float to Web App
     var update = {};
