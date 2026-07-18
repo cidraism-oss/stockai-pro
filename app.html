@@ -2778,21 +2778,74 @@ function debouncedSave() {
 var cloudSyncListener = null;
 function startCloudSync() {
     if (!S._accountId) return;
-    if (cloudSyncListener) { cloudSyncListener(); cloudSyncListener = null; }
+    if (cloudSyncListener) {
+        try { cloudSyncListener(); } catch(e){}
+        cloudSyncListener = null;
+    }
+
     cloudSyncListener = db.collection('accounts').doc(S._accountId)
         .onSnapshot(function(doc) {
             if (!doc.exists) return;
             var data   = doc.data();
             var device = data.lastUpdatedDevice || '';
-            // Don't re-process our own saves
+
+            // Skip our own saves
             if (device === 'Web App') return;
-            loadAllData(data);
+
+            // Only update specific fields from Firestore
+            // Do NOT overwrite the entire S object
+            // This prevents losing locally created users
+            if (data.entities)    S.entities    = data.entities;
+            if (data.billing)     S.billing     = data.billing;
+            if (data.notifs)      S.notifs      = data.notifs || [];
+
+            // Only update the current entity data
+            var currentEid = eid();
+            if (currentEid && data.inventory) {
+                var newInv = (data.inventory || {})[currentEid];
+                if (newInv) S.inventory[currentEid] = newInv;
+            }
+            if (currentEid && data.purchases) {
+                var newPurch = (data.purchases || {})[currentEid];
+                if (newPurch) S.purchases[currentEid] = newPurch;
+            }
+            if (currentEid && data.users) {
+                var newUsers = (data.users || {})[currentEid];
+                if (newUsers) S.users[currentEid] = newUsers;
+            }
+            if (currentEid && data.menuItems) {
+                var newMenu = (data.menuItems || {})[currentEid];
+                if (newMenu) S.menuItems[currentEid] = newMenu;
+            }
+            if (currentEid && data.cashups) {
+                var newCashups = (data.cashups || {})[currentEid];
+                if (newCashups) S.cashups[currentEid] = newCashups;
+            }
+            if (currentEid && data.wastage) {
+                var newWaste = (data.wastage || {})[currentEid];
+                if (newWaste) S.wastage[currentEid] = newWaste;
+            }
+            if (currentEid && data.suppliers) {
+                var newSups = (data.suppliers || {})[currentEid];
+                if (newSups) S.suppliers[currentEid] = newSups;
+            }
+            if (currentEid && data.salesOrders) {
+                var newSO = (data.salesOrders || {})[currentEid];
+                if (newSO) S.salesOrders[currentEid] = newSO;
+            }
+
+            // Re-render only what is needed
             safeRenderAll();
             renderNotifs();
-            if (device) toast('info', '🔄 Updated from ' + device);
-        }, function(err){ console.warn('Sync error:', err); });
-}
 
+            if (device) {
+                toast('info', '🔄 Updated from ' + device);
+            }
+
+        }, function(err) {
+            console.warn('Sync error:', err);
+        });
+}
 // ============================================================
 // ENTITY HELPERS
 // ============================================================
