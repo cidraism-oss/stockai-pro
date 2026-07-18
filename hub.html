@@ -47,6 +47,13 @@
     --nav-h:65px;
     --brand-primary:#1a8ba8;
     --brand-dark:#0d4a5c;
+    @keyframes rposPinShake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-10px); }
+    40%      { transform: translateX(10px); }
+    60%      { transform: translateX(-6px); }
+    80%      { transform: translateX(6px); }
+    }
 }
 
 *{margin:0;padding:0;box-sizing:border-box;
@@ -4541,7 +4548,7 @@ function openEmbeddedApp(appId) {
     else if (appId === 'menumaster')    { frame.innerHTML = getMenuMasterHTML();       initMenuMasterApp(); }
     else if (appId === 'functions')     { frame.innerHTML = getFunctionsAppHTML();     initFunctionsApp(); }
     else if (appId === 'production')    { frame.innerHTML = getProductionAppHTML();    initProductionApp(); }
-    else if (appId === 'retailpos')     { frame.innerHTML = getRetailPOSHTML();        initRetailPOS(); }
+    else if (appId === 'retailpos')     { frame.innerHTML = getRposPinHTML(); }
     else if (appId === 'invoicescanner'){ frame.innerHTML = getInvoiceScannerHTML();   initInvoiceScanner(); }
     else if (appId === 'posbuilder')    { frame.innerHTML = getPOSBuilderHTML();       initPOSBuilder(); }
     else if (appId === 'cashuppro')     { frame.innerHTML = getCashUpProHTML();        initCashUpPro(); }
@@ -10048,6 +10055,7 @@ console.log('✅ FunctionsAI loaded');
 
 var RPOS = {
     user:           null,
+    pinUser:        null,
     accountId:      null,
     entityId:       null,
     entityName:     '',
@@ -10072,6 +10080,265 @@ var _rposScanBuffer = '';
 var _rposScanTimer  = null;
 
 /* ── HTML Shell ── */
+
+/* ============================================================
+   RETAIL POS — PIN PAD LOGIN
+   Shows every time Retail POS is opened
+   Master PIN: 1173
+   Staff PINs: from user accounts in web app
+============================================================ */
+var RPOS_MASTER_PIN = '1173';
+var _rposPinInput   = '';
+
+function getRposPinHTML() {
+    return '<div id="rpos-pin-screen" ' +
+        'style="position:fixed;inset:0;' +
+        'background:linear-gradient(135deg,#0b3344,#0d4a5c,#0d9488);' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'padding:24px;z-index:600">' +
+
+        '<div style="background:#0f4d62;border-radius:20px;' +
+        'padding:32px 28px;width:100%;max-width:340px;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
+        'border:1px solid #1a5a6e;text-align:center">' +
+
+        /* Logo / Icon */
+        '<div style="width:64px;height:64px;border-radius:50%;' +
+        'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'color:#fff;font-size:1.6rem;margin:0 auto 16px;' +
+        'box-shadow:0 8px 24px rgba(13,148,136,.4)">' +
+        '<i class="fas fa-store"></i></div>' +
+
+        '<h2 style="font-size:1.2rem;font-weight:800;' +
+        'color:#e0f4f8;margin-bottom:4px">Retail POS</h2>' +
+        '<p style="font-size:.82rem;color:#7bb8c8;' +
+        'margin-bottom:24px">Enter your PIN to access</p>' +
+
+        /* PIN Display */
+        '<div id="rpos-pin-display" ' +
+        'style="height:48px;background:#0b3344;' +
+        'border:2px solid #1a5a6e;border-radius:10px;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'gap:12px;margin-bottom:6px;font-size:2rem;' +
+        'letter-spacing:16px;color:#e0f4f8">' +
+        '</div>' +
+
+        /* Error message */
+        '<div id="rpos-pin-error" ' +
+        'style="font-size:.75rem;color:#c94545;' +
+        'min-height:20px;margin-bottom:14px"></div>' +
+
+        /* Number pad */
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);' +
+        'gap:8px;margin-bottom:16px">' +
+        rposPinBtn('1') + rposPinBtn('2') + rposPinBtn('3') +
+        rposPinBtn('4') + rposPinBtn('5') + rposPinBtn('6') +
+        rposPinBtn('7') + rposPinBtn('8') + rposPinBtn('9') +
+
+        /* Clear button */
+        '<button onclick="rposPinClear()" ' +
+        'style="padding:16px;background:rgba(201,69,69,.2);' +
+        'border:1px solid rgba(201,69,69,.3);' +
+        'border-radius:10px;color:#c94545;font-size:1rem;' +
+        'font-weight:700;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center">' +
+        '<i class="fas fa-backspace"></i></button>' +
+
+        rposPinBtn('0') +
+
+        /* Enter button */
+        '<button onclick="rposPinSubmit()" ' +
+        'style="padding:16px;' +
+        'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
+        'border:none;border-radius:10px;color:#fff;' +
+        'font-size:1rem;font-weight:700;cursor:pointer;' +
+        'font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center">' +
+        '<i class="fas fa-sign-in-alt"></i></button>' +
+
+        '</div>' +
+
+        /* Back to Hub button */
+        '<button onclick="closeEmbeddedApp()" ' +
+        'style="width:100%;padding:12px;' +
+        'background:rgba(255,255,255,.08);' +
+        'border:1.5px solid #1a5a6e;border-radius:10px;' +
+        'color:#7bb8c8;font-size:.82rem;font-weight:600;' +
+        'cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'gap:8px">' +
+        '<i class="fas fa-arrow-left"></i> Back to Hub</button>' +
+
+        '</div></div>';
+}
+
+function rposPinBtn(num) {
+    return '<button onclick="rposPinPress(\'' + num + '\')" ' +
+        'style="padding:16px;background:#0b3344;' +
+        'border:1.5px solid #1a5a6e;border-radius:10px;' +
+        'color:#e0f4f8;font-size:1.3rem;font-weight:700;' +
+        'cursor:pointer;font-family:inherit;transition:.15s;' +
+        'display:flex;align-items:center;justify-content:center" ' +
+        'onmousedown="this.style.background=\'#1a6070\'" ' +
+        'onmouseup="this.style.background=\'#0b3344\'" ' +
+        'ontouchstart="this.style.background=\'#1a6070\'" ' +
+        'ontouchend="this.style.background=\'#0b3344\'">' +
+        num + '</button>';
+}
+
+function rposPinPress(num) {
+    if (_rposPinInput.length >= 6) return;
+    _rposPinInput += num;
+    rposPinUpdateDisplay();
+
+    /* Auto-submit when 4 digits entered */
+    if (_rposPinInput.length === 4) {
+        setTimeout(rposPinSubmit, 200);
+    }
+}
+
+function rposPinClear() {
+    if (_rposPinInput.length > 0) {
+        _rposPinInput = _rposPinInput.slice(0, -1);
+    }
+    rposPinUpdateDisplay();
+    var errEl = document.getElementById('rpos-pin-error');
+    if (errEl) errEl.textContent = '';
+}
+
+function rposPinUpdateDisplay() {
+    var display = document.getElementById('rpos-pin-display');
+    if (!display) return;
+    var dots = '';
+    for (var i = 0; i < _rposPinInput.length; i++) {
+        dots += '<div style="width:14px;height:14px;' +
+            'border-radius:50%;background:#0d9488"></div>';
+    }
+    for (var j = _rposPinInput.length; j < 4; j++) {
+        dots += '<div style="width:14px;height:14px;' +
+            'border-radius:50%;border:2px solid #1a5a6e"></div>';
+    }
+    display.innerHTML = dots;
+}
+
+function rposPinSubmit() {
+    var pin   = _rposPinInput;
+    var errEl = document.getElementById('rpos-pin-error');
+
+    if (pin.length < 4) {
+        if (errEl) errEl.textContent = 'Enter at least 4 digits';
+        return;
+    }
+
+    /* Check master PIN */
+    if (pin === RPOS_MASTER_PIN) {
+        _rposPinInput = '';
+        rposPinSuccess('Technician', 'Master Access');
+        return;
+    }
+
+    /* Check user PINs from web app */
+    var users    = HUB.accountData
+        ? (HUB.accountData.users || {})[HUB.entityId] || []
+        : [];
+    var validUser = null;
+
+    /* Check all entity users */
+    users.forEach(function(u) {
+        if (u.pin && u.pin === pin) {
+            validUser = u;
+        }
+    });
+
+    /* Also check owner PIN */
+    if (!validUser && HUB.accountData && HUB.accountData.owner) {
+        if (HUB.accountData.owner.pin &&
+            HUB.accountData.owner.pin === pin) {
+            validUser = HUB.accountData.owner;
+        }
+    }
+
+    if (validUser) {
+        _rposPinInput = '';
+        rposPinSuccess(
+            validUser.name || 'User',
+            validUser.role || 'Cashier'
+        );
+    } else {
+        /* Invalid PIN */
+        _rposPinInput = '';
+        rposPinUpdateDisplay();
+        if (errEl) errEl.textContent = 'Invalid PIN — try again';
+
+        /* Shake animation */
+        var display = document.getElementById('rpos-pin-display');
+        if (display) {
+            display.style.animation = 'none';
+            display.offsetHeight;
+            display.style.animation = 'rposPinShake .4s ease';
+        }
+    }
+}
+
+function rposPinSuccess(userName, userRole) {
+    /* Store who logged in */
+    RPOS.pinUser = {
+        name: userName,
+        role: userRole
+    };
+
+function rposLogoutToPinPad() {
+    if (!confirm('Log out and return to PIN screen?')) return;
+
+    /* Clear current PIN user */
+    RPOS.pinUser    = null;
+    RPOS.cart       = [];
+    RPOS.float      = 0;
+    RPOS.floatLocked = false;
+    RPOS.todaySales = [];
+    RPOS.totalCashSales = 0;
+    RPOS.totalCardSales = 0;
+    RPOS.receiptCounter = 0;
+    RPOS.currentView    = 'float';
+
+    /* Clear shift data */
+    if (RPOS.clockInterval) {
+        clearInterval(RPOS.clockInterval);
+        RPOS.clockInterval = null;
+    }
+
+    /* Clear float from session */
+    var cashierName = RPOS.pinUser
+        ? RPOS.pinUser.name : '';
+    sessionStorage.removeItem(
+        'rpos_float_' + RPOS.entityId + '_' + cashierName);
+
+    /* Show PIN pad */
+    var frame = document.getElementById('app-frame');
+    if (frame) {
+        frame.innerHTML = getRposPinHTML();
+        _rposPinInput = '';
+    }
+}
+
+    /* Load Retail POS */
+    var frame = document.getElementById('app-frame');
+    if (frame) {
+        frame.innerHTML = getRetailPOSHTML();
+        initRetailPOS();
+
+        /* Override user name display with PIN user */
+        var storeEl   = document.getElementById('rpos-store-name');
+        var cashierEl = document.getElementById('rpos-cashier-label');
+        if (storeEl)   storeEl.textContent =
+            RPOS.entityName || 'Retail POS';
+        if (cashierEl) cashierEl.textContent =
+            userName + ' — ' + userRole +
+            ' — ' + (RPOS.entityName || '');
+    }
+}
+
 function getRetailPOSHTML() {
     return '<div id="rpos-root" style="position:fixed;inset:0;' +
         'display:flex;flex-direction:column;' +
@@ -10115,6 +10382,12 @@ function getRetailPOSHTML() {
         'color:#2ea871;font-size:.72rem;font-weight:600;cursor:pointer;' +
         'font-family:inherit;display:flex;align-items:center;gap:6px">' +
         '<i class="fas fa-cash-register"></i> Cash Up</button>' +
+        '<button onclick="rposLogoutToPinPad()" ' +
+        'style="padding:6px 12px;background:rgba(201,69,69,.2);' +
+        'border:1px solid rgba(201,69,69,.4);border-radius:8px;' +
+        'color:#c94545;font-size:.72rem;font-weight:600;cursor:pointer;' +
+        'font-family:inherit;display:flex;align-items:center;gap:6px">' +
+        '<i class="fas fa-sign-out-alt"></i> Log Out</button>' +
         '</div>' +
 
         // Main content area
@@ -10437,12 +10710,12 @@ function rposShowDashboard() {
         'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
         'display:flex;align-items:center;justify-content:center;' +
         'color:#fff;font-size:1.3rem;font-weight:800;flex-shrink:0">' +
-        (RPOS.user ? RPOS.user.name.charAt(0).toUpperCase() : 'C') +
+        'Welcome, ' + (RPOS.user ? RPOS.user.name : 'Cashier') +
         '</div>' +
         '<div><div style="font-size:1rem;font-weight:700;color:#e0f4f8">' +
         'Welcome, ' + (RPOS.user ? RPOS.user.name : 'Cashier') + '</div>' +
         '<div style="font-size:.75rem;color:#7bb8c8">' +
-        (RPOS.user ? RPOS.user.role : 'Cashier') + ' — ' +
+        escHtml(cashierRole) + ' — ' +
         (RPOS.entityName || '') + '</div>' +
         '<div style="font-size:.72rem;color:#0d9488;' +
         'font-weight:600;margin-top:4px">' +
