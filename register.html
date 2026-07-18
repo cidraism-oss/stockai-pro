@@ -891,56 +891,82 @@ function checkPINUnique(pin, callback) {
 }
 
 function createAccount() {
-    // Generate a secure password from PIN + random suffix
-    // PIN is stored separately — this password is never shown to user
-    var securePassword = 'SAP-' + REG.pin1 + '-' + Math.random().toString(36).slice(2,10).toUpperCase();
-
     // Disable keypad during submission
-    document.querySelectorAll('.key').forEach(function(k){ k.style.pointerEvents='none'; });
+    document.querySelectorAll('.key').forEach(function(k){
+        k.style.pointerEvents = 'none';
+    });
 
-    // Show dots as success
+    // Show dots as success colour
     for (var i = 1; i <= 4; i++) {
         var dot = document.getElementById('p2-' + i);
         if (dot) dot.className = 'pin-dot success';
     }
 
-    // Check if Firebase user already exists
+    // Check if Firebase user already exists first
+    // without trying to create a new one
     auth.fetchSignInMethodsForEmail(REG.email)
         .then(function(methods) {
             if (methods && methods.length > 0) {
-                // User already exists in Firebase Auth
-                // Just update their profile in Firestore
+                // Firebase account already exists
+                // Just update the PIN in Firestore — no Auth needed
+                console.log('Firebase account exists — updating Firestore only');
                 return updateUserInFirestore(null);
             } else {
-                // Create new Firebase Auth user
-                return auth.createUserWithEmailAndPassword(REG.email, securePassword)
-                    .then(function(result) {
-                        return updateUserInFirestore(result.user.uid);
-                    });
+                // No Firebase account yet — create one
+                // Use a secure random password the user never needs to know
+                var securePassword =
+                    'SAP' + REG.pin1 +
+                    Math.random().toString(36).slice(2,8).toUpperCase() +
+                    '!' + Date.now().toString(36).toUpperCase();
+
+                return auth.createUserWithEmailAndPassword(
+                    REG.email, securePassword
+                ).then(function(result) {
+                    return updateUserInFirestore(result.user.uid);
+                });
             }
         })
         .then(function() {
-            // Mark token as used
             if (REG.token) markTokenUsed();
-            // Show success
             showSuccessScreen();
         })
         .catch(function(err) {
             console.warn('Registration error:', err.code, err.message);
-            document.querySelectorAll('.key').forEach(function(k){ k.style.pointerEvents=''; });
+
+            // Re-enable keypad
+            document.querySelectorAll('.key').forEach(function(k){
+                k.style.pointerEvents = '';
+            });
             clearPinDisplay(2);
             REG.pin2 = '';
-            var msg = 'Registration failed. Please try again.';
+
+            // Handle specific errors
             if (err.code === 'auth/email-already-in-use') {
-                // Still try to update Firestore
+                // This should not happen since we check first
+                // but if it does, just update Firestore
                 updateUserInFirestore(null)
-                    .then(function(){ if(REG.token) markTokenUsed(); showSuccessScreen(); })
-                    .catch(function(){ showMsg(msg); });
+                    .then(function() {
+                        if (REG.token) markTokenUsed();
+                        showSuccessScreen();
+                    })
+                    .catch(function(firestoreErr) {
+                        showMsg('Could not save your account. Please try again or contact support.');
+                        console.warn('Firestore update error:', firestoreErr);
+                    });
                 return;
             }
-            if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
-            if (err.code === 'auth/weak-password')  msg = 'PIN too weak — please choose a different PIN.';
-            showMsg(msg);
+
+            if (err.code === 'auth/invalid-email') {
+                showMsg('Invalid email address. Please go back and check your email.');
+                return;
+            }
+
+            if (err.code === 'auth/network-request-failed') {
+                showMsg('No internet connection. Please check your connection and try again.');
+                return;
+            }
+
+            showMsg('Registration failed. Please try again. If this keeps happening, contact support.');
         });
 }
 
@@ -948,61 +974,85 @@ function updateUserInFirestore(uid) {
     return db.collection('accounts').doc(REG.accountId).get()
         .then(function(doc) {
             if (!doc.exists) throw new Error('Account not found');
-            var data  = doc.data();
-            var users = (data.users || {})[REG.entityId] || [];
 
-            // Find existing user record by userId or email
-            var existingIdx = -1;
+            var data  = doc.data();
+            var users = [];
+
+            // Get users for this entity
+            if (data.users && data.users[REG.entityId]) {
+                users = data.users[REG.entityId];
+            }
+
+            var now        = new Date().toISOString();
+            var existingIdx= -1;
+
+            // Find by userId first, then by email
             users.forEach(function(u, i) {
-                if ((REG.userId && u.id === REG.userId) ||
+                if (REG.userId && u.id === REG.userId) {
+                    existingIdx = i;
+                } else if (u.email &&
                     u.email.toLowerCase() === REG.email.toLowerCase()) {
                     existingIdx = i;
                 }
             });
 
-            var now = new Date().toISOString();
-
             if (existingIdx !== -1) {
-                // Update existing user record
-                users[existingIdx].loginPin       = REG.pin1;
-                users[existingIdx].name           = REG.name;
-                users[existingIdx].phone          = REG.phone || users[existingIdx].phone;
-                users[existingIdx].registeredAt   = now;
-                users[existingIdx].accountActive  = true;
-                if (uid) users[existingIdx].firebaseUid = uid;
+                // Update existing record — only update PIN and registration info
+                // Do NOT overwrite role, appAccess or other admin-set fields
+                users[existingIdx].loginPin      = REG.pin1;
+                users[existingIdx].registeredAt  = now;
+                users[existingIdx].accountActive = true;
+                // Only update name and phone if they were blank
+                if (!users[existingIdx].name || users[existingIdx].name === '')
+                    users[existingIdx].name = REG.name;
+                if (!users[existingIdx].phone || users[existingIdx].phone === '')
+                    users[existingIdx].phone = REG.phone || '';
+                if (uid && !users[existingIdx].firebaseUid)
+                    users[existingIdx].firebaseUid = uid;
             } else {
-                // Create new user record if not found
-                users.push({
-                    id:            REG.userId || 'USR-' + Date.now(),
+                // User record not found — create a new one
+                // This handles the case where admin used old app version
+                var newUser = {
+                    id:            REG.userId || ('USR-' + Date.now()),
                     name:          REG.name,
                     email:         REG.email,
-                    phone:         REG.phone || '',
-                    role:          REG.role  || 'Staff',
+                    phone:         REG.phone  || '',
+                    role:          REG.role   || 'Staff',
                     loginPin:      REG.pin1,
-                    firebaseUid:   uid || '',
+                    firebaseUid:   uid        || '',
                     registeredAt:  now,
                     accountActive: true,
                     appAccess:     ['boh'],
-                    staffType:     'hospitality'
-                });
+                    staffType:     'hospitality',
+                    employeeNumber:''
+                };
+                users.push(newUser);
             }
 
+            // Build Firestore update
             var update = {};
             update['users.' + REG.entityId] = users;
-            update['lastUpdated']           = firebase.firestore.FieldValue.serverTimestamp();
+            update['lastUpdated']           =
+                firebase.firestore.FieldValue.serverTimestamp();
             update['lastUpdatedBy']         = REG.name;
             update['lastUpdatedDevice']     = 'Registration';
 
-            // Also create userMappings for fast login lookup
+            // Create userMappings entry for fast PIN login lookup
             if (uid) {
-                db.collection('userMappings').doc(uid).set({
+                var mappingData = {
                     accountId: REG.accountId,
                     entityId:  REG.entityId,
                     email:     REG.email,
                     name:      REG.name,
                     role:      REG.role || 'Staff',
                     loginPin:  REG.pin1
-                });
+                };
+                // Write mapping — non-blocking
+                db.collection('userMappings').doc(uid)
+                    .set(mappingData)
+                    .catch(function(e){
+                        console.warn('UserMapping write error:', e);
+                    });
             }
 
             return db.collection('accounts').doc(REG.accountId)
