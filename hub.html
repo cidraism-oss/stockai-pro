@@ -10046,14 +10046,8 @@ console.log('✅ FunctionsAI loaded');
 </script>
 <script>
 /* ============================================================
-   RETAIL POS APP
-   - USB barcode scanner support
-   - VAT inclusive pricing (15%)
-   - Cash/Card/Price Adjustment/Void
-   - Till slip printing (thermal printer format)
-   - Cash received calculator + change
-   - Cashier dashboard with shift stats
-   - Links to POS Builder, CashUp-Pro, ItemPro, Web App
+   RETAIL POS — COMPLETE
+   PIN pad login, scanning, payments, cashups
 ============================================================ */
 
 var RPOS = {
@@ -10079,17 +10073,14 @@ var RPOS = {
     clockInterval:  null
 };
 
+var RPOS_MASTER_PIN = '1173';
+var _rposPinInput   = '';
 var _rposScanBuffer = '';
 var _rposScanTimer  = null;
 
-/* ── HTML Shell ── */
-
 /* ============================================================
-   RETAIL POS — PIN PAD LOGIN
+   PIN PAD
 ============================================================ */
-var RPOS_MASTER_PIN = '1173';
-var _rposPinInput   = '';
-
 function getRposPinHTML() {
     _rposPinInput = '';
     return '<div id="rpos-pin-screen" ' +
@@ -10119,8 +10110,7 @@ function getRposPinHTML() {
         'style="height:48px;background:#0b3344;' +
         'border:2px solid #1a5a6e;border-radius:10px;' +
         'display:flex;align-items:center;justify-content:center;' +
-        'gap:12px;margin-bottom:6px;font-size:2rem;' +
-        'letter-spacing:16px;color:#e0f4f8">' +
+        'gap:12px;margin-bottom:6px">' +
         '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
         '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
         '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
@@ -10139,9 +10129,9 @@ function getRposPinHTML() {
 
         '<button onclick="rposPinClear()" ' +
         'style="padding:16px;background:rgba(201,69,69,.2);' +
-        'border:1px solid rgba(201,69,69,.3);' +
-        'border-radius:10px;color:#c94545;font-size:1rem;' +
-        'font-weight:700;cursor:pointer;font-family:inherit;' +
+        'border:1px solid rgba(201,69,69,.3);border-radius:10px;' +
+        'color:#c94545;font-size:1rem;font-weight:700;' +
+        'cursor:pointer;font-family:inherit;' +
         'display:flex;align-items:center;justify-content:center">' +
         '<i class="fas fa-backspace"></i></button>' +
 
@@ -10155,7 +10145,6 @@ function getRposPinHTML() {
         'font-family:inherit;' +
         'display:flex;align-items:center;justify-content:center">' +
         '<i class="fas fa-sign-in-alt"></i></button>' +
-
         '</div>' +
 
         '<button onclick="closeEmbeddedApp()" ' +
@@ -10227,26 +10216,20 @@ function rposPinSubmit() {
         return;
     }
 
-    /* Check master PIN */
     if (pin === RPOS_MASTER_PIN) {
         _rposPinInput = '';
         rposPinSuccess('Technician', 'Master Access');
         return;
     }
 
-    /* Check user PINs */
     var users     = HUB.accountData
-        ? (HUB.accountData.users || {})[HUB.entityId] || []
-        : [];
+        ? (HUB.accountData.users || {})[HUB.entityId] || [] : [];
     var validUser = null;
 
     users.forEach(function(u) {
-        if (u.pin && u.pin === pin) {
-            validUser = u;
-        }
+        if (u.pin && u.pin === pin) validUser = u;
     });
 
-    /* Check owner PIN */
     if (!validUser && HUB.accountData && HUB.accountData.owner) {
         if (HUB.accountData.owner.pin &&
             HUB.accountData.owner.pin === pin) {
@@ -10274,129 +10257,125 @@ function rposPinSubmit() {
 }
 
 function rposPinSuccess(userName, userRole) {
-    RPOS.pinUser = {
-        name: userName,
-        role: userRole
-    };
-
+    RPOS.pinUser = { name: userName, role: userRole };
     var frame = document.getElementById('app-frame');
     if (frame) {
         frame.innerHTML = getRetailPOSHTML();
         initRetailPOS();
-
-        var storeEl   = document.getElementById('rpos-store-name');
-        var cashierEl = document.getElementById('rpos-cashier-label');
-        if (storeEl) storeEl.textContent =
-            RPOS.entityName || 'Retail POS';
-        if (cashierEl) cashierEl.textContent =
-            userName + ' — ' + userRole +
-            ' — ' + (RPOS.entityName || '');
     }
 }
 
 function rposLogoutToPinPad() {
     if (!confirm('Log out and return to PIN screen?')) return;
-
-    var prevName = RPOS.pinUser
-        ? RPOS.pinUser.name
-        : (RPOS.user ? RPOS.user.name : '');
-
+    var prevName = RPOS.pinUser ? RPOS.pinUser.name :
+        (RPOS.user ? RPOS.user.name : '');
     sessionStorage.removeItem(
         'rpos_float_' + RPOS.entityId + '_' + prevName);
-
-    RPOS.pinUser         = null;
-    RPOS.cart            = [];
-    RPOS.float           = 0;
-    RPOS.floatLocked     = false;
-    RPOS.todaySales      = [];
-    RPOS.totalCashSales  = 0;
-    RPOS.totalCardSales  = 0;
-    RPOS.receiptCounter  = 0;
-    RPOS.currentView     = 'float';
-
+    RPOS.pinUser        = null;
+    RPOS.cart           = [];
+    RPOS.float          = 0;
+    RPOS.floatLocked    = false;
+    RPOS.todaySales     = [];
+    RPOS.totalCashSales = 0;
+    RPOS.totalCardSales = 0;
+    RPOS.receiptCounter = 0;
+    RPOS.currentView    = 'float';
     if (RPOS.clockInterval) {
         clearInterval(RPOS.clockInterval);
         RPOS.clockInterval = null;
     }
-
     _rposPinInput = '';
     var frame = document.getElementById('app-frame');
-    if (frame) {
-        frame.innerHTML = getRposPinHTML();
-    }
+    if (frame) frame.innerHTML = getRposPinHTML();
 }
 
+/* ============================================================
+   HELPER — Get cashier name/role from PIN user
+============================================================ */
+function rposGetCashierName() {
+    if (RPOS.pinUser && RPOS.pinUser.name) return RPOS.pinUser.name;
+    if (RPOS.user && RPOS.user.name) return RPOS.user.name;
+    return 'Cashier';
+}
+
+function rposGetCashierRole() {
+    if (RPOS.pinUser && RPOS.pinUser.role) return RPOS.pinUser.role;
+    if (RPOS.user && RPOS.user.role) return RPOS.user.role;
+    return 'Cashier';
+}
+
+/* ============================================================
+   APP SHELL HTML
+============================================================ */
 function getRetailPOSHTML() {
+    var cashierName = rposGetCashierName();
+    var cashierRole = rposGetCashierRole();
+
     return '<div id="rpos-root" style="position:fixed;inset:0;' +
         'display:flex;flex-direction:column;' +
         'background:#0d3d4f;font-family:Poppins,sans-serif">' +
 
-        // Header
         '<div style="background:linear-gradient(90deg,#0d4a5c,#0d9488);' +
         'height:56px;display:flex;align-items:center;padding:0 16px;' +
-        'gap:12px;flex-shrink:0;box-shadow:0 2px 16px rgba(0,0,0,.3);' +
-        'z-index:100">' +
-        '<button onclick="rposBackToHub()" ' +
-        'style="display:flex;align-items:center;gap:8px;padding:8px 14px;' +
-        'background:rgba(255,255,255,.15);border:none;border-radius:8px;' +
-        'color:#fff;font-size:.78rem;font-weight:600;cursor:pointer;' +
-        'font-family:inherit">' +
-        '<i class="fas fa-arrow-left"></i> Hub</button>' +
+        'gap:12px;flex-shrink:0;box-shadow:0 2px 16px rgba(0,0,0,.3);z-index:100">' +
+
         '<div style="display:flex;align-items:center;gap:10px;flex:1">' +
         '<div style="width:36px;height:36px;background:rgba(255,255,255,.15);' +
-        'border-radius:10px;display:flex;align-items:center;' +
-        'justify-content:center;color:#fff;font-size:1rem">' +
-        '<i class="fas fa-store"></i></div>' +
-        '<div>' +
-        '<div style="font-size:.92rem;font-weight:700;color:#fff" ' +
-        'id="rpos-store-name">Retail POS</div>' +
+        'border-radius:10px;display:flex;align-items:center;justify-content:center;' +
+        'color:#fff;font-size:1rem"><i class="fas fa-store"></i></div>' +
+        '<div><div style="font-size:.92rem;font-weight:700;color:#fff" ' +
+        'id="rpos-store-name">' + escHtml(RPOS.entityName || 'Retail POS') + '</div>' +
         '<div style="font-size:.62rem;color:rgba(255,255,255,.7)" ' +
-        'id="rpos-cashier-label">Loading...</div>' +
-        '</div></div>' +
+        'id="rpos-cashier-label">' + escHtml(cashierName) +
+        ' — ' + escHtml(cashierRole) + '</div></div></div>' +
+
         '<div style="text-align:right;font-size:.7rem;' +
         'color:rgba(255,255,255,.7)" id="rpos-clock">' +
         '<strong style="display:block;font-size:.82rem;color:#fff">' +
         '00:00:00</strong><span>Loading...</span></div>' +
+
         '<button onclick="rposInitCashDrop()" ' +
         'style="padding:6px 12px;background:rgba(245,158,11,.2);' +
         'border:1px solid rgba(245,158,11,.4);border-radius:8px;' +
         'color:#f59e0b;font-size:.72rem;font-weight:600;cursor:pointer;' +
         'font-family:inherit;display:flex;align-items:center;gap:6px">' +
         '<i class="fas fa-coins"></i> Drop</button>' +
+
         '<button onclick="rposInitCashUp()" ' +
         'style="padding:6px 12px;background:rgba(46,168,113,.2);' +
         'border:1px solid rgba(46,168,113,.4);border-radius:8px;' +
         'color:#2ea871;font-size:.72rem;font-weight:600;cursor:pointer;' +
         'font-family:inherit;display:flex;align-items:center;gap:6px">' +
         '<i class="fas fa-cash-register"></i> Cash Up</button>' +
+
         '<button onclick="rposLogoutToPinPad()" ' +
         'style="padding:6px 12px;background:rgba(201,69,69,.2);' +
         'border:1px solid rgba(201,69,69,.4);border-radius:8px;' +
         'color:#c94545;font-size:.72rem;font-weight:600;cursor:pointer;' +
         'font-family:inherit;display:flex;align-items:center;gap:6px">' +
         '<i class="fas fa-sign-out-alt"></i> Log Out</button>' +
+
         '</div>' +
 
-        // Main content area
         '<div id="rpos-main" style="flex:1;overflow:hidden;' +
         'display:flex;flex-direction:column"></div>' +
 
-        // Hidden barcode input
         '<input type="text" id="rpos-barcode-input" ' +
         'style="position:absolute;left:-9999px;top:0;width:1px;height:1px;' +
         'opacity:0" autocomplete="off" tabindex="-1">' +
 
-        // Modal container
         '<div id="rpos-modal"></div>' +
 
-        // Toast
         '<div id="rpos-toast" style="position:fixed;bottom:24px;right:24px;' +
         'z-index:99999;display:flex;flex-direction:column;gap:8px;' +
         'pointer-events:none"></div>' +
+
         '</div>';
 }
 
-/* ── Init ── */
+/* ============================================================
+   INIT
+============================================================ */
 function initRetailPOS() {
     RPOS.user       = HUB.user;
     RPOS.accountId  = HUB.accountId;
@@ -10407,18 +10386,8 @@ function initRetailPOS() {
     RPOS.sessionId  = 'SES-' + Date.now();
     RPOS.shiftStart = new Date();
 
-    // Update header
-    var sn = document.getElementById('rpos-store-name');
-    var cl = document.getElementById('rpos-cashier-label');
-    if (sn) sn.textContent = RPOS.entityName || 'Retail POS';
-    if (cl) cl.textContent =
-        (RPOS.user ? RPOS.user.name : 'Cashier') +
-        ' — ' + RPOS.entityName;
-
-    // Load data
     if (HUB.accountData) rposLoadData(HUB.accountData);
 
-    // Refresh from Firestore
     db.collection('accounts').doc(HUB.accountId).get()
         .then(function(doc) {
             if (doc.exists) {
@@ -10439,11 +10408,11 @@ function rposLoadData(data) {
         return e.id === RPOS.entityId;
     }) || RPOS.entity;
     RPOS.inventory = (data.inventory   || {})[RPOS.entityId] || [];
-    RPOS.sales     = (data.retailSales  || {})[RPOS.entityId] || [];
-    RPOS.drops     = (data.cashDrops    || {})[RPOS.entityId] || [];
+    RPOS.sales     = (data.retailSales || {})[RPOS.entityId] || [];
+    RPOS.drops     = (data.cashDrops   || {})[RPOS.entityId] || [];
 
     var today       = new Date().toISOString().split('T')[0];
-    var cashierName = RPOS.user ? RPOS.user.name : '';
+    var cashierName = rposGetCashierName();
     RPOS.todaySales = RPOS.sales.filter(function(s) {
         return s.date && s.date.startsWith(today) &&
                s.cashier === cashierName;
@@ -10457,7 +10426,6 @@ function rposLoadData(data) {
 
     HUB.accountData = data;
 
-    // Restore float from session
     var savedFloat = sessionStorage.getItem(
         'rpos_float_' + RPOS.entityId + '_' + cashierName);
     if (savedFloat) {
@@ -10466,7 +10434,9 @@ function rposLoadData(data) {
     }
 }
 
-/* ── Clock ── */
+/* ============================================================
+   CLOCK
+============================================================ */
 function rposStartClock() {
     if (RPOS.clockInterval) clearInterval(RPOS.clockInterval);
     RPOS.clockInterval = setInterval(function() {
@@ -10484,7 +10454,9 @@ function rposStartClock() {
     }, 1000);
 }
 
-/* ── Back to Hub ── */
+/* ============================================================
+   BACK TO HUB
+============================================================ */
 function rposBackToHub() {
     if (RPOS.clockInterval) {
         clearInterval(RPOS.clockInterval);
@@ -10493,19 +10465,17 @@ function rposBackToHub() {
     closeEmbeddedApp();
 }
 
-/* ── Toast ── */
+/* ============================================================
+   TOAST + MODAL
+============================================================ */
 function rposToast(type, msg) {
     var colors = {
-        success: 'rgba(46,168,113,.95)',
-        error:   'rgba(201,69,69,.95)',
-        info:    'rgba(13,148,136,.95)',
-        warning: 'rgba(245,158,11,.95)'
+        success:'rgba(46,168,113,.95)', error:'rgba(201,69,69,.95)',
+        info:'rgba(13,148,136,.95)', warning:'rgba(245,158,11,.95)'
     };
     var icons = {
-        success: 'check-circle',
-        error:   'times-circle',
-        info:    'info-circle',
-        warning: 'exclamation-triangle'
+        success:'check-circle', error:'times-circle',
+        info:'info-circle', warning:'exclamation-triangle'
     };
     var t = document.createElement('div');
     t.style.cssText =
@@ -10521,24 +10491,23 @@ function rposToast(type, msg) {
         '<span>' + escHtml(String(msg)) + '</span>';
     var wrap = document.getElementById('rpos-toast');
     if (wrap) wrap.appendChild(t);
-    setTimeout(function() {
-        if (t.parentElement) t.remove();
-    }, 3500);
+    setTimeout(function() { if (t.parentElement) t.remove(); }, 3500);
 }
 
-/* ── Modal ── */
 function rposShowModal(html) {
     var m = document.getElementById('rpos-modal');
     if (m) m.innerHTML = html;
 }
+
 function rposCloseModal() {
     var m = document.getElementById('rpos-modal');
     if (m) m.innerHTML = '';
 }
 
-/* ── Barcode Scanner Setup ── */
+/* ============================================================
+   BARCODE SCANNER
+============================================================ */
 function rposSetupScanner() {
-    // Focus hidden input to capture USB scanner
     var input = document.getElementById('rpos-barcode-input');
     if (input) {
         input.focus();
@@ -10547,9 +10516,8 @@ function rposSetupScanner() {
             this.value = '';
             clearTimeout(_rposScanTimer);
             _rposScanTimer = setTimeout(function() {
-                if (_rposScanBuffer.length > 2) {
+                if (_rposScanBuffer.length > 2)
                     rposScanBarcode(_rposScanBuffer.trim());
-                }
                 _rposScanBuffer = '';
             }, 100);
         });
@@ -10562,10 +10530,8 @@ function rposSetupScanner() {
             }
         });
     }
-
-    // Click anywhere to refocus scanner input
-    document.getElementById('rpos-root') &&
-    document.getElementById('rpos-root').addEventListener('click', function() {
+    var root = document.getElementById('rpos-root');
+    if (root) root.addEventListener('click', function() {
         var inp = document.getElementById('rpos-barcode-input');
         if (inp) inp.focus();
     });
@@ -10573,9 +10539,7 @@ function rposSetupScanner() {
 
 function rposScanBarcode(barcode) {
     var item = RPOS.inventory.find(function(i) {
-        return i.barcode === barcode ||
-               i.sku     === barcode ||
-               i.id      === barcode;
+        return i.barcode === barcode || i.sku === barcode || i.id === barcode;
     });
     if (item) {
         rposAddToCart(item.id);
@@ -10585,15 +10549,13 @@ function rposScanBarcode(barcode) {
     }
 }
 
-/* ── FLOAT SCREEN ── */
+/* ============================================================
+   FLOAT SCREEN
+============================================================ */
 function rposShowFloat() {
     var main = document.getElementById('rpos-main');
     if (!main) return;
-
-    if (RPOS.floatLocked) {
-        rposShowDashboard();
-        return;
-    }
+    if (RPOS.floatLocked) { rposShowDashboard(); return; }
 
     main.innerHTML =
         '<div style="flex:1;display:flex;align-items:center;' +
@@ -10606,8 +10568,7 @@ function rposShowFloat() {
         'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
         'border-radius:50%;display:flex;align-items:center;' +
         'justify-content:center;color:#fff;font-size:1.5rem;' +
-        'margin:0 auto 16px">' +
-        '<i class="fas fa-coins"></i></div>' +
+        'margin:0 auto 16px"><i class="fas fa-coins"></i></div>' +
         '<h2 style="font-size:1.2rem;font-weight:800;color:#e0f4f8;' +
         'margin-bottom:6px">Opening Float</h2>' +
         '<p style="font-size:.82rem;color:#7bb8c8;margin-bottom:24px">' +
@@ -10628,7 +10589,6 @@ function rposShowFloat() {
         '<i class="fas fa-check"></i> Start Shift</button>' +
         '</div></div>';
 
-    // Auto-focus float input
     setTimeout(function() {
         var inp = document.getElementById('rpos-float-input');
         if (inp) inp.focus();
@@ -10636,46 +10596,45 @@ function rposShowFloat() {
 }
 
 function rposConfirmFloat() {
-    var input = document.getElementById('rpos-float-input');
+    var input  = document.getElementById('rpos-float-input');
     var amount = parseFloat(input ? input.value : 0) || 0;
-    if (amount < 0) { rposToast('error', 'Invalid float amount'); return; }
+    if (amount < 0) { rposToast('error', 'Invalid float'); return; }
 
     RPOS.float       = amount;
     RPOS.floatLocked = true;
     RPOS.shiftStart  = new Date();
 
-    // Save float to session
-    var floatName = RPOS.pinUser
-    ? RPOS.pinUser.name
-    : (RPOS.user ? RPOS.user.name : '');
-sessionStorage.setItem(
-    'rpos_float_' + RPOS.entityId + '_' + floatName,
-    amount);
+    var cashierName = rposGetCashierName();
+    sessionStorage.setItem(
+        'rpos_float_' + RPOS.entityId + '_' + cashierName, amount);
 
-    // Log float to Web App
     var update = {};
     update['cashDrops.' + RPOS.entityId] =
         firebase.firestore.FieldValue.arrayUnion({
             type:      'opening_float',
             amount:    amount,
-            cashier:   RPOS.user ? RPOS.user.name : '',
+            cashier:   cashierName,
             date:      new Date().toISOString(),
             sessionId: RPOS.sessionId
         });
     db.collection('accounts').doc(RPOS.accountId)
         .set(update, { merge: true }).catch(function() {});
 
-    rposToast('success', 'Shift started with float of R' + amount.toFixed(2));
+    rposToast('success', 'Shift started with R' + amount.toFixed(2));
     rposShowDashboard();
 }
 
-/* ── DASHBOARD ── */
+/* ============================================================
+   DASHBOARD
+============================================================ */
 function rposShowDashboard() {
     var main = document.getElementById('rpos-main');
     if (!main) return;
     RPOS.currentView = 'dashboard';
 
-    // Calculate shift hours
+    var cashierName = rposGetCashierName();
+    var cashierRole = rposGetCashierRole();
+
     var shiftHrs = '0h 0m';
     if (RPOS.shiftStart) {
         var diff = Date.now() - RPOS.shiftStart.getTime();
@@ -10690,116 +10649,95 @@ function rposShowDashboard() {
         '<div style="flex:1;overflow-y:auto;padding:16px;' +
         '-webkit-overflow-scrolling:touch">' +
 
-        // Welcome card
         '<div style="background:#0f4d62;border-radius:14px;' +
         'padding:20px;margin-bottom:16px;box-shadow:var(--shadow);' +
-        'border-left:4px solid #f59e0b;display:flex;' +
-        'align-items:center;gap:16px">' +
+        'border-left:4px solid #f59e0b;display:flex;align-items:center;gap:16px">' +
         '<div style="width:52px;height:52px;border-radius:50%;' +
         'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
         'display:flex;align-items:center;justify-content:center;' +
         'color:#fff;font-size:1.3rem;font-weight:800;flex-shrink:0">' +
-        'Welcome, ' + (RPOS.user ? RPOS.user.name : 'Cashier') +
-        '</div>' +
+        cashierName.charAt(0).toUpperCase() + '</div>' +
         '<div><div style="font-size:1rem;font-weight:700;color:#e0f4f8">' +
-        'Welcome, ' + (RPOS.user ? RPOS.user.name : 'Cashier') + '</div>' +
+        'Welcome, ' + escHtml(cashierName) + '</div>' +
         '<div style="font-size:.75rem;color:#7bb8c8">' +
-        escHtml(cashierRole) + ' — ' +
-        (RPOS.entityName || '') + '</div>' +
-        '<div style="font-size:.72rem;color:#0d9488;' +
-        'font-weight:600;margin-top:4px">' +
+        escHtml(cashierRole) + ' — ' + escHtml(RPOS.entityName || '') + '</div>' +
+        '<div style="font-size:.72rem;color:#0d9488;font-weight:600;margin-top:4px">' +
         '<i class="fas fa-clock"></i> Shift: ' + shiftHrs +
-        ' | Float: R' + RPOS.float.toFixed(2) + '</div>' +
-        '</div></div>' +
+        ' | Float: R' + RPOS.float.toFixed(2) + '</div></div></div>' +
 
-        // Stats
-        '<div style="display:grid;grid-template-columns:1fr 1fr;' +
-        'gap:12px;margin-bottom:16px">' +
-        rposStat('Today\'s Sales',  'R' + totalSales.toFixed(2),  '#0d9488') +
-        rposStat('Transactions',    RPOS.todaySales.length,        '#f59e0b') +
-        rposStat('Cash Sales',      'R' + RPOS.totalCashSales.toFixed(2), '#2ea871') +
-        rposStat('Card Sales',      'R' + RPOS.totalCardSales.toFixed(2), '#1a8ba8') +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+        rposStat('Today\'s Sales', 'R' + totalSales.toFixed(2), '#0d9488') +
+        rposStat('Transactions', RPOS.todaySales.length, '#f59e0b') +
+        rposStat('Cash Sales', 'R' + RPOS.totalCashSales.toFixed(2), '#2ea871') +
+        rposStat('Card Sales', 'R' + RPOS.totalCardSales.toFixed(2), '#1a8ba8') +
         '</div>' +
 
-        // Action buttons
-        '<div style="display:grid;grid-template-columns:1fr 1fr;' +
-        'gap:12px;margin-bottom:16px">' +
-        rposDashBtn('fa-barcode', '#0d9488',
-            'Scan & Sell', 'Scan items to sell',
-            'rposShowSelling()') +
-        rposDashBtn('fa-search', '#1a8ba8',
-            'Manual Search', 'Search items by name',
-            'rposShowSelling()') +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+        rposDashBtn('fa-barcode', '#0d9488', 'Scan & Sell', 'Scan items to sell', 'rposShowSelling()') +
+        rposDashBtn('fa-search', '#1a8ba8', 'Manual Search', 'Search items by name', 'rposShowSelling()') +
         '</div>' +
 
-        // Recent transactions
+        '<div style="margin-bottom:16px">' +
+        '<button onclick="rposBackToHub()" ' +
+        'style="width:100%;padding:14px;background:rgba(255,255,255,.08);' +
+        'border:1.5px solid #1a5a6e;border-radius:10px;color:#7bb8c8;' +
+        'font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;' +
+        'display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<i class="fas fa-th"></i> Back to Hub</button></div>' +
+
         (RPOS.todaySales.length > 0
-            ? '<div style="font-size:.78rem;font-weight:700;' +
-              'color:#7bb8c8;text-transform:uppercase;' +
-              'letter-spacing:1px;margin-bottom:10px">' +
+            ? '<div style="font-size:.78rem;font-weight:700;color:#7bb8c8;' +
+              'text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' +
               'Today\'s Transactions</div>' +
               RPOS.todaySales.slice(0, 5).reverse().map(function(s) {
-                  return '<div style="display:flex;align-items:center;' +
-                      'gap:12px;padding:10px 14px;background:#0f4d62;' +
-                      'border-radius:10px;margin-bottom:8px;' +
-                      'border-left:3px solid ' +
-                      (s.paymentMethod === 'cash'
-                          ? '#2ea871' : '#1a8ba8') + '">' +
+                  return '<div style="display:flex;align-items:center;gap:12px;' +
+                      'padding:10px 14px;background:#0f4d62;border-radius:10px;' +
+                      'margin-bottom:8px;border-left:3px solid ' +
+                      (s.paymentMethod === 'cash' ? '#2ea871' : '#1a8ba8') + '">' +
                       '<i class="fas fa-' +
-                      (s.paymentMethod === 'cash'
-                          ? 'money-bill-wave' : 'credit-card') +
+                      (s.paymentMethod === 'cash' ? 'money-bill-wave' : 'credit-card') +
                       '" style="color:' +
-                      (s.paymentMethod === 'cash'
-                          ? '#2ea871' : '#1a8ba8') + '"></i>' +
-                      '<div style="flex:1">' +
-                      '<div style="font-size:.82rem;font-weight:600;' +
-                      'color:#e0f4f8">' + (s.receiptNumber || s.id) + '</div>' +
+                      (s.paymentMethod === 'cash' ? '#2ea871' : '#1a8ba8') + '"></i>' +
+                      '<div style="flex:1"><div style="font-size:.82rem;font-weight:600;color:#e0f4f8">' +
+                      (s.receiptNumber || s.id) + '</div>' +
                       '<div style="font-size:.68rem;color:#7bb8c8">' +
                       (s.itemCount || 0) + ' items — ' +
-                      new Date(s.date).toLocaleTimeString('en-ZA',
-                          {hour:'2-digit',minute:'2-digit'}) +
-                      '</div></div>' +
-                      '<strong style="color:#e0f4f8">R' +
+                      new Date(s.date).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) +
+                      '</div></div><strong style="color:#e0f4f8">R' +
                       (s.totalIncl || 0).toFixed(2) + '</strong></div>';
               }).join('')
             : '<div style="text-align:center;padding:30px;color:#7bb8c8">' +
-              '<i class="fas fa-receipt" ' +
-              'style="font-size:2rem;opacity:.3;display:block;' +
-              'margin-bottom:10px"></i>' +
-              '<p>No sales yet today</p></div>') +
-
+              '<i class="fas fa-receipt" style="font-size:2rem;opacity:.3;' +
+              'display:block;margin-bottom:10px"></i><p>No sales yet today</p></div>') +
         '</div>';
 }
 
 function rposStat(label, value, color) {
-    return '<div style="background:#0f4d62;border-radius:12px;' +
-        'padding:14px;box-shadow:var(--shadow);' +
-        'border-left:3px solid ' + color + ';text-align:center">' +
-        '<div style="font-size:.6rem;color:#7bb8c8;' +
-        'text-transform:uppercase;font-weight:600;margin-bottom:3px">' +
-        label + '</div>' +
-        '<div style="font-size:1.2rem;font-weight:800;color:#e0f4f8">' +
-        value + '</div></div>';
+    return '<div style="background:#0f4d62;border-radius:12px;padding:14px;' +
+        'box-shadow:var(--shadow);border-left:3px solid ' + color + ';text-align:center">' +
+        '<div style="font-size:.6rem;color:#7bb8c8;text-transform:uppercase;' +
+        'font-weight:600;margin-bottom:3px">' + label + '</div>' +
+        '<div style="font-size:1.2rem;font-weight:800;color:#e0f4f8">' + value + '</div></div>';
 }
 
 function rposDashBtn(icon, color, title, desc, onclick) {
     return '<button onclick="' + onclick + '" ' +
-        'style="display:flex;align-items:center;gap:12px;' +
-        'padding:16px;background:#0f4d62;border-radius:14px;' +
-        'box-shadow:var(--shadow);cursor:pointer;border:none;' +
-        'font-family:inherit;text-align:left;' +
+        'style="display:flex;align-items:center;gap:12px;padding:16px;' +
+        'background:#0f4d62;border-radius:14px;box-shadow:var(--shadow);' +
+        'cursor:pointer;border:none;font-family:inherit;text-align:left;' +
         'border-left:4px solid ' + color + '">' +
-        '<div style="width:40px;height:40px;border-radius:10px;' +
-        'background:' + color + ';display:flex;align-items:center;' +
-        'justify-content:center;color:#fff;font-size:1.1rem;flex-shrink:0">' +
+        '<div style="width:40px;height:40px;border-radius:10px;background:' +
+        color + ';display:flex;align-items:center;justify-content:center;' +
+        'color:#fff;font-size:1.1rem;flex-shrink:0">' +
         '<i class="fas ' + icon + '"></i></div>' +
         '<div><div style="font-size:.88rem;font-weight:700;color:#e0f4f8">' +
-        title + '</div>' +
-        '<div style="font-size:.72rem;color:#7bb8c8;margin-top:2px">' +
+        title + '</div><div style="font-size:.72rem;color:#7bb8c8;margin-top:2px">' +
         desc + '</div></div></button>';
 }
 
-/* ── SELLING SCREEN ── */
+/* ============================================================
+   SELLING SCREEN
+============================================================ */
 function rposShowSelling() {
     var main = document.getElementById('rpos-main');
     if (!main) return;
@@ -10808,33 +10746,23 @@ function rposShowSelling() {
     main.innerHTML =
         '<div style="flex:1;display:flex;overflow:hidden">' +
 
-        /* Left: Product grid */
         '<div style="flex:1;display:flex;flex-direction:column;' +
         'overflow:hidden;border-right:1px solid #1a5a6e">' +
 
-        /* Back button + Search bar */
-        '<div style="padding:10px;background:#0b3344;' +
-        'border-bottom:1px solid #1a5a6e">' +
+        '<div style="padding:10px;background:#0b3344;border-bottom:1px solid #1a5a6e">' +
 
-        /* Back button row */
-        '<div style="display:flex;gap:8px;align-items:center;' +
-        'margin-bottom:8px">' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">' +
         '<button onclick="rposShowDashboard()" ' +
-        'style="display:flex;align-items:center;gap:6px;' +
-        'padding:8px 14px;background:rgba(255,255,255,.15);' +
-        'border:none;border-radius:8px;color:#fff;' +
-        'font-size:.78rem;font-weight:600;cursor:pointer;' +
+        'style="display:flex;align-items:center;gap:6px;padding:8px 14px;' +
+        'background:rgba(255,255,255,.15);border:none;border-radius:8px;' +
+        'color:#fff;font-size:.78rem;font-weight:600;cursor:pointer;' +
         'font-family:inherit;flex-shrink:0">' +
         '<i class="fas fa-arrow-left"></i> Back to Dashboard</button>' +
         '<div style="flex:1;font-size:.82rem;color:rgba(255,255,255,.5);' +
-        'text-align:right">' +
-        (RPOS.entityName || 'Retail POS') + '</div>' +
-        '</div>' +
+        'text-align:right">' + escHtml(RPOS.entityName || 'Retail POS') + '</div></div>' +
 
-        /* Search bar */
         '<div style="display:flex;gap:8px;align-items:center;' +
-        'background:#0f4d62;border:1.5px solid #1a5a6e;' +
-        'border-radius:10px;padding:8px 14px">' +
+        'background:#0f4d62;border:1.5px solid #1a5a6e;border-radius:10px;padding:8px 14px">' +
         '<i class="fas fa-search" style="color:#4a8a9a"></i>' +
         '<input type="text" id="rpos-item-search" ' +
         'placeholder="Search items or scan barcode..." ' +
@@ -10842,52 +10770,32 @@ function rposShowSelling() {
         'style="flex:1;border:none;outline:none;font-size:.88rem;' +
         'font-family:inherit;color:#e0f4f8;background:transparent">' +
         '<button onclick="rposShowScanner()" ' +
-        'style="padding:6px 10px;background:#0d9488;color:#fff;' +
-        'border:none;border-radius:6px;font-size:.78rem;' +
-        'cursor:pointer;font-family:inherit">' +
-        '<i class="fas fa-barcode"></i></button>' +
-        '</div>' +
-        '</div>' +
+        'style="padding:6px 10px;background:#0d9488;color:#fff;border:none;' +
+        'border-radius:6px;font-size:.78rem;cursor:pointer;font-family:inherit">' +
+        '<i class="fas fa-barcode"></i></button></div></div>' +
 
-        /* Product grid */
-        '<div id="rpos-product-grid" ' +
-        'style="flex:1;overflow-y:auto;padding:10px;' +
-        'display:grid;grid-template-columns:repeat(auto-fill,' +
-        'minmax(130px,1fr));gap:8px;align-content:start">' +
-        rposBuildProductGrid() +
-        '</div></div>' +
+        '<div id="rpos-product-grid" style="flex:1;overflow-y:auto;padding:10px;' +
+        'display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));' +
+        'gap:8px;align-content:start">' + rposBuildProductGrid() + '</div></div>' +
 
-        /* Right: Cart / Bill */
         '<div style="width:300px;display:flex;flex-direction:column;' +
         'background:#0f4d62;flex-shrink:0">' +
 
-        /* Cart header */
-        '<div style="padding:12px;background:#0b3344;' +
-        'border-bottom:1px solid #1a5a6e;display:flex;' +
-        'justify-content:space-between;align-items:center">' +
-        '<span style="font-size:.82rem;font-weight:700;' +
-        'color:#e0f4f8">Current Sale</span>' +
-        '<span id="rpos-cart-count" ' +
-        'style="font-size:.75rem;color:#7bb8c8">' +
-        '0 items</span></div>' +
+        '<div style="padding:12px;background:#0b3344;border-bottom:1px solid #1a5a6e;' +
+        'display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:.82rem;font-weight:700;color:#e0f4f8">Current Sale</span>' +
+        '<span id="rpos-cart-count" style="font-size:.75rem;color:#7bb8c8">0 items</span></div>' +
 
-        /* Cart items */
-        '<div id="rpos-cart-items" style="flex:1;overflow-y:auto;' +
-        'padding:8px;-webkit-overflow-scrolling:touch">' +
-        '<div style="text-align:center;padding:30px;' +
-        'color:#4a8a9a;font-size:.82rem">' +
-        '<i class="fas fa-barcode" ' +
-        'style="font-size:1.5rem;display:block;margin-bottom:8px;' +
+        '<div id="rpos-cart-items" style="flex:1;overflow-y:auto;padding:8px;' +
+        '-webkit-overflow-scrolling:touch">' +
+        '<div style="text-align:center;padding:30px;color:#4a8a9a;font-size:.82rem">' +
+        '<i class="fas fa-barcode" style="font-size:1.5rem;display:block;margin-bottom:8px;' +
         'opacity:.3"></i>Scan or search items</div></div>' +
 
-        /* Totals + payment */
-        '<div id="rpos-cart-totals" style="padding:12px;' +
-        'border-top:2px solid #1a5a6e;background:#0b3344">' +
-        '<div style="text-align:center;color:#4a8a9a;' +
-        'font-size:.82rem">No items in cart</div>' +
-        '</div></div></div>';
+        '<div id="rpos-cart-totals" style="padding:12px;border-top:2px solid #1a5a6e;' +
+        'background:#0b3344"><div style="text-align:center;color:#4a8a9a;font-size:.82rem">' +
+        'No items in cart</div></div></div></div>';
 
-    /* Refocus scanner */
     setTimeout(function() {
         var inp = document.getElementById('rpos-barcode-input');
         if (inp) inp.focus();
@@ -10897,48 +10805,36 @@ function rposShowSelling() {
 function rposBuildProductGrid() {
     var inv = RPOS.inventory;
     if (inv.length === 0) {
-        return '<div style="grid-column:1/-1;text-align:center;' +
-            'padding:40px;color:#4a8a9a">' +
-            '<i class="fas fa-boxes" ' +
-            'style="font-size:2rem;opacity:.3;display:block;' +
-            'margin-bottom:10px"></i>' +
+        return '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#4a8a9a">' +
+            '<i class="fas fa-boxes" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>' +
             '<p>No items. Add items in Web App or POS Builder.</p></div>';
     }
     return inv.map(function(item) {
         var priceIncl = rposGetPriceIncl(item);
-        var oos       = item.quantity <= 0 || item.status === 'out-of-stock';
-        return '<div class="rpos-product" ' +
-            'data-name="' + (item.name || '').toLowerCase() + '" ' +
+        var oos = item.quantity <= 0 || item.status === 'out-of-stock';
+        return '<div class="rpos-product" data-name="' + (item.name || '').toLowerCase() + '" ' +
             'data-barcode="' + (item.barcode || '') + '" ' +
             (oos ? '' : 'onclick="rposAddToCart(\'' + item.id + '\')"') +
-            ' style="background:#0b3344;border-radius:10px;' +
-            'padding:12px;cursor:' + (oos ? 'not-allowed' : 'pointer') + ';' +
-            'transition:.2s;border:2px solid #1a5a6e;' +
-            'text-align:center;position:relative;' +
+            ' style="background:#0b3344;border-radius:10px;padding:12px;' +
+            'cursor:' + (oos ? 'not-allowed' : 'pointer') + ';transition:.2s;' +
+            'border:2px solid #1a5a6e;text-align:center;position:relative;' +
             'opacity:' + (oos ? '.4' : '1') + '" ' +
-            (oos ? '' :
-                'onmouseover="this.style.borderColor=\'#0d9488\'" ' +
+            (oos ? '' : 'onmouseover="this.style.borderColor=\'#0d9488\'" ' +
                 'onmouseout="this.style.borderColor=\'#1a5a6e\'"') + '>' +
-            '<div style="font-size:.82rem;font-weight:600;color:#e0f4f8;' +
-            'margin-bottom:6px;line-height:1.2">' + (item.name || '') + '</div>' +
-            '<div style="font-size:1rem;font-weight:800;color:#0d9488">' +
-            'R' + priceIncl.toFixed(2) + '</div>' +
+            '<div style="font-size:.82rem;font-weight:600;color:#e0f4f8;margin-bottom:6px;' +
+            'line-height:1.2">' + (item.name || '') + '</div>' +
+            '<div style="font-size:1rem;font-weight:800;color:#0d9488">R' + priceIncl.toFixed(2) + '</div>' +
             '<div style="font-size:.6rem;color:#4a8a9a;margin-top:3px">' +
             (item.isVat !== false ? 'incl. VAT' : 'VAT exempt') + '</div>' +
-            (oos
-                ? '<div style="position:absolute;inset:0;display:flex;' +
-                  'align-items:center;justify-content:center;' +
-                  'background:rgba(0,0,0,.5);border-radius:10px;' +
-                  'font-size:.72rem;font-weight:700;color:#c94545">' +
-                  'OUT OF STOCK</div>'
-                : '') +
+            (oos ? '<div style="position:absolute;inset:0;display:flex;align-items:center;' +
+                'justify-content:center;background:rgba(0,0,0,.5);border-radius:10px;' +
+                'font-size:.72rem;font-weight:700;color:#c94545">OUT OF STOCK</div>' : '') +
             '</div>';
     }).join('');
 }
 
 function rposFilterItems() {
-    var q = (document.getElementById('rpos-item-search').value || '')
-                .toLowerCase();
+    var q = (document.getElementById('rpos-item-search').value || '').toLowerCase();
     document.querySelectorAll('.rpos-product').forEach(function(el) {
         var nameMatch    = (el.dataset.name    || '').includes(q);
         var barcodeMatch = (el.dataset.barcode || '').includes(q);
@@ -10946,30 +10842,31 @@ function rposFilterItems() {
     });
 }
 
-/* ── Price Calculation (VAT inclusive) ── */
+/* ============================================================
+   PRICE CALCULATION (VAT inclusive)
+============================================================ */
 function rposGetPriceIncl(item) {
-    // Retail prices are stored VAT inclusive
-    // If item has retailPrice use that, else use cost * markup
-    if (item.retailPrice) return parseFloat(item.retailPrice);
+    if (item.retailPrice)  return parseFloat(item.retailPrice);
     if (item.sellingPrice) return parseFloat(item.sellingPrice);
-    // Fallback: cost + 30% markup
     return parseFloat(((item.cost || 0) * 1.30).toFixed(2));
 }
 
 function rposGetPriceExcl(item) {
     var incl = rposGetPriceIncl(item);
-    if (item.isVat === false) return incl; // Non-VAT item
+    if (item.isVat === false) return incl;
     return parseFloat((incl / 1.15).toFixed(4));
 }
 
 function rposGetVatAmount(item) {
     if (item.isVat === false) return 0;
     var incl = rposGetPriceIncl(item);
-    var excl = incl / 1.15;
-    return parseFloat((incl - excl).toFixed(4));
+    return parseFloat((incl - incl / 1.15).toFixed(4));
 }
 
-/* ── Add to Cart ── */
+console.log('✅ Retail POS Part 1 loaded');
+/* ============================================================
+   ADD TO CART
+============================================================ */
 function rposAddToCart(itemId) {
     var item = RPOS.inventory.find(function(i) { return i.id === itemId; });
     if (!item) return;
@@ -10978,215 +10875,149 @@ function rposAddToCart(itemId) {
         return;
     }
 
-    // Check if already in cart - increment qty
     var existing = RPOS.cart.find(function(c) { return c.id === itemId; });
     if (existing) {
         existing.qty++;
-        existing.totalIncl = parseFloat(
-            (existing.priceIncl * existing.qty).toFixed(2));
-        existing.totalExcl = parseFloat(
-            (existing.priceExcl * existing.qty).toFixed(4));
-        existing.totalVat  = parseFloat(
-            (existing.vatAmount * existing.qty).toFixed(4));
+        existing.totalIncl = parseFloat((existing.priceIncl * existing.qty).toFixed(2));
+        existing.totalExcl = parseFloat((existing.priceExcl * existing.qty).toFixed(4));
+        existing.totalVat  = parseFloat((existing.vatAmount * existing.qty).toFixed(4));
     } else {
         var priceIncl = rposGetPriceIncl(item);
         var priceExcl = rposGetPriceExcl(item);
         var vatAmt    = rposGetVatAmount(item);
-
         RPOS.cart.push({
-            id:         item.id,
-            name:       item.name,
-            barcode:    item.barcode   || '',
-            sku:        item.sku       || '',
-            priceIncl:  priceIncl,
-            priceExcl:  priceExcl,
-            vatAmount:  vatAmt,
-            isVat:      item.isVat !== false,
-            qty:        1,
-            totalIncl:  priceIncl,
-            totalExcl:  priceExcl,
-            totalVat:   vatAmt,
-            voided:     false,
-            adjusted:   false,
+            id: item.id, name: item.name,
+            barcode: item.barcode || '', sku: item.sku || '',
+            priceIncl: priceIncl, priceExcl: priceExcl,
+            vatAmount: vatAmt, isVat: item.isVat !== false,
+            qty: 1, totalIncl: priceIncl, totalExcl: priceExcl,
+            totalVat: vatAmt, voided: false, adjusted: false,
             originalPrice: priceIncl
         });
     }
-
     rposRenderCart();
 }
 
-/* ── Render Cart ── */
+/* ============================================================
+   RENDER CART
+============================================================ */
 function rposRenderCart() {
     var items    = RPOS.cart.filter(function(i) { return !i.voided; });
-    var subtotal = items.reduce(function(s,i) { return s+i.totalIncl; }, 0);
-    var totalExcl= items.reduce(function(s,i) { return s+i.totalExcl; }, 0);
-    var totalVat = items.reduce(function(s,i) { return s+i.totalVat;  }, 0);
+    var subtotal = items.reduce(function(s, i) { return s + i.totalIncl; }, 0);
+    var totalExcl = items.reduce(function(s, i) { return s + i.totalExcl; }, 0);
+    var totalVat  = items.reduce(function(s, i) { return s + i.totalVat; }, 0);
 
-    // Update count
     var countEl = document.getElementById('rpos-cart-count');
-    if (countEl) countEl.textContent =
-        items.length + ' item' + (items.length !== 1 ? 's' : '');
+    if (countEl) countEl.textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
 
-    // Render items
     var cartEl = document.getElementById('rpos-cart-items');
     if (cartEl) {
         if (items.length === 0) {
             cartEl.innerHTML =
-                '<div style="text-align:center;padding:30px;' +
-                'color:#4a8a9a;font-size:.82rem">' +
-                '<i class="fas fa-barcode" ' +
-                'style="font-size:1.5rem;display:block;margin-bottom:8px;' +
-                'opacity:.3"></i>Scan or search items</div>';
+                '<div style="text-align:center;padding:30px;color:#4a8a9a;font-size:.82rem">' +
+                '<i class="fas fa-barcode" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3"></i>' +
+                'Scan or search items</div>';
         } else {
             cartEl.innerHTML = items.map(function(item) {
-                return '<div style="display:flex;align-items:flex-start;' +
-                    'gap:8px;padding:8px;background:#0b3344;' +
-                    'border-radius:10px;margin-bottom:6px;' +
-                    'font-size:.82rem">' +
+                return '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px;' +
+                    'background:#0b3344;border-radius:10px;margin-bottom:6px;font-size:.82rem">' +
                     '<div style="flex:1;min-width:0">' +
-                    '<div style="font-weight:600;color:#e0f4f8;' +
-                    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+                    '<div style="font-weight:600;color:#e0f4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
                     item.name + '</div>' +
                     '<div style="font-size:.68rem;color:#7bb8c8;margin-top:2px">' +
                     '×' + item.qty + ' @ R' + item.priceIncl.toFixed(2) +
-                    (item.adjusted ? ' <span style="color:#f59e0b">' +
-                        '(adjusted)</span>' : '') +
-                    '</div>' +
-                    // Action buttons
+                    (item.adjusted ? ' <span style="color:#f59e0b">(adjusted)</span>' : '') + '</div>' +
                     '<div style="display:flex;gap:4px;margin-top:5px">' +
                     '<button onclick="rposVoidItem(\'' + item.id + '\')" ' +
-                    'style="padding:2px 8px;border:none;border-radius:4px;' +
-                    'background:rgba(201,69,69,.2);color:#c94545;' +
-                    'font-size:.62rem;font-weight:600;cursor:pointer;' +
-                    'font-family:inherit">' +
+                    'style="padding:2px 8px;border:none;border-radius:4px;background:rgba(201,69,69,.2);' +
+                    'color:#c94545;font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit">' +
                     '<i class="fas fa-times"></i> Void</button>' +
                     '<button onclick="rposAdjustPrice(\'' + item.id + '\')" ' +
-                    'style="padding:2px 8px;border:none;border-radius:4px;' +
-                    'background:rgba(245,158,11,.2);color:#f59e0b;' +
-                    'font-size:.62rem;font-weight:600;cursor:pointer;' +
-                    'font-family:inherit">' +
+                    'style="padding:2px 8px;border:none;border-radius:4px;background:rgba(245,158,11,.2);' +
+                    'color:#f59e0b;font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit">' +
                     '<i class="fas fa-tag"></i> Price</button>' +
                     '<button onclick="rposChangeQty(\'' + item.id + '\')" ' +
-                    'style="padding:2px 8px;border:none;border-radius:4px;' +
-                    'background:rgba(26,139,168,.2);color:#1a8ba8;' +
-                    'font-size:.62rem;font-weight:600;cursor:pointer;' +
-                    'font-family:inherit">' +
+                    'style="padding:2px 8px;border:none;border-radius:4px;background:rgba(26,139,168,.2);' +
+                    'color:#1a8ba8;font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit">' +
                     '<i class="fas fa-sort-numeric-up"></i> Qty</button>' +
                     '</div></div>' +
-                    '<div style="font-weight:700;color:#0d9488;' +
-                    'white-space:nowrap">R' +
-                    item.totalIncl.toFixed(2) + '</div>' +
-                    '</div>';
+                    '<div style="font-weight:700;color:#0d9488;white-space:nowrap">R' +
+                    item.totalIncl.toFixed(2) + '</div></div>';
             }).join('');
         }
     }
 
-    // Render totals
     var totalsEl = document.getElementById('rpos-cart-totals');
     if (totalsEl) {
         if (items.length === 0) {
-            totalsEl.innerHTML =
-                '<div style="text-align:center;color:#4a8a9a;font-size:.82rem">' +
-                'No items in cart</div>';
+            totalsEl.innerHTML = '<div style="text-align:center;color:#4a8a9a;font-size:.82rem">No items in cart</div>';
         } else {
             totalsEl.innerHTML =
-                // Subtotal breakdown
                 '<div style="font-size:.78rem;margin-bottom:8px">' +
-                '<div style="display:flex;justify-content:space-between;' +
-                'padding:3px 0;color:#7bb8c8">' +
-                '<span>Subtotal (excl. VAT)</span>' +
-                '<span>R' + totalExcl.toFixed(2) + '</span></div>' +
-                '<div style="display:flex;justify-content:space-between;' +
-                'padding:3px 0;color:#7bb8c8">' +
-                '<span>VAT (15%)</span>' +
-                '<span>R' + totalVat.toFixed(2) + '</span></div>' +
-                '</div>' +
-                // Total
-                '<div style="display:flex;justify-content:space-between;' +
-                'padding:8px 0;font-size:1.2rem;font-weight:900;' +
-                'color:#e0f4f8;border-top:2px solid #1a5a6e;' +
-                'margin-bottom:10px">' +
-                '<span>TOTAL</span>' +
-                '<span style="color:#0d9488">R' + subtotal.toFixed(2) + '</span>' +
-                '</div>' +
-                // Payment buttons
-                '<div style="display:grid;grid-template-columns:1fr 1fr;' +
-                'gap:8px">' +
-                '<button onclick="rposPayCash(' + subtotal + ',' +
-                totalExcl + ',' + totalVat + ')" ' +
-                'style="padding:14px;' +
-                'background:linear-gradient(135deg,#2ea871,#1a7a4a);' +
-                'color:#fff;border:none;border-radius:10px;' +
-                'font-size:.88rem;font-weight:700;cursor:pointer;' +
-                'font-family:inherit;display:flex;align-items:center;' +
-                'justify-content:center;gap:6px">' +
+                '<div style="display:flex;justify-content:space-between;padding:3px 0;color:#7bb8c8">' +
+                '<span>Subtotal (excl. VAT)</span><span>R' + totalExcl.toFixed(2) + '</span></div>' +
+                '<div style="display:flex;justify-content:space-between;padding:3px 0;color:#7bb8c8">' +
+                '<span>VAT (15%)</span><span>R' + totalVat.toFixed(2) + '</span></div></div>' +
+                '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:1.2rem;' +
+                'font-weight:900;color:#e0f4f8;border-top:2px solid #1a5a6e;margin-bottom:10px">' +
+                '<span>TOTAL</span><span style="color:#0d9488">R' + subtotal.toFixed(2) + '</span></div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+                '<button onclick="rposPayCash(' + subtotal + ',' + totalExcl + ',' + totalVat + ')" ' +
+                'style="padding:14px;background:linear-gradient(135deg,#2ea871,#1a7a4a);color:#fff;' +
+                'border:none;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;' +
+                'font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">' +
                 '<i class="fas fa-money-bill-wave"></i> Cash</button>' +
-                '<button onclick="rposPayCard(' + subtotal + ',' +
-                totalExcl + ',' + totalVat + ')" ' +
-                'style="padding:14px;' +
-                'background:linear-gradient(135deg,#1a8ba8,#0d4a5c);' +
-                'color:#fff;border:none;border-radius:10px;' +
-                'font-size:.88rem;font-weight:700;cursor:pointer;' +
-                'font-family:inherit;display:flex;align-items:center;' +
-                'justify-content:center;gap:6px">' +
-                '<i class="fas fa-credit-card"></i> Card</button>' +
-                '</div>';
+                '<button onclick="rposPayCard(' + subtotal + ',' + totalExcl + ',' + totalVat + ')" ' +
+                'style="padding:14px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);color:#fff;' +
+                'border:none;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;' +
+                'font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">' +
+                '<i class="fas fa-credit-card"></i> Card</button></div>';
         }
     }
 }
 
-/* ── Void Item (requires manager PIN) ── */
+/* ============================================================
+   VOID ITEM (requires manager PIN)
+============================================================ */
 function rposVoidItem(itemId) {
     rposRequestManagerPin(function() {
         var item = RPOS.cart.find(function(c) { return c.id === itemId; });
         if (item) {
             item.voided   = true;
             item.voidedAt = new Date().toISOString();
-            item.voidedBy = RPOS.user ? RPOS.user.name : 'Cashier';
+            item.voidedBy = rposGetCashierName();
             rposRenderCart();
             rposToast('info', 'Item voided: ' + item.name);
         }
     });
 }
 
-/* ── Price Adjustment (requires manager PIN) ── */
+/* ============================================================
+   PRICE ADJUSTMENT (requires manager PIN)
+============================================================ */
 function rposAdjustPrice(itemId) {
     var item = RPOS.cart.find(function(c) { return c.id === itemId; });
     if (!item) return;
 
     rposRequestManagerPin(function() {
         rposShowModal(
-            '<div style="position:fixed;inset:0;' +
-            'background:rgba(0,0,0,.7);z-index:1000;' +
-            'display:flex;align-items:center;justify-content:center;' +
-            'padding:20px">' +
-            '<div style="background:#0f4d62;border-radius:16px;' +
-            'padding:24px;width:100%;max-width:360px;' +
-            'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-            'border:1px solid #1a5a6e">' +
-            '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;' +
-            'margin-bottom:6px">Adjust Price</h3>' +
+            '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+            'display:flex;align-items:center;justify-content:center;padding:20px">' +
+            '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;' +
+            'max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e">' +
+            '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;margin-bottom:6px">Adjust Price</h3>' +
             '<p style="font-size:.78rem;color:#7bb8c8;margin-bottom:16px">' +
-            item.name + ' — Original: R' + item.originalPrice.toFixed(2) +
-            '</p>' +
-            '<label style="font-size:.78rem;color:#7bb8c8;display:block;' +
-            'margin-bottom:6px">New Price (R incl. VAT)</label>' +
-            '<input type="number" id="rpos-new-price" ' +
-            'value="' + item.priceIncl.toFixed(2) + '" ' +
-            'min="0" step="0.01" ' +
-            'style="width:100%;padding:14px;text-align:center;' +
-            'font-size:1.4rem;font-weight:700;background:#0b3344;' +
-            'border:2px solid #1a5a6e;border-radius:8px;' +
+            item.name + ' — Original: R' + item.originalPrice.toFixed(2) + '</p>' +
+            '<label style="font-size:.78rem;color:#7bb8c8;display:block;margin-bottom:6px">New Price (R incl. VAT)</label>' +
+            '<input type="number" id="rpos-new-price" value="' + item.priceIncl.toFixed(2) + '" ' +
+            'min="0" step="0.01" style="width:100%;padding:14px;text-align:center;font-size:1.4rem;' +
+            'font-weight:700;background:#0b3344;border:2px solid #1a5a6e;border-radius:8px;' +
             'color:#e0f4f8;font-family:inherit;margin-bottom:16px">' +
             '<div style="display:flex;gap:10px">' +
-            '<button onclick="rposCloseModal()" ' +
-            'style="flex:1;padding:12px;background:#0b3344;' +
-            'border:1px solid #1a5a6e;border-radius:8px;' +
-            'color:#7bb8c8;cursor:pointer;font-family:inherit;' +
-            'font-weight:600">Cancel</button>' +
-            '<button onclick="rposApplyPriceAdjust(\'' + itemId + '\')" ' +
-            'style="flex:1;padding:12px;background:#f59e0b;' +
-            'border:none;border-radius:8px;color:#fff;cursor:pointer;' +
+            '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+            'border:1px solid #1a5a6e;border-radius:8px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+            '<button onclick="rposApplyPriceAdjust(\'' + itemId + '\')" style="flex:1;padding:12px;' +
+            'background:#f59e0b;border:none;border-radius:8px;color:#fff;cursor:pointer;' +
             'font-family:inherit;font-weight:700">Apply</button>' +
             '</div></div></div>'
         );
@@ -11200,18 +11031,15 @@ function rposAdjustPrice(itemId) {
 function rposApplyPriceAdjust(itemId) {
     var newPriceEl = document.getElementById('rpos-new-price');
     var newPrice   = parseFloat(newPriceEl ? newPriceEl.value : 0);
-    if (isNaN(newPrice) || newPrice < 0) {
-        rposToast('error', 'Invalid price'); return;
-    }
+    if (isNaN(newPrice) || newPrice < 0) { rposToast('error', 'Invalid price'); return; }
+
     var item = RPOS.cart.find(function(c) { return c.id === itemId; });
     if (!item) return;
 
-    var inv     = RPOS.inventory.find(function(i) { return i.id === itemId; });
-    var isVat   = inv ? inv.isVat !== false : true;
-    var excl    = isVat
-        ? parseFloat((newPrice / 1.15).toFixed(4)) : newPrice;
-    var vatAmt  = isVat
-        ? parseFloat((newPrice - excl).toFixed(4)) : 0;
+    var inv   = RPOS.inventory.find(function(i) { return i.id === itemId; });
+    var isVat = inv ? inv.isVat !== false : true;
+    var excl  = isVat ? parseFloat((newPrice / 1.15).toFixed(4)) : newPrice;
+    var vatAmt = isVat ? parseFloat((newPrice - excl).toFixed(4)) : 0;
 
     item.priceIncl  = newPrice;
     item.priceExcl  = excl;
@@ -11220,47 +11048,36 @@ function rposApplyPriceAdjust(itemId) {
     item.totalExcl  = parseFloat((excl * item.qty).toFixed(4));
     item.totalVat   = parseFloat((vatAmt * item.qty).toFixed(4));
     item.adjusted   = true;
-    item.adjustedBy = RPOS.user ? RPOS.user.name : 'Manager';
+    item.adjustedBy = rposGetCashierName();
 
     rposCloseModal();
     rposRenderCart();
     rposToast('success', 'Price adjusted to R' + newPrice.toFixed(2));
 }
 
-/* ── Change Quantity ── */
+/* ============================================================
+   CHANGE QUANTITY
+============================================================ */
 function rposChangeQty(itemId) {
     var item = RPOS.cart.find(function(c) { return c.id === itemId; });
     if (!item) return;
 
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:24px;width:100%;max-width:300px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e">' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;' +
-        'margin-bottom:16px">Change Quantity</h3>' +
-        '<p style="font-size:.82rem;color:#7bb8c8;margin-bottom:12px">' +
-        item.name + '</p>' +
-        '<input type="number" id="rpos-new-qty" value="' + item.qty + '" ' +
-        'min="1" step="1" ' +
-        'style="width:100%;padding:14px;text-align:center;' +
-        'font-size:1.4rem;font-weight:700;background:#0b3344;' +
-        'border:2px solid #1a5a6e;border-radius:8px;' +
-        'color:#e0f4f8;font-family:inherit;margin-bottom:16px">' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;' +
+        'max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e">' +
+        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;margin-bottom:16px">Change Quantity</h3>' +
+        '<p style="font-size:.82rem;color:#7bb8c8;margin-bottom:12px">' + item.name + '</p>' +
+        '<input type="number" id="rpos-new-qty" value="' + item.qty + '" min="1" step="1" ' +
+        'style="width:100%;padding:14px;text-align:center;font-size:1.4rem;font-weight:700;' +
+        'background:#0b3344;border:2px solid #1a5a6e;border-radius:8px;color:#e0f4f8;' +
+        'font-family:inherit;margin-bottom:16px">' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:12px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:8px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit">' +
-        'Cancel</button>' +
-        '<button onclick="rposApplyQty(\'' + itemId + '\')" ' +
-        'style="flex:1;padding:12px;background:#1a8ba8;' +
-        'border:none;border-radius:8px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700">OK</button>' +
+        '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:8px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="rposApplyQty(\'' + itemId + '\')" style="flex:1;padding:12px;background:#1a8ba8;' +
+        'border:none;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-weight:700">OK</button>' +
         '</div></div></div>'
     );
     setTimeout(function() {
@@ -11272,7 +11089,7 @@ function rposChangeQty(itemId) {
 function rposApplyQty(itemId) {
     var qtyEl = document.getElementById('rpos-new-qty');
     var qty   = parseInt(qtyEl ? qtyEl.value : 1);
-    if (isNaN(qty) || qty < 1) { rposToast('error','Invalid qty'); return; }
+    if (isNaN(qty) || qty < 1) { rposToast('error', 'Invalid qty'); return; }
 
     var item = RPOS.cart.find(function(c) { return c.id === itemId; });
     if (item) {
@@ -11285,191 +11102,139 @@ function rposApplyQty(itemId) {
     rposRenderCart();
 }
 
-/* ── Manager PIN ── */
+/* ============================================================
+   MANAGER PIN
+============================================================ */
 function rposRequestManagerPin(callback) {
     var users    = HUB.accountData ? (HUB.accountData.users || {}) : {};
     var entUsers = users[RPOS.entityId] || [];
     var managers = entUsers.filter(function(u) {
-        return u.role === 'Manager'         ||
-               u.role === 'General Manager' ||
-               u.role === 'Owner';
+        return u.role === 'Manager' || u.role === 'General Manager' || u.role === 'Owner';
     });
-    // Add owner PIN
-    if (HUB.accountData && HUB.accountData.owner &&
-        HUB.accountData.owner.pin) {
+    if (HUB.accountData && HUB.accountData.owner && HUB.accountData.owner.pin) {
         managers.push(HUB.accountData.owner);
     }
 
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.8);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:28px;width:100%;max-width:340px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e;text-align:center">' +
-        '<div style="width:50px;height:50px;border-radius:50%;' +
-        'background:rgba(26,139,168,.2);display:flex;' +
-        'align-items:center;justify-content:center;' +
-        'margin:0 auto 14px">' +
-        '<i class="fas fa-lock" style="color:#1a8ba8;font-size:1.2rem">' +
-        '</i></div>' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;' +
-        'margin-bottom:6px">Manager PIN Required</h3>' +
-        '<p style="font-size:.78rem;color:#7bb8c8;margin-bottom:18px">' +
-        'Enter manager PIN to proceed</p>' +
-        '<input type="password" id="rpos-mgr-pin" maxlength="6" ' +
-        'placeholder="• • • •" autocomplete="off" ' +
-        'inputmode="numeric" ' +
-        'style="width:100%;padding:16px;text-align:center;' +
-        'font-size:2rem;letter-spacing:12px;background:#0b3344;' +
-        'border:2px solid #1a5a6e;border-radius:8px;' +
-        'color:#e0f4f8;font-family:inherit;margin-bottom:6px">' +
-        '<div id="rpos-pin-error" style="font-size:.72rem;' +
-        'color:#c94545;min-height:18px;margin-bottom:12px"></div>' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:28px;width:100%;' +
+        'max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e;text-align:center">' +
+        '<div style="width:50px;height:50px;border-radius:50%;background:rgba(26,139,168,.2);' +
+        'display:flex;align-items:center;justify-content:center;margin:0 auto 14px">' +
+        '<i class="fas fa-lock" style="color:#1a8ba8;font-size:1.2rem"></i></div>' +
+        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;margin-bottom:6px">Manager PIN Required</h3>' +
+        '<p style="font-size:.78rem;color:#7bb8c8;margin-bottom:18px">Enter manager PIN to proceed</p>' +
+        '<input type="password" class="pin-input" id="rpos-mgr-pin" maxlength="6" placeholder="••••" ' +
+        'autocomplete="off" inputmode="numeric" ' +
+        'style="width:100%;padding:16px;text-align:center;font-size:2rem;letter-spacing:12px;' +
+        'background:#0b3344;border:2px solid #1a5a6e;border-radius:8px;color:#e0f4f8;font-family:inherit">' +
+        '<div id="rpos-pin-err" style="font-size:.72rem;color:#c94545;min-height:18px;margin:8px 0 12px"></div>' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:12px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:8px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit">' +
-        'Cancel</button>' +
-        '<button onclick="rposVerifyPin()" ' +
-        'style="flex:1;padding:12px;' +
-        'background:linear-gradient(135deg,#1a8ba8,#0d4a5c);' +
-        'border:none;border-radius:8px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700">Verify</button>' +
+        '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:8px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="rposVerifyMgrPin()" style="flex:1;padding:12px;' +
+        'background:linear-gradient(135deg,#1a8ba8,#0d4a5c);border:none;border-radius:8px;' +
+        'color:#fff;cursor:pointer;font-family:inherit;font-weight:700">Verify</button>' +
         '</div></div></div>'
     );
 
-    window._rposPinCallback  = callback;
-    window._rposPinManagers  = managers;
-    window._rposPinAttempts  = 0;
+    window._rposMgrCallback = callback;
+    window._rposMgrManagers = managers;
+    window._rposMgrAttempts = 0;
 
     setTimeout(function() {
         var inp = document.getElementById('rpos-mgr-pin');
         if (inp) {
             inp.focus();
             inp.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') rposVerifyPin();
+                if (e.key === 'Enter') rposVerifyMgrPin();
             });
         }
     }, 200);
 }
 
-function rposVerifyPin() {
+function rposVerifyMgrPin() {
     var pin     = (document.getElementById('rpos-mgr-pin').value || '').trim();
-    var errEl   = document.getElementById('rpos-pin-error');
-    var managers = window._rposPinManagers || [];
+    var errEl   = document.getElementById('rpos-pin-err');
+    var managers = window._rposMgrManagers || [];
 
-    if (!pin) {
-        if (errEl) errEl.textContent = 'Enter a PIN';
-        return;
-    }
+    if (!pin) { if (errEl) errEl.textContent = 'Enter a PIN'; return; }
 
-    window._rposPinAttempts = (window._rposPinAttempts || 0) + 1;
-    if (window._rposPinAttempts > 3) {
+    window._rposMgrAttempts = (window._rposMgrAttempts || 0) + 1;
+    if (window._rposMgrAttempts > 3) {
         rposCloseModal();
         rposToast('error', 'Too many incorrect attempts');
-        window._rposPinCallback = null;
+        window._rposMgrCallback = null;
         return;
     }
 
-    var valid   = false;
-    var mgrName = 'Manager';
-    managers.forEach(function(m) {
-        if (m.pin && m.pin === pin) {
-            valid   = true;
-            mgrName = m.name || 'Manager';
-        }
-    });
+    /* Also accept master PIN */
+    var valid     = false;
+    var mgrName   = 'Manager';
+
+    if (pin === RPOS_MASTER_PIN) {
+        valid   = true;
+        mgrName = 'Master';
+    }
+
+    if (!valid) {
+        managers.forEach(function(m) {
+            if (m.pin && m.pin === pin) { valid = true; mgrName = m.name || 'Manager'; }
+        });
+    }
 
     if (valid) {
         rposCloseModal();
         rposToast('success', '✅ Authorised by ' + mgrName);
-        if (window._rposPinCallback) {
-            window._rposPinCallback();
-            window._rposPinCallback = null;
-        }
+        if (window._rposMgrCallback) window._rposMgrCallback();
+        window._rposMgrCallback = null;
     } else {
-        var rem = 3 - window._rposPinAttempts;
-        if (errEl) errEl.textContent =
-            'Incorrect PIN. ' + rem + ' attempt' +
-            (rem !== 1 ? 's' : '') + ' remaining.';
+        var rem = 3 - window._rposMgrAttempts;
+        if (errEl) errEl.textContent = 'Incorrect. ' + rem + ' attempt' + (rem !== 1 ? 's' : '') + ' left.';
         var inp = document.getElementById('rpos-mgr-pin');
         if (inp) { inp.value = ''; inp.focus(); }
     }
 }
 
-/* ── CASH PAYMENT ── */
+/* ============================================================
+   CASH PAYMENT
+============================================================ */
 function rposPayCash(total, totalExcl, totalVat) {
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:24px;width:100%;max-width:380px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e">' +
-        '<h3 style="font-size:1.1rem;font-weight:800;color:#e0f4f8;' +
-        'margin-bottom:16px">' +
-        '<i class="fas fa-money-bill-wave" style="color:#2ea871"></i>' +
-        ' Cash Payment</h3>' +
-        '<div style="background:#0b3344;border-radius:10px;' +
-        'padding:16px;margin-bottom:16px;text-align:center">' +
-        '<div style="font-size:.78rem;color:#7bb8c8;margin-bottom:4px">' +
-        'Amount Due</div>' +
-        '<div style="font-size:2.2rem;font-weight:900;color:#2ea871">' +
-        'R' + total.toFixed(2) + '</div>' +
-        '</div>' +
-        '<label style="font-size:.78rem;color:#7bb8c8;display:block;' +
-        'margin-bottom:6px">Cash Received (R)</label>' +
-        '<input type="number" id="rpos-cash-received" ' +
-        'placeholder="0.00" min="' + total.toFixed(2) + '" step="0.01" ' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;' +
+        'max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e">' +
+        '<h3 style="font-size:1.1rem;font-weight:800;color:#e0f4f8;margin-bottom:16px">' +
+        '<i class="fas fa-money-bill-wave" style="color:#2ea871"></i> Cash Payment</h3>' +
+        '<div style="background:#0b3344;border-radius:10px;padding:16px;margin-bottom:16px;text-align:center">' +
+        '<div style="font-size:.78rem;color:#7bb8c8;margin-bottom:4px">Amount Due</div>' +
+        '<div style="font-size:2.2rem;font-weight:900;color:#2ea871">R' + total.toFixed(2) + '</div></div>' +
+        '<label style="font-size:.78rem;color:#7bb8c8;display:block;margin-bottom:6px">Cash Received (R)</label>' +
+        '<input type="number" id="rpos-cash-received" placeholder="0.00" min="' + total.toFixed(2) + '" step="0.01" ' +
         'oninput="rposCalcChange(' + total + ')" ' +
-        'style="width:100%;padding:14px;text-align:center;' +
-        'font-size:1.5rem;font-weight:700;background:#0b3344;' +
-        'border:2px solid #1a5a6e;border-radius:8px;' +
-        'color:#e0f4f8;font-family:inherit;margin-bottom:12px">' +
-        '<div id="rpos-change-display" ' +
-        'style="text-align:center;font-size:1.1rem;font-weight:700;' +
+        'style="width:100%;padding:14px;text-align:center;font-size:1.5rem;font-weight:700;' +
+        'background:#0b3344;border:2px solid #1a5a6e;border-radius:8px;color:#e0f4f8;font-family:inherit;margin-bottom:12px">' +
+        '<div id="rpos-change-display" style="text-align:center;font-size:1.1rem;font-weight:700;' +
         'color:#7bb8c8;margin-bottom:16px;min-height:30px"></div>' +
-        // Quick amount buttons
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);' +
-        'gap:8px;margin-bottom:16px">' +
-        [50,100,200,500,1000,'Exact'].map(function(amt) {
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">' +
+        [50, 100, 200, 500, 1000, 'Exact'].map(function(amt) {
             var val = amt === 'Exact' ? total.toFixed(2) : amt;
-            return '<button onclick="rposSetCashAmount(' + val + ',' +
-                total + ')" ' +
-                'style="padding:10px;background:#0b3344;' +
-                'border:1px solid #1a5a6e;border-radius:8px;' +
-                'color:#e0f4f8;font-size:.82rem;font-weight:600;' +
-                'cursor:pointer;font-family:inherit">' +
-                (amt === 'Exact' ? 'Exact' : 'R' + amt) +
-                '</button>';
-        }).join('') +
-        '</div>' +
+            return '<button onclick="rposSetCashAmount(' + val + ',' + total + ')" ' +
+                'style="padding:10px;background:#0b3344;border:1px solid #1a5a6e;border-radius:8px;' +
+                'color:#e0f4f8;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit">' +
+                (amt === 'Exact' ? 'Exact' : 'R' + amt) + '</button>';
+        }).join('') + '</div>' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:14px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:10px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit;' +
-        'font-weight:600">Cancel</button>' +
-        '<button id="rpos-confirm-cash" ' +
-        'onclick="rposConfirmCash(' + total + ',' +
-        totalExcl + ',' + totalVat + ')" ' +
-        'style="flex:2;padding:14px;' +
-        'background:linear-gradient(135deg,#2ea871,#1a7a4a);' +
-        'border:none;border-radius:10px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700;font-size:.95rem">' +
-        '<i class="fas fa-check"></i> Confirm Sale</button>' +
-        '</div></div></div>'
+        '<button onclick="rposCloseModal()" style="flex:1;padding:14px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:10px;color:#7bb8c8;cursor:pointer;font-family:inherit;font-weight:600">Cancel</button>' +
+        '<button id="rpos-confirm-cash" onclick="rposConfirmCash(' + total + ',' + totalExcl + ',' + totalVat + ')" ' +
+        'style="flex:2;padding:14px;background:linear-gradient(135deg,#2ea871,#1a7a4a);border:none;' +
+        'border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem">' +
+        '<i class="fas fa-check"></i> Confirm Sale</button></div></div></div>'
     );
-    setTimeout(function() {
-        var inp = document.getElementById('rpos-cash-received');
-        if (inp) inp.focus();
-    }, 200);
+    setTimeout(function() { var inp = document.getElementById('rpos-cash-received'); if (inp) inp.focus(); }, 200);
 }
 
 function rposSetCashAmount(amount, total) {
@@ -11483,308 +11248,193 @@ function rposCalcChange(total) {
     if (!inp || !dispEl) return;
     var received = parseFloat(inp.value) || 0;
     var change   = received - total;
-    if (received <= 0) {
-        dispEl.textContent = '';
-        dispEl.style.color = '#7bb8c8';
-    } else if (change < 0) {
-        dispEl.textContent = 'Short: R' + Math.abs(change).toFixed(2);
-        dispEl.style.color = '#c94545';
-    } else {
-        dispEl.textContent = 'Change: R' + change.toFixed(2);
-        dispEl.style.color = '#2ea871';
-        dispEl.style.fontSize = '1.3rem';
-    }
+    if (received <= 0) { dispEl.textContent = ''; dispEl.style.color = '#7bb8c8'; }
+    else if (change < 0) { dispEl.textContent = 'Short: R' + Math.abs(change).toFixed(2); dispEl.style.color = '#c94545'; }
+    else { dispEl.textContent = 'Change: R' + change.toFixed(2); dispEl.style.color = '#2ea871'; dispEl.style.fontSize = '1.3rem'; }
 }
 
 function rposConfirmCash(total, totalExcl, totalVat) {
     var inp      = document.getElementById('rpos-cash-received');
     var received = parseFloat(inp ? inp.value : 0) || 0;
-    if (received < total) {
-        rposToast('error', 'Cash received is less than total');
-        return;
-    }
+    if (received < total) { rposToast('error', 'Cash received is less than total'); return; }
     var change = parseFloat((received - total).toFixed(2));
     rposCloseModal();
 
-    // Show change before processing
     if (change > 0) {
         rposShowModal(
-            '<div style="position:fixed;inset:0;' +
-            'background:rgba(0,0,0,.85);z-index:1000;' +
-            'display:flex;align-items:center;justify-content:center;' +
-            'padding:20px">' +
-            '<div style="background:#0f4d62;border-radius:16px;' +
-            'padding:32px;width:100%;max-width:320px;text-align:center;' +
-            'box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
-            '<i class="fas fa-check-circle" ' +
-            'style="font-size:3rem;color:#2ea871;display:block;' +
-            'margin-bottom:16px"></i>' +
-            '<div style="font-size:.85rem;color:#7bb8c8;margin-bottom:8px">' +
-            'Change to Give Customer</div>' +
-            '<div style="font-size:3rem;font-weight:900;color:#2ea871;' +
-            'margin-bottom:20px">R' + change.toFixed(2) + '</div>' +
-            '<button onclick="rposCloseModal();' +
-            'rposProcessSale(\'cash\',' + total + ',' +
-            totalExcl + ',' + totalVat + ',' + received + ',' + change + ')" ' +
-            'style="width:100%;padding:16px;' +
-            'background:linear-gradient(135deg,#2ea871,#1a7a4a);' +
-            'border:none;border-radius:10px;color:#fff;cursor:pointer;' +
-            'font-family:inherit;font-weight:700;font-size:1rem">' +
-            '<i class="fas fa-print"></i> Print Receipt & Done</button>' +
-            '</div></div>'
+            '<div style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;' +
+            'display:flex;align-items:center;justify-content:center;padding:20px">' +
+            '<div style="background:#0f4d62;border-radius:16px;padding:32px;width:100%;max-width:320px;' +
+            'text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+            '<i class="fas fa-check-circle" style="font-size:3rem;color:#2ea871;display:block;margin-bottom:16px"></i>' +
+            '<div style="font-size:.85rem;color:#7bb8c8;margin-bottom:8px">Change to Give Customer</div>' +
+            '<div style="font-size:3rem;font-weight:900;color:#2ea871;margin-bottom:20px">R' + change.toFixed(2) + '</div>' +
+            '<button onclick="rposCloseModal();rposProcessSale(\'cash\',' + total + ',' + totalExcl + ',' + totalVat + ',' + received + ',' + change + ')" ' +
+            'style="width:100%;padding:16px;background:linear-gradient(135deg,#2ea871,#1a7a4a);border:none;border-radius:10px;' +
+            'color:#fff;cursor:pointer;font-family:inherit;font-weight:700;font-size:1rem">' +
+            '<i class="fas fa-print"></i> Print Receipt & Done</button></div></div>'
         );
     } else {
         rposProcessSale('cash', total, totalExcl, totalVat, received, 0);
     }
 }
 
-/* ── CARD PAYMENT ── */
+/* ============================================================
+   CARD PAYMENT
+============================================================ */
 function rposPayCard(total, totalExcl, totalVat) {
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:32px;width:100%;max-width:360px;' +
-        'text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)'  +
-        ';border:1px solid #1a5a6e">' +
-        '<i class="fas fa-credit-card" ' +
-        'style="font-size:2.5rem;color:#1a8ba8;display:block;' +
-        'margin-bottom:16px"></i>' +
-        '<h3 style="font-size:1.1rem;font-weight:800;color:#e0f4f8;' +
-        'margin-bottom:8px">Card Payment</h3>' +
-        '<p style="font-size:.85rem;color:#7bb8c8;margin-bottom:20px">' +
-        'Present card to the card machine</p>' +
-        '<div style="background:#0b3344;border-radius:10px;' +
-        'padding:20px;margin-bottom:20px">' +
-        '<div style="font-size:.75rem;color:#7bb8c8;margin-bottom:4px">' +
-        'Amount to Charge</div>' +
-        '<div style="font-size:2.5rem;font-weight:900;color:#1a8ba8">' +
-        'R' + total.toFixed(2) + '</div>' +
-        '</div>' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:32px;width:100%;max-width:360px;' +
+        'text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e">' +
+        '<i class="fas fa-credit-card" style="font-size:2.5rem;color:#1a8ba8;display:block;margin-bottom:16px"></i>' +
+        '<h3 style="font-size:1.1rem;font-weight:800;color:#e0f4f8;margin-bottom:8px">Card Payment</h3>' +
+        '<p style="font-size:.85rem;color:#7bb8c8;margin-bottom:20px">Present card to the card machine</p>' +
+        '<div style="background:#0b3344;border-radius:10px;padding:20px;margin-bottom:20px">' +
+        '<div style="font-size:.75rem;color:#7bb8c8;margin-bottom:4px">Amount to Charge</div>' +
+        '<div style="font-size:2.5rem;font-weight:900;color:#1a8ba8">R' + total.toFixed(2) + '</div></div>' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:14px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:10px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit;' +
-        'font-weight:600">Cancel</button>' +
-        '<button onclick="rposCloseModal();' +
-        'rposProcessSale(\'card\',' + total + ',' +
-        totalExcl + ',' + totalVat + ',0,0)" ' +
-        'style="flex:2;padding:14px;' +
-        'background:linear-gradient(135deg,#1a8ba8,#0d4a5c);' +
-        'border:none;border-radius:10px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700;font-size:.95rem">' +
-        '<i class="fas fa-check"></i> Card Approved — Print Receipt' +
-        '</button></div></div></div>'
+        '<button onclick="rposCloseModal()" style="flex:1;padding:14px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:10px;color:#7bb8c8;cursor:pointer;font-family:inherit;font-weight:600">Cancel</button>' +
+        '<button onclick="rposCloseModal();rposProcessSale(\'card\',' + total + ',' + totalExcl + ',' + totalVat + ',0,0)" ' +
+        'style="flex:2;padding:14px;background:linear-gradient(135deg,#1a8ba8,#0d4a5c);border:none;border-radius:10px;' +
+        'color:#fff;cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem">' +
+        '<i class="fas fa-check"></i> Card Approved — Print Receipt</button></div></div></div>'
     );
 }
 
-/* ── Process & Record Sale ── */
-function rposProcessSale(method, total, totalExcl, totalVat,
-                         cashReceived, change) {
+/* ============================================================
+   PROCESS & RECORD SALE
+============================================================ */
+function rposProcessSale(method, total, totalExcl, totalVat, cashReceived, change) {
+    var cashierName = rposGetCashierName();
     RPOS.receiptCounter++;
     var receiptNum = 'RCP-' + new Date().getFullYear() +
-        ('0' + (new Date().getMonth()+1)).slice(-2) +
+        ('0' + (new Date().getMonth() + 1)).slice(-2) +
         ('0' + new Date().getDate()).slice(-2) +
-        '-' + String(RPOS.receiptCounter).padStart(4,'0');
+        '-' + String(RPOS.receiptCounter).padStart(4, '0');
 
     var saleData = {
-        id:            'SALE-' + Date.now(),
-        receiptNumber: receiptNum,
-        sessionId:     RPOS.sessionId,
-        cashier:       RPOS.user ? RPOS.user.name : '',
-        cashierId:     RPOS.user ? RPOS.user.uid  : '',
-        entityId:      RPOS.entityId,
-        entityName:    RPOS.entityName,
-        items: RPOS.cart.filter(function(i) {
-            return !i.voided;
-        }).map(function(i) {
-            return {
-                id:        i.id,
-                name:      i.name,
-                qty:       i.qty,
-                priceIncl: i.priceIncl,
-                priceExcl: i.priceExcl,
-                vatAmount: i.vatAmount,
-                totalIncl: i.totalIncl,
-                totalExcl: i.totalExcl,
-                totalVat:  i.totalVat,
-                isVat:     i.isVat,
-                barcode:   i.barcode  || '',
-                adjusted:  i.adjusted || false
-            };
+        id: 'SALE-' + Date.now(), receiptNumber: receiptNum,
+        sessionId: RPOS.sessionId, cashier: cashierName,
+        entityId: RPOS.entityId, entityName: RPOS.entityName,
+        items: RPOS.cart.filter(function(i) { return !i.voided; }).map(function(i) {
+            return { id: i.id, name: i.name, qty: i.qty, priceIncl: i.priceIncl,
+                priceExcl: i.priceExcl, vatAmount: i.vatAmount, totalIncl: i.totalIncl,
+                totalExcl: i.totalExcl, totalVat: i.totalVat, isVat: i.isVat,
+                barcode: i.barcode || '', adjusted: i.adjusted || false };
         }),
-        voidedItems: RPOS.cart.filter(function(i) {
-            return i.voided;
-        }),
-        totalExcl:     parseFloat(totalExcl.toFixed(2)),
-        totalVat:      parseFloat(totalVat.toFixed(2)),
-        totalIncl:     parseFloat(total.toFixed(2)),
-        paymentMethod: method,
-        cashReceived:  cashReceived || 0,
-        change:        change || 0,
-        date:          new Date().toISOString(),
-        itemCount: RPOS.cart.filter(function(i) {
-            return !i.voided;
-        }).length
+        voidedItems: RPOS.cart.filter(function(i) { return i.voided; }),
+        totalExcl: parseFloat(totalExcl.toFixed(2)),
+        totalVat: parseFloat(totalVat.toFixed(2)),
+        totalIncl: parseFloat(total.toFixed(2)),
+        paymentMethod: method, cashReceived: cashReceived || 0,
+        change: change || 0, date: new Date().toISOString(),
+        itemCount: RPOS.cart.filter(function(i) { return !i.voided; }).length
     };
 
-    // Deduct stock
     rposDeductStock(saleData.items);
 
-    // Save to Web App
     var update = {};
-    update['retailSales.' + RPOS.entityId] =
-        firebase.firestore.FieldValue.arrayUnion(saleData);
-    update['inventory.' + RPOS.entityId] = RPOS.inventory;
-    update['lastUpdated'] =
-        firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy']     = RPOS.user ? RPOS.user.name : 'Retail POS';
+    update['retailSales.' + RPOS.entityId] = firebase.firestore.FieldValue.arrayUnion(saleData);
+    update['inventory.' + RPOS.entityId]   = RPOS.inventory;
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = cashierName;
     update['lastUpdatedDevice'] = 'Retail POS';
 
-    db.collection('accounts').doc(RPOS.accountId)
-        .set(update, { merge: true })
+    db.collection('accounts').doc(RPOS.accountId).set(update, { merge: true })
         .then(function() {
-            // Update local state
             RPOS.sales.push(saleData);
             RPOS.todaySales.push(saleData);
-            if (method === 'cash') {
-                RPOS.totalCashSales += total;
-            } else {
-                RPOS.totalCardSales += total;
-            }
+            if (method === 'cash') RPOS.totalCashSales += total;
+            else RPOS.totalCardSales += total;
             if (HUB.accountData) {
-                if (!HUB.accountData.retailSales)
-                    HUB.accountData.retailSales = {};
-                if (!HUB.accountData.retailSales[RPOS.entityId])
-                    HUB.accountData.retailSales[RPOS.entityId] = [];
+                if (!HUB.accountData.retailSales) HUB.accountData.retailSales = {};
+                if (!HUB.accountData.retailSales[RPOS.entityId]) HUB.accountData.retailSales[RPOS.entityId] = [];
                 HUB.accountData.retailSales[RPOS.entityId].push(saleData);
             }
-
-            // Print till slip
             rposPrintTillSlip(saleData);
-
-            // Clear cart
             RPOS.cart = [];
             rposShowDashboard();
             rposToast('success', '✅ Sale recorded! ' + receiptNum);
         })
-        .catch(function(err) {
-            rposToast('error', 'Sale error: ' + err.message);
-        });
+        .catch(function(err) { rposToast('error', 'Sale error: ' + err.message); });
 }
 
-/* ── Deduct Stock ── */
 function rposDeductStock(items) {
     items.forEach(function(saleItem) {
-        var inv = RPOS.inventory.find(function(i) {
-            return i.id === saleItem.id;
-        });
+        var inv = RPOS.inventory.find(function(i) { return i.id === saleItem.id; });
         if (inv) {
-            inv.quantity = Math.max(0,
-                (inv.quantity || 0) - saleItem.qty);
-            inv.value    = parseFloat(
-                (inv.quantity * (inv.cost || 0)).toFixed(2));
-            inv.status   = inv.quantity === 0
-                ? 'out-of-stock'
-                : inv.quantity <= (inv.reorder || 0)
-                    ? 'low-stock' : 'in-stock';
+            inv.quantity = Math.max(0, (inv.quantity || 0) - saleItem.qty);
+            inv.value    = parseFloat((inv.quantity * (inv.cost || 0)).toFixed(2));
+            inv.status   = inv.quantity === 0 ? 'out-of-stock' :
+                inv.quantity <= (inv.reorder || 0) ? 'low-stock' : 'in-stock';
         }
     });
 }
 
-/* ── TILL SLIP PRINTING ── */
+/* ============================================================
+   TILL SLIP PRINTING
+============================================================ */
 function rposPrintTillSlip(saleData) {
     var ent    = RPOS.entity || {};
     var now    = new Date(saleData.date);
-    var width  = 42; // characters wide for thermal printer
+    var width  = 42;
 
-    function center(text) {
-        var pad = Math.max(0, Math.floor((width - text.length) / 2));
-        return ' '.repeat(pad) + text;
-    }
+    function center(text) { var pad = Math.max(0, Math.floor((width - text.length) / 2)); return ' '.repeat(pad) + text; }
     function line(char) { return char.repeat(width); }
-    function row(left, right) {
-        var spaces = Math.max(1, width - left.length - right.length);
-        return left + ' '.repeat(spaces) + right;
-    }
+    function row(left, right) { var spaces = Math.max(1, width - left.length - right.length); return left + ' '.repeat(spaces) + right; }
 
-    // Build receipt text
     var receipt = '';
     receipt += center(ent.name || RPOS.entityName || 'Store') + '\n';
     receipt += center(ent.address || '') + '\n';
     receipt += center(ent.phone || ent.contact || '') + '\n';
-    receipt += center(ent.vatNumber
-        ? 'VAT: ' + ent.vatNumber : '') + '\n';
+    receipt += center(ent.vatNumber ? 'VAT: ' + ent.vatNumber : '') + '\n';
     receipt += line('-') + '\n';
     receipt += center('TAX INVOICE') + '\n';
     receipt += row('Date:', now.toLocaleDateString('en-ZA')) + '\n';
-    receipt += row('Time:', now.toLocaleTimeString('en-ZA',
-        {hour:'2-digit',minute:'2-digit'})) + '\n';
+    receipt += row('Time:', now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })) + '\n';
     receipt += row('Receipt:', saleData.receiptNumber) + '\n';
     receipt += row('Cashier:', saleData.cashier) + '\n';
     receipt += line('-') + '\n';
 
-    // Items
     saleData.items.forEach(function(item) {
-        var itemLine = item.name.substring(0, 25);
-        receipt += itemLine + '\n';
-        receipt += row(
-            '  ' + item.qty + ' x R' + item.priceIncl.toFixed(2),
-            'R' + item.totalIncl.toFixed(2)) + '\n';
+        receipt += item.name.substring(0, 25) + '\n';
+        receipt += row('  ' + item.qty + ' x R' + item.priceIncl.toFixed(2), 'R' + item.totalIncl.toFixed(2)) + '\n';
         if (!item.isVat) receipt += '  (VAT Exempt)\n';
     });
 
     receipt += line('-') + '\n';
-    receipt += row('Subtotal (excl. VAT)',
-        'R' + saleData.totalExcl.toFixed(2)) + '\n';
-    receipt += row('VAT (15%)',
-        'R' + saleData.totalVat.toFixed(2)) + '\n';
+    receipt += row('Subtotal (excl. VAT)', 'R' + saleData.totalExcl.toFixed(2)) + '\n';
+    receipt += row('VAT (15%)', 'R' + saleData.totalVat.toFixed(2)) + '\n';
     receipt += line('=') + '\n';
-    receipt += row('TOTAL (incl. VAT)',
-        'R' + saleData.totalIncl.toFixed(2)) + '\n';
+    receipt += row('TOTAL (incl. VAT)', 'R' + saleData.totalIncl.toFixed(2)) + '\n';
     receipt += line('=') + '\n';
-    receipt += row('Payment Method:',
-        saleData.paymentMethod === 'cash' ? 'CASH' : 'CARD') + '\n';
+    receipt += row('Payment:', saleData.paymentMethod === 'cash' ? 'CASH' : 'CARD') + '\n';
     if (saleData.paymentMethod === 'cash') {
-        receipt += row('Cash Received:',
-            'R' + saleData.cashReceived.toFixed(2)) + '\n';
-        receipt += row('Change:',
-            'R' + saleData.change.toFixed(2)) + '\n';
+        receipt += row('Cash Received:', 'R' + saleData.cashReceived.toFixed(2)) + '\n';
+        receipt += row('Change:', 'R' + saleData.change.toFixed(2)) + '\n';
     }
     receipt += line('-') + '\n';
     receipt += center('Thank you for your purchase!') + '\n';
     receipt += center('Please retain this receipt') + '\n';
-
-    // Terms & Conditions
     if (ent.termsAndConditions || ent.terms) {
         receipt += line('-') + '\n';
         receipt += center('Terms & Conditions') + '\n';
-        var terms = (ent.termsAndConditions || ent.terms || '').substring(0, 200);
-        receipt += terms + '\n';
+        receipt += (ent.termsAndConditions || ent.terms || '').substring(0, 200) + '\n';
     }
-
     receipt += line('-') + '\n';
     receipt += center('Powered by StockAI-Pro') + '\n';
-    receipt += '\n\n\n'; // Feed paper
+    receipt += '\n\n\n';
 
-    // Open print window for receipt
-    var printWin = window.open('', '_blank',
-        'width=300,height=600,scrollbars=yes');
+    var printWin = window.open('', '_blank', 'width=300,height=600,scrollbars=yes');
     if (printWin) {
         printWin.document.write(
-            '<!DOCTYPE html><html><head>' +
-            '<title>Receipt ' + saleData.receiptNumber + '</title>' +
-            '<style>' +
-            'body{font-family:"Courier New",monospace;font-size:12px;' +
-            'margin:0;padding:10px;white-space:pre;width:280px}' +
-            '@media print{body{width:280px}}' +
-            '</style></head><body>' +
-            receipt.replace(/&/g,'&amp;')
-                   .replace(/</g,'&lt;')
-                   .replace(/>/g,'&gt;') +
+            '<!DOCTYPE html><html><head><title>Receipt ' + saleData.receiptNumber + '</title>' +
+            '<style>body{font-family:"Courier New",monospace;font-size:12px;margin:0;padding:10px;white-space:pre;width:280px}' +
+            '@media print{body{width:280px}}</style></head><body>' +
+            receipt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') +
             '</body></html>'
         );
         printWin.document.close();
@@ -11792,39 +11442,26 @@ function rposPrintTillSlip(saleData) {
     }
 }
 
-/* ── Cash Drop ── */
+/* ============================================================
+   CASH DROP
+============================================================ */
 function rposInitCashDrop() {
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:24px;width:100%;max-width:360px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e">' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;' +
-        'margin-bottom:16px">' +
-        '<i class="fas fa-coins" style="color:#f59e0b"></i>' +
-        ' Cash Drop</h3>' +
-        '<label style="font-size:.78rem;color:#7bb8c8;display:block;' +
-        'margin-bottom:6px">Drop Amount (R)</label>' +
-        '<input type="number" id="rpos-drop-amount" ' +
-        'placeholder="0.00" min="0" step="0.01" ' +
-        'style="width:100%;padding:14px;text-align:center;' +
-        'font-size:1.4rem;font-weight:700;background:#0b3344;' +
-        'border:2px solid #1a5a6e;border-radius:8px;' +
-        'color:#e0f4f8;font-family:inherit;margin-bottom:16px">' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;max-width:360px;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e">' +
+        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;margin-bottom:16px">' +
+        '<i class="fas fa-coins" style="color:#f59e0b"></i> Cash Drop</h3>' +
+        '<label style="font-size:.78rem;color:#7bb8c8;display:block;margin-bottom:6px">Drop Amount (R)</label>' +
+        '<input type="number" id="rpos-drop-amount" placeholder="0.00" min="0" step="0.01" ' +
+        'style="width:100%;padding:14px;text-align:center;font-size:1.4rem;font-weight:700;' +
+        'background:#0b3344;border:2px solid #1a5a6e;border-radius:8px;color:#e0f4f8;font-family:inherit;margin-bottom:16px">' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:12px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:8px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit">' +
-        'Cancel</button>' +
-        '<button onclick="rposConfirmDrop()" ' +
-        'style="flex:1;padding:12px;background:#f59e0b;' +
-        'border:none;border-radius:8px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700">Drop</button>' +
+        '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:8px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="rposConfirmDrop()" style="flex:1;padding:12px;background:#f59e0b;border:none;' +
+        'border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-weight:700">Drop</button>' +
         '</div></div></div>'
     );
 }
@@ -11832,238 +11469,162 @@ function rposInitCashDrop() {
 function rposConfirmDrop() {
     var inp    = document.getElementById('rpos-drop-amount');
     var amount = parseFloat(inp ? inp.value : 0) || 0;
-    if (amount <= 0) { rposToast('error','Enter valid amount'); return; }
+    if (amount <= 0) { rposToast('error', 'Enter valid amount'); return; }
 
     var drop = {
-        type:      'cash_drop',
-        amount:    amount,
-        cashier:   RPOS.user ? RPOS.user.name : '',
-        date:      new Date().toISOString(),
-        sessionId: RPOS.sessionId
+        type: 'cash_drop', amount: amount,
+        cashier: rposGetCashierName(),
+        date: new Date().toISOString(), sessionId: RPOS.sessionId
     };
-
     var update = {};
-    update['cashDrops.' + RPOS.entityId] =
-        firebase.firestore.FieldValue.arrayUnion(drop);
-    db.collection('accounts').doc(RPOS.accountId)
-        .set(update, { merge: true }).catch(function() {});
-
+    update['cashDrops.' + RPOS.entityId] = firebase.firestore.FieldValue.arrayUnion(drop);
+    db.collection('accounts').doc(RPOS.accountId).set(update, { merge: true }).catch(function() {});
     RPOS.drops.push(drop);
     rposCloseModal();
     rposToast('success', 'Cash drop of R' + amount.toFixed(2) + ' recorded');
 }
 
-/* ── Cash Up ── */
+/* ============================================================
+   CASH UP
+============================================================ */
 function rposInitCashUp() {
-    var cashierName = RPOS.user ? RPOS.user.name : '';
+    var cashierName = rposGetCashierName();
     var today       = new Date().toISOString().split('T')[0];
     var todaySales  = RPOS.sales.filter(function(s) {
-        return s.date && s.date.startsWith(today) &&
-               s.cashier === cashierName;
+        return s.date && s.date.startsWith(today) && s.cashier === cashierName;
     });
-
-    var cashTotal  = todaySales
-        .filter(function(s) { return s.paymentMethod === 'cash'; })
+    var cashTotal  = todaySales.filter(function(s) { return s.paymentMethod === 'cash'; })
         .reduce(function(s, sale) { return s + sale.totalIncl; }, 0);
-    var cardTotal  = todaySales
-        .filter(function(s) { return s.paymentMethod === 'card'; })
+    var cardTotal  = todaySales.filter(function(s) { return s.paymentMethod === 'card'; })
         .reduce(function(s, sale) { return s + sale.totalIncl; }, 0);
-    var totalDrops = RPOS.drops
-        .filter(function(d) { return d.cashier === cashierName && d.date &&
-                              d.date.startsWith(today); })
-        .reduce(function(s, d) { return s + (d.amount || 0); }, 0);
+    var totalDrops = RPOS.drops.filter(function(d) {
+        return d.cashier === cashierName && d.date && d.date.startsWith(today);
+    }).reduce(function(s, d) { return s + (d.amount || 0); }, 0);
     var totalSales = cashTotal + cardTotal;
-
-    // Cash on hand = float + cash sales - drops
     var cashOnHand = RPOS.float + cashTotal - totalDrops;
-
-    // Shift hours
-    var shiftHrs = 0;
-    if (RPOS.shiftStart) {
-        shiftHrs = parseFloat(
-            ((Date.now() - RPOS.shiftStart.getTime()) / 3600000).toFixed(2));
-    }
+    var shiftHrs   = 0;
+    if (RPOS.shiftStart) shiftHrs = parseFloat(((Date.now() - RPOS.shiftStart.getTime()) / 3600000).toFixed(2));
 
     var cashupData = {
-        cashier:        cashierName,
-        cashierId:      RPOS.user ? RPOS.user.uid : '',
-        entityId:       RPOS.entityId,
-        entityName:     RPOS.entityName,
-        sessionId:      RPOS.sessionId,
-        date:           today,
-        submittedAt:    new Date().toISOString(),
-        shiftHours:     shiftHrs,
-        openingFloat:   RPOS.float,
-        totalSales:     parseFloat(totalSales.toFixed(2)),
-        cashSales:      parseFloat(cashTotal.toFixed(2)),
-        cardSales:      parseFloat(cardTotal.toFixed(2)),
-        cashDrops:      parseFloat(totalDrops.toFixed(2)),
-        cashOnHand:     parseFloat(cashOnHand.toFixed(2)),
-        transactions:   todaySales.length,
-        status:         'pending'
+        cashier: cashierName, entityId: RPOS.entityId,
+        entityName: RPOS.entityName, sessionId: RPOS.sessionId,
+        date: today, submittedAt: new Date().toISOString(),
+        shiftHours: shiftHrs, openingFloat: RPOS.float,
+        totalSales: parseFloat(totalSales.toFixed(2)),
+        cashSales: parseFloat(cashTotal.toFixed(2)),
+        cardSales: parseFloat(cardTotal.toFixed(2)),
+        cashDrops: parseFloat(totalDrops.toFixed(2)),
+        cashOnHand: parseFloat(cashOnHand.toFixed(2)),
+        transactions: todaySales.length, status: 'pending'
     };
 
+    function cuRow(label, value) {
+        return '<div style="display:flex;justify-content:space-between;padding:8px 0;' +
+            'border-bottom:1px solid #1a5a6e;font-size:.85rem">' +
+            '<span style="color:#7bb8c8">' + label + '</span>' +
+            '<strong style="color:#e0f4f8">' + value + '</strong></div>';
+    }
+
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:24px;width:100%;max-width:420px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e;max-height:85vh;overflow-y:auto">' +
-        '<h3 style="font-size:1rem;font-weight:800;color:#e0f4f8;' +
-        'margin-bottom:16px">' +
-        '<i class="fas fa-cash-register" style="color:#2ea871"></i>' +
-        ' Cash Up — ' + cashierName + '</h3>' +
-
-        rposCashUpRow('Opening Float',    'R' + RPOS.float.toFixed(2)) +
-        rposCashUpRow('Transactions',     todaySales.length) +
-        rposCashUpRow('Total Sales',      'R' + totalSales.toFixed(2)) +
-        rposCashUpRow('Cash Sales',       'R' + cashTotal.toFixed(2)) +
-        rposCashUpRow('Card Sales',       'R' + cardTotal.toFixed(2)) +
-        rposCashUpRow('Cash Drops',       'R' + totalDrops.toFixed(2)) +
-        rposCashUpRow('Shift Hours',      shiftHrs.toFixed(1) + ' hrs') +
-
-        '<div style="display:flex;justify-content:space-between;' +
-        'padding:12px 0;font-size:1.1rem;font-weight:900;' +
-        'color:#2ea871;border-top:2px solid #1a5a6e;margin-top:8px">' +
-        '<span>Cash to Hand In</span>' +
-        '<span>R' + cashOnHand.toFixed(2) + '</span></div>' +
-
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;max-width:420px;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e;max-height:85vh;overflow-y:auto">' +
+        '<h3 style="font-size:1rem;font-weight:800;color:#e0f4f8;margin-bottom:16px">' +
+        '<i class="fas fa-cash-register" style="color:#2ea871"></i> Cash Up — ' + escHtml(cashierName) + '</h3>' +
+        cuRow('Opening Float', 'R' + RPOS.float.toFixed(2)) +
+        cuRow('Transactions', todaySales.length) +
+        cuRow('Total Sales', 'R' + totalSales.toFixed(2)) +
+        cuRow('Cash Sales', 'R' + cashTotal.toFixed(2)) +
+        cuRow('Card Sales', 'R' + cardTotal.toFixed(2)) +
+        cuRow('Cash Drops', 'R' + totalDrops.toFixed(2)) +
+        cuRow('Shift Hours', shiftHrs.toFixed(1) + ' hrs') +
+        '<div style="display:flex;justify-content:space-between;padding:12px 0;font-size:1.1rem;' +
+        'font-weight:900;color:#2ea871;border-top:2px solid #1a5a6e;margin-top:8px">' +
+        '<span>Cash to Hand In</span><span>R' + cashOnHand.toFixed(2) + '</span></div>' +
         '<div style="display:flex;gap:10px;margin-top:16px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:12px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:10px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit">' +
-        'Cancel</button>' +
-        '<button onclick="rposSubmitCashUp(' +
-        JSON.stringify(cashupData).replace(/'/g,"\\'") + ')" ' +
-        'style="flex:2;padding:12px;' +
-        'background:linear-gradient(135deg,#2ea871,#1a7a4a);' +
-        'border:none;border-radius:10px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700">' +
-        '<i class="fas fa-check"></i> Submit Cash Up</button>' +
-        '</div></div></div>'
+        '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:10px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="rposSubmitCashUp(\'' + btoa(JSON.stringify(cashupData)) + '\')" ' +
+        'style="flex:2;padding:12px;background:linear-gradient(135deg,#2ea871,#1a7a4a);border:none;' +
+        'border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-weight:700">' +
+        '<i class="fas fa-check"></i> Submit Cash Up</button></div></div></div>'
     );
 }
 
-function rposCashUpRow(label, value) {
-    return '<div style="display:flex;justify-content:space-between;' +
-        'padding:8px 0;border-bottom:1px solid #1a5a6e;' +
-        'font-size:.85rem">' +
-        '<span style="color:#7bb8c8">' + label + '</span>' +
-        '<strong style="color:#e0f4f8">' + value + '</strong></div>';
-}
+function rposSubmitCashUp(encodedData) {
+    var data;
+    try { data = JSON.parse(atob(encodedData)); } catch(e) { rposToast('error', 'Error'); return; }
 
-function rposSubmitCashUp(cashupData) {
-    // Save to Web App via posCashups
+    var cashierName = rposGetCashierName();
     var update = {};
-    var uid    = RPOS.user ? RPOS.user.uid || 'unknown' : 'unknown';
-    update['posCashups.' + RPOS.entityId + '.' + uid] = cashupData;
-    update['lastUpdated'] =
-        firebase.firestore.FieldValue.serverTimestamp();
+    update['retailCashups.' + RPOS.entityId + '.' + (RPOS.pinUser ? RPOS.pinUser.name : 'unknown')] = data;
+    update['lastUpdated'] = firebase.firestore.FieldValue.serverTimestamp();
 
-    db.collection('accounts').doc(RPOS.accountId)
-        .set(update, { merge: true })
+    db.collection('accounts').doc(RPOS.accountId).set(update, { merge: true })
         .then(function() {
-            // Send cashup email to manager
-            if (HUB.accountData && HUB.accountData.owner &&
-                HUB.accountData.owner.email &&
-                typeof sendEmail === 'function') {
-                sendEmail(
-                    HUB.accountData.owner.email,
-                    'Retail Cash Up — ' + cashupData.cashier +
-                    ' — ' + cashupData.date,
-                    '<div style="font-family:Arial,sans-serif;' +
-                    'max-width:500px;margin:0 auto">' +
-                    '<div style="background:linear-gradient' +
-                    '(135deg,#0d4a5c,#0d9488);padding:24px;' +
-                    'border-radius:12px 12px 0 0;color:#fff;' +
-                    'text-align:center">' +
-                    '<h1 style="margin:0;font-size:1.1rem">' +
-                    'Retail Cash Up Report</h1>' +
-                    '<p style="margin:4px 0 0;opacity:.8">' +
-                    cashupData.cashier + ' — ' +
-                    cashupData.entityName + '</p></div>' +
-                    '<div style="background:#fff;padding:24px;' +
-                    'border:1px solid #e4f1f5;border-radius:0 0 12px 12px">' +
-                    '<table style="width:100%;border-collapse:collapse">' +
-                    '<tr><td style="padding:8px;color:#5a8a96;font-size:12px">' +
-                    'Total Sales</td><td style="padding:8px;font-weight:700;' +
-                    'text-align:right">R' + cashupData.totalSales.toFixed(2) +
-                    '</td></tr>' +
-                    '<tr><td style="padding:8px;color:#5a8a96;font-size:12px">' +
-                    'Cash Sales</td><td style="padding:8px;text-align:right">' +
-                    'R' + cashupData.cashSales.toFixed(2) + '</td></tr>' +
-                    '<tr><td style="padding:8px;color:#5a8a96;font-size:12px">' +
-                    'Card Sales</td><td style="padding:8px;text-align:right">' +
-                    'R' + cashupData.cardSales.toFixed(2) + '</td></tr>' +
-                    '<tr><td style="padding:8px;color:#5a8a96;font-size:12px">' +
-                    'Cash to Hand In</td>' +
-                    '<td style="padding:8px;font-weight:900;font-size:1.1rem;' +
-                    'color:#c94545;text-align:right">R' +
-                    cashupData.cashOnHand.toFixed(2) + '</td></tr>' +
-                    '</table></div></div>'
-                ).catch(function() {});
+            /* Send email to manager */
+            if (HUB.accountData && HUB.accountData.owner && HUB.accountData.owner.email) {
+                var rs = 'padding:8px 0;border-bottom:1px solid #e4f1f5;display:flex;justify-content:space-between;font-size:.88rem';
+                var html =
+                    '<div style="font-family:Poppins,sans-serif;max-width:520px;margin:0 auto">' +
+                    '<div style="background:linear-gradient(135deg,#0d4a5c,#0d9488);padding:24px;' +
+                    'border-radius:12px 12px 0 0;color:#fff;text-align:center">' +
+                    '<h1 style="font-size:1.1rem;margin:0">Retail Cash Up Report</h1>' +
+                    '<p style="font-size:.82rem;opacity:.8;margin-top:4px">' + escHtml(cashierName) +
+                    ' — ' + escHtml(RPOS.entityName || '') + '</p></div>' +
+                    '<div style="background:#fff;padding:24px;border:1px solid #e4f1f5;border-radius:0 0 12px 12px">' +
+                    '<div style="' + rs + '"><span>Total Sales</span><strong>R' + data.totalSales.toFixed(2) + '</strong></div>' +
+                    '<div style="' + rs + '"><span>Cash Sales</span><strong>R' + data.cashSales.toFixed(2) + '</strong></div>' +
+                    '<div style="' + rs + '"><span>Card Sales</span><strong>R' + data.cardSales.toFixed(2) + '</strong></div>' +
+                    '<div style="' + rs + ';border-bottom:none;font-weight:900;font-size:1rem;border-top:2px solid #c4dde4;margin-top:8px">' +
+                    '<span>Cash to Hand In</span><strong style="color:#c94545">R' + data.cashOnHand.toFixed(2) + '</strong></div>' +
+                    '<p style="text-align:center;color:#8aabb5;font-size:.75rem;margin-top:20px">Powered by StockAI-Pro</p></div></div>';
+
+                fetch('https://bold-dust-c51b.cidraism.workers.dev/email', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from: 'StockAI-Pro POS <noreply@stockai-pro.co.za>',
+                        to: [HUB.accountData.owner.email],
+                        subject: 'Retail Cash Up — ' + cashierName + ' (' + data.date + ')',
+                        html: html
+                    })
+                }).catch(function(err) { console.warn('Cash up email failed:', err); });
             }
 
-            // Clear session float
-            sessionStorage.removeItem(
-                'rpos_float_' + RPOS.entityId + '_' +
-                (RPOS.user ? RPOS.user.name : ''));
+            sessionStorage.removeItem('rpos_float_' + RPOS.entityId + '_' + cashierName);
             RPOS.floatLocked = false;
             RPOS.float       = 0;
-
             rposCloseModal();
             rposToast('success', '✅ Cash up submitted!');
-            setTimeout(function() { rposShowFloat(); }, 1500);
+            setTimeout(function() { rposLogoutToPinPad(); }, 1500);
         })
-        .catch(function(err) {
-            rposToast('error', 'Error: ' + err.message);
-        });
+        .catch(function(err) { rposToast('error', 'Error: ' + err.message); });
 }
 
-/* ── Show Barcode Scanner Modal ── */
+/* ============================================================
+   SCANNER MODAL
+============================================================ */
 function rposShowScanner() {
     rposShowModal(
-        '<div style="position:fixed;inset:0;' +
-        'background:rgba(0,0,0,.7);z-index:1000;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'padding:20px">' +
-        '<div style="background:#0f4d62;border-radius:16px;' +
-        'padding:24px;width:100%;max-width:360px;' +
-        'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
-        'border:1px solid #1a5a6e;text-align:center">' +
-        '<i class="fas fa-barcode" ' +
-        'style="font-size:3rem;color:#0d9488;display:block;' +
-        'margin-bottom:14px"></i>' +
-        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;' +
-        'margin-bottom:8px">Scan Barcode</h3>' +
-        '<p style="font-size:.82rem;color:#7bb8c8;margin-bottom:16px">' +
-        'Point USB scanner at barcode or enter manually</p>' +
-        '<input type="text" id="rpos-manual-barcode" ' +
-        'placeholder="Scan or type barcode..." ' +
-        'style="width:100%;padding:12px;text-align:center;' +
-        'font-size:1rem;background:#0b3344;border:2px solid #1a5a6e;' +
-        'border-radius:8px;color:#e0f4f8;font-family:inherit;' +
-        'margin-bottom:14px" ' +
-        'onkeydown="if(event.key===\'Enter\'){' +
-        'var bc=this.value.trim();if(bc)rposScanBarcode(bc);' +
-        'rposCloseModal();}">' +
+        '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;' +
+        'display:flex;align-items:center;justify-content:center;padding:20px">' +
+        '<div style="background:#0f4d62;border-radius:16px;padding:24px;width:100%;max-width:360px;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid #1a5a6e;text-align:center">' +
+        '<i class="fas fa-barcode" style="font-size:3rem;color:#0d9488;display:block;margin-bottom:14px"></i>' +
+        '<h3 style="font-size:1rem;font-weight:700;color:#e0f4f8;margin-bottom:8px">Scan Barcode</h3>' +
+        '<p style="font-size:.82rem;color:#7bb8c8;margin-bottom:16px">Point USB scanner at barcode or enter manually</p>' +
+        '<input type="text" id="rpos-manual-barcode" placeholder="Scan or type barcode..." ' +
+        'style="width:100%;padding:12px;text-align:center;font-size:1rem;background:#0b3344;' +
+        'border:2px solid #1a5a6e;border-radius:8px;color:#e0f4f8;font-family:inherit;margin-bottom:14px" ' +
+        'onkeydown="if(event.key===\'Enter\'){var bc=this.value.trim();if(bc)rposScanBarcode(bc);rposCloseModal();}">' +
         '<div style="display:flex;gap:10px">' +
-        '<button onclick="rposCloseModal()" ' +
-        'style="flex:1;padding:12px;background:#0b3344;' +
-        'border:1px solid #1a5a6e;border-radius:8px;' +
-        'color:#7bb8c8;cursor:pointer;font-family:inherit">' +
-        'Cancel</button>' +
-        '<button onclick="var bc=document.getElementById(' +
-        '\'rpos-manual-barcode\').value.trim();' +
+        '<button onclick="rposCloseModal()" style="flex:1;padding:12px;background:#0b3344;' +
+        'border:1px solid #1a5a6e;border-radius:8px;color:#7bb8c8;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '<button onclick="var bc=document.getElementById(\'rpos-manual-barcode\').value.trim();' +
         'if(bc)rposScanBarcode(bc);rposCloseModal();" ' +
-        'style="flex:1;padding:12px;background:#0d9488;border:none;' +
-        'border-radius:8px;color:#fff;cursor:pointer;' +
-        'font-family:inherit;font-weight:700">Search</button>' +
-        '</div></div></div>'
+        'style="flex:1;padding:12px;background:#0d9488;border:none;border-radius:8px;color:#fff;' +
+        'cursor:pointer;font-family:inherit;font-weight:700">Search</button></div></div></div>'
     );
     setTimeout(function() {
         var inp = document.getElementById('rpos-manual-barcode');
@@ -12071,7 +11632,7 @@ function rposShowScanner() {
     }, 200);
 }
 
-console.log('✅ Retail POS loaded');
+console.log('✅ Retail POS — Complete loaded');
 </script>
 <script>
 /* ============================================================
