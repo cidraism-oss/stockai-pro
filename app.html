@@ -9444,12 +9444,27 @@ function saveNewUser(type) {
         } catch(e){ console.warn('Invite email error:', e); }
     }
 
-    logAction('User Created',
+        logAction('User Created',
         fullName + ' (' + role + ') — EMP#: ' + employeeNum);
-    debouncedSave();
-    closeModal();
-    renderUsers();
-    toast('success', '✅ ' + fullName + ' created — Employee #: ' + employeeNum);
+
+    // Use immediate save instead of debounced
+    // so user is never lost if app closes quickly
+    toast('info', 'Saving user...');
+
+    saveToCloud()
+        .then(function() {
+            closeModal();
+            renderUsers();
+            toast('success', '✅ ' + fullName + ' created — Employee #: ' + employeeNum);
+        })
+        .catch(function(err) {
+            // Still try debounced save as fallback
+            debouncedSave();
+            closeModal();
+            renderUsers();
+            toast('warning', '⚠️ ' + fullName + ' saved locally — syncing...');
+            console.warn('User save error:', err);
+        });
 }
 
 function editUser(userId) {
