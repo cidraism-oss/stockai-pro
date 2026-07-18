@@ -1843,26 +1843,16 @@ document.addEventListener('DOMContentLoaded', function() {
        and fall back to first-interaction if blocked.            */
     var _audioUnlocked = false;
 
-    function tryUnlockAudio() {
-    if (_audioUnlocked) return;
-    /* Also check if voice already played — if so just
-       unlock audio context but don't replay voice */
-    _audioUnlocked = true;
-    var ws = document.getElementById('welcome-screen');
-    if (ws && ws.style.display !== 'none' &&
-        !ws.classList.contains('hidden')) {
-        if (!window._welcomeVoiceFired && !_tonePlayed) {
-            /* Nothing has played yet — play everything */
+        function tryUnlockAudio() {
+        if (_audioUnlocked) return;
+        if (window._welcomeVoiceFired) return;
+        if (_tonePlayed) return;
+        _audioUnlocked = true;
+        var ws = document.getElementById('welcome-screen');
+        if (ws && ws.style.display !== 'none' &&
+            !ws.classList.contains('hidden') &&
+            getComputedStyle(ws).display !== 'none') {
             playWelcomeStartup();
-        } else if (!window._welcomeVoiceFired && _tonePlayed) {
-            /* Tone played but voice not yet — just fire voice */
-            if (!_ttsPlayed) {
-                _ttsPlayed = true;
-                playWelcomeVoice();
-            }
-        }
-        /* If _welcomeVoiceFired is true — do nothing,
-           already played */
         }
     }
 
