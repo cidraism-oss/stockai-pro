@@ -9334,58 +9334,48 @@ function showCreateUserForm(type) {
 
 function saveNewUser(type) {
     var isRetail = type === 'retail';
-    var fname = (document.getElementById('nu-fname').value||'').trim();
-    var lname = (document.getElementById('nu-lname').value||'').trim();
-    var phone = (document.getElementById('nu-phone').value||'').trim();
-    var email = (document.getElementById('nu-email').value||'').trim().toLowerCase();
+    var fname = (document.getElementById('nu-fname').value || '').trim();
+    var lname = (document.getElementById('nu-lname').value || '').trim();
+    var phone = (document.getElementById('nu-phone').value || '').trim();
+    var email = (document.getElementById('nu-email').value || '').trim().toLowerCase();
     var idNum = document.getElementById('nu-id')
-        ? (document.getElementById('nu-id').value||'').trim() : '';
+        ? (document.getElementById('nu-id').value || '').trim() : '';
     var role  = document.getElementById('nu-role').value;
 
-    if (!fname||!lname) { toast('error','Enter first and last name'); return; }
-    if (!email)         { toast('error','Email is required for login'); return; }
-    if (!phone)         { toast('error','Phone number is required'); return; }
+    if (!fname || !lname) { toast('error','Enter first and last name'); return; }
+    if (!email)           { toast('error','Email is required');          return; }
+    if (!phone)           { toast('error','Phone number is required');   return; }
 
-    var loginPin='', managerPin='';
+    var loginPin   = '';
+    var managerPin = '';
     if (isRetail) {
         loginPin = document.getElementById('nu-pin')
-            ? (document.getElementById('nu-pin').value||'').trim() : '';
+            ? (document.getElementById('nu-pin').value || '').trim() : '';
         if (!loginPin || loginPin.length !== 4 || !/^\d{4}$/.test(loginPin)) {
             toast('error','Retail staff require a 4-digit PIN'); return;
         }
         var pinExists = getUsers().find(function(u){ return u.loginPin === loginPin; });
-        if (pinExists) { toast('error','PIN already used by ' + pinExists.name); return; }
+        if (pinExists) {
+            toast('error','PIN already used by ' + pinExists.name); return;
+        }
         managerPin = document.getElementById('nu-manager-pin')
-            ? (document.getElementById('nu-manager-pin').value||'').trim() : '';
+            ? (document.getElementById('nu-manager-pin').value || '').trim() : '';
     }
 
-    var fullName    = fname + ' ' + lname;
-    var employeeNum = generateEmpNumber();
-    // Generate invite token
+    var fullName     = fname + ' ' + lname;
+    var employeeNum  = generateEmpNumber();
+    var userId       = 'USR-' + Date.now();
+
+    var appAccess = [];
+    document.querySelectorAll('#modal-container input[type="checkbox"]:checked')
+        .forEach(function(cb){ appAccess.push(cb.value); });
+
+    // ── Build invite token ──
     var inviteToken = 'TKN-' + Date.now() + '-' +
         Math.random().toString(36).slice(2,10).toUpperCase();
 
-    // Save token to Firestore so register.html can validate it
-    if (S._accountId) {
-        var tokenUpdate = {};
-        tokenUpdate['inviteTokens.' + inviteToken] = {
-            email:     email,
-            userId:    'USR-' + Date.now(),
-            entityId:  eid(),
-            createdAt: new Date().toISOString(),
-            used:      false
-        };
-        db.collection('accounts').doc(S._accountId)
-            .set(tokenUpdate, { merge:true })
-            .catch(function(e){ console.warn('Token save error:', e); });
-    }
-    var appAccess   = [];
-    document.querySelectorAll('#modal-container input[type="checkbox"]:checked').forEach(function(cb){
-        appAccess.push(cb.value);
-    });
-
-    var users   = getUsers();
-        var newUser = {
+    // ── Build user object ──
+    var newUser = {
         id:             userId,
         name:           fullName,
         email:          email,
@@ -9395,41 +9385,57 @@ function saveNewUser(type) {
         appAccess:      appAccess,
         employeeNumber: employeeNum,
         staffType:      isRetail ? 'retail' : 'hospitality',
+        accountActive:  false,
+        registeredAt:   null,
         createdDate:    new Date().toISOString(),
         createdBy:      S.user ? S.user.name : 'Unknown'
     };
+
     if (isRetail) {
         newUser.loginPin   = loginPin;
         newUser.managerPin = managerPin;
     }
+
+    // ── Add user to state ──
+    var users = getUsers();
     users.push(newUser);
     S.users[eid()] = users;
 
-    // Create Firebase Auth (non-blocking)
-        // Build registration link with all user details encoded
-    var userId     = 'USR-' + Date.now();
+    // ── Close modal immediately ──
+    closeModal();
+    renderUsers();
+    toast('info', 'Creating user...');
+
+    // ── Save invite token to Firestore ──
+    if (S._accountId) {
+        var tokenUpdate = {};
+        tokenUpdate['inviteTokens.' + inviteToken] = {
+            email:     email,
+            userId:    userId,
+            entityId:  eid(),
+            name:      fullName,
+            role:      role,
+            phone:     phone,
+            createdAt: new Date().toISOString(),
+            used:      false
+        };
+        db.collection('accounts').doc(S._accountId)
+            .set(tokenUpdate, { merge:true })
+            .catch(function(e){ console.warn('Token save error:', e); });
+    }
+
+    // ── Build registration link ──
     var inviteLink = window.location.origin + '/register.html' +
-        '?name='    + encodeURIComponent(fullName)  +
-        '&email='   + encodeURIComponent(email)     +
-        '&phone='   + encodeURIComponent(phone)     +
-        '&role='    + encodeURIComponent(role)       +
+        '?name='    + encodeURIComponent(fullName) +
+        '&email='   + encodeURIComponent(email)    +
+        '&phone='   + encodeURIComponent(phone)    +
+        '&role='    + encodeURIComponent(role)      +
         '&account=' + encodeURIComponent(S._accountId || '') +
         '&entity='  + encodeURIComponent(eid() || '') +
-        '&userId='  + encodeURIComponent(userId)    +
+        '&userId='  + encodeURIComponent(userId)   +
         '&token='   + encodeURIComponent(inviteToken);
-    // Use a secure random password — not PIN-based
-    var tempPass = 'StockAI-' + Math.random().toString(36).slice(2,10).toUpperCase();
-    auth.createUserWithEmailAndPassword(email, tempPass)
-        .then(function(){ console.log('Auth created for:', email); })
-        .catch(function(err){
-            if (err.code === 'auth/email-already-in-use') {
-                console.log('Auth exists for:', email);
-            } else {
-                console.warn('Auth create warning:', err.message);
-            }
-        });
 
-    // Send invite email
+    // ── Send invite email ──
     if (typeof emailNewUserInvite === 'function') {
         try {
             emailNewUserInvite({
@@ -9444,26 +9450,19 @@ function saveNewUser(type) {
         } catch(e){ console.warn('Invite email error:', e); }
     }
 
-        logAction('User Created',
-        fullName + ' (' + role + ') — EMP#: ' + employeeNum);
-
-    // Use immediate save instead of debounced
-    // so user is never lost if app closes quickly
-    toast('info', 'Saving user...');
+    // ── Save to cloud ──
+    logAction('User Created', fullName + ' (' + role + ') — EMP#: ' + employeeNum);
 
     saveToCloud()
-        .then(function() {
-            closeModal();
-            renderUsers();
-            toast('success', '✅ ' + fullName + ' created — Employee #: ' + employeeNum);
+        .then(function(){
+            toast('success',
+                '✅ ' + fullName + ' created! Invite email sent.');
         })
-        .catch(function(err) {
-            // Still try debounced save as fallback
-            debouncedSave();
-            closeModal();
-            renderUsers();
-            toast('warning', '⚠️ ' + fullName + ' saved locally — syncing...');
+        .catch(function(err){
             console.warn('User save error:', err);
+            debouncedSave();
+            toast('warning',
+                '⚠️ ' + fullName + ' saved. Please wait for sync.');
         });
 }
 
