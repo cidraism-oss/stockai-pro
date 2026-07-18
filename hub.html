@@ -4548,7 +4548,10 @@ function openEmbeddedApp(appId) {
     else if (appId === 'menumaster')    { frame.innerHTML = getMenuMasterHTML();       initMenuMasterApp(); }
     else if (appId === 'functions')     { frame.innerHTML = getFunctionsAppHTML();     initFunctionsApp(); }
     else if (appId === 'production')    { frame.innerHTML = getProductionAppHTML();    initProductionApp(); }
-    else if (appId === 'retailpos')     { frame.innerHTML = getRposPinHTML(); }
+    else if (appId === 'retailpos') {
+    _rposPinInput = '';
+    frame.innerHTML = getRposPinHTML();
+    }
     else if (appId === 'invoicescanner'){ frame.innerHTML = getInvoiceScannerHTML();   initInvoiceScanner(); }
     else if (appId === 'posbuilder')    { frame.innerHTML = getPOSBuilderHTML();       initPOSBuilder(); }
     else if (appId === 'cashuppro')     { frame.innerHTML = getCashUpProHTML();        initCashUpPro(); }
@@ -10083,14 +10086,12 @@ var _rposScanTimer  = null;
 
 /* ============================================================
    RETAIL POS — PIN PAD LOGIN
-   Shows every time Retail POS is opened
-   Master PIN: 1173
-   Staff PINs: from user accounts in web app
 ============================================================ */
 var RPOS_MASTER_PIN = '1173';
 var _rposPinInput   = '';
 
 function getRposPinHTML() {
+    _rposPinInput = '';
     return '<div id="rpos-pin-screen" ' +
         'style="position:fixed;inset:0;' +
         'background:linear-gradient(135deg,#0b3344,#0d4a5c,#0d9488);' +
@@ -10102,7 +10103,6 @@ function getRposPinHTML() {
         'box-shadow:0 20px 60px rgba(0,0,0,.5);' +
         'border:1px solid #1a5a6e;text-align:center">' +
 
-        /* Logo / Icon */
         '<div style="width:64px;height:64px;border-radius:50%;' +
         'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
         'display:flex;align-items:center;justify-content:center;' +
@@ -10115,28 +10115,28 @@ function getRposPinHTML() {
         '<p style="font-size:.82rem;color:#7bb8c8;' +
         'margin-bottom:24px">Enter your PIN to access</p>' +
 
-        /* PIN Display */
         '<div id="rpos-pin-display" ' +
         'style="height:48px;background:#0b3344;' +
         'border:2px solid #1a5a6e;border-radius:10px;' +
         'display:flex;align-items:center;justify-content:center;' +
         'gap:12px;margin-bottom:6px;font-size:2rem;' +
         'letter-spacing:16px;color:#e0f4f8">' +
+        '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
+        '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
+        '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
+        '<div style="width:14px;height:14px;border-radius:50%;border:2px solid #1a5a6e"></div>' +
         '</div>' +
 
-        /* Error message */
         '<div id="rpos-pin-error" ' +
         'style="font-size:.75rem;color:#c94545;' +
         'min-height:20px;margin-bottom:14px"></div>' +
 
-        /* Number pad */
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);' +
         'gap:8px;margin-bottom:16px">' +
         rposPinBtn('1') + rposPinBtn('2') + rposPinBtn('3') +
         rposPinBtn('4') + rposPinBtn('5') + rposPinBtn('6') +
         rposPinBtn('7') + rposPinBtn('8') + rposPinBtn('9') +
 
-        /* Clear button */
         '<button onclick="rposPinClear()" ' +
         'style="padding:16px;background:rgba(201,69,69,.2);' +
         'border:1px solid rgba(201,69,69,.3);' +
@@ -10147,7 +10147,6 @@ function getRposPinHTML() {
 
         rposPinBtn('0') +
 
-        /* Enter button */
         '<button onclick="rposPinSubmit()" ' +
         'style="padding:16px;' +
         'background:linear-gradient(135deg,#0d9488,#0d4a5c);' +
@@ -10159,7 +10158,6 @@ function getRposPinHTML() {
 
         '</div>' +
 
-        /* Back to Hub button */
         '<button onclick="closeEmbeddedApp()" ' +
         'style="width:100%;padding:12px;' +
         'background:rgba(255,255,255,.08);' +
@@ -10191,8 +10189,6 @@ function rposPinPress(num) {
     if (_rposPinInput.length >= 6) return;
     _rposPinInput += num;
     rposPinUpdateDisplay();
-
-    /* Auto-submit when 4 digits entered */
     if (_rposPinInput.length === 4) {
         setTimeout(rposPinSubmit, 200);
     }
@@ -10238,20 +10234,19 @@ function rposPinSubmit() {
         return;
     }
 
-    /* Check user PINs from web app */
-    var users    = HUB.accountData
+    /* Check user PINs */
+    var users     = HUB.accountData
         ? (HUB.accountData.users || {})[HUB.entityId] || []
         : [];
     var validUser = null;
 
-    /* Check all entity users */
     users.forEach(function(u) {
         if (u.pin && u.pin === pin) {
             validUser = u;
         }
     });
 
-    /* Also check owner PIN */
+    /* Check owner PIN */
     if (!validUser && HUB.accountData && HUB.accountData.owner) {
         if (HUB.accountData.owner.pin &&
             HUB.accountData.owner.pin === pin) {
@@ -10266,12 +10261,9 @@ function rposPinSubmit() {
             validUser.role || 'Cashier'
         );
     } else {
-        /* Invalid PIN */
         _rposPinInput = '';
         rposPinUpdateDisplay();
         if (errEl) errEl.textContent = 'Invalid PIN — try again';
-
-        /* Shake animation */
         var display = document.getElementById('rpos-pin-display');
         if (display) {
             display.style.animation = 'none';
@@ -10282,25 +10274,36 @@ function rposPinSubmit() {
 }
 
 function rposPinSuccess(userName, userRole) {
-    /* Store who logged in */
     RPOS.pinUser = {
         name: userName,
         role: userRole
     };
 
+    var frame = document.getElementById('app-frame');
+    if (frame) {
+        frame.innerHTML = getRetailPOSHTML();
+        initRetailPOS();
+
+        var storeEl   = document.getElementById('rpos-store-name');
+        var cashierEl = document.getElementById('rpos-cashier-label');
+        if (storeEl) storeEl.textContent =
+            RPOS.entityName || 'Retail POS';
+        if (cashierEl) cashierEl.textContent =
+            userName + ' — ' + userRole +
+            ' — ' + (RPOS.entityName || '');
+    }
+}
+
 function rposLogoutToPinPad() {
     if (!confirm('Log out and return to PIN screen?')) return;
 
-    /* Get cashier name before clearing */
     var prevName = RPOS.pinUser
         ? RPOS.pinUser.name
         : (RPOS.user ? RPOS.user.name : '');
 
-    /* Clear float from session */
     sessionStorage.removeItem(
         'rpos_float_' + RPOS.entityId + '_' + prevName);
 
-    /* Clear current session */
     RPOS.pinUser         = null;
     RPOS.cart            = [];
     RPOS.float           = 0;
@@ -10311,44 +10314,15 @@ function rposLogoutToPinPad() {
     RPOS.receiptCounter  = 0;
     RPOS.currentView     = 'float';
 
-    /* Clear clock */
     if (RPOS.clockInterval) {
         clearInterval(RPOS.clockInterval);
         RPOS.clockInterval = null;
     }
 
-    /* Show PIN pad */
     _rposPinInput = '';
     var frame = document.getElementById('app-frame');
     if (frame) {
         frame.innerHTML = getRposPinHTML();
-    }
-}
-    sessionStorage.removeItem(
-        'rpos_float_' + RPOS.entityId + '_' + cashierName);
-
-    /* Show PIN pad */
-    var frame = document.getElementById('app-frame');
-    if (frame) {
-        frame.innerHTML = getRposPinHTML();
-        _rposPinInput = '';
-    }
-}
-
-    /* Load Retail POS */
-    var frame = document.getElementById('app-frame');
-    if (frame) {
-        frame.innerHTML = getRetailPOSHTML();
-        initRetailPOS();
-
-        /* Override user name display with PIN user */
-        var storeEl   = document.getElementById('rpos-store-name');
-        var cashierEl = document.getElementById('rpos-cashier-label');
-        if (storeEl)   storeEl.textContent =
-            RPOS.entityName || 'Retail POS';
-        if (cashierEl) cashierEl.textContent =
-            userName + ' — ' + userRole +
-            ' — ' + (RPOS.entityName || '');
     }
 }
 
