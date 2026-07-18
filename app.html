@@ -9361,14 +9361,32 @@ function saveNewUser(type) {
 
     var fullName    = fname + ' ' + lname;
     var employeeNum = generateEmpNumber();
+    // Generate invite token
+    var inviteToken = 'TKN-' + Date.now() + '-' +
+        Math.random().toString(36).slice(2,10).toUpperCase();
+
+    // Save token to Firestore so register.html can validate it
+    if (S._accountId) {
+        var tokenUpdate = {};
+        tokenUpdate['inviteTokens.' + inviteToken] = {
+            email:     email,
+            userId:    'USR-' + Date.now(),
+            entityId:  eid(),
+            createdAt: new Date().toISOString(),
+            used:      false
+        };
+        db.collection('accounts').doc(S._accountId)
+            .set(tokenUpdate, { merge:true })
+            .catch(function(e){ console.warn('Token save error:', e); });
+    }
     var appAccess   = [];
     document.querySelectorAll('#modal-container input[type="checkbox"]:checked').forEach(function(cb){
         appAccess.push(cb.value);
     });
 
     var users   = getUsers();
-    var newUser = {
-        id:             'USR-' + Date.now(),
+        var newUser = {
+        id:             userId,
         name:           fullName,
         email:          email,
         phone:          phone,
@@ -9388,7 +9406,17 @@ function saveNewUser(type) {
     S.users[eid()] = users;
 
     // Create Firebase Auth (non-blocking)
-    var inviteLink = window.location.origin + '/hub.html';
+        // Build registration link with all user details encoded
+    var userId     = 'USR-' + Date.now();
+    var inviteLink = window.location.origin + '/register.html' +
+        '?name='    + encodeURIComponent(fullName)  +
+        '&email='   + encodeURIComponent(email)     +
+        '&phone='   + encodeURIComponent(phone)     +
+        '&role='    + encodeURIComponent(role)       +
+        '&account=' + encodeURIComponent(S._accountId || '') +
+        '&entity='  + encodeURIComponent(eid() || '') +
+        '&userId='  + encodeURIComponent(userId)    +
+        '&token='   + encodeURIComponent(inviteToken);
     // Use a secure random password — not PIN-based
     var tempPass = 'StockAI-' + Math.random().toString(36).slice(2,10).toUpperCase();
     auth.createUserWithEmailAndPassword(email, tempPass)
