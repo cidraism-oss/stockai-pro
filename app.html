@@ -2726,7 +2726,9 @@ function saveToCloud(extraFields) {
         update['purchases.'      + e] = S.purchases[e]      || [];
         update['wastage.'        + e] = S.wastage[e]        || [];
         update['suppliers.'      + e] = S.suppliers[e]      || [];
-        update['users.'          + e] = S.users[e]          || [];
+        if (S.users[e] && S.users[e].length > 0) {
+    update['users.' + e] = S.users[e];
+}
         update['menuItems.'      + e] = S.menuItems[e]      || [];
         update['cashups.'        + e] = S.cashups[e]        || {};
         update['activities.'     + e] = S.activities[e]     || [];
