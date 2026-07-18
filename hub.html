@@ -2839,6 +2839,15 @@ function hubForgotPw() {
 ============================================================ */
 function startHubSync() {
     if (!HUB.accountId) return;
+
+/* Do not start sync if no Firebase user */
+    if (!auth.currentUser) {
+        setTimeout(function() {
+            if (auth.currentUser) startHubSync();
+        }, 2000);
+        return;
+    }
+
     if (HUB.syncListener) HUB.syncListener();
 
     HUB.syncListener = db.collection('accounts')
@@ -2935,31 +2944,47 @@ function loadPinUserList(accountId, entityId) {
     HUB_PIN.accountId = accountId;
     HUB_PIN.entityId  = entityId;
 
-    db.collection('accounts').doc(accountId).get()
-        .then(function (doc) {
-            if (!doc.exists) return;
-            var data  = doc.data();
-            var users = (data.users || {})[entityId] || [];
+    /* Sign in anonymously so Firestore rules allow the read */
+    var doRead = function() {
+        db.collection('accounts').doc(accountId).get()
+            .then(function(doc) {
+                if (!doc.exists) return;
+                var data  = doc.data();
+                var users = (data.users || {})[entityId] || [];
 
-            HUB_PIN.allUsers = users.filter(function (u) {
-                return u.loginPin && u.loginPin.length === 4;
+                HUB_PIN.allUsers = users.filter(function(u) {
+                    return u.loginPin && u.loginPin.length === 4;
+                });
+
+                var sel = document.getElementById('pin-user-select');
+                if (!sel) return;
+
+                sel.innerHTML =
+                    '<option value="">— Select your name —</option>' +
+                    HUB_PIN.allUsers.map(function(u) {
+                        return '<option value="' + u.id + '">' +
+                            u.name +
+                            ' (' + (u.role || 'Staff') + ')' +
+                            '</option>';
+                    }).join('');
+            })
+            .catch(function(err) {
+                console.warn('PIN user list error:', err.message);
             });
+    };
 
-            var sel = document.getElementById('pin-user-select');
-            if (!sel) return;
-
-            sel.innerHTML =
-                '<option value="">— Select your name —</option>' +
-                HUB_PIN.allUsers.map(function (u) {
-                    return '<option value="' + u.id + '">' +
-                        u.name +
-                        ' (' + (u.role || 'Staff') + ')' +
-                        '</option>';
-                }).join('');
-        })
-        .catch(function (err) {
-            console.warn('PIN user list error:', err.message);
-        });
+    /* Check if already authenticated */
+    if (auth.currentUser) {
+        doRead();
+    } else {
+        /* Sign in anonymously just to read the user list */
+        auth.signInAnonymously()
+            .then(doRead)
+            .catch(function() {
+                /* Anonymous auth failed — try anyway */
+                doRead();
+            });
+    }
 }
 
 function onPinUserSelect() {
