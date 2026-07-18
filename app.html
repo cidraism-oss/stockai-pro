@@ -2672,7 +2672,11 @@ function loadAllData(data) {
     S.purchases         = data.purchases         || {};
     S.wastage           = data.wastage           || {};
     S.suppliers         = data.suppliers         || {};
-    S.users             = data.users             || {};
+    S.users = data.users || {};
+// Ensure all entity buckets are initialized
+if (eid()) {
+    if (!S.users[eid()]) S.users[eid()] = [];
+}
     S.menuItems         = data.menuItems         || {};
     S.cashups           = data.cashups           || {};
     S.activities        = data.activities        || {};
