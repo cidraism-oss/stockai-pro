@@ -2969,6 +2969,20 @@ function enterApp() {
 }
 
 function finishEnterApp() {
+
+    // Ensure all core entity buckets exist before rendering or saving
+    if (eid()) {
+        if (!S.users[eid()])         S.users[eid()]         = [];
+        if (!S.customers)            S.customers            = {};
+        if (!S.customers[eid()])     S.customers[eid()]     = [];
+        if (!S.salesOrders)          S.salesOrders          = {};
+        if (!S.salesOrders[eid()])   S.salesOrders[eid()]   = [];
+        if (!S.salesClients)         S.salesClients         = {};
+        if (!S.salesClients[eid()])  S.salesClients[eid()]  = [];
+        if (!S.dispatches)           S.dispatches           = {};
+        if (!S.dispatches[eid()])    S.dispatches[eid()]    = [];
+    }
+
     renderPages();
 
     // Navigate to target page
@@ -9343,38 +9357,45 @@ function saveNewUser(type) {
     var role  = document.getElementById('nu-role').value;
 
     if (!fname || !lname) { toast('error','Enter first and last name'); return; }
-    if (!email)           { toast('error','Email is required');          return; }
-    if (!phone)           { toast('error','Phone number is required');   return; }
+    if (!email)           { toast('error','Email is required'); return; }
+    if (!phone)           { toast('error','Phone number is required'); return; }
+    if (!S._accountId)    { toast('error','No account loaded'); return; }
+    if (!eid())           { toast('error','No entity selected'); return; }
 
     var loginPin   = '';
     var managerPin = '';
+
     if (isRetail) {
         loginPin = document.getElementById('nu-pin')
             ? (document.getElementById('nu-pin').value || '').trim() : '';
-        if (!loginPin || loginPin.length !== 4 || !/^\d{4}$/.test(loginPin)) {
-            toast('error','Retail staff require a 4-digit PIN'); return;
+        if (!loginPin || !/^\d{4}$/.test(loginPin)) {
+            toast('error','Retail staff require a 4-digit PIN');
+            return;
         }
-        var pinExists = getUsers().find(function(u){ return u.loginPin === loginPin; });
+        var pinExists = (S.users[eid()] || []).find(function(u){
+            return u.loginPin === loginPin;
+        });
         if (pinExists) {
-            toast('error','PIN already used by ' + pinExists.name); return;
+            toast('error','PIN already used by ' + pinExists.name);
+            return;
         }
         managerPin = document.getElementById('nu-manager-pin')
             ? (document.getElementById('nu-manager-pin').value || '').trim() : '';
     }
 
-    var fullName     = fname + ' ' + lname;
-    var employeeNum  = generateEmpNumber();
-    var userId       = 'USR-' + Date.now();
+    var fullName    = fname + ' ' + lname;
+    var employeeNum = generateEmpNumber();
+    var userId      = 'USR-' + Date.now();
+    var inviteToken = 'TKN-' + Date.now() + '-' +
+        Math.random().toString(36).slice(2,10).toUpperCase();
 
     var appAccess = [];
     document.querySelectorAll('#modal-container input[type="checkbox"]:checked')
         .forEach(function(cb){ appAccess.push(cb.value); });
 
-    // ── Build invite token ──
-    var inviteToken = 'TKN-' + Date.now() + '-' +
-        Math.random().toString(36).slice(2,10).toUpperCase();
+    // Ensure entity bucket exists
+    if (!S.users[eid()]) S.users[eid()] = [];
 
-    // ── Build user object ──
     var newUser = {
         id:             userId,
         name:           fullName,
@@ -9396,73 +9417,71 @@ function saveNewUser(type) {
         newUser.managerPin = managerPin;
     }
 
-    // ── Add user to state ──
-    var users = getUsers();
-    users.push(newUser);
-    S.users[eid()] = users;
+    // Add locally first
+    S.users[eid()].push(newUser);
 
-    // ── Close modal immediately ──
-    closeModal();
-    renderUsers();
-    toast('info', 'Creating user...');
+    // Build invite token
+    var tokenData = {
+        email:     email,
+        userId:    userId,
+        entityId:  eid(),
+        name:      fullName,
+        role:      role,
+        phone:     phone,
+        createdAt: new Date().toISOString(),
+        used:      false
+    };
 
-    // ── Save invite token to Firestore ──
-    if (S._accountId) {
-        var tokenUpdate = {};
-        tokenUpdate['inviteTokens.' + inviteToken] = {
-            email:     email,
-            userId:    userId,
-            entityId:  eid(),
-            name:      fullName,
-            role:      role,
-            phone:     phone,
-            createdAt: new Date().toISOString(),
-            used:      false
-        };
-        db.collection('accounts').doc(S._accountId)
-            .set(tokenUpdate, { merge:true })
-            .catch(function(e){ console.warn('Token save error:', e); });
-    }
-
-    // ── Build registration link ──
     var inviteLink = window.location.origin + '/register.html' +
         '?name='    + encodeURIComponent(fullName) +
-        '&email='   + encodeURIComponent(email)    +
-        '&phone='   + encodeURIComponent(phone)    +
-        '&role='    + encodeURIComponent(role)      +
-        '&account=' + encodeURIComponent(S._accountId || '') +
-        '&entity='  + encodeURIComponent(eid() || '') +
-        '&userId='  + encodeURIComponent(userId)   +
+        '&email='   + encodeURIComponent(email) +
+        '&phone='   + encodeURIComponent(phone) +
+        '&role='    + encodeURIComponent(role) +
+        '&account=' + encodeURIComponent(S._accountId) +
+        '&entity='  + encodeURIComponent(eid()) +
+        '&userId='  + encodeURIComponent(userId) +
         '&token='   + encodeURIComponent(inviteToken);
 
-    // ── Send invite email ──
-    if (typeof emailNewUserInvite === 'function') {
-        try {
-            emailNewUserInvite({
-                name:       fullName,
-                email:      email,
-                role:       role,
-                entityName: S.entities[S.activeEntity]
-                    ? S.entities[S.activeEntity].name : '',
-                inviteLink: inviteLink,
-                invitedBy:  S.user ? S.user.name : 'Admin'
-            });
-        } catch(e){ console.warn('Invite email error:', e); }
-    }
+    // Close modal immediately
+    closeModal();
+    renderUsers();
+    toast('info','Saving user...');
 
-    // ── Save to cloud ──
-    logAction('User Created', fullName + ' (' + role + ') — EMP#: ' + employeeNum);
+    // WRITE DIRECTLY TO FIRESTORE
+    var update = {};
+    update['users.' + eid()]                = S.users[eid()];
+    update['inviteTokens.' + inviteToken]   = tokenData;
+    update['lastUpdated']                   = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']                 = S.user ? S.user.name : 'Web App';
+    update['lastUpdatedDevice']             = 'Web App';
 
-    saveToCloud()
-        .then(function(){
-            toast('success',
-                '✅ ' + fullName + ' created! Invite email sent.');
+    db.collection('accounts').doc(S._accountId)
+        .set(update, { merge:true })
+        .then(function() {
+            logAction('User Created', fullName + ' (' + role + ') — EMP#: ' + employeeNum);
+
+            if (typeof emailNewUserInvite === 'function') {
+                try {
+                    emailNewUserInvite({
+                        name:       fullName,
+                        email:      email,
+                        role:       role,
+                        entityName: S.entities[S.activeEntity]
+                            ? S.entities[S.activeEntity].name : '',
+                        inviteLink: inviteLink,
+                        invitedBy:  S.user ? S.user.name : 'Admin'
+                    });
+                } catch(e) {
+                    console.warn('Invite email error:', e);
+                }
+            }
+
+            toast('success','✅ ' + fullName + ' created and saved successfully');
+            console.log('✅ USER SAVED TO FIRESTORE:', fullName, eid(), S._accountId);
         })
-        .catch(function(err){
-            console.warn('User save error:', err);
-            debouncedSave();
-            toast('warning',
-                '⚠️ ' + fullName + ' saved. Please wait for sync.');
+        .catch(function(err) {
+            console.warn('❌ USER SAVE ERROR:', err);
+            toast('error','User could not be saved: ' + err.message);
         });
 }
 
