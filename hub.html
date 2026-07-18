@@ -10544,16 +10544,32 @@ function rposShowSelling() {
     RPOS.currentView = 'selling';
 
     main.innerHTML =
-        // Screen layout
         '<div style="flex:1;display:flex;overflow:hidden">' +
 
-        // Left: Product grid
+        /* Left: Product grid */
         '<div style="flex:1;display:flex;flex-direction:column;' +
         'overflow:hidden;border-right:1px solid #1a5a6e">' +
 
-        // Search bar
+        /* Back button + Search bar */
         '<div style="padding:10px;background:#0b3344;' +
         'border-bottom:1px solid #1a5a6e">' +
+
+        /* Back button row */
+        '<div style="display:flex;gap:8px;align-items:center;' +
+        'margin-bottom:8px">' +
+        '<button onclick="rposShowDashboard()" ' +
+        'style="display:flex;align-items:center;gap:6px;' +
+        'padding:8px 14px;background:rgba(255,255,255,.15);' +
+        'border:none;border-radius:8px;color:#fff;' +
+        'font-size:.78rem;font-weight:600;cursor:pointer;' +
+        'font-family:inherit;flex-shrink:0">' +
+        '<i class="fas fa-arrow-left"></i> Back to Dashboard</button>' +
+        '<div style="flex:1;font-size:.82rem;color:rgba(255,255,255,.5);' +
+        'text-align:right">' +
+        (RPOS.entityName || 'Retail POS') + '</div>' +
+        '</div>' +
+
+        /* Search bar */
         '<div style="display:flex;gap:8px;align-items:center;' +
         'background:#0f4d62;border:1.5px solid #1a5a6e;' +
         'border-radius:10px;padding:8px 14px">' +
@@ -10565,12 +10581,13 @@ function rposShowSelling() {
         'font-family:inherit;color:#e0f4f8;background:transparent">' +
         '<button onclick="rposShowScanner()" ' +
         'style="padding:6px 10px;background:#0d9488;color:#fff;' +
-        'border:none;border-radius:6px;font-size:.78rem;cursor:pointer;' +
-        'font-family:inherit">' +
+        'border:none;border-radius:6px;font-size:.78rem;' +
+        'cursor:pointer;font-family:inherit">' +
         '<i class="fas fa-barcode"></i></button>' +
-        '</div></div>' +
+        '</div>' +
+        '</div>' +
 
-        // Product grid
+        /* Product grid */
         '<div id="rpos-product-grid" ' +
         'style="flex:1;overflow-y:auto;padding:10px;' +
         'display:grid;grid-template-columns:repeat(auto-fill,' +
@@ -10578,39 +10595,37 @@ function rposShowSelling() {
         rposBuildProductGrid() +
         '</div></div>' +
 
-        // Right: Cart / Bill
+        /* Right: Cart / Bill */
         '<div style="width:300px;display:flex;flex-direction:column;' +
         'background:#0f4d62;flex-shrink:0">' +
 
-        // Cart header
+        /* Cart header */
         '<div style="padding:12px;background:#0b3344;' +
         'border-bottom:1px solid #1a5a6e;display:flex;' +
         'justify-content:space-between;align-items:center">' +
-        '<span style="font-size:.82rem;font-weight:700;color:#e0f4f8">' +
-        'Current Sale</span>' +
-        '<span id="rpos-cart-count" style="font-size:.75rem;color:#7bb8c8">' +
-        '0 items</span>' +
-        '</div>' +
+        '<span style="font-size:.82rem;font-weight:700;' +
+        'color:#e0f4f8">Current Sale</span>' +
+        '<span id="rpos-cart-count" ' +
+        'style="font-size:.75rem;color:#7bb8c8">' +
+        '0 items</span></div>' +
 
-        // Cart items
+        /* Cart items */
         '<div id="rpos-cart-items" style="flex:1;overflow-y:auto;' +
         'padding:8px;-webkit-overflow-scrolling:touch">' +
-        '<div style="text-align:center;padding:30px;color:#4a8a9a;' +
-        'font-size:.82rem">' +
+        '<div style="text-align:center;padding:30px;' +
+        'color:#4a8a9a;font-size:.82rem">' +
         '<i class="fas fa-barcode" ' +
         'style="font-size:1.5rem;display:block;margin-bottom:8px;' +
-        'opacity:.3"></i>Scan or search items</div>' +
-        '</div>' +
+        'opacity:.3"></i>Scan or search items</div></div>' +
 
-        // Totals + payment
+        /* Totals + payment */
         '<div id="rpos-cart-totals" style="padding:12px;' +
         'border-top:2px solid #1a5a6e;background:#0b3344">' +
-        '<div style="text-align:center;color:#4a8a9a;font-size:.82rem">' +
-        'No items in cart</div>' +
-        '</div></div>' +
-        '</div>';
+        '<div style="text-align:center;color:#4a8a9a;' +
+        'font-size:.82rem">No items in cart</div>' +
+        '</div></div></div>';
 
-    // Refocus scanner
+    /* Refocus scanner */
     setTimeout(function() {
         var inp = document.getElementById('rpos-barcode-input');
         if (inp) inp.focus();
