@@ -9,43 +9,48 @@
 <style>
 :root{
     --primary:#1a8ba8;--primary-dark:#0d4a5c;--primary-light:#4dbdd5;
-    --bg:#f0f7f9;--bg-card:#fff;
-    --text:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
+    --primary-pale:#d4f0f7;
+    --bg:#0d3d4f;--bg-card:#0f4d62;--bg-hover:#1a6070;--bg-dark:#0b3344;
+    --text:#e0f4f8;--text-mid:#a8d8e8;--text-light:#7bb8c8;--text-muted:#4a8a9a;
     --gold:#f59e0b;--gold-dark:#d97706;
     --success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;
-    --border:#c4dde4;--shadow:0 2px 12px rgba(13,74,92,.08);
-    --shadow-lg:0 8px 30px rgba(13,74,92,.15);--r:12px;--rs:8px
+    --border:#1a5a6e;--shadow:0 2px 12px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.4);--shadow-xl:0 20px 60px rgba(0,0,0,.5);
+    --r:14px;--rs:8px;
+    --header-h:56px;--nav-h:65px;
+    --brand-primary:#1a8ba8;--brand-dark:#0d4a5c
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);
      color:var(--text);min-height:100vh;font-size:14px}
 
 /* ── HEADER ── */
-.header{background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+.header{background:var(--bg-dark);
     padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
-    box-shadow:0 2px 20px rgba(0,0,0,.15);position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:10px;color:#fff;
+    box-shadow:var(--shadow-lg);position:sticky;top:0;z-index:100;
+    border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;color:var(--text);
     text-decoration:none;font-size:1.1rem;font-weight:900;letter-spacing:1px}
-.logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);
+.logo-icon{width:34px;height:34px;background:rgba(26,139,168,.2);
     border-radius:8px;display:flex;align-items:center;
     justify-content:center;font-size:.95rem}
-.header-back{color:rgba(255,255,255,.8);text-decoration:none;
+.header-back{color:var(--text-mid);text-decoration:none;
     font-size:.85rem;display:flex;align-items:center;gap:6px;transition:.2s}
-.header-back:hover{color:#fff}
-.header-entity{color:rgba(255,255,255,.7);font-size:.78rem;margin-top:2px}
+.header-back:hover{color:var(--text)}
+.header-entity{color:var(--text-muted);font-size:.78rem;margin-top:2px}
 
 /* ── LAYOUT ── */
 .layout{display:flex;min-height:calc(100vh - 60px)}
-.sidebar{width:260px;background:var(--bg-card);border-right:1px solid var(--border);
+.sidebar{width:260px;background:var(--bg-dark);border-right:1px solid var(--border);
     padding:16px;flex-shrink:0;overflow-y:auto}
-.sidebar-title{font-size:.72rem;font-weight:700;color:var(--text-light);
+.sidebar-title{font-size:.72rem;font-weight:700;color:var(--text-muted);
     text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;padding-left:10px}
 .sidebar-item{display:flex;align-items:center;gap:10px;padding:12px 14px;
     border-radius:var(--rs);cursor:pointer;transition:.2s;
     color:var(--text-mid);font-size:.88rem;font-weight:500;margin-bottom:4px}
-.sidebar-item:hover{background:rgba(26,139,168,.06)}
-.sidebar-item.active{background:rgba(26,139,168,.1);
-    color:var(--primary);font-weight:600}
+.sidebar-item:hover{background:var(--bg-hover)}
+.sidebar-item.active{background:rgba(26,139,168,.2);
+    color:var(--primary-light);font-weight:600}
 .sidebar-item i{width:20px;text-align:center;font-size:.9rem}
 .sidebar-badge{margin-left:auto;background:var(--primary);color:#fff;
     padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700}
@@ -59,12 +64,12 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);
 
 /* ── CARDS ── */
 .card{background:var(--bg-card);border-radius:var(--r);padding:24px;
-    box-shadow:var(--shadow);margin-bottom:16px}
+    box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
 .card-header{display:flex;justify-content:space-between;
     align-items:center;margin-bottom:16px}
 .card-header h3{font-size:1rem;font-weight:700;color:var(--text);
     display:flex;align-items:center;gap:8px}
-.card-header h3 i{color:var(--primary)}
+.card-header h3 i{color:var(--primary-light)}
 
 /* ── FORMS ── */
 .form-group{margin-bottom:16px}
@@ -72,41 +77,44 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);
     color:var(--text);margin-bottom:6px}
 .form-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);
     border-radius:var(--rs);font-size:.88rem;font-family:inherit;
-    color:var(--text);background:var(--bg);transition:.2s}
-.form-input:focus{outline:none;border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(26,139,168,.1)}
+    color:var(--text);background:var(--bg-dark);transition:.2s}
+.form-input:focus{outline:none;border-color:var(--primary-light);
+    box-shadow:0 0 0 3px rgba(26,139,168,.2)}
+.form-input::placeholder{color:var(--text-muted)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .form-hint{font-size:.72rem;color:var(--text-muted);margin-top:4px}
 select.form-input{-webkit-appearance:none;appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a8a96' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237bb8c8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select.form-input option{background:var(--bg-dark);color:var(--text)}
 
 /* ── BUTTONS ── */
 .btn{padding:10px 20px;border:none;border-radius:var(--rs);font-size:.88rem;
     font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;
     display:inline-flex;align-items:center;gap:8px}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,139,168,.3)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light);transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(26,139,168,.3)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-success{background:var(--success);color:#fff}
 .btn-success:hover{background:#1a7a4a}
 .btn-danger{background:var(--danger);color:#fff}
 .btn-danger:hover{background:#a83232}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-mid)}
-.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-outline:hover{border-color:var(--primary-light);color:var(--primary-light)}
 .btn-sm{padding:6px 12px;font-size:.78rem}
 .btn-block{width:100%;justify-content:center}
 
 /* ── TABLE ── */
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{padding:10px 14px;text-align:left;font-size:.75rem;
-    font-weight:700;color:var(--text-light);text-transform:uppercase;
-    letter-spacing:.5px;background:var(--bg);border-bottom:2px solid var(--border)}
+    font-weight:700;color:var(--text-muted);text-transform:uppercase;
+    letter-spacing:.5px;background:var(--bg-dark);border-bottom:2px solid var(--border)}
 .data-table td{padding:10px 14px;font-size:.85rem;color:var(--text);
     border-bottom:1px solid var(--border);vertical-align:middle}
 .data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover{background:rgba(26,139,168,.02)}
+.data-table tr:hover{background:var(--bg-hover)}
 .actions{display:flex;gap:6px}
 
 /* ── COLOR/ICON PICKERS ── */
@@ -115,42 +123,43 @@ select.form-input{-webkit-appearance:none;appearance:none;
     border:2px solid transparent;transition:.2s;
     display:flex;align-items:center;justify-content:center}
 .color-swatch:hover{transform:scale(1.1)}
-.color-swatch.selected{border-color:#0d4a5c;
-    box-shadow:0 0 0 2px #fff inset;transform:scale(1.1)}
+.color-swatch.selected{border-color:var(--primary-light);
+    box-shadow:0 0 0 2px var(--bg-dark) inset;transform:scale(1.1)}
 
 /* ── BADGES ── */
 .badge{padding:3px 10px;border-radius:12px;
     font-size:.7rem;font-weight:600;display:inline-block}
-.badge-green{background:rgba(46,168,113,.12);color:var(--success)}
-.badge-orange{background:rgba(245,158,11,.12);color:var(--gold)}
-.badge-red{background:rgba(201,69,69,.12);color:var(--danger)}
-.badge-blue{background:rgba(26,139,168,.12);color:var(--primary)}
+.badge-green{background:rgba(46,168,113,.2);color:var(--success)}
+.badge-orange{background:rgba(245,158,11,.2);color:var(--gold)}
+.badge-red{background:rgba(201,69,69,.2);color:var(--danger)}
+.badge-blue{background:rgba(26,139,168,.2);color:var(--primary-light)}
 
 /* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--text-light)}
-.empty-state i{font-size:2.5rem;color:var(--primary);opacity:.3;
+.empty-state i{font-size:2.5rem;color:var(--primary-light);opacity:.4;
     margin-bottom:14px;display:block}
 .empty-state h3{font-size:1rem;color:var(--text);margin-bottom:6px}
 .empty-state p{font-size:.85rem;margin-bottom:16px}
 
 /* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.7);
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);
     backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;
     justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg-card);border-radius:16px;width:100%;max-width:580px;
-    max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+    max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-xl);
+    border:1px solid var(--border);
     transform:translateY(20px);transition:.3s}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);
     display:flex;justify-content:space-between;align-items:center;
     position:sticky;top:0;background:var(--bg-card);z-index:1}
 .modal-header h3{font-size:1.1rem;font-weight:700;color:var(--text)}
-.modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg);
-    border:none;color:var(--text-light);cursor:pointer;
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg-dark);
+    border:1px solid var(--border);color:var(--text-light);cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     font-size:.9rem;transition:.2s}
-.modal-close:hover{background:var(--danger);color:#fff}
+.modal-close:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
 .modal-body{padding:24px}
 .modal-footer{padding:16px 24px;border-top:1px solid var(--border);
     display:flex;gap:10px;justify-content:flex-end;
@@ -161,15 +170,16 @@ select.form-input{-webkit-appearance:none;appearance:none;
     display:flex;flex-direction:column;gap:8px}
 .toast{padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);
     display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:500;
-    animation:slideIn .3s ease;min-width:280px;max-width:360px}
+    animation:slideIn .3s ease;min-width:280px;max-width:360px;
+    border:1px solid var(--border)}
 @keyframes slideIn{
     from{transform:translateX(120px);opacity:0}
     to{transform:translateX(0);opacity:1}
 }
-.toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
-.toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
-.toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--info)}
-.toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--warning)}
+.toast.success{background:var(--bg-dark);color:var(--success);border-left:3px solid var(--success)}
+.toast.error{background:var(--bg-dark);color:var(--danger);border-left:3px solid var(--danger)}
+.toast.info{background:var(--bg-dark);color:var(--primary-light);border-left:3px solid var(--info)}
+.toast.warning{background:var(--bg-dark);color:var(--gold);border-left:3px solid var(--warning)}
 
 /* ── PREVIEW ── */
 .menu-tab-preview{display:inline-flex;align-items:center;gap:6px;
@@ -177,16 +187,17 @@ select.form-input{-webkit-appearance:none;appearance:none;
     font-weight:600;color:#fff;margin:3px;cursor:default}
 .sub-cat-tag{display:inline-flex;align-items:center;gap:4px;
     padding:4px 10px;border-radius:12px;font-size:.72rem;
-    font-weight:600;background:var(--bg);color:var(--text-mid);margin:2px}
+    font-weight:600;background:var(--bg-dark);color:var(--text-mid);margin:2px}
 
 /* ── SECTION CARD ── */
 .section-card{background:var(--bg-card);border-radius:var(--r);padding:16px;
     box-shadow:var(--shadow);margin-bottom:10px;display:flex;
-    align-items:center;gap:14px;border-left:4px solid var(--primary);transition:.2s}
-.section-card:hover{box-shadow:var(--shadow-lg)}
+    align-items:center;gap:14px;border-left:4px solid var(--primary);
+    border:1px solid var(--border);border-left:4px solid var(--primary);transition:.2s}
+.section-card:hover{box-shadow:var(--shadow-lg);background:var(--bg-hover)}
 .section-card-icon{width:42px;height:42px;border-radius:10px;
-    background:rgba(26,139,168,.1);display:flex;align-items:center;
-    justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0}
+    background:rgba(26,139,168,.2);display:flex;align-items:center;
+    justify-content:center;color:var(--primary-light);font-size:1.1rem;flex-shrink:0}
 .section-card-info{flex:1}
 .section-card-info h4{font-size:.9rem;font-weight:700;color:var(--text)}
 .section-card-info p{font-size:.75rem;color:var(--text-light);margin-top:2px}
@@ -194,22 +205,22 @@ select.form-input{-webkit-appearance:none;appearance:none;
 
 /* ── PIN LOGIN SCREEN ── */
 .pin-login-overlay{position:fixed;inset:0;
-    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    background:var(--bg-dark);
     display:flex;align-items:center;justify-content:center;
     padding:24px;z-index:9999;transition:opacity .3s}
-.pin-login-card{background:#fff;border-radius:24px;padding:36px 28px;
-    width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.3);
-    text-align:center}
+.pin-login-card{background:var(--bg-card);border-radius:24px;padding:36px 28px;
+    width:100%;max-width:340px;box-shadow:var(--shadow-xl);
+    text-align:center;border:1px solid var(--border)}
 .pin-login-card .pin-icon{width:64px;height:64px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    background:var(--primary);
     border-radius:16px;display:flex;align-items:center;justify-content:center;
     color:#fff;font-size:1.6rem;margin:0 auto 16px}
 .pin-login-card h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:4px}
 .pin-login-card .pin-sub{font-size:.82rem;color:var(--text-light);margin-bottom:24px}
 .pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:24px;height:24px}
 .pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
-    background:var(--bg);transition:.2s}
-.pin-dot.filled{background:var(--primary);border-color:var(--primary);
+    background:var(--bg-dark);transition:.2s}
+.pin-dot.filled{background:var(--primary-light);border-color:var(--primary-light);
     transform:scale(1.15)}
 .pin-dot.error{background:var(--danger);border-color:var(--danger);
     animation:pinShake .4s ease}
@@ -222,11 +233,12 @@ select.form-input{-webkit-appearance:none;appearance:none;
 .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
     max-width:260px;margin:0 auto}
 .pin-key{width:100%;aspect-ratio:1.3;border:none;border-radius:14px;
-    background:var(--bg);font-size:1.4rem;font-weight:700;color:var(--text);
+    background:var(--bg-dark);font-size:1.4rem;font-weight:700;color:var(--text);
     cursor:pointer;font-family:inherit;transition:.15s;
-    display:flex;align-items:center;justify-content:center}
-.pin-key:hover{background:rgba(26,139,168,.1)}
-.pin-key:active{background:rgba(26,139,168,.2);transform:scale(.95)}
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--border)}
+.pin-key:hover{background:var(--bg-hover)}
+.pin-key:active{background:rgba(26,139,168,.3);transform:scale(.95)}
 .pin-key.pin-key-clear{font-size:.8rem;font-weight:600;color:var(--danger)}
 .pin-key.pin-key-back{font-size:1rem;color:var(--text-light)}
 .pin-key.pin-key-zero{grid-column:2}
@@ -340,7 +352,6 @@ select.form-input{-webkit-appearance:none;appearance:none;
         <h2>POS Login</h2>
         <p class="pin-sub">Enter your PIN code to continue</p>
 
-        <!-- PIN dots -->
         <div class="pin-dots" id="pin-dots">
             <div class="pin-dot" id="dot-0"></div>
             <div class="pin-dot" id="dot-1"></div>
@@ -348,7 +359,6 @@ select.form-input{-webkit-appearance:none;appearance:none;
             <div class="pin-dot" id="dot-3"></div>
         </div>
 
-        <!-- Keypad -->
         <div class="pin-keypad">
             <button class="pin-key" onclick="pinPress('1')">1</button>
             <button class="pin-key" onclick="pinPress('2')">2</button>
@@ -427,14 +437,11 @@ var TAB_COLORS = [
     '#8b5cf6','#7c3aed','#64748b','#475569'
 ];
 
-/* Master technician PIN */
 var MASTER_PIN = '1173';
-
-/* Current PIN entry */
 var pinCode = '';
 
 /* ═══════════════════════════════════════════
-   PIN LOGIN — ALWAYS SHOWS FIRST
+   PIN LOGIN
 ═══════════════════════════════════════════ */
 function showPinLogin() {
     pinCode = '';
@@ -452,7 +459,6 @@ function pinPress(digit) {
     if (pinCode.length >= 4) return;
     pinCode += digit;
     updatePinDots();
-
     if (pinCode.length === 4) {
         setTimeout(function() { validatePin(); }, 200);
     }
@@ -477,9 +483,7 @@ function updatePinDots() {
         var dot = document.getElementById('dot-' + i);
         if (!dot) continue;
         dot.classList.remove('filled', 'error');
-        if (i < pinCode.length) {
-            dot.classList.add('filled');
-        }
+        if (i < pinCode.length) dot.classList.add('filled');
     }
 }
 
@@ -487,44 +491,30 @@ function showPinError(msg) {
     var status = document.getElementById('pin-status');
     status.textContent = msg;
     status.style.color = 'var(--danger)';
-
     for (var i = 0; i < 4; i++) {
         var dot = document.getElementById('dot-' + i);
-        if (dot) {
-            dot.classList.remove('filled');
-            dot.classList.add('error');
-        }
+        if (dot) { dot.classList.remove('filled'); dot.classList.add('error'); }
     }
-
-    setTimeout(function() {
-        pinClear();
-    }, 800);
+    setTimeout(function() { pinClear(); }, 800);
 }
 
 function showPinSuccess(name) {
     var status = document.getElementById('pin-status');
     status.textContent = '✅ Welcome, ' + name + '!';
     status.style.color = 'var(--success)';
-
-    setTimeout(function() {
-        hidePinLogin();
-    }, 600);
+    setTimeout(function() { hidePinLogin(); }, 600);
 }
 
 function validatePin() {
-    /* ── Master technician code ── */
     if (pinCode === MASTER_PIN) {
         PS.user = { name: 'Technician', role: 'Technician', pin: MASTER_PIN };
         showPinSuccess('Technician');
         firebaseAuthThenLoad();
         return;
     }
-
-    /* ── Check waiter PINs from account data ── */
     if (PS.accountData) {
         var users = PS.accountData.users || {};
         var found = false;
-
         Object.keys(users).forEach(function(eid) {
             if (found) return;
             (users[eid] || []).forEach(function(u) {
@@ -533,19 +523,14 @@ function validatePin() {
                     PS.user = { name: u.name || 'Staff', role: u.role || 'Waiter', pin: pinCode };
                     if (u.entityId) {
                         var ents = PS.accountData.entities || [];
-                        var ent = ents.find(function(e) { return e.id === u.entityId; }) || ents.find(function(e) { return e.id === eid; });
-                        if (ent) {
-                            PS.entity = ent;
-                            PS.entityId = ent.id;
-                            PS.entityName = ent.name;
-                        }
+                        var ent = ents.find(function(e) { return e.id === u.entityId; }) ||
+                                  ents.find(function(e) { return e.id === eid; });
+                        if (ent) { PS.entity = ent; PS.entityId = ent.id; PS.entityName = ent.name; }
                     }
                     found = true;
                 }
             });
         });
-
-        /* Also check posPins array if stored separately */
         var posPins = (PS.accountData.posPins || {})[PS.entityId] || [];
         if (!found) {
             posPins.forEach(function(p) {
@@ -556,42 +541,43 @@ function validatePin() {
                 }
             });
         }
-
-        if (found) {
-            showPinSuccess(PS.user.name);
-            loadPOSData();
-            return;
-        }
+        if (found) { showPinSuccess(PS.user.name); loadPOSData(); return; }
     }
-
-    /* ── PIN not found ── */
     showPinError('Invalid PIN code');
 }
 
-/* Firebase auth in background for master code */
 function firebaseAuthThenLoad() {
-    /* Try SSO session first */
     var sso = null;
-    try {
-        var raw = sessionStorage.getItem('sso_session');
-        if (raw) sso = JSON.parse(raw);
-    } catch(e) {}
-
+    try { var raw = sessionStorage.getItem('sso_session');
+          if (raw) sso = JSON.parse(raw); } catch(e) {}
     if (auth.currentUser) {
-        /* Already authenticated */
         findSetupAccount(auth.currentUser.email, function(found) {
             if (found) loadPOSData();
             else showToast('warning', 'Signed in but no account found.');
         });
     } else if (sso && sso.valid && sso.accountId) {
-        /* Use SSO data to restore account without re-auth */
         localStorage.setItem('pos_account_id', sso.accountId);
-        db.collection('accounts').doc(sso.accountId).get()
-            .then(function(doc) {
+        db.collection('accounts').doc(sso.accountId).get().then(function(doc) {
+            if (doc.exists) {
+                var data = doc.data();
+                PS.accountId = sso.accountId; PS.accountData = data;
+                var ents = data.entities || [];
+                PS.entity = ents[0] || null;
+                PS.entityId = PS.entity ? PS.entity.id : null;
+                PS.entityName = PS.entity ? PS.entity.name : '';
+                PS.inventory = (data.inventory || {})[PS.entityId] || [];
+                PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
+                loadPOSData();
+            }
+        });
+    } else {
+        showToast('info', 'Master access granted. Data will load when account is found.');
+        var cached = localStorage.getItem('pos_account_id');
+        if (cached) {
+            db.collection('accounts').doc(cached).get().then(function(doc) {
                 if (doc.exists) {
                     var data = doc.data();
-                    PS.accountId = sso.accountId;
-                    PS.accountData = data;
+                    PS.accountId = cached; PS.accountData = data;
                     var ents = data.entities || [];
                     PS.entity = ents[0] || null;
                     PS.entityId = PS.entity ? PS.entity.id : null;
@@ -601,52 +587,24 @@ function firebaseAuthThenLoad() {
                     loadPOSData();
                 }
             });
-    } else {
-        showToast('info', 'Master access granted. Data will load when account is found.');
-        /* Try cached account ID */
-        var cached = localStorage.getItem('pos_account_id');
-        if (cached) {
-            db.collection('accounts').doc(cached).get()
-                .then(function(doc) {
-                    if (doc.exists) {
-                        var data = doc.data();
-                        PS.accountId = cached;
-                        PS.accountData = data;
-                        var ents = data.entities || [];
-                        PS.entity = ents[0] || null;
-                        PS.entityId = PS.entity ? PS.entity.id : null;
-                        PS.entityName = PS.entity ? PS.entity.name : '';
-                        PS.inventory = (data.inventory || {})[PS.entityId] || [];
-                        PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
-                        loadPOSData();
-                    }
-                });
         }
     }
 }
 
 /* ═══════════════════════════════════════════
-   AUTH — Background Firebase auth
-   (no longer controls login screen)
+   AUTH
 ═══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
-    /* ALWAYS show PIN login first */
     showPinLogin();
-
-    /* Silently authenticate Firebase in background */
     auth.onAuthStateChanged(function(u) {
         if (u) {
             findSetupAccount(u.email, function(found) {
                 if (found) {
                     console.log('✅ Firebase auth ready, account found');
-                    /* Pre-load account data so PIN validation can check waiter PINs */
-                    if (!PS._dataLoaded) {
-                        preloadAccountData();
-                    }
+                    if (!PS._dataLoaded) preloadAccountData();
                 }
             });
         } else {
-            /* Try SSO for background data loading */
             try {
                 var raw = sessionStorage.getItem('sso_session');
                 if (raw) {
@@ -657,97 +615,75 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             } catch(e) {}
-
-            /* Also try cached account ID */
             var cached = localStorage.getItem('pos_account_id');
-            if (cached) {
-                preloadFromAccountId(cached);
-            }
+            if (cached) preloadFromAccountId(cached);
         }
     });
-
     document.getElementById('modal-overlay').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
 });
 
-/* Pre-load account data so PIN validation works */
 function preloadAccountData() {
     if (!PS.accountId) return;
-    db.collection('accounts').doc(PS.accountId).get()
-        .then(function(doc) {
-            if (doc.exists) {
-                PS.accountData = doc.data();
-                var ents = PS.accountData.entities || [];
-                if (!PS.entity) {
-                    PS.entity = ents[0] || null;
-                    PS.entityId = PS.entity ? PS.entity.id : null;
-                    PS.entityName = PS.entity ? PS.entity.name : '';
-                }
-                console.log('✅ Account data pre-loaded for PIN validation');
+    db.collection('accounts').doc(PS.accountId).get().then(function(doc) {
+        if (doc.exists) {
+            PS.accountData = doc.data();
+            var ents = PS.accountData.entities || [];
+            if (!PS.entity) {
+                PS.entity = ents[0] || null;
+                PS.entityId = PS.entity ? PS.entity.id : null;
+                PS.entityName = PS.entity ? PS.entity.name : '';
             }
-        })
-        .catch(function(err) {
-            console.warn('Pre-load error:', err);
-        });
+            console.log('✅ Account data pre-loaded for PIN validation');
+        }
+    }).catch(function(err) { console.warn('Pre-load error:', err); });
 }
 
 function preloadFromAccountId(accountId) {
-    db.collection('accounts').doc(accountId).get()
-        .then(function(doc) {
-            if (doc.exists) {
-                var data = doc.data();
-                PS.accountId = accountId;
-                PS.accountData = data;
-                var ents = data.entities || [];
-                if (!PS.entity) {
-                    PS.entity = ents[0] || null;
-                    PS.entityId = PS.entity ? PS.entity.id : null;
-                    PS.entityName = PS.entity ? PS.entity.name : '';
-                }
-                PS.inventory = (data.inventory || {})[PS.entityId] || [];
-                PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
-                console.log('✅ Account pre-loaded from ID: ' + accountId);
+    db.collection('accounts').doc(accountId).get().then(function(doc) {
+        if (doc.exists) {
+            var data = doc.data();
+            PS.accountId = accountId; PS.accountData = data;
+            var ents = data.entities || [];
+            if (!PS.entity) {
+                PS.entity = ents[0] || null;
+                PS.entityId = PS.entity ? PS.entity.id : null;
+                PS.entityName = PS.entity ? PS.entity.name : '';
             }
-        })
-        .catch(function(err) {
-            console.warn('Pre-load from ID error:', err);
-        });
+            PS.inventory = (data.inventory || {})[PS.entityId] || [];
+            PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
+            console.log('✅ Account pre-loaded from ID: ' + accountId);
+        }
+    }).catch(function(err) { console.warn('Pre-load from ID error:', err); });
 }
 
 function findSetupAccount(email, cb) {
     var cached = localStorage.getItem('pos_account_id');
     if (cached) {
-        db.collection('accounts').doc(cached).get()
-            .then(function(doc) {
-                if (doc.exists && matchSetup(doc, email)) { if(cb) cb(true); }
-                else { localStorage.removeItem('pos_account_id'); scanAccounts(email,cb); }
-            })
-            .catch(function() { scanAccounts(email, cb); });
-    } else {
-        scanAccounts(email, cb);
-    }
+        db.collection('accounts').doc(cached).get().then(function(doc) {
+            if (doc.exists && matchSetup(doc, email)) { if(cb) cb(true); }
+            else { localStorage.removeItem('pos_account_id'); scanAccounts(email,cb); }
+        }).catch(function() { scanAccounts(email, cb); });
+    } else { scanAccounts(email, cb); }
 }
 
 function scanAccounts(email, cb) {
-    db.collection('accounts').get()
-        .then(function(snap) {
-            var found = false;
-            snap.forEach(function(doc) {
-                if (found) return;
-                if (matchSetup(doc, email)) found = true;
-            });
-            if (cb) cb(found);
-        })
-        .catch(function() { if(cb) cb(false); });
+    db.collection('accounts').get().then(function(snap) {
+        var found = false;
+        snap.forEach(function(doc) {
+            if (found) return;
+            if (matchSetup(doc, email)) found = true;
+        });
+        if (cb) cb(found);
+    }).catch(function() { if(cb) cb(false); });
 }
 
 function matchSetup(doc, email) {
     var data = doc.data();
     if (data.owner && data.owner.email &&
         data.owner.email.toLowerCase() === email) {
-        applySetupState(doc.id, data,
-            data.owner.name || email, 'Owner', null);
+        applySetupState(doc.id, data, data.owner.name || email, 'Owner', null);
         return true;
     }
     var users = data.users || {};
@@ -757,9 +693,7 @@ function matchSetup(doc, email) {
         (users[eid] || []).forEach(function(u) {
             if (found) return;
             if (u.email && u.email.toLowerCase() === email &&
-                (u.role === 'Manager' ||
-                 u.role === 'General Manager' ||
-                 u.role === 'Owner')) {
+                (u.role === 'Manager' || u.role === 'General Manager' || u.role === 'Owner')) {
                 applySetupState(doc.id, data, u.name || email, u.role, eid);
                 found = true;
             }
@@ -770,20 +704,14 @@ function matchSetup(doc, email) {
 
 function applySetupState(docId, data, name, role, eid) {
     localStorage.setItem('pos_account_id', docId);
-    PS.accountId   = docId;
-    PS.accountData = data;
-    /* Don't override user if already set by PIN login */
-    if (!PS.user) {
-        PS.user = { name: name, role: role };
-    }
-    var ents       = data.entities || [];
-    PS.entity      = eid
-        ? (ents.find(function(e) { return e.id === eid; }) || ents[0] || null)
-        : (ents[0] || null);
-    PS.entityId    = PS.entity ? PS.entity.id   : null;
-    PS.entityName  = PS.entity ? PS.entity.name : '';
-    PS.inventory   = (data.inventory  || {})[PS.entityId] || [];
-    PS.menuItems   = (data.menuItems  || {})[PS.entityId] || [];
+    PS.accountId = docId; PS.accountData = data;
+    if (!PS.user) PS.user = { name: name, role: role };
+    var ents = data.entities || [];
+    PS.entity = eid ? (ents.find(function(e){return e.id===eid;}) || ents[0] || null) : (ents[0] || null);
+    PS.entityId = PS.entity ? PS.entity.id : null;
+    PS.entityName = PS.entity ? PS.entity.name : '';
+    PS.inventory = (data.inventory || {})[PS.entityId] || [];
+    PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
 }
 
 /* ═══════════════════════════════════════════
@@ -791,38 +719,33 @@ function applySetupState(docId, data, name, role, eid) {
 ═══════════════════════════════════════════ */
 function loadPOSData() {
     if (!PS.accountId) return;
-    document.getElementById('header-entity').textContent =
-        PS.entityName || 'Your Entity';
-
-    db.collection('accounts').doc(PS.accountId).get()
-        .then(function(doc) {
-            if (!doc.exists) return;
-            var d = doc.data();
-            PS.kitchenSections = (d.posKitchenSections || {})[PS.entityId] || [];
-            PS.menuTabs        = (d.posMenuTabs        || {})[PS.entityId] || [];
-            PS.posMenuItems    = (d.posMenuItems       || {})[PS.entityId] || [];
-            PS.tables          = (d.posTables          || {})[PS.entityId] || [];
-            PS.happyHour       = (d.posHappyHour       || {})[PS.entityId] || PS.happyHour;
-            PS.specials        = (d.posSpecials        || {})[PS.entityId] || [];
-            PS.takeawayQR      = (d.posTakeawayQR      || {})[PS.entityId] || null;
-            PS.inventory       = (d.inventory          || {})[PS.entityId] || [];
-            PS.menuItems       = (d.menuItems          || {})[PS.entityId] || [];
-            updateBadges();
-            PS._dataLoaded = true;
-            setupNav('kitchen-sections');
-        })
-        .catch(function(err) {
-            console.warn('loadPOSData error:', err);
-            showToast('error', 'Failed to load data. Please refresh.');
-        });
+    document.getElementById('header-entity').textContent = PS.entityName || 'Your Entity';
+    db.collection('accounts').doc(PS.accountId).get().then(function(doc) {
+        if (!doc.exists) return;
+        var d = doc.data();
+        PS.kitchenSections = (d.posKitchenSections || {})[PS.entityId] || [];
+        PS.menuTabs        = (d.posMenuTabs        || {})[PS.entityId] || [];
+        PS.posMenuItems    = (d.posMenuItems       || {})[PS.entityId] || [];
+        PS.tables          = (d.posTables          || {})[PS.entityId] || [];
+        PS.happyHour       = (d.posHappyHour       || {})[PS.entityId] || PS.happyHour;
+        PS.specials        = (d.posSpecials        || {})[PS.entityId] || [];
+        PS.takeawayQR      = (d.posTakeawayQR      || {})[PS.entityId] || null;
+        PS.inventory       = (d.inventory          || {})[PS.entityId] || [];
+        PS.menuItems       = (d.menuItems          || {})[PS.entityId] || [];
+        updateBadges(); PS._dataLoaded = true;
+        setupNav('kitchen-sections');
+    }).catch(function(err) {
+        console.warn('loadPOSData error:', err);
+        showToast('error', 'Failed to load data. Please refresh.');
+    });
 }
 
 function savePOSData(field, value) {
     if (!PS.accountId || !PS.entityId) return Promise.resolve();
     var update = {};
     update[field + '.' + PS.entityId] = value;
-    update.lastUpdated       = firebase.firestore.FieldValue.serverTimestamp();
-    update.lastUpdatedBy     = PS.user ? PS.user.name : 'POS Setup';
+    update.lastUpdated = firebase.firestore.FieldValue.serverTimestamp();
+    update.lastUpdatedBy = PS.user ? PS.user.name : 'POS Setup';
     update.lastUpdatedDevice = 'POS Setup';
     return db.collection('accounts').doc(PS.accountId)
         .set(update, { merge: true })
@@ -833,11 +756,10 @@ function savePOSData(field, value) {
    NAVIGATION & BADGES
 ═══════════════════════════════════════════ */
 function updateBadges() {
-    [
-        ['badge-sections', PS.kitchenSections.length],
-        ['badge-tabs',     PS.menuTabs.length],
-        ['badge-items',    PS.posMenuItems.length],
-        ['badge-tables',   PS.tables.length]
+    [['badge-sections', PS.kitchenSections.length],
+     ['badge-tabs', PS.menuTabs.length],
+     ['badge-items', PS.posMenuItems.length],
+     ['badge-tables', PS.tables.length]
     ].forEach(function(pair) {
         var el = document.getElementById(pair[0]);
         if (el) el.textContent = pair[1];
@@ -853,80 +775,60 @@ function setupNav(page) {
     try {
         var map = {
             'kitchen-sections': pageKitchenSections,
-            'menu-tabs':        pageMenuTabs,
-            'menu-items':       pageMenuItems,
-            'tables':           pageTables,
-            'happy-hour':       pageHappyHour,
-            'specials':         pageSpecials,
-            'preview':          pagePreview
+            'menu-tabs': pageMenuTabs,
+            'menu-items': pageMenuItems,
+            'tables': pageTables,
+            'happy-hour': pageHappyHour,
+            'specials': pageSpecials,
+            'preview': pagePreview
         };
         var fn = map[page];
         content.innerHTML = fn ? fn()
-            : '<div class="empty-state"><i class="fas fa-question-circle"></i>' +
-              '<h3>Page not found</h3></div>';
+            : '<div class="empty-state"><i class="fas fa-question-circle"></i><h3>Page not found</h3></div>';
     } catch(err) {
         console.error('Page error:', err);
-        content.innerHTML =
-            '<div class="empty-state"><i class="fas fa-exclamation-circle"></i>' +
-            '<h3>Error loading page</h3><p>' + escHtml(err.message) + '</p></div>';
+        content.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Error loading page</h3><p>' + escHtml(err.message) + '</p></div>';
     }
 }
 
 /* ═══════════════════════════════════════════
-   MODAL
+   MODAL / TOAST / HELPERS
 ═══════════════════════════════════════════ */
 function openModal(title, bodyHtml, footerHtml) {
     document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-body').innerHTML    = bodyHtml;
-    document.getElementById('modal-footer').innerHTML  = footerHtml || '';
+    document.getElementById('modal-body').innerHTML = bodyHtml;
+    document.getElementById('modal-footer').innerHTML = footerHtml || '';
     document.getElementById('modal-overlay').classList.add('open');
     var modal = document.querySelector('.modal');
     if (modal) modal.scrollTop = 0;
 }
-function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
-/* ═══════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════ */
 function showToast(type, msg) {
-    var icons = {
-        success:'check-circle', error:'times-circle',
-        info:'info-circle',     warning:'exclamation-triangle'
-    };
+    var icons = { success:'check-circle', error:'times-circle', info:'info-circle', warning:'exclamation-triangle' };
     var t = document.createElement('div');
     t.className = 'toast ' + type;
-    t.innerHTML = '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i>' +
-                  '<span>' + escHtml(msg) + '</span>';
+    t.innerHTML = '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i><span>' + escHtml(msg) + '</span>';
     document.getElementById('toast-wrap').appendChild(t);
     setTimeout(function() { if (t.parentElement) t.remove(); }, 4000);
 }
 
-/* ═══════════════════════════════════════════
-   PICKERS
-═══════════════════════════════════════════ */
 function selectColor(el) {
-    el.closest('.color-grid').querySelectorAll('.color-swatch')
-        .forEach(function(s) { s.classList.remove('selected'); });
+    el.closest('.color-grid').querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('selected'); });
     el.classList.add('selected');
     var inp = document.getElementById('tab-color');
     if (inp) inp.value = el.dataset.color;
 }
 
 function selectIcon(el, inputId) {
-    el.closest('.color-grid').querySelectorAll('.color-swatch')
-        .forEach(function(s) { s.classList.remove('selected'); });
+    el.closest('.color-grid').querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('selected'); });
     el.classList.add('selected');
     var inp = document.getElementById(inputId);
     if (inp) inp.value = el.dataset.icon;
 }
 
 function escHtml(str) {
-    return String(str)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-        .replace(/'/g,'&#39;');
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 /* ═══════════════════════════════════════════
@@ -941,172 +843,97 @@ var SECTION_ICONS = [
 function buildIconPicker(selected, inputId) {
     return '<div class="color-grid">' +
         SECTION_ICONS.map(function(icon) {
-            return '<div class="color-swatch' +
-                   (selected === icon ? ' selected' : '') +
-                   '" style="background:var(--primary)" ' +
-                   'data-icon="' + icon + '" ' +
-                   'onclick="selectIcon(this,\'' + inputId + '\')">' +
-                   '<i class="fas fa-' + icon +
-                   '" style="color:#fff;font-size:.85rem"></i></div>';
-        }).join('') +
-        '</div>' +
-        '<input type="hidden" id="' + inputId +
+            return '<div class="color-swatch' + (selected === icon ? ' selected' : '') +
+                   '" style="background:var(--primary)" data-icon="' + icon +
+                   '" onclick="selectIcon(this,\'' + inputId + '\')">' +
+                   '<i class="fas fa-' + icon + '" style="color:#fff;font-size:.85rem"></i></div>';
+        }).join('') + '</div><input type="hidden" id="' + inputId +
         '" value="' + escHtml(selected || 'utensils') + '">';
 }
 
 function pageKitchenSections() {
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-utensils" style="color:var(--primary)"></i> ' +
-        'Kitchen Sections</h1>' +
-        '<p>Set up preparation areas in your kitchen. Each section can have its own ' +
-        'display tablet showing orders.</p></div>' +
-        '<div class="card">' +
-        '<div class="card-header">' +
-        '<h3><i class="fas fa-list"></i> Sections (' +
+        '<div class="page-header"><h1><i class="fas fa-utensils" style="color:var(--primary-light)"></i> Kitchen Sections</h1>' +
+        '<p>Set up preparation areas in your kitchen. Each section can have its own display tablet showing orders.</p></div>' +
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-list"></i> Sections (' +
         PS.kitchenSections.length + '/10)</h3>' +
         '<button class="btn btn-primary btn-sm" onclick="addKitchenSection()"' +
-        (PS.kitchenSections.length >= 10 ? ' disabled' : '') + '>' +
-        '<i class="fas fa-plus"></i> Add Section</button></div>';
+        (PS.kitchenSections.length >= 10 ? ' disabled' : '') + '><i class="fas fa-plus"></i> Add Section</button></div>';
 
     if (PS.kitchenSections.length === 0) {
-        html +=
-            '<div class="empty-state"><i class="fas fa-utensils"></i>' +
-            '<h3>No Kitchen Sections Yet</h3>' +
-            '<p>Add your first kitchen section to configure your POS.</p>' +
-            '<button class="btn btn-primary" onclick="addKitchenSection()">' +
-            '<i class="fas fa-plus"></i> Add First Section</button></div>';
+        html += '<div class="empty-state"><i class="fas fa-utensils"></i><h3>No Kitchen Sections Yet</h3>' +
+                '<p>Add your first kitchen section to configure your POS.</p>' +
+                '<button class="btn btn-primary" onclick="addKitchenSection()"><i class="fas fa-plus"></i> Add First Section</button></div>';
     } else {
         PS.kitchenSections.forEach(function(s) {
-            html +=
-                '<div class="section-card">' +
-                '<div class="section-card-icon">' +
-                '<i class="fas fa-' + escHtml(s.icon || 'utensils') + '"></i></div>' +
+            html += '<div class="section-card"><div class="section-card-icon"><i class="fas fa-' + escHtml(s.icon || 'utensils') + '"></i></div>' +
                 '<div class="section-card-info"><h4>' + escHtml(s.name) + '</h4>' +
-                '<p>Avg prep: ' + (s.prepTime || 15) + ' min' +
-                (s.description ? ' — ' + escHtml(s.description) : '') + '</p></div>' +
+                '<p>Avg prep: ' + (s.prepTime || 15) + ' min' + (s.description ? ' — ' + escHtml(s.description) : '') + '</p></div>' +
                 '<div class="section-card-actions">' +
-                '<button class="btn btn-outline btn-sm" data-id="' + s.id + '" ' +
-                'onclick="editKitchenSection(this.dataset.id)">' +
-                '<i class="fas fa-edit"></i></button>' +
-                '<button class="btn btn-danger btn-sm" data-id="' + s.id + '" ' +
-                'onclick="deleteKitchenSection(this.dataset.id)">' +
-                '<i class="fas fa-trash"></i></button>' +
-                '</div></div>';
+                '<button class="btn btn-outline btn-sm" data-id="' + s.id + '" onclick="editKitchenSection(this.dataset.id)"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + s.id + '" onclick="deleteKitchenSection(this.dataset.id)"><i class="fas fa-trash"></i></button></div></div>';
         });
     }
     return html + '</div>';
 }
 
 function addKitchenSection() {
-    if (PS.kitchenSections.length >= 10) {
-        showToast('warning', 'Maximum 10 sections'); return;
-    }
+    if (PS.kitchenSections.length >= 10) { showToast('warning', 'Maximum 10 sections'); return; }
     openModal('Add Kitchen Section',
-        '<div class="form-group"><label>Section Name *</label>' +
-        '<input type="text" class="form-input" id="sec-name" ' +
-        'placeholder="e.g. Main Kitchen, Bar, Dessert"></div>' +
-        '<div class="form-group"><label>Avg Prep Time (minutes) *</label>' +
-        '<input type="number" class="form-input" id="sec-preptime" ' +
-        'value="15" min="1" max="120">' +
-        '<div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
-        '<div class="form-group"><label>Description</label>' +
-        '<input type="text" class="form-input" id="sec-desc" ' +
-        'placeholder="Optional"></div>' +
-        '<div class="form-group"><label>Icon</label>' +
-        buildIconPicker('utensils','sec-icon') + '</div>',
-        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-        '<button class="btn btn-primary" onclick="saveKitchenSection(null)">' +
-        '<i class="fas fa-save"></i> Save</button>');
+        '<div class="form-group"><label>Section Name *</label><input type="text" class="form-input" id="sec-name" placeholder="e.g. Main Kitchen, Bar, Dessert"></div>' +
+        '<div class="form-group"><label>Avg Prep Time (minutes) *</label><input type="number" class="form-input" id="sec-preptime" value="15" min="1" max="120"><div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
+        '<div class="form-group"><label>Description</label><input type="text" class="form-input" id="sec-desc" placeholder="Optional"></div>' +
+        '<div class="form-group"><label>Icon</label>' + buildIconPicker('utensils','sec-icon') + '</div>',
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveKitchenSection(null)"><i class="fas fa-save"></i> Save</button>');
 }
 
 function editKitchenSection(id) {
     var s = PS.kitchenSections.find(function(x) { return x.id === id; });
     if (!s) return;
     openModal('Edit Kitchen Section',
-        '<div class="form-group"><label>Section Name *</label>' +
-        '<input type="text" class="form-input" id="sec-name" ' +
-        'value="' + escHtml(s.name) + '"></div>' +
-        '<div class="form-group"><label>Avg Prep Time (minutes) *</label>' +
-        '<input type="number" class="form-input" id="sec-preptime" ' +
-        'value="' + (s.prepTime || 15) + '" min="1" max="120">' +
-        '<div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
-        '<div class="form-group"><label>Description</label>' +
-        '<input type="text" class="form-input" id="sec-desc" ' +
-        'value="' + escHtml(s.description || '') + '"></div>' +
-        '<div class="form-group"><label>Icon</label>' +
-        buildIconPicker(s.icon || 'utensils','sec-icon') + '</div>',
-        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-        '<button class="btn btn-primary" data-id="' + id + '" ' +
-        'onclick="saveKitchenSection(this.dataset.id)">' +
-        '<i class="fas fa-save"></i> Update</button>');
+        '<div class="form-group"><label>Section Name *</label><input type="text" class="form-input" id="sec-name" value="' + escHtml(s.name) + '"></div>' +
+        '<div class="form-group"><label>Avg Prep Time (minutes) *</label><input type="number" class="form-input" id="sec-preptime" value="' + (s.prepTime || 15) + '" min="1" max="120"><div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
+        '<div class="form-group"><label>Description</label><input type="text" class="form-input" id="sec-desc" value="' + escHtml(s.description || '') + '"></div>' +
+        '<div class="form-group"><label>Icon</label>' + buildIconPicker(s.icon || 'utensils','sec-icon') + '</div>',
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" data-id="' + id + '" onclick="saveKitchenSection(this.dataset.id)"><i class="fas fa-save"></i> Update</button>');
 }
 
 function saveKitchenSection(id) {
-    var name     = (document.getElementById('sec-name').value     || '').trim();
+    var name = (document.getElementById('sec-name').value || '').trim();
     var prepTime = parseInt(document.getElementById('sec-preptime').value) || 15;
-    var desc     = (document.getElementById('sec-desc').value     || '').trim();
-    var icon     = document.getElementById('sec-icon').value      || 'utensils';
-
+    var desc = (document.getElementById('sec-desc').value || '').trim();
+    var icon = document.getElementById('sec-icon').value || 'utensils';
     if (!name) { showToast('error','Enter a section name'); return; }
-    if (prepTime < 1 || prepTime > 120) {
-        showToast('error','Prep time must be 1–120 min'); return;
-    }
-
-    var now      = new Date().toISOString();
-    var isEdit   = !!id;
-    var existing = isEdit
-        ? PS.kitchenSections.find(function(s) { return s.id === id; }) : null;
-
-    var section = {
-        id:          isEdit ? id : 'SEC-' + Date.now(),
-        name:        name, prepTime: prepTime,
-        description: desc, icon: icon,
-        createdAt:   existing ? existing.createdAt : now,
-        updatedAt:   now
-    };
-
+    if (prepTime < 1 || prepTime > 120) { showToast('error','Prep time must be 1–120 min'); return; }
+    var now = new Date().toISOString();
+    var isEdit = !!id;
+    var existing = isEdit ? PS.kitchenSections.find(function(s) { return s.id === id; }) : null;
+    var section = { id: isEdit ? id : 'SEC-' + Date.now(), name: name, prepTime: prepTime,
+        description: desc, icon: icon, createdAt: existing ? existing.createdAt : now, updatedAt: now };
     var backup = PS.kitchenSections.slice();
-    PS.kitchenSections = isEdit
-        ? PS.kitchenSections.map(function(s) { return s.id===id ? section : s; })
-        : PS.kitchenSections.concat([section]);
-
-    savePOSData('posKitchenSections', PS.kitchenSections)
-        .then(function() {
-            closeModal(); updateBadges();
-            setupNav('kitchen-sections');
-            showToast('success','✅ Section ' + (isEdit?'updated':'added'));
-        })
-        .catch(function() {
-            PS.kitchenSections = backup;
-            showToast('error','Failed to save. Please try again.');
-        });
+    PS.kitchenSections = isEdit ? PS.kitchenSections.map(function(s) { return s.id===id ? section : s; }) : PS.kitchenSections.concat([section]);
+    savePOSData('posKitchenSections', PS.kitchenSections).then(function() {
+        closeModal(); updateBadges(); setupNav('kitchen-sections');
+        showToast('success','✅ Section ' + (isEdit?'updated':'added'));
+    }).catch(function() { PS.kitchenSections = backup; showToast('error','Failed to save.'); });
 }
 
 function deleteKitchenSection(id) {
     var s = PS.kitchenSections.find(function(x) { return x.id === id; });
     if (!s) return;
-    var linked    = PS.posMenuItems.filter(function(i) { return i.sectionId === id; });
-    var tabLinked = PS.menuTabs.filter(function(t)     { return t.sectionId === id; });
+    var linked = PS.posMenuItems.filter(function(i) { return i.sectionId === id; });
+    var tabLinked = PS.menuTabs.filter(function(t) { return t.sectionId === id; });
     var msg = 'Delete section "' + s.name + '"?';
     if (linked.length || tabLinked.length) {
-        msg += '\n\n⚠️ ' +
-            (linked.length    ? linked.length    + ' item(s) '  : '') +
-            (tabLinked.length ? tabLinked.length + ' tab(s) '   : '') +
-            'will become unassigned.';
+        msg += '\n\n⚠️ ' + (linked.length ? linked.length + ' item(s) ' : '') +
+            (tabLinked.length ? tabLinked.length + ' tab(s) ' : '') + 'will become unassigned.';
     }
     if (!confirm(msg)) return;
     var backup = PS.kitchenSections.slice();
     PS.kitchenSections = PS.kitchenSections.filter(function(x) { return x.id !== id; });
-    savePOSData('posKitchenSections', PS.kitchenSections)
-        .then(function() {
-            updateBadges(); setupNav('kitchen-sections');
-            showToast('info','Section deleted');
-        })
-        .catch(function() {
-            PS.kitchenSections = backup;
-            showToast('error','Failed to delete.');
-        });
+    savePOSData('posKitchenSections', PS.kitchenSections).then(function() {
+        updateBadges(); setupNav('kitchen-sections'); showToast('info','Section deleted');
+    }).catch(function() { PS.kitchenSections = backup; showToast('error','Failed to delete.'); });
 }
 
 /* ═══════════════════════════════════════════
@@ -1120,174 +947,86 @@ var TAB_ICONS = [
 
 function pageMenuTabs() {
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-folder" style="color:var(--primary)"></i> Menu Tabs</h1>' +
+        '<div class="page-header"><h1><i class="fas fa-folder" style="color:var(--primary-light)"></i> Menu Tabs</h1>' +
         '<p>Create colour-coded categories for your POS menu with optional sub-categories.</p></div>' +
-        '<div class="card"><div class="card-header">' +
-        '<h3><i class="fas fa-palette"></i> Menu Tabs</h3>' +
-        '<button class="btn btn-primary btn-sm" onclick="addMenuTab()">' +
-        '<i class="fas fa-plus"></i> Add Tab</button></div>';
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-palette"></i> Menu Tabs</h3>' +
+        '<button class="btn btn-primary btn-sm" onclick="addMenuTab()"><i class="fas fa-plus"></i> Add Tab</button></div>';
 
     if (PS.menuTabs.length === 0) {
-        html +=
-            '<div class="empty-state"><i class="fas fa-folder"></i>' +
-            '<h3>No Menu Tabs Yet</h3>' +
-            '<button class="btn btn-primary" onclick="addMenuTab()">' +
-            '<i class="fas fa-plus"></i> Add First Tab</button></div>';
+        html += '<div class="empty-state"><i class="fas fa-folder"></i><h3>No Menu Tabs Yet</h3>' +
+                '<button class="btn btn-primary" onclick="addMenuTab()"><i class="fas fa-plus"></i> Add First Tab</button></div>';
     } else {
-        html +=
-            '<div style="padding:14px;background:var(--bg);border-radius:var(--rs);' +
-            'margin-bottom:14px"><div style="font-size:.72rem;font-weight:700;' +
-            'color:var(--text-muted);margin-bottom:8px">PREVIEW:</div>';
+        html += '<div style="padding:14px;background:var(--bg-dark);border-radius:var(--rs);margin-bottom:14px;border:1px solid var(--border)">' +
+                '<div style="font-size:.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px">PREVIEW:</div>';
         PS.menuTabs.forEach(function(tab) {
-            html += '<div class="menu-tab-preview" style="background:' +
-                    escHtml(tab.color||'#1a8ba8') + '">' +
-                    '<i class="fas fa-' + escHtml(tab.icon||'tag') + '"></i> ' +
-                    escHtml(tab.name) + '</div>';
+            html += '<div class="menu-tab-preview" style="background:' + escHtml(tab.color||'#1a8ba8') + '"><i class="fas fa-' + escHtml(tab.icon||'tag') + '"></i> ' + escHtml(tab.name) + '</div>';
         });
-        html += '</div>';
-
-        html +=
-            '<table class="data-table"><thead><tr>' +
-            '<th>Tab</th><th>Section</th>' +
-            '<th>Sub-Cats</th><th>Items</th><th>Actions</th>' +
-            '</tr></thead><tbody>';
-
+        html += '</div><table class="data-table"><thead><tr><th>Tab</th><th>Section</th><th>Sub-Cats</th><th>Items</th><th>Actions</th></tr></thead><tbody>';
         PS.menuTabs.forEach(function(tab) {
-            var cnt  = PS.posMenuItems.filter(function(i) { return i.tabId===tab.id; }).length;
-            var sec  = PS.kitchenSections.find(function(s) { return s.id===tab.sectionId; });
-            var subs = (tab.subCategories||[]).map(function(sc) {
-                return '<span class="sub-cat-tag">' + escHtml(sc) + '</span>';
-            }).join('') || '<span style="color:var(--text-muted);font-size:.78rem">None</span>';
-
-            html +=
-                '<tr><td><div style="display:flex;align-items:center;gap:8px">' +
-                '<div style="width:12px;height:12px;border-radius:3px;background:' +
-                escHtml(tab.color||'#1a8ba8') + '"></div>' +
-                '<strong>' + escHtml(tab.name) + '</strong></div></td>' +
-                '<td>' + (sec ? escHtml(sec.name) :
-                    '<span style="color:var(--text-muted)">Not set</span>') + '</td>' +
-                '<td>' + subs + '</td>' +
+            var cnt = PS.posMenuItems.filter(function(i) { return i.tabId===tab.id; }).length;
+            var sec = PS.kitchenSections.find(function(s) { return s.id===tab.sectionId; });
+            var subs = (tab.subCategories||[]).map(function(sc) { return '<span class="sub-cat-tag">' + escHtml(sc) + '</span>'; }).join('') || '<span style="color:var(--text-muted);font-size:.78rem">None</span>';
+            html += '<tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:3px;background:' + escHtml(tab.color||'#1a8ba8') + '"></div><strong>' + escHtml(tab.name) + '</strong></div></td>' +
+                '<td>' + (sec ? escHtml(sec.name) : '<span style="color:var(--text-muted)">Not set</span>') + '</td><td>' + subs + '</td>' +
                 '<td><span class="badge badge-blue">' + cnt + '</span></td>' +
-                '<td><div class="actions">' +
-                '<button class="btn btn-outline btn-sm" data-id="' + tab.id + '" ' +
-                'onclick="editMenuTab(this.dataset.id)">' +
-                '<i class="fas fa-edit"></i></button>' +
-                '<button class="btn btn-danger btn-sm" data-id="' + tab.id + '" ' +
-                'onclick="deleteMenuTab(this.dataset.id)">' +
-                '<i class="fas fa-trash"></i></button>' +
-                '</div></td></tr>';
+                '<td><div class="actions"><button class="btn btn-outline btn-sm" data-id="' + tab.id + '" onclick="editMenuTab(this.dataset.id)"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + tab.id + '" onclick="deleteMenuTab(this.dataset.id)"><i class="fas fa-trash"></i></button></div></td></tr>';
         });
         html += '</tbody></table>';
     }
     return html + '</div>';
 }
 
-function addMenuTab()        { showMenuTabModal(null); }
-function editMenuTab(tabId)  { showMenuTabModal(tabId); }
+function addMenuTab() { showMenuTabModal(null); }
+function editMenuTab(tabId) { showMenuTabModal(tabId); }
 
 function showMenuTabModal(tabId) {
-    var tab    = tabId ? PS.menuTabs.find(function(t) { return t.id===tabId; }) : null;
+    var tab = tabId ? PS.menuTabs.find(function(t) { return t.id===tabId; }) : null;
     var isEdit = !!tab;
-
-    var secOpts =
-        '<option value="">No specific section</option>' +
+    var secOpts = '<option value="">No specific section</option>' +
         PS.kitchenSections.map(function(s) {
-            return '<option value="' + s.id + '"' +
-                   (tab && tab.sectionId===s.id ? ' selected' : '') + '>' +
-                   escHtml(s.name) + '</option>';
+            return '<option value="' + s.id + '"' + (tab && tab.sectionId===s.id ? ' selected' : '') + '>' + escHtml(s.name) + '</option>';
         }).join('');
-
-    var colorPicker =
-        '<div class="color-grid">' +
+    var colorPicker = '<div class="color-grid">' +
         TAB_COLORS.map(function(c) {
             var sel = tab ? tab.color===c : c==='#1a8ba8';
-            return '<div class="color-swatch' + (sel?' selected':'') + '" ' +
-                   'style="background:' + c + '" data-color="' + c + '" ' +
-                   'onclick="selectColor(this)"></div>';
-        }).join('') +
-        '</div><input type="hidden" id="tab-color" value="' +
-        escHtml(tab ? tab.color : '#1a8ba8') + '">';
-
-    var iconPicker =
-        '<div class="color-grid">' +
+            return '<div class="color-swatch' + (sel?' selected':'') + '" style="background:' + c + '" data-color="' + c + '" onclick="selectColor(this)"></div>';
+        }).join('') + '</div><input type="hidden" id="tab-color" value="' + escHtml(tab ? tab.color : '#1a8ba8') + '">';
+    var iconPicker = '<div class="color-grid">' +
         TAB_ICONS.map(function(icon) {
             var sel = tab ? tab.icon===icon : icon==='tag';
-            return '<div class="color-swatch' + (sel?' selected':'') + '" ' +
-                   'style="background:var(--bg);border:1.5px solid var(--border)" ' +
-                   'data-icon="' + icon + '" ' +
-                   'onclick="selectIcon(this,\'tab-icon\')">' +
-                   '<i class="fas fa-' + icon +
-                   '" style="color:var(--primary);font-size:.85rem"></i></div>';
-        }).join('') +
-        '</div><input type="hidden" id="tab-icon" value="' +
-        escHtml(tab ? (tab.icon||'tag') : 'tag') + '">';
+            return '<div class="color-swatch' + (sel?' selected':'') + '" style="background:var(--bg-dark);border:1.5px solid var(--border)" data-icon="' + icon + '" onclick="selectIcon(this,\'tab-icon\')"><i class="fas fa-' + icon + '" style="color:var(--primary-light);font-size:.85rem"></i></div>';
+        }).join('') + '</div><input type="hidden" id="tab-icon" value="' + escHtml(tab ? (tab.icon||'tag') : 'tag') + '">';
 
     openModal((isEdit?'Edit':'Add') + ' Menu Tab',
-        '<div class="form-group"><label>Tab Name *</label>' +
-        '<input type="text" class="form-input" id="tab-name" ' +
-        'value="' + escHtml(tab?tab.name:'') + '" ' +
-        'placeholder="e.g. Starters, Mains, Drinks"></div>' +
-
-        '<div class="form-group"><label>Kitchen Section</label>' +
-        '<select class="form-input" id="tab-section">' + secOpts + '</select>' +
-        '<div class="form-hint">Orders in this tab route to this section</div></div>' +
-
+        '<div class="form-group"><label>Tab Name *</label><input type="text" class="form-input" id="tab-name" value="' + escHtml(tab?tab.name:'') + '" placeholder="e.g. Starters, Mains, Drinks"></div>' +
+        '<div class="form-group"><label>Kitchen Section</label><select class="form-input" id="tab-section">' + secOpts + '</select><div class="form-hint">Orders in this tab route to this section</div></div>' +
         '<div class="form-group"><label>Colour *</label>' + colorPicker + '</div>' +
-
-        '<div class="form-group"><label>Sub-Categories (optional)</label>' +
-        '<input type="text" class="form-input" id="tab-subcats" ' +
-        'value="' + escHtml(tab&&tab.subCategories?tab.subCategories.join(', '):'') + '" ' +
-        'placeholder="e.g. Mild, Medium, Hot">' +
-        '<div class="form-hint">Comma-separated options per item</div></div>' +
-
+        '<div class="form-group"><label>Sub-Categories (optional)</label><input type="text" class="form-input" id="tab-subcats" value="' + escHtml(tab&&tab.subCategories?tab.subCategories.join(', '):'') + '" placeholder="e.g. Mild, Medium, Hot"><div class="form-hint">Comma-separated options per item</div></div>' +
         '<div class="form-group"><label>Icon</label>' + iconPicker + '</div>',
-
-        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-        '<button class="btn btn-primary" data-id="' + (tabId||'') + '" ' +
-        'onclick="saveMenuTab(this.dataset.id)">' +
-        '<i class="fas fa-save"></i> ' + (isEdit?'Update':'Save') + '</button>');
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" data-id="' + (tabId||'') + '" onclick="saveMenuTab(this.dataset.id)"><i class="fas fa-save"></i> ' + (isEdit?'Update':'Save') + '</button>');
 }
 
 function saveMenuTab(tabId) {
-    var name      = (document.getElementById('tab-name').value    ||'').trim();
+    var name = (document.getElementById('tab-name').value||'').trim();
     var sectionId = document.getElementById('tab-section').value;
-    var color     = document.getElementById('tab-color').value    ||'#1a8ba8';
-    var icon      = document.getElementById('tab-icon').value     ||'tag';
-    var subRaw    = (document.getElementById('tab-subcats').value ||'').trim();
-
+    var color = document.getElementById('tab-color').value||'#1a8ba8';
+    var icon = document.getElementById('tab-icon').value||'tag';
+    var subRaw = (document.getElementById('tab-subcats').value||'').trim();
     if (!name) { showToast('error','Enter a tab name'); return; }
-
-    var subs = subRaw
-        ? subRaw.split(',').map(function(s){return s.trim();})
-                .filter(function(s){return s;})
-        : [];
+    var subs = subRaw ? subRaw.split(',').map(function(s){return s.trim();}).filter(function(s){return s;}) : [];
     if (subs.length > 15) { showToast('error','Max 15 sub-categories'); return; }
-
-    var isEdit   = !!(tabId && tabId.length);
+    var isEdit = !!(tabId && tabId.length);
     var existing = isEdit ? PS.menuTabs.find(function(t){return t.id===tabId;}) : null;
-    var now      = new Date().toISOString();
-    var tab = {
-        id:            isEdit ? tabId : 'TAB-'+Date.now(),
-        name:          name, sectionId: sectionId||null,
-        color:         color, icon: icon, subCategories: subs,
-        createdAt:     existing ? existing.createdAt : now, updatedAt: now
-    };
-
+    var now = new Date().toISOString();
+    var tab = { id: isEdit ? tabId : 'TAB-'+Date.now(), name: name, sectionId: sectionId||null,
+        color: color, icon: icon, subCategories: subs, createdAt: existing ? existing.createdAt : now, updatedAt: now };
     var backup = PS.menuTabs.slice();
-    PS.menuTabs = isEdit
-        ? PS.menuTabs.map(function(t){return t.id===tabId?tab:t;})
-        : PS.menuTabs.concat([tab]);
-
-    savePOSData('posMenuTabs', PS.menuTabs)
-        .then(function() {
-            closeModal(); updateBadges(); setupNav('menu-tabs');
-            showToast('success','✅ Tab '+(isEdit?'updated':'added'));
-        })
-        .catch(function() {
-            PS.menuTabs = backup;
-            showToast('error','Failed to save tab.');
-        });
+    PS.menuTabs = isEdit ? PS.menuTabs.map(function(t){return t.id===tabId?tab:t;}) : PS.menuTabs.concat([tab]);
+    savePOSData('posMenuTabs', PS.menuTabs).then(function() {
+        closeModal(); updateBadges(); setupNav('menu-tabs');
+        showToast('success','✅ Tab '+(isEdit?'updated':'added'));
+    }).catch(function() { PS.menuTabs = backup; showToast('error','Failed to save tab.'); });
 }
 
 function deleteMenuTab(tabId) {
@@ -1299,15 +1038,9 @@ function deleteMenuTab(tabId) {
     if (!confirm(msg)) return;
     var backup = PS.menuTabs.slice();
     PS.menuTabs = PS.menuTabs.filter(function(t){return t.id!==tabId;});
-    savePOSData('posMenuTabs', PS.menuTabs)
-        .then(function() {
-            updateBadges(); setupNav('menu-tabs');
-            showToast('info','Tab deleted');
-        })
-        .catch(function() {
-            PS.menuTabs = backup;
-            showToast('error','Failed to delete tab.');
-        });
+    savePOSData('posMenuTabs', PS.menuTabs).then(function() {
+        updateBadges(); setupNav('menu-tabs'); showToast('info','Tab deleted');
+    }).catch(function() { PS.menuTabs = backup; showToast('error','Failed to delete tab.'); });
 }
 
 /* ═══════════════════════════════════════════
@@ -1315,226 +1048,103 @@ function deleteMenuTab(tabId) {
 ═══════════════════════════════════════════ */
 function pageMenuItems() {
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-hamburger" style="color:var(--primary)"></i> Menu Items</h1>' +
+        '<div class="page-header"><h1><i class="fas fa-hamburger" style="color:var(--primary-light)"></i> Menu Items</h1>' +
         '<p>Create POS items with prices, inventory links, specials and happy hour pricing.</p></div>' +
-        '<div class="card"><div class="card-header">' +
-        '<h3><i class="fas fa-list"></i> Menu Items (' + PS.posMenuItems.length + ')</h3>' +
-        '<button class="btn btn-primary btn-sm" onclick="addMenuItem()">' +
-        '<i class="fas fa-plus"></i> Add Item</button></div>';
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-list"></i> Menu Items (' + PS.posMenuItems.length + ')</h3>' +
+        '<button class="btn btn-primary btn-sm" onclick="addMenuItem()"><i class="fas fa-plus"></i> Add Item</button></div>';
 
     if (PS.posMenuItems.length === 0) {
-        html +=
-            '<div class="empty-state"><i class="fas fa-hamburger"></i>' +
-            '<h3>No Menu Items Yet</h3>' +
-            '<button class="btn btn-primary" onclick="addMenuItem()">' +
-            '<i class="fas fa-plus"></i> Add First Item</button></div>';
+        html += '<div class="empty-state"><i class="fas fa-hamburger"></i><h3>No Menu Items Yet</h3>' +
+                '<button class="btn btn-primary" onclick="addMenuItem()"><i class="fas fa-plus"></i> Add First Item</button></div>';
     } else {
-        html +=
-            '<div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">' +
-            '<button class="btn btn-sm ' + (!PS._filterTab?'btn-primary':'btn-outline') + '" ' +
-            'onclick="PS._filterTab=null;setupNav(\'menu-items\')">All</button>';
+        html += '<div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">' +
+            '<button class="btn btn-sm ' + (!PS._filterTab?'btn-primary':'btn-outline') + '" onclick="PS._filterTab=null;setupNav(\'menu-items\')">All</button>';
         PS.menuTabs.forEach(function(tab) {
-            html +=
-                '<button class="btn btn-sm" ' +
-                'style="background:' + escHtml(tab.color||'var(--primary)') +
-                ';color:#fff;border:none;opacity:' +
-                (PS._filterTab===tab.id?'1':'.65') + '" ' +
-                'data-id="' + tab.id + '" ' +
-                'onclick="PS._filterTab=this.dataset.id;setupNav(\'menu-items\')">' +
-                escHtml(tab.name) + '</button>';
+            html += '<button class="btn btn-sm" style="background:' + escHtml(tab.color||'var(--primary)') + ';color:#fff;border:none;opacity:' + (PS._filterTab===tab.id?'1':'.65') + '" data-id="' + tab.id + '" onclick="PS._filterTab=this.dataset.id;setupNav(\'menu-items\')">' + escHtml(tab.name) + '</button>';
         });
         html += '</div>';
-
-        var list = PS._filterTab
-            ? PS.posMenuItems.filter(function(i){return i.tabId===PS._filterTab;})
-            : PS.posMenuItems;
-
-        html +=
-            '<table class="data-table"><thead><tr>' +
-            '<th>Item</th><th>Tab</th><th>Price</th>' +
-            '<th>Special</th><th>Happy Hr</th><th>Status</th><th>Actions</th>' +
-            '</tr></thead><tbody>';
-
+        var list = PS._filterTab ? PS.posMenuItems.filter(function(i){return i.tabId===PS._filterTab;}) : PS.posMenuItems;
+        html += '<table class="data-table"><thead><tr><th>Item</th><th>Tab</th><th>Price</th><th>Special</th><th>Happy Hr</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
         list.forEach(function(item) {
             var tab = PS.menuTabs.find(function(t){return t.id===item.tabId;});
-            html +=
-                '<tr><td><strong>' + escHtml(item.name) + '</strong></td>' +
-                '<td>' + (tab
-                    ? '<span class="menu-tab-preview" style="background:' +
-                      escHtml(tab.color||'#1a8ba8') +
-                      ';padding:3px 10px;font-size:.68rem">' +
-                      escHtml(tab.name) + '</span>'
-                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+            html += '<tr><td><strong>' + escHtml(item.name) + '</strong></td>' +
+                '<td>' + (tab ? '<span class="menu-tab-preview" style="background:' + escHtml(tab.color||'#1a8ba8') + ';padding:3px 10px;font-size:.68rem">' + escHtml(tab.name) + '</span>' : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
                 '<td><strong>R' + (item.price||0).toFixed(2) + '</strong></td>' +
-                '<td>' + (item.specialActive
-                    ? '<span class="badge badge-orange">-'+item.specialPercent+'%</span>'
-                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
-                '<td>' + (item.happyHourPrice
-                    ? '<span class="badge badge-blue">R'+item.happyHourPrice.toFixed(0)+'</span>'
-                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
-                '<td>' + (item.status==='active'
-                    ? '<span class="badge badge-green">Active</span>'
-                    : '<span class="badge badge-red">Out of Stock</span>') + '</td>' +
-                '<td><div class="actions">' +
-                '<button class="btn btn-outline btn-sm" data-id="' + item.id + '" ' +
-                'onclick="editMenuItem(this.dataset.id)">' +
-                '<i class="fas fa-edit"></i></button>' +
-                '<button class="btn btn-danger btn-sm" data-id="' + item.id + '" ' +
-                'onclick="deleteMenuItem(this.dataset.id)">' +
-                '<i class="fas fa-trash"></i></button>' +
-                '</div></td></tr>';
+                '<td>' + (item.specialActive ? '<span class="badge badge-orange">-'+item.specialPercent+'%</span>' : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+                '<td>' + (item.happyHourPrice ? '<span class="badge badge-blue">R'+item.happyHourPrice.toFixed(0)+'</span>' : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+                '<td>' + (item.status==='active' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Out of Stock</span>') + '</td>' +
+                '<td><div class="actions"><button class="btn btn-outline btn-sm" data-id="' + item.id + '" onclick="editMenuItem(this.dataset.id)"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + item.id + '" onclick="deleteMenuItem(this.dataset.id)"><i class="fas fa-trash"></i></button></div></td></tr>';
         });
         html += '</tbody></table>';
     }
     return html + '</div>';
 }
 
-function addMenuItem()        { showMenuItemModal(null); }
+function addMenuItem() { showMenuItemModal(null); }
 function editMenuItem(itemId) { showMenuItemModal(itemId); }
 
 function showMenuItemModal(itemId) {
-    var item   = itemId ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
+    var item = itemId ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
     var isEdit = !!item;
-
-    var tabOpts =
-        '<option value="">Select a tab…</option>' +
-        PS.menuTabs.map(function(t) {
-            return '<option value="'+t.id+'"'+(item&&item.tabId===t.id?' selected':'')+'>'+
-                   escHtml(t.name)+'</option>';
-        }).join('');
-
-    var invOpts =
-        '<option value="">None — manual item</option>' +
-        PS.inventory.map(function(inv) {
-            return '<option value="'+inv.id+'"'+
-                   (item&&item.linkedInventoryItems&&
-                    item.linkedInventoryItems.indexOf(inv.id)!==-1?' selected':'')+'>'+
-                   escHtml(inv.name)+' ('+
-                   (inv.quantity||0)+' '+(inv.unit||'')+' in stock)</option>';
-        }).join('');
-
-    var secOpts =
-        '<option value="">Uses tab default</option>' +
-        PS.kitchenSections.map(function(s) {
-            return '<option value="'+s.id+'"'+(item&&item.sectionId===s.id?' selected':'')+'>'+
-                   escHtml(s.name)+' ('+s.prepTime+' min)</option>';
-        }).join('');
+    var tabOpts = '<option value="">Select a tab…</option>' + PS.menuTabs.map(function(t) {
+        return '<option value="'+t.id+'"'+(item&&item.tabId===t.id?' selected':'')+'>'+escHtml(t.name)+'</option>';
+    }).join('');
+    var invOpts = '<option value="">None — manual item</option>' + PS.inventory.map(function(inv) {
+        return '<option value="'+inv.id+'"'+(item&&item.linkedInventoryItems&&item.linkedInventoryItems.indexOf(inv.id)!==-1?' selected':'')+'>'+escHtml(inv.name)+' ('+(inv.quantity||0)+' '+(inv.unit||'')+' in stock)</option>';
+    }).join('');
+    var secOpts = '<option value="">Uses tab default</option>' + PS.kitchenSections.map(function(s) {
+        return '<option value="'+s.id+'"'+(item&&item.sectionId===s.id?' selected':'')+'>'+escHtml(s.name)+' ('+s.prepTime+' min)</option>';
+    }).join('');
 
     openModal((isEdit?'Edit':'Add')+' Menu Item',
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Item Name *</label>' +
-        '<input type="text" class="form-input" id="mi-name" ' +
-        'value="'+escHtml(item?item.name:'')+'" placeholder="e.g. Grilled Chicken Burger"></div>' +
-        '<div class="form-group"><label>Selling Price (R) *</label>' +
-        '<input type="number" class="form-input" id="mi-price" ' +
-        'value="'+(item?item.price:'')+'" placeholder="95.00" min="0.01" step="0.01"></div></div>' +
-
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Menu Tab *</label>' +
-        '<select class="form-input" id="mi-tab">'+tabOpts+'</select></div>' +
-        '<div class="form-group"><label>Kitchen Section Override</label>' +
-        '<select class="form-input" id="mi-section">'+secOpts+'</select>' +
-        '<div class="form-hint">Leave empty to use tab default</div></div></div>' +
-
-        '<div class="form-group"><label>Linked Inventory Item</label>' +
-        '<select class="form-input" id="mi-inventory">'+invOpts+'</select>' +
-        '<div class="form-hint">Enables auto stock deduction when sold</div></div>' +
-
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Portions per Stock Unit</label>' +
-        '<input type="number" class="form-input" id="mi-portions" ' +
-        'value="'+(item?item.portionsPerUnit||1:1)+'" min="0.1" step="0.1"></div>' +
-        '<div class="form-group"><label>Prep Time Override (min)</label>' +
-        '<input type="number" class="form-input" id="mi-preptime" ' +
-        'value="'+(item&&item.prepTime?item.prepTime:'')+'" placeholder="Uses section default" min="1">' +
-        '</div></div>' +
-
+        '<div class="form-row"><div class="form-group"><label>Item Name *</label><input type="text" class="form-input" id="mi-name" value="'+escHtml(item?item.name:'')+'" placeholder="e.g. Grilled Chicken Burger"></div>' +
+        '<div class="form-group"><label>Selling Price (R) *</label><input type="number" class="form-input" id="mi-price" value="'+(item?item.price:'')+'" placeholder="95.00" min="0.01" step="0.01"></div></div>' +
+        '<div class="form-row"><div class="form-group"><label>Menu Tab *</label><select class="form-input" id="mi-tab">'+tabOpts+'</select></div>' +
+        '<div class="form-group"><label>Kitchen Section Override</label><select class="form-input" id="mi-section">'+secOpts+'</select><div class="form-hint">Leave empty to use tab default</div></div></div>' +
+        '<div class="form-group"><label>Linked Inventory Item</label><select class="form-input" id="mi-inventory">'+invOpts+'</select><div class="form-hint">Enables auto stock deduction when sold</div></div>' +
+        '<div class="form-row"><div class="form-group"><label>Portions per Stock Unit</label><input type="number" class="form-input" id="mi-portions" value="'+(item?item.portionsPerUnit||1:1)+'" min="0.1" step="0.1"></div>' +
+        '<div class="form-group"><label>Prep Time Override (min)</label><input type="number" class="form-input" id="mi-preptime" value="'+(item&&item.prepTime?item.prepTime:'')+'" placeholder="Uses section default" min="1"></div></div>' +
         '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">' +
-        '<h4 style="font-size:.88rem;margin-bottom:10px">' +
-        '<i class="fas fa-tag" style="color:var(--gold)"></i> Special Price</h4>' +
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Special Active?</label>' +
-        '<select class="form-input" id="mi-special-active">' +
-        '<option value="false"'+(item&&item.specialActive?'':' selected')+'>No</option>' +
-        '<option value="true"'+(item&&item.specialActive?' selected':'')+'>Yes</option>' +
-        '</select></div>' +
-        '<div class="form-group"><label>Markdown %</label>' +
-        '<input type="number" class="form-input" id="mi-special-pct" ' +
-        'value="'+(item?item.specialPercent||'':'')+'" placeholder="e.g. 20" min="1" max="90">' +
-        '</div></div>' +
-
+        '<h4 style="font-size:.88rem;margin-bottom:10px;color:var(--text)"><i class="fas fa-tag" style="color:var(--gold)"></i> Special Price</h4>' +
+        '<div class="form-row"><div class="form-group"><label>Special Active?</label><select class="form-input" id="mi-special-active"><option value="false"'+(item&&item.specialActive?'':' selected')+'>No</option><option value="true"'+(item&&item.specialActive?' selected':'')+'>Yes</option></select></div>' +
+        '<div class="form-group"><label>Markdown %</label><input type="number" class="form-input" id="mi-special-pct" value="'+(item?item.specialPercent||'':'')+'" placeholder="e.g. 20" min="1" max="90"></div></div>' +
         '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">' +
-        '<h4 style="font-size:.88rem;margin-bottom:10px">' +
-        '<i class="fas fa-cocktail" style="color:var(--info)"></i> Happy Hour Price</h4>' +
-        '<div class="form-group"><label>Happy Hour Price (R)</label>' +
-        '<input type="number" class="form-input" id="mi-hh-price" ' +
-        'value="'+(item&&item.happyHourPrice?item.happyHourPrice:'')+'" ' +
-        'placeholder="Leave empty if not applicable" min="0" step="0.01">' +
-        '<div class="form-hint">Price shown during happy hour</div></div>',
-
-        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
-        '<button class="btn btn-primary" data-id="'+(itemId||'')+'" ' +
-        'onclick="saveMenuItem(this.dataset.id)">' +
-        '<i class="fas fa-save"></i> '+(isEdit?'Update':'Save')+'</button>');
+        '<h4 style="font-size:.88rem;margin-bottom:10px;color:var(--text)"><i class="fas fa-cocktail" style="color:var(--info)"></i> Happy Hour Price</h4>' +
+        '<div class="form-group"><label>Happy Hour Price (R)</label><input type="number" class="form-input" id="mi-hh-price" value="'+(item&&item.happyHourPrice?item.happyHourPrice:'')+'" placeholder="Leave empty if not applicable" min="0" step="0.01"><div class="form-hint">Price shown during happy hour</div></div>',
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" data-id="'+(itemId||'')+'" onclick="saveMenuItem(this.dataset.id)"><i class="fas fa-save"></i> '+(isEdit?'Update':'Save')+'</button>');
 }
 
 function saveMenuItem(itemId) {
-    var name     = (document.getElementById('mi-name').value    ||'').trim();
-    var price    = parseFloat(document.getElementById('mi-price').value)    ||0;
-    var tabId    = document.getElementById('mi-tab').value;
-    var secId    = document.getElementById('mi-section').value;
-    var invId    = document.getElementById('mi-inventory').value;
-    var portions = parseFloat(document.getElementById('mi-portions').value) ||1;
-    var prepTime = parseInt(document.getElementById('mi-preptime').value)   ||null;
+    var name = (document.getElementById('mi-name').value||'').trim();
+    var price = parseFloat(document.getElementById('mi-price').value)||0;
+    var tabId = document.getElementById('mi-tab').value;
+    var secId = document.getElementById('mi-section').value;
+    var invId = document.getElementById('mi-inventory').value;
+    var portions = parseFloat(document.getElementById('mi-portions').value)||1;
+    var prepTime = parseInt(document.getElementById('mi-preptime').value)||null;
     var spActive = document.getElementById('mi-special-active').value==='true';
-    var spPct    = parseInt(document.getElementById('mi-special-pct').value)||0;
-    var hhPrice  = parseFloat(document.getElementById('mi-hh-price').value)||null;
-
-    if (!name)     { showToast('error','Enter an item name');  return; }
-    if (price<=0)  { showToast('error','Enter a valid price'); return; }
-    if (!tabId)    { showToast('error','Select a menu tab');   return; }
-    if (spActive && spPct<=0) {
-        showToast('error','Enter a discount % for the special'); return;
-    }
-    if (hhPrice !== null && hhPrice >= price) {
-        showToast('error','Happy hour price must be less than normal price'); return;
-    }
-
-    var spPrice = spActive && spPct>0
-        ? parseFloat((price*(1-spPct/100)).toFixed(2)) : null;
-
-    var isEdit   = !!(itemId && itemId.length);
-    var existing = isEdit
-        ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
+    var spPct = parseInt(document.getElementById('mi-special-pct').value)||0;
+    var hhPrice = parseFloat(document.getElementById('mi-hh-price').value)||null;
+    if (!name) { showToast('error','Enter an item name'); return; }
+    if (price<=0) { showToast('error','Enter a valid price'); return; }
+    if (!tabId) { showToast('error','Select a menu tab'); return; }
+    if (spActive && spPct<=0) { showToast('error','Enter a discount % for the special'); return; }
+    if (hhPrice !== null && hhPrice >= price) { showToast('error','Happy hour price must be less than normal price'); return; }
+    var spPrice = spActive && spPct>0 ? parseFloat((price*(1-spPct/100)).toFixed(2)) : null;
+    var isEdit = !!(itemId && itemId.length);
+    var existing = isEdit ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
     var now = new Date().toISOString();
-
-    var item = {
-        id:                   isEdit ? itemId : 'MI-'+Date.now(),
-        name:                 name, price: price, tabId: tabId,
-        sectionId:            secId||null,
-        linkedInventoryItems: invId ? [invId] : [],
-        portionsPerUnit:      portions, prepTime: prepTime,
-        specialActive:        spActive, specialPercent: spPct, specialPrice: spPrice,
-        happyHourPrice:       hhPrice,
-        status:               existing ? (existing.status||'active') : 'active',
-        createdAt:            existing ? existing.createdAt : now, updatedAt: now
-    };
-
+    var item = { id: isEdit ? itemId : 'MI-'+Date.now(), name: name, price: price, tabId: tabId,
+        sectionId: secId||null, linkedInventoryItems: invId ? [invId] : [], portionsPerUnit: portions, prepTime: prepTime,
+        specialActive: spActive, specialPercent: spPct, specialPrice: spPrice, happyHourPrice: hhPrice,
+        status: existing ? (existing.status||'active') : 'active', createdAt: existing ? existing.createdAt : now, updatedAt: now };
     var backup = PS.posMenuItems.slice();
-    PS.posMenuItems = isEdit
-        ? PS.posMenuItems.map(function(i){return i.id===itemId?item:i;})
-        : PS.posMenuItems.concat([item]);
-
-    savePOSData('posMenuItems', PS.posMenuItems)
-        .then(function() {
-            closeModal(); updateBadges(); setupNav('menu-items');
-            showToast('success','✅ Item '+(isEdit?'updated':'added'));
-        })
-        .catch(function() {
-            PS.posMenuItems = backup;
-            showToast('error','Failed to save item.');
-        });
+    PS.posMenuItems = isEdit ? PS.posMenuItems.map(function(i){return i.id===itemId?item:i;}) : PS.posMenuItems.concat([item]);
+    savePOSData('posMenuItems', PS.posMenuItems).then(function() {
+        closeModal(); updateBadges(); setupNav('menu-items');
+        showToast('success','✅ Item '+(isEdit?'updated':'added'));
+    }).catch(function() { PS.posMenuItems = backup; showToast('error','Failed to save item.'); });
 }
 
 function deleteMenuItem(itemId) {
@@ -1543,15 +1153,9 @@ function deleteMenuItem(itemId) {
     if (!confirm('Delete "'+item.name+'" from the POS menu?')) return;
     var backup = PS.posMenuItems.slice();
     PS.posMenuItems = PS.posMenuItems.filter(function(i){return i.id!==itemId;});
-    savePOSData('posMenuItems', PS.posMenuItems)
-        .then(function() {
-            updateBadges(); setupNav('menu-items');
-            showToast('info','Item deleted');
-        })
-        .catch(function() {
-            PS.posMenuItems = backup;
-            showToast('error','Failed to delete.');
-        });
+    savePOSData('posMenuItems', PS.posMenuItems).then(function() {
+        updateBadges(); setupNav('menu-items'); showToast('info','Item deleted');
+    }).catch(function() { PS.posMenuItems = backup; showToast('error','Failed to delete.'); });
 }
 
 /* ═══════════════════════════════════════════
@@ -1559,162 +1163,89 @@ function deleteMenuItem(itemId) {
 ═══════════════════════════════════════════ */
 var BASE_URL = 'https://www.stockai-pro.co.za/tablebill.html';
 
-function buildBillUrl(n) {
-    return BASE_URL+'?t='+n+'&e='+PS.entityId+'&a='+PS.accountId;
-}
+function buildBillUrl(n) { return BASE_URL+'?t='+n+'&e='+PS.entityId+'&a='+PS.accountId; }
 function buildQRUrl(billUrl, size) {
-    return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+
-           '&data='+encodeURIComponent(billUrl)+'&ecc=M';
+    return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(billUrl)+'&ecc=M';
 }
 
 function pageTables() {
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-th-large" style="color:var(--primary)"></i> Tables & QR Codes</h1>' +
+        '<div class="page-header"><h1><i class="fas fa-th-large" style="color:var(--primary-light)"></i> Tables & QR Codes</h1>' +
         '<p>Generate QR codes for each table. Customers scan to view their live bill.</p></div>' +
-
-        '<div class="card"><div class="card-header">' +
-        '<h3><i class="fas fa-plus-circle"></i> Configure Tables</h3></div>' +
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Number of Tables</label>' +
-        '<input type="number" class="form-input" id="table-count" ' +
-        'value="'+PS.tables.length+'" min="1" max="100" placeholder="e.g. 20"></div>' +
-        '<div class="form-group"><label>&nbsp;</label>' +
-        '<button class="btn btn-primary btn-block" onclick="generateTables()">' +
-        '<i class="fas fa-sync"></i> Generate Tables & QR Codes</button></div></div>' +
-
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-plus-circle"></i> Configure Tables</h3></div>' +
+        '<div class="form-row"><div class="form-group"><label>Number of Tables</label>' +
+        '<input type="number" class="form-input" id="table-count" value="'+PS.tables.length+'" min="1" max="100" placeholder="e.g. 20"></div>' +
+        '<div class="form-group"><label>&nbsp;</label><button class="btn btn-primary btn-block" onclick="generateTables()"><i class="fas fa-sync"></i> Generate Tables & QR Codes</button></div></div>' +
         '<div class="form-group" style="margin-top:8px"><label>Takeaway QR Code</label>' +
-        '<button class="btn btn-outline btn-sm" onclick="generateTakeawayQR()" ' +
-        'style="margin-top:6px">' +
-        '<i class="fas fa-shopping-bag"></i> Generate Takeaway QR</button>' +
-        '<div class="form-hint">A permanent QR for takeaway orders at reception</div>' +
-        '</div></div>';
+        '<button class="btn btn-outline btn-sm" onclick="generateTakeawayQR()" style="margin-top:6px"><i class="fas fa-shopping-bag"></i> Generate Takeaway QR</button>' +
+        '<div class="form-hint">A permanent QR for takeaway orders at reception</div></div></div>';
 
     if (PS.tables.length > 0) {
-        html +=
-            '<div class="card"><div class="card-header">' +
-            '<h3><i class="fas fa-qrcode"></i> Your Tables ('+PS.tables.length+')</h3>' +
-            '<button class="btn btn-success btn-sm" onclick="printAllQR()">' +
-            '<i class="fas fa-print"></i> Print All</button></div>' +
-            '<div style="display:grid;grid-template-columns:' +
-            'repeat(auto-fill,minmax(130px,1fr));gap:12px">';
-
+        html += '<div class="card"><div class="card-header"><h3><i class="fas fa-qrcode"></i> Your Tables ('+PS.tables.length+')</h3>' +
+            '<button class="btn btn-success btn-sm" onclick="printAllQR()"><i class="fas fa-print"></i> Print All</button></div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px">';
         PS.tables.forEach(function(t) {
             var url = buildBillUrl(t.number);
-            html +=
-                '<div style="background:var(--bg);border-radius:var(--rs);' +
-                'padding:12px;text-align:center;border:1px solid var(--border)">' +
-                '<div style="font-size:.68rem;color:var(--text-muted);font-weight:700;' +
-                'text-transform:uppercase;margin-bottom:4px">Table</div>' +
-                '<div style="font-size:1.6rem;font-weight:900;color:var(--text);' +
-                'margin-bottom:8px">'+t.number+'</div>' +
-                '<img src="'+buildQRUrl(url,120)+'" width="80" height="80" ' +
-                'style="border-radius:4px" alt="Table '+t.number+' QR">' +
-                '<div style="margin-top:8px">' +
-                '<button class="btn btn-outline btn-sm" style="width:100%;font-size:.7rem" ' +
-                'data-num="'+t.number+'" onclick="downloadQR(this.dataset.num)">' +
-                '<i class="fas fa-download"></i> Download</button></div></div>';
+            html += '<div style="background:var(--bg-dark);border-radius:var(--rs);padding:12px;text-align:center;border:1px solid var(--border)">' +
+                '<div style="font-size:.68rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Table</div>' +
+                '<div style="font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:8px">'+t.number+'</div>' +
+                '<img src="'+buildQRUrl(url,120)+'" width="80" height="80" style="border-radius:4px" alt="Table '+t.number+' QR">' +
+                '<div style="margin-top:8px"><button class="btn btn-outline btn-sm" style="width:100%;font-size:.7rem" data-num="'+t.number+'" onclick="downloadQR(this.dataset.num)"><i class="fas fa-download"></i> Download</button></div></div>';
         });
         html += '</div></div>';
     }
 
     if (PS.takeawayQR) {
         var tUrl = buildBillUrl('takeaway');
-        html +=
-            '<div class="card"><div class="card-header">' +
-            '<h3><i class="fas fa-shopping-bag"></i> Takeaway QR Code</h3></div>' +
-            '<div style="text-align:center;padding:16px">' +
-            '<img src="'+buildQRUrl(tUrl,150)+'" width="130" height="130" ' +
-            'style="border-radius:8px;box-shadow:var(--shadow)" alt="Takeaway QR">' +
-            '<p style="font-size:.82rem;color:var(--text-light);margin-top:10px">' +
-            'Place at reception for takeaway orders</p>' +
-            '<button class="btn btn-outline btn-sm" style="margin-top:10px" ' +
-            'onclick="downloadQR(\'takeaway\')">' +
-            '<i class="fas fa-download"></i> Download</button></div></div>';
+        html += '<div class="card"><div class="card-header"><h3><i class="fas fa-shopping-bag"></i> Takeaway QR Code</h3></div>' +
+            '<div style="text-align:center;padding:16px"><img src="'+buildQRUrl(tUrl,150)+'" width="130" height="130" style="border-radius:8px;box-shadow:var(--shadow)" alt="Takeaway QR">' +
+            '<p style="font-size:.82rem;color:var(--text-light);margin-top:10px">Place at reception for takeaway orders</p>' +
+            '<button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="downloadQR(\'takeaway\')"><i class="fas fa-download"></i> Download</button></div></div>';
     }
-
     return html;
 }
 
 function generateTables() {
     var count = parseInt(document.getElementById('table-count').value)||0;
     if (count<1||count>100) { showToast('error','Enter 1–100'); return; }
-    var msg = PS.tables.length>0
-        ? 'Regenerate tables 1–'+count+'?\nExisting tables preserved where possible.'
-        : 'Generate '+count+' tables?';
+    var msg = PS.tables.length>0 ? 'Regenerate tables 1–'+count+'?\nExisting tables preserved where possible.' : 'Generate '+count+' tables?';
     if (!confirm(msg)) return;
-
     var newTables = [];
     for (var i=1; i<=count; i++) {
         var ex = PS.tables.find(function(t){return t.number===i;});
-        newTables.push(ex || {
-            id:'TBL-'+i, number:i,
-            qrCode:buildBillUrl(i), status:'closed'
-        });
+        newTables.push(ex || { id:'TBL-'+i, number:i, qrCode:buildBillUrl(i), status:'closed' });
     }
     PS.tables = newTables;
     var backup = PS.tables.slice();
-
-    savePOSData('posTables', PS.tables)
-        .then(function() {
-            updateBadges(); setupNav('tables');
-            showToast('success','✅ '+count+' tables ready');
-        })
-        .catch(function() {
-            PS.tables = backup;
-            showToast('error','Failed to save tables.');
-        });
+    savePOSData('posTables', PS.tables).then(function() {
+        updateBadges(); setupNav('tables'); showToast('success','✅ '+count+' tables ready');
+    }).catch(function() { PS.tables = backup; showToast('error','Failed to save tables.'); });
 }
 
 function generateTakeawayQR() {
-    PS.takeawayQR = {
-        id:'TBL-TAKEAWAY', number:'takeaway',
-        qrCode:buildBillUrl('takeaway'), status:'active'
-    };
-    savePOSData('posTakeawayQR', PS.takeawayQR)
-        .then(function() {
-            setupNav('tables');
-            showToast('success','✅ Takeaway QR generated');
-        });
+    PS.takeawayQR = { id:'TBL-TAKEAWAY', number:'takeaway', qrCode:buildBillUrl('takeaway'), status:'active' };
+    savePOSData('posTakeawayQR', PS.takeawayQR).then(function() {
+        setupNav('tables'); showToast('success','✅ Takeaway QR generated');
+    });
 }
 
 function downloadQR(num) {
     var url = buildQRUrl(buildBillUrl(num), 400);
-    fetch(url).then(function(r){return r.blob();})
-        .then(function(blob) {
-            var bUrl = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href=bUrl; a.download='Table-'+num+'-QR.png';
-            document.body.appendChild(a); a.click();
-            document.body.removeChild(a);
-            setTimeout(function(){URL.revokeObjectURL(bUrl);},1000);
-        })
-        .catch(function(){showToast('error','Download failed. Right-click to save.');});
+    fetch(url).then(function(r){return r.blob();}).then(function(blob) {
+        var bUrl = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href=bUrl; a.download='Table-'+num+'-QR.png';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function(){URL.revokeObjectURL(bUrl);},1000);
+    }).catch(function(){showToast('error','Download failed. Right-click to save.');});
 }
 
 function printAllQR() {
     var win = window.open('','_blank');
     var rows = PS.tables.map(function(t) {
-        return '<div class="card"><h3>Table '+t.number+'</h3>' +
-               '<img src="'+buildQRUrl(buildBillUrl(t.number),200)+
-               '" width="140" height="140">' +
-               '<p>Scan to view your bill</p></div>';
+        return '<div class="card"><h3>Table '+t.number+'</h3><img src="'+buildQRUrl(buildBillUrl(t.number),200)+'" width="140" height="140"><p>Scan to view your bill</p></div>';
     }).join('');
-    win.document.write(
-        '<!DOCTYPE html><html><head><title>Table QR Codes</title>' +
-        '<style>body{font-family:sans-serif;padding:20px}' +
-        'h1{text-align:center;margin-bottom:20px}' +
-        '.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}' +
-        '.card{text-align:center;padding:14px;border:1px solid #ddd;' +
-        'border-radius:8px;page-break-inside:avoid}' +
-        '.card h3{margin-bottom:8px}.card p{font-size:.72rem;color:#888;margin-top:6px}' +
-        '.pb{display:block;margin:0 auto 20px;padding:10px 24px;' +
-        'background:#1a8ba8;color:#fff;border:none;border-radius:8px;cursor:pointer}' +
-        '@media print{.pb{display:none}}</style></head><body>' +
-        '<h1>'+escHtml(PS.entityName)+' — Table QR Codes</h1>' +
-        '<button class="pb" onclick="window.print()">🖨️ Print All</button>' +
-        '<div class="grid">'+rows+'</div></body></html>'
-    );
+    win.document.write('<!DOCTYPE html><html><head><title>Table QR Codes</title><style>body{font-family:sans-serif;padding:20px}h1{text-align:center;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{text-align:center;padding:14px;border:1px solid #ddd;border-radius:8px;page-break-inside:avoid}.card h3{margin-bottom:8px}.card p{font-size:.72rem;color:#888;margin-top:6px}.pb{display:block;margin:0 auto 20px;padding:10px 24px;background:#1a8ba8;color:#fff;border:none;border-radius:8px;cursor:pointer}@media print{.pb{display:none}}</style></head><body><h1>'+escHtml(PS.entityName)+' — Table QR Codes</h1><button class="pb" onclick="window.print()">🖨️ Print All</button><div class="grid">'+rows+'</div></body></html>');
     win.document.close();
 }
 
@@ -1724,101 +1255,61 @@ function printAllQR() {
 function pageHappyHour() {
     var hh = PS.happyHour;
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-cocktail" style="color:var(--primary)"></i> Happy Hour</h1>' +
-        '<p>Set automatic happy hour pricing. Items with a happy hour price show ' +
-        'discounted pricing on the POS during active hours.</p></div>' +
-
-        '<div class="card"><div class="card-header">' +
-        '<h3><i class="fas fa-clock"></i> Happy Hour Settings</h3></div>' +
-        '<div class="form-row">' +
-        '<div class="form-group"><label>Control Mode</label>' +
+        '<div class="page-header"><h1><i class="fas fa-cocktail" style="color:var(--primary-light)"></i> Happy Hour</h1>' +
+        '<p>Set automatic happy hour pricing. Items with a happy hour price show discounted pricing on the POS during active hours.</p></div>' +
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-clock"></i> Happy Hour Settings</h3></div>' +
+        '<div class="form-row"><div class="form-group"><label>Control Mode</label>' +
         '<select class="form-input" id="hh-active" onchange="toggleHHTimePicker()">' +
         '<option value="auto"'+(!hh.manualOverride?' selected':'')+'>Automatic (by time)</option>' +
         '<option value="on"'+(hh.manualOverride&&hh.active?' selected':'')+'>Manually ON</option>' +
-        '<option value="off"'+(hh.manualOverride&&!hh.active?' selected':'')+'>Manually OFF</option>' +
-        '</select></div>' +
+        '<option value="off"'+(hh.manualOverride&&!hh.active?' selected':'')+'>Manually OFF</option></select></div>' +
         '<div class="form-group"><label>Current Status</label>' +
-        '<div style="padding:10px 14px;border-radius:var(--rs);font-weight:700;'+
-        (hh.active
-            ? 'background:rgba(46,168,113,.1);color:var(--success)'
-            : 'background:rgba(201,69,69,.08);color:var(--danger)') +'">' +
-        (hh.active ? '🟢 Happy Hour ACTIVE' : '🔴 Happy Hour OFF') +
-        '</div></div></div>' +
-
+        '<div style="padding:10px 14px;border-radius:var(--rs);font-weight:700;' +
+        (hh.active ? 'background:rgba(46,168,113,.2);color:var(--success)' : 'background:rgba(201,69,69,.15);color:var(--danger)') + '">' +
+        (hh.active ? '🟢 Happy Hour ACTIVE' : '🔴 Happy Hour OFF') + '</div></div></div>' +
         '<div class="form-row" id="hh-times" style="'+(hh.manualOverride?'display:none':'')+'">' +
-        '<div class="form-group"><label>Start Time</label>' +
-        '<input type="time" class="form-input" id="hh-start" ' +
-        'value="'+(hh.startTime||'16:00')+'"></div>' +
-        '<div class="form-group"><label>End Time</label>' +
-        '<input type="time" class="form-input" id="hh-end" ' +
-        'value="'+(hh.endTime||'18:00')+'"></div></div>' +
-
-        '<button class="btn btn-primary" onclick="saveHappyHour()" style="margin-top:8px">' +
-        '<i class="fas fa-save"></i> Save Happy Hour Settings</button></div>';
+        '<div class="form-group"><label>Start Time</label><input type="time" class="form-input" id="hh-start" value="'+(hh.startTime||'16:00')+'"></div>' +
+        '<div class="form-group"><label>End Time</label><input type="time" class="form-input" id="hh-end" value="'+(hh.endTime||'18:00')+'"></div></div>' +
+        '<button class="btn btn-primary" onclick="saveHappyHour()" style="margin-top:8px"><i class="fas fa-save"></i> Save Happy Hour Settings</button></div>';
 
     var hhItems = PS.posMenuItems.filter(function(i){return i.happyHourPrice;});
     if (hhItems.length > 0) {
-        html +=
-            '<div class="card"><div class="card-header">' +
-            '<h3><i class="fas fa-tag"></i> Happy Hour Items ('+hhItems.length+')</h3></div>' +
-            '<table class="data-table"><thead><tr>' +
-            '<th>Item</th><th>Normal</th><th>Happy Hour</th><th>Saving</th>' +
-            '</tr></thead><tbody>';
+        html += '<div class="card"><div class="card-header"><h3><i class="fas fa-tag"></i> Happy Hour Items ('+hhItems.length+')</h3></div>' +
+            '<table class="data-table"><thead><tr><th>Item</th><th>Normal</th><th>Happy Hour</th><th>Saving</th></tr></thead><tbody>';
         hhItems.forEach(function(item) {
             var saving = (item.price||0)-(item.happyHourPrice||0);
-            html +=
-                '<tr><td>'+escHtml(item.name)+'</td>' +
-                '<td>R'+item.price.toFixed(2)+'</td>' +
-                '<td style="color:var(--success);font-weight:700">' +
-                'R'+item.happyHourPrice.toFixed(2)+'</td>' +
+            html += '<tr><td>'+escHtml(item.name)+'</td><td>R'+item.price.toFixed(2)+'</td>' +
+                '<td style="color:var(--success);font-weight:700">R'+item.happyHourPrice.toFixed(2)+'</td>' +
                 '<td style="color:var(--danger)">-R'+saving.toFixed(2)+'</td></tr>';
         });
         html += '</tbody></table></div>';
     } else {
-        html +=
-            '<div class="card"><div class="empty-state">' +
-            '<i class="fas fa-cocktail"></i><h3>No Happy Hour Prices Set</h3>' +
-            '<p>Edit menu items to set happy hour prices.</p>' +
-            '<button class="btn btn-outline" onclick="setupNav(\'menu-items\')">' +
-            '<i class="fas fa-edit"></i> Go to Menu Items</button>' +
-            '</div></div>';
+        html += '<div class="card"><div class="empty-state"><i class="fas fa-cocktail"></i><h3>No Happy Hour Prices Set</h3>' +
+            '<p>Edit menu items to set happy hour prices.</p><button class="btn btn-outline" onclick="setupNav(\'menu-items\')"><i class="fas fa-edit"></i> Go to Menu Items</button></div></div>';
     }
     return html;
 }
 
 function toggleHHTimePicker() {
-    var mode  = document.getElementById('hh-active').value;
+    var mode = document.getElementById('hh-active').value;
     var times = document.getElementById('hh-times');
     if (times) times.style.display = mode==='auto' ? '' : 'none';
 }
 
 function saveHappyHour() {
-    var mode  = document.getElementById('hh-active').value;
+    var mode = document.getElementById('hh-active').value;
     var start = (document.getElementById('hh-start')||{}).value||'16:00';
-    var end   = (document.getElementById('hh-end')  ||{}).value||'18:00';
-
-    if (mode==='auto' && start>=end) {
-        showToast('error','Start time must be before end time'); return;
-    }
-
-    PS.happyHour = {
-        active:         mode==='on' ? true : mode==='off' ? false
-                        : isWithinHH(start,end),
-        startTime:      start, endTime: end,
-        manualOverride: mode!=='auto'
-    };
-
-    savePOSData('posHappyHour', PS.happyHour)
-        .then(function() {
-            setupNav('happy-hour');
-            showToast('success','✅ Happy hour settings saved');
-        })
-        .catch(function() { showToast('error','Failed to save.'); });
+    var end = (document.getElementById('hh-end')||{}).value||'18:00';
+    if (mode==='auto' && start>=end) { showToast('error','Start time must be before end time'); return; }
+    PS.happyHour = { active: mode==='on' ? true : mode==='off' ? false : isWithinHH(start,end),
+        startTime: start, endTime: end, manualOverride: mode!=='auto' };
+    savePOSData('posHappyHour', PS.happyHour).then(function() {
+        setupNav('happy-hour'); showToast('success','✅ Happy hour settings saved');
+    }).catch(function() { showToast('error','Failed to save.'); });
 }
 
 function isWithinHH(start, end) {
-    var now  = new Date();
+    var now = new Date();
     var hhmm = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
     return hhmm>=start && hhmm<=end;
 }
@@ -1829,36 +1320,21 @@ function isWithinHH(start, end) {
 function pageSpecials() {
     var specials = PS.posMenuItems.filter(function(i){return i.specialActive;});
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-tag" style="color:var(--gold)"></i> Specials</h1>' +
+        '<div class="page-header"><h1><i class="fas fa-tag" style="color:var(--gold)"></i> Specials</h1>' +
         '<p>Items currently on special. Edit any menu item to toggle special pricing.</p></div>' +
-        '<div class="card"><div class="card-header">' +
-        '<h3><i class="fas fa-tag"></i> Active Specials ('+specials.length+')</h3>' +
-        '<button class="btn btn-outline btn-sm" onclick="setupNav(\'menu-items\')">' +
-        '<i class="fas fa-edit"></i> Edit Items</button></div>';
+        '<div class="card"><div class="card-header"><h3><i class="fas fa-tag"></i> Active Specials ('+specials.length+')</h3>' +
+        '<button class="btn btn-outline btn-sm" onclick="setupNav(\'menu-items\')"><i class="fas fa-edit"></i> Edit Items</button></div>';
 
     if (specials.length === 0) {
-        html +=
-            '<div class="empty-state"><i class="fas fa-tag"></i>' +
-            '<h3>No Active Specials</h3>' +
-            '<p>Edit a menu item and enable Special to add it here.</p></div>';
+        html += '<div class="empty-state"><i class="fas fa-tag"></i><h3>No Active Specials</h3><p>Edit a menu item and enable Special to add it here.</p></div>';
     } else {
-        html +=
-            '<table class="data-table"><thead><tr>' +
-            '<th>Item</th><th>Normal</th><th>Markdown</th>' +
-            '<th>Special Price</th><th>Actions</th>' +
-            '</tr></thead><tbody>';
+        html += '<table class="data-table"><thead><tr><th>Item</th><th>Normal</th><th>Markdown</th><th>Special Price</th><th>Actions</th></tr></thead><tbody>';
         specials.forEach(function(item) {
-            html +=
-                '<tr><td><strong>'+escHtml(item.name)+'</strong></td>' +
-                '<td style="text-decoration:line-through;color:var(--text-muted)">' +
-                'R'+(item.price||0).toFixed(2)+'</td>' +
+            html += '<tr><td><strong>'+escHtml(item.name)+'</strong></td>' +
+                '<td style="text-decoration:line-through;color:var(--text-muted)">R'+(item.price||0).toFixed(2)+'</td>' +
                 '<td><span class="badge badge-orange">-'+(item.specialPercent||0)+'%</span></td>' +
-                '<td style="color:var(--success);font-weight:700">' +
-                'R'+(item.specialPrice||0).toFixed(2)+'</td>' +
-                '<td><button class="btn btn-outline btn-sm" data-id="'+item.id+'" ' +
-                'onclick="removeSpecial(this.dataset.id)">' +
-                '<i class="fas fa-times"></i> Remove</button></td></tr>';
+                '<td style="color:var(--success);font-weight:700">R'+(item.specialPrice||0).toFixed(2)+'</td>' +
+                '<td><button class="btn btn-outline btn-sm" data-id="'+item.id+'" onclick="removeSpecial(this.dataset.id)"><i class="fas fa-times"></i> Remove</button></td></tr>';
         });
         html += '</tbody></table>';
     }
@@ -1870,12 +1346,9 @@ function removeSpecial(itemId) {
     if (!item) return;
     if (!confirm('Remove special from "'+item.name+'"?')) return;
     item.specialActive=false; item.specialPercent=0; item.specialPrice=null;
-    savePOSData('posMenuItems', PS.posMenuItems)
-        .then(function() {
-            setupNav('specials');
-            showToast('info','Special removed from '+item.name);
-        })
-        .catch(function(){showToast('error','Failed to remove special.');});
+    savePOSData('posMenuItems', PS.posMenuItems).then(function() {
+        setupNav('specials'); showToast('info','Special removed from '+item.name);
+    }).catch(function(){showToast('error','Failed to remove special.');});
 }
 
 /* ═══════════════════════════════════════════
@@ -1883,76 +1356,47 @@ function removeSpecial(itemId) {
 ═══════════════════════════════════════════ */
 function pagePreview() {
     var html =
-        '<div class="page-header">' +
-        '<h1><i class="fas fa-eye" style="color:var(--primary)"></i> Menu Preview</h1>' +
+        '<div class="page-header"><h1><i class="fas fa-eye" style="color:var(--primary-light)"></i> Menu Preview</h1>' +
         '<p>How your menu appears on the POS waiter interface.</p></div>';
 
     if (PS.menuTabs.length === 0) {
-        return html +
-            '<div class="empty-state"><i class="fas fa-eye"></i>' +
-            '<h3>Nothing to Preview</h3>' +
-            '<p>Add menu tabs and items first.</p></div>';
+        return html + '<div class="empty-state"><i class="fas fa-eye"></i><h3>Nothing to Preview</h3><p>Add menu tabs and items first.</p></div>';
     }
 
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px">';
     PS.menuTabs.forEach(function(tab) {
-        html += '<div class="menu-tab-preview" style="background:'+
-                escHtml(tab.color||'#1a8ba8')+'">' +
-                '<i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+
-                escHtml(tab.name)+'</div>';
+        html += '<div class="menu-tab-preview" style="background:'+escHtml(tab.color||'#1a8ba8')+'"><i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+escHtml(tab.name)+'</div>';
     });
     html += '</div>';
 
     PS.menuTabs.forEach(function(tab) {
         var items = PS.posMenuItems.filter(function(i){return i.tabId===tab.id;});
-        html +=
-            '<div class="card" style="border-left:4px solid '+
-            escHtml(tab.color||'#1a8ba8')+'">' +
-            '<div class="card-header">' +
-            '<h3 style="color:'+escHtml(tab.color||'#1a8ba8')+'">' +
-            '<i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+
-            escHtml(tab.name)+'</h3>' +
-            '<span class="badge badge-blue">'+items.length+' item'+
-            (items.length!==1?'s':'')+'</span></div>';
+        html += '<div class="card" style="border-left:4px solid '+escHtml(tab.color||'#1a8ba8')+'">' +
+            '<div class="card-header"><h3 style="color:'+escHtml(tab.color||'#1a8ba8')+'"><i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+escHtml(tab.name)+'</h3>' +
+            '<span class="badge badge-blue">'+items.length+' item'+(items.length!==1?'s':'')+'</span></div>';
 
         if (items.length===0) {
-            html += '<p style="color:var(--text-muted);font-size:.85rem;' +
-                    'text-align:center;padding:16px">No items yet</p>';
+            html += '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:16px">No items yet</p>';
         } else {
-            html += '<div style="display:grid;grid-template-columns:' +
-                    'repeat(auto-fill,minmax(160px,1fr));gap:10px">';
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">';
             items.forEach(function(item) {
-                var dp   = item.specialActive&&item.specialPrice ? item.specialPrice : item.price;
+                var dp = item.specialActive&&item.specialPrice ? item.specialPrice : item.price;
                 var isOOS = item.status!=='active';
-                html +=
-                    '<div style="background:var(--bg);border-radius:var(--rs);' +
-                    'padding:12px;border:1px solid var(--border);position:relative;'+
-                    (isOOS?'opacity:.5;':'')+'">' +
-                    (item.specialActive?
-                        '<div style="position:absolute;top:6px;right:6px;background:var(--gold);'+
-                        'color:#fff;padding:2px 6px;border-radius:4px;'+
-                        'font-size:.58rem;font-weight:700">SPECIAL</div>':'')+
-                    '<div style="font-size:.85rem;font-weight:600;color:var(--text);'+
-                    'margin-bottom:4px">'+escHtml(item.name)+'</div>'+
-                    (item.specialActive?
-                        '<div style="font-size:.7rem;text-decoration:line-through;'+
-                        'color:var(--text-muted)">R'+item.price.toFixed(2)+'</div>':'')+
-                    '<div style="font-size:1rem;font-weight:800;color:'+
-                    (item.specialActive?'var(--success)':'var(--primary)')+'">'+
-                    'R'+dp.toFixed(2)+'</div>'+
-                    (isOOS?'<div style="font-size:.7rem;color:var(--danger);'+
-                    'font-weight:600;margin-top:4px">OUT OF STOCK</div>':'')+
-                    '</div>';
+                html += '<div style="background:var(--bg-dark);border-radius:var(--rs);padding:12px;border:1px solid var(--border);position:relative;'+(isOOS?'opacity:.5;':'')+'">' +
+                    (item.specialActive ? '<div style="position:absolute;top:6px;right:6px;background:var(--gold);color:#fff;padding:2px 6px;border-radius:4px;font-size:.58rem;font-weight:700">SPECIAL</div>' : '') +
+                    '<div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:4px">'+escHtml(item.name)+'</div>' +
+                    (item.specialActive ? '<div style="font-size:.7rem;text-decoration:line-through;color:var(--text-muted)">R'+item.price.toFixed(2)+'</div>' : '') +
+                    '<div style="font-size:1rem;font-weight:800;color:'+(item.specialActive?'var(--success)':'var(--primary-light)')+'">R'+dp.toFixed(2)+'</div>' +
+                    (isOOS ? '<div style="font-size:.7rem;color:var(--danger);font-weight:600;margin-top:4px">OUT OF STOCK</div>' : '') + '</div>';
             });
             html += '</div>';
         }
         html += '</div>';
     });
-
     return html;
 }
 
-console.log('✅ POS Setup — All pages loaded');
+console.log('✅ POS Setup — All pages loaded (dark theme)');
 </script>
 </body>
 </html>
