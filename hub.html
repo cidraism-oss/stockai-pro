@@ -1866,28 +1866,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /* Attempt immediately on DOM ready */
-setTimeout(function() {
-    var ws = document.getElementById('welcome-screen');
-    if (!ws || ws.classList.contains('hidden')) return;
-    /* Only attempt if nothing has played yet */
-    if (window._welcomeVoiceFired || _tonePlayed) return;
-    try {
-        var testCtx = new (window.AudioContext ||
-                           window.webkitAudioContext)();
-        if (testCtx.state !== 'suspended') {
-            /* Autoplay allowed — fire immediately */
-            _audioUnlocked = true;
-            testCtx.close();
-            playWelcomeStartup();
-        } else {
-            /* Autoplay blocked — wait for interaction */
-            testCtx.close();
-        }
-    } catch(e) {
-        /* Cannot create context yet */
-    }
-}, 500);
+        /* Attempt audio immediately — no delay */
+    (function() {
+        var ws = document.getElementById('welcome-screen');
+        if (!ws || ws.classList.contains('hidden') ||
+            ws.style.display === 'none') return;
+
+        /* Try to play immediately */
+        try {
+            var testCtx = new (window.AudioContext ||
+                               window.webkitAudioContext)();
+            if (testCtx.state === 'running') {
+                /* Autoplay allowed — fire now */
+                _audioUnlocked = true;
+                testCtx.close();
+                playWelcomeStartup();
+            } else if (testCtx.state === 'suspended') {
+                /* Try to resume */
+                testCtx.resume().then(function() {
+                    if (testCtx.state === 'running') {
+                        _audioUnlocked = true;
+                        testCtx.close();
+                        playWelcomeStartup();
+                    } else {
+                        testCtx.close();
+                    }
+                }).catch(function() {
+                    testCtx.close();
+                });
+            }
+        } catch(e) {}
+    })();
 
     /* Fallback — fire on any first interaction */
     document.addEventListener('mousemove',  tryUnlockAudio,
@@ -1897,6 +1906,8 @@ setTimeout(function() {
     document.addEventListener('keydown',    tryUnlockAudio,
         {once:true, passive:true});
     document.addEventListener('click',      tryUnlockAudio,
+        {once:true, passive:true});
+    document.addEventListener('pointerdown', tryUnlockAudio,
         {once:true, passive:true});
 
     // ── Login form ──
@@ -1989,35 +2000,106 @@ function checkHubAuth() {
 
     /* ── Check if returning from an app ── */
     var isReturn = sessionStorage.getItem('hub_return') === 'true';
-    if (isReturn) {
+        if (isReturn) {
         sessionStorage.removeItem('hub_return');
 
-        /* Hide login — user is already authenticated */
-        document.getElementById('login-screen')
-            .classList.add('hidden');
+        /* Hide login screen */
+        var loginEl = document.getElementById('login-screen');
+        if (loginEl) loginEl.classList.add('hidden');
 
-        /* Wait for Firebase to confirm auth state */
+        /* Check if we have session data to restore */
+        var hasSession = restoreSessionCache();
+
+        if (hasSession && HUB.user && HUB.accountId) {
+            /* Session restored — load fresh data and route */
+            db.collection('accounts').doc(HUB.accountId).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        HUB.accountData = doc.data();
+                        HUB.entities    = doc.data().entities || [];
+                        if (HUB.entityId) {
+                            var ent = HUB.entities.find(function(e) {
+                                return e.id === HUB.entityId;
+                            });
+                            if (ent) {
+                                HUB.entity   = ent;
+                                HUB.features = typeof getEntityFeatures === 'function'
+                                    ? getEntityFeatures(HUB.accountData, HUB.entityId)
+                                    : [];
+                            }
+                        }
+                        if (typeof startHubSync     === 'function') startHubSync();
+                        if (typeof hubLoadBranding  === 'function') hubLoadBranding();
+                        if (typeof hubLoadWeather   === 'function') hubLoadWeather();
+                        if (typeof writeSharedSession === 'function') writeSharedSession();
+                        if (typeof routeAfterLogin  === 'function') routeAfterLogin();
+                    } else {
+                        showLoginScreen();
+                    }
+                })
+                .catch(function() {
+                    /* Firestore failed but we have cached data */
+                    if (HUB.user && HUB.accountId) {
+                        if (typeof routeAfterLogin === 'function') routeAfterLogin();
+                    } else {
+                        showLoginScreen();
+                    }
+                });
+            return;
+        }
+
+        /* No session cache — check Firebase auth */
+        var returnTimeout = setTimeout(function() {
+            /* Safety — if auth never fires, show login */
+            showLoginScreen();
+        }, 5000);
+
         var unsubReturn = auth.onAuthStateChanged(function(firebaseUser) {
             unsubReturn();
+            clearTimeout(returnTimeout);
 
-            if (firebaseUser) {
-                /* User is authenticated — find their account */
+            if (firebaseUser && !firebaseUser.isAnonymous) {
                 findHubAccount(firebaseUser.email, function(found) {
                     if (found) {
                         saveSessionCache();
                         writeSharedSession();
-                        startHubSync();
-                        hubLoadBranding();
-                        hubLoadWeather();
+                        if (typeof startHubSync === 'function') startHubSync();
                         routeAfterLogin();
                     } else {
-                        /* Account not found — show login */
                         showLoginScreen();
                     }
                 });
             } else {
-                /* Not authenticated — show login */
-                showLoginScreen();
+                /* Check if PIN login session exists */
+                var pinAccount = localStorage.getItem('stockai_pin_account');
+                var pinEntity  = localStorage.getItem('stockai_pin_entity');
+                var pinUserId  = localStorage.getItem('stockai_pin_userId');
+
+                if (pinAccount && pinEntity && pinUserId) {
+                    /* Restore from PIN login data */
+                    db.collection('accounts').doc(pinAccount).get()
+                        .then(function(doc) {
+                            if (!doc.exists) { showLoginScreen(); return; }
+                            var data  = doc.data();
+                            var users = (data.users || {})[pinEntity] || [];
+                            var user  = users.find(function(u) {
+                                return u.id === pinUserId;
+                            });
+
+                            if (user) {
+                                HUB_PIN.accountId = pinAccount;
+                                HUB_PIN.entityId  = pinEntity;
+                                pinLoginSuccess(user);
+                            } else {
+                                showLoginScreen();
+                            }
+                        })
+                        .catch(function() {
+                            showLoginScreen();
+                        });
+                } else {
+                    showLoginScreen();
+                }
             }
         });
         return;
