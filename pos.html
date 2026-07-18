@@ -2,515 +2,400 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0,
-      maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0d4a5c">
-<link rel="apple-touch-icon" href="/apple-StockAi-Pro_180x180.png">
-<title>StockAI-Pro POS</title>
-<link rel="manifest" href="/manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS Setup — StockAI-Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-/* ============================================================
-   CSS VARIABLES
-============================================================ */
 :root{
-    --primary:#1a8ba8;
-    --primary-dark:#0d4a5c;
-    --primary-light:#4dbdd5;
-    --primary-pale:#d4f0f7;
-    --bg:#0d3d4f;
-    --bg-card:#0f4d62;
-    --bg-hover:#1a6070;
-    --bg-dark:#0b3344;
-    --text:#e0f4f8;
-    --text-mid:#a8d8e8;
-    --text-light:#7bb8c8;
-    --text-muted:#4a8a9a;
-    --gold:#f59e0b;
-    --gold-dark:#d97706;
-    --success:#2ea871;
-    --danger:#c94545;
-    --warning:#d4a017;
-    --info:#2b8eb3;
-    --border:#1a5a6e;
-    --shadow:0 2px 12px rgba(0,0,0,.3);
-    --shadow-lg:0 8px 30px rgba(0,0,0,.4);
-    --shadow-xl:0 20px 60px rgba(0,0,0,.5);
-    --r:14px;
-    --rs:8px;
-    --header-h:56px;
-    --nav-h:65px;
-    --brand-primary:#1a8ba8;
-    --brand-dark:#0d4a5c;
+    --primary:#1a8ba8;--primary-dark:#0d4a5c;--primary-light:#4dbdd5;
+    --bg:#f0f7f9;--bg-card:#fff;
+    --text:#0d4a5c;--text-mid:#2a5f70;--text-light:#5a8a96;--text-muted:#8aabb5;
+    --gold:#f59e0b;--gold-dark:#d97706;
+    --success:#2ea871;--danger:#c94545;--warning:#d4a017;--info:#2b8eb3;
+    --border:#c4dde4;--shadow:0 2px 12px rgba(13,74,92,.08);
+    --shadow-lg:0 8px 30px rgba(13,74,92,.15);--r:12px;--rs:8px
 }
-@media(prefers-color-scheme:dark){
-    :root{
-        --bg:#0a2a36;
-        --bg-card:#0d3a48;
-        --text:#e0f4f8;
-        --text-mid:#a8d8e8;
-        --text-light:#7bb8c8;
-        --text-muted:#4a8a9a;
-        --border:#1a5a6e;
-        --shadow:0 2px 12px rgba(0,0,0,.4)
-    }
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);
-     font-size:14px;user-select:none;-webkit-user-select:none}
-button{font-family:inherit}
-.hidden{display:none!important}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);
+     color:var(--text);min-height:100vh;font-size:14px}
 
-/* ============================================================
-   LOGIN SCREEN
-============================================================ */
-.pos-login{
-    position:fixed;inset:0;
-    background:linear-gradient(135deg,#0b3344,#0d3d4f);
-    display:flex;align-items:center;justify-content:center;
-    padding:24px;z-index:9999}
-.pos-login-card{
-    background:#fff;border-radius:20px;padding:32px 24px;
-    width:100%;max-width:380px;
-    box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
-.pos-login-card h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:3px}
-.pos-login-card .sub{font-size:.82rem;color:var(--text-light);margin-bottom:24px}
-.pos-input{
-    width:100%;padding:14px 16px;
-    border:1.5px solid var(--border);border-radius:var(--rs);
-    font-size:.95rem;font-family:inherit;color:var(--text);
-    margin-bottom:12px;background:var(--bg);transition:.2s}
-.pos-input:focus{outline:none;border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(26,139,168,.15)}
-.pos-btn{
-    width:100%;padding:14px;border:none;border-radius:var(--rs);
-    font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;
-    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-    color:#fff;transition:.2s}
-.pos-btn:disabled{opacity:.6;cursor:not-allowed}
-.pos-install-btn{
-    margin-top:16px;padding:13px;
-    background:linear-gradient(135deg,#f59e0b,#d97706);
-    color:#fff;border:none;border-radius:8px;font-size:.88rem;
-    font-weight:700;cursor:pointer;font-family:inherit;
-    display:flex;align-items:center;justify-content:center;
-    gap:8px;width:100%}
+/* ── HEADER ── */
+.header{background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+    padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 20px rgba(0,0,0,.15);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;
+    text-decoration:none;font-size:1.1rem;font-weight:900;letter-spacing:1px}
+.logo-icon{width:34px;height:34px;background:rgba(255,255,255,.2);
+    border-radius:8px;display:flex;align-items:center;
+    justify-content:center;font-size:.95rem}
+.header-back{color:rgba(255,255,255,.8);text-decoration:none;
+    font-size:.85rem;display:flex;align-items:center;gap:6px;transition:.2s}
+.header-back:hover{color:#fff}
+.header-entity{color:rgba(255,255,255,.7);font-size:.78rem;margin-top:2px}
 
-/* ============================================================
-   APP SHELL
-============================================================ */
-.pos-app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
-.pos-header{
-    height:50px;
-    background:linear-gradient(90deg,#0b3344,#1a6070);
-    display:flex;align-items:center;padding:0 16px;gap:12px;
-    flex-shrink:0;color:#fff;font-size:.88rem;font-weight:700}
-.pos-header-info{flex:1;display:flex;flex-direction:column}
-.pos-header-info small{font-size:.65rem;color:rgba(255,255,255,.7);font-weight:400}
-.pos-header-btn{
-    padding:6px 12px;background:rgba(255,255,255,.15);border:none;
-    border-radius:var(--rs);color:#fff;font-size:.78rem;font-weight:600;
-    cursor:pointer;font-family:inherit;transition:.2s;
-    display:flex;align-items:center;gap:4px}
-.pos-header-btn:hover{background:rgba(255,255,255,.25)}
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:260px;background:var(--bg-card);border-right:1px solid var(--border);
+    padding:16px;flex-shrink:0;overflow-y:auto}
+.sidebar-title{font-size:.72rem;font-weight:700;color:var(--text-light);
+    text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;padding-left:10px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:12px 14px;
+    border-radius:var(--rs);cursor:pointer;transition:.2s;
+    color:var(--text-mid);font-size:.88rem;font-weight:500;margin-bottom:4px}
+.sidebar-item:hover{background:rgba(26,139,168,.06)}
+.sidebar-item.active{background:rgba(26,139,168,.1);
+    color:var(--primary);font-weight:600}
+.sidebar-item i{width:20px;text-align:center;font-size:.9rem}
+.sidebar-badge{margin-left:auto;background:var(--primary);color:#fff;
+    padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700}
+.main-content{flex:1;padding:24px;overflow-y:auto;max-height:calc(100vh - 60px)}
 
-/* ============================================================
-   DASHBOARD
-============================================================ */
-.waiter-dash{flex:1;overflow-y:auto;padding:16px}
-.dash-welcome{
-    background:var(--bg-card);border-radius:var(--r);padding:20px;
-    box-shadow:var(--shadow);margin-bottom:16px;
-    display:flex;align-items:center;gap:16px;border-left:4px solid var(--gold)}
-.dash-avatar{
-    width:50px;height:50px;border-radius:50%;
-    background:linear-gradient(135deg,#1a8ba8,#0b3344);
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:1.2rem;font-weight:700;flex-shrink:0}
-.dash-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-.dash-stat{
-    background:var(--bg-card);border-radius:var(--r);padding:16px;
-    box-shadow:var(--shadow);text-align:center;border-left:3px solid var(--primary)}
-.dash-stat small{
-    font-size:.65rem;color:var(--text-light);text-transform:uppercase;
-    font-weight:600;display:block;margin-bottom:4px}
-.dash-stat strong{font-size:1.4rem;font-weight:800;color:var(--text)}
-.dash-stat.gold{border-left-color:var(--gold)}
-.dash-stat.green{border-left-color:var(--success)}
-.dash-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.dash-action{
-    background:var(--bg-card);border-radius:var(--r);padding:24px 16px;
-    box-shadow:var(--shadow);text-align:center;cursor:pointer;
-    transition:.2s;border:2px solid transparent}
-.dash-action:active{transform:scale(.97);border-color:var(--primary)}
-.dash-action i{font-size:2rem;display:block;margin-bottom:10px}
-.dash-action h3{font-size:.95rem;font-weight:700;color:var(--text)}
-.dash-action p{font-size:.75rem;color:var(--text-light);margin-top:4px}
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:1.5rem;font-weight:800;color:var(--text);
+    margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.page-header p{font-size:.88rem;color:var(--text-light)}
 
-/* ============================================================
-   ORDER SCREEN
-============================================================ */
-.order-screen{
-    position:fixed;inset:0;display:flex;flex-direction:column;
-    background:var(--bg);z-index:80}
-.order-header{
-    height:50px;
-    background:linear-gradient(90deg,#0b3344,#1a6070);
-    display:flex;align-items:center;padding:0 12px;
-    gap:10px;color:#fff;flex-shrink:0}
-.order-header h3{font-size:.92rem;font-weight:700;flex:1}
-.order-body{flex:1;display:flex;overflow:hidden}
-.order-menu{
-    flex:1;display:flex;flex-direction:column;
-    overflow:hidden;border-right:1px solid var(--border)}
-.order-tabs{
-    display:flex;overflow-x:auto;flex-shrink:0;padding:8px;
-    gap:6px;background:var(--bg-card);border-bottom:1px solid var(--border)}
-.order-tabs::-webkit-scrollbar{display:none}
-.order-tab{
-    padding:8px 16px;border-radius:20px;font-size:.78rem;font-weight:600;
-    cursor:pointer;white-space:nowrap;color:#fff;border:none;
-    font-family:inherit;flex-shrink:0;opacity:.7;transition:.2s}
-.order-tab.active{opacity:1;transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.order-items-grid{
-    flex:1;overflow-y:auto;padding:8px;
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-    gap:8px;align-content:start}
-.order-items-grid::-webkit-scrollbar{display:none}
-.order-item-card{
-    background:var(--bg-card);border-radius:var(--rs);padding:12px;
-    box-shadow:var(--shadow);cursor:pointer;transition:.2s;
-    border:2px solid transparent;position:relative;text-align:center}
-.order-item-card:active{transform:scale(.95);border-color:var(--primary)}
-.order-item-card.out-of-stock{opacity:.4;pointer-events:none}
-.item-name{font-size:.82rem;font-weight:600;color:var(--text);
-    margin-bottom:4px;line-height:1.2}
-.item-price{font-size:.95rem;font-weight:800;color:var(--primary)}
-.item-portions{font-size:.65rem;color:var(--text-muted);margin-top:4px}
-.item-special{
-    position:absolute;top:4px;right:4px;background:var(--gold);
-    color:#fff;padding:2px 6px;border-radius:4px;font-size:.55rem;font-weight:700}
-.item-oos{
-    position:absolute;inset:0;display:flex;align-items:center;
-    justify-content:center;background:rgba(255,255,255,.85);
-    border-radius:var(--rs);font-size:.75rem;font-weight:700;color:var(--danger)}
+/* ── CARDS ── */
+.card{background:var(--bg-card);border-radius:var(--r);padding:24px;
+    box-shadow:var(--shadow);margin-bottom:16px}
+.card-header{display:flex;justify-content:space-between;
+    align-items:center;margin-bottom:16px}
+.card-header h3{font-size:1rem;font-weight:700;color:var(--text);
+    display:flex;align-items:center;gap:8px}
+.card-header h3 i{color:var(--primary)}
 
-/* ============================================================
-   BILL PANEL
-============================================================ */
-.order-bill{
-    width:280px;display:flex;flex-direction:column;
-    background:var(--bg-card);flex-shrink:0}
-.bill-header{
-    padding:12px;background:var(--bg);border-bottom:1px solid var(--border);
-    font-size:.82rem;font-weight:700;color:var(--text);
-    display:flex;justify-content:space-between;align-items:center}
-.bill-items{flex:1;overflow-y:auto;padding:8px}
-.bill-items::-webkit-scrollbar{display:none}
-.bill-item{
-    display:flex;align-items:flex-start;gap:8px;padding:8px;
-    background:var(--bg);border-radius:var(--rs);margin-bottom:6px;
-    font-size:.82rem;position:relative;transition:.2s}
-.bill-item.sent{opacity:.7;border-left:3px solid var(--success)}
-.bill-item.ready{border-left:3px solid var(--gold)}
-.bill-item-info{flex:1}
-.bill-item-name{font-weight:600;color:var(--text)}
-.bill-item-meta{font-size:.7rem;color:var(--text-muted);margin-top:2px}
-.bill-item-note{font-size:.7rem;color:var(--gold);font-style:italic;margin-top:2px}
-.bill-item-price{font-weight:700;color:var(--primary);
-    white-space:nowrap;font-size:.85rem}
-.bill-item-actions{display:flex;gap:4px;margin-top:5px}
-.bill-item-btn{
-    padding:3px 8px;border:none;border-radius:4px;font-size:.65rem;
-    font-weight:600;cursor:pointer;font-family:inherit;
-    display:flex;align-items:center;gap:3px}
-.bill-item-btn.void{background:rgba(201,69,69,.12);color:var(--danger)}
-.bill-total-area{
-    padding:12px;border-top:2px solid var(--border);background:var(--bg-card)}
-.bill-total-row{
-    display:flex;justify-content:space-between;padding:4px 0;
-    font-size:.85rem;color:var(--text)}
-.bill-total-row.total{
-    font-size:1.1rem;font-weight:800;color:var(--primary);
-    padding:8px 0;border-top:1px solid var(--border);margin-top:4px}
-.bill-action-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.bill-send-btn{
-    width:100%;padding:14px;
-    background:linear-gradient(135deg,var(--success),#1a7a4a);
-    color:#fff;border:none;border-radius:var(--rs);font-size:.92rem;
-    font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    grid-column:1/-1;transition:.2s}
-.bill-send-btn:disabled{opacity:.5;cursor:not-allowed}
-.bill-pay-btn{
-    padding:11px;border:none;border-radius:var(--rs);font-size:.82rem;
-    font-weight:700;cursor:pointer;font-family:inherit;
-    display:flex;align-items:center;justify-content:center;
-    gap:6px;transition:.2s}
-.bill-pay-cash{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff}
-.bill-pay-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
-.bill-pay-discount{
-    background:rgba(212,160,23,.15);color:var(--warning);
-    border:1.5px solid var(--warning);grid-column:1/-1;padding:10px}
-
-/* ============================================================
-   MODALS (shared)
-============================================================ */
-.notes-modal{
-    position:fixed;inset:0;background:rgba(13,74,92,.7);z-index:150;
-    display:flex;align-items:center;justify-content:center;padding:20px}
-.notes-modal-card{
-    background:var(--bg-card);border-radius:16px;width:100%;
-    max-width:400px;padding:24px;box-shadow:var(--shadow-lg)}
-.notes-modal-card h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px}
-.notes-textarea{
-    width:100%;padding:12px;border:1.5px solid var(--border);
+/* ── FORMS ── */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.82rem;font-weight:600;
+    color:var(--text);margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);
     border-radius:var(--rs);font-size:.88rem;font-family:inherit;
-    color:var(--text);min-height:80px;resize:vertical;background:var(--bg)}
-.notes-textarea:focus{outline:none;border-color:var(--primary)}
-.notes-subcats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.notes-subcat{
-    padding:6px 14px;border-radius:16px;font-size:.78rem;font-weight:600;
-    cursor:pointer;border:1.5px solid var(--border);
-    background:var(--bg-card);color:var(--text-light);transition:.2s}
-.notes-subcat.selected{
-    background:var(--primary);border-color:var(--primary);color:#fff}
-.notes-actions{display:flex;gap:8px;margin-top:14px}
-.notes-actions button{
-    flex:1;padding:12px;border:none;border-radius:var(--rs);
-    font-size:.88rem;font-weight:600;cursor:pointer;
-    font-family:inherit;transition:.2s}
+    color:var(--text);background:var(--bg);transition:.2s}
+.form-input:focus{outline:none;border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(26,139,168,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-hint{font-size:.72rem;color:var(--text-muted);margin-top:4px}
+select.form-input{-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a8a96' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
 
-/* ============================================================
-   MANAGER PIN
-============================================================ */
-.pin-modal{
-    position:fixed;inset:0;background:rgba(13,74,92,.8);z-index:200;
-    display:flex;align-items:center;justify-content:center;padding:20px}
-.pin-card{
-    background:var(--bg-card);border-radius:16px;width:100%;
-    max-width:360px;padding:28px;box-shadow:var(--shadow-lg);text-align:center}
-.pin-card h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px}
-.pin-card p{font-size:.82rem;color:var(--text-light);margin-bottom:20px}
-.pin-input{
-    width:100%;padding:16px;text-align:center;font-size:2rem;
-    letter-spacing:12px;border:2px solid var(--border);
-    border-radius:var(--rs);font-family:inherit;color:var(--text);background:var(--bg)}
-.pin-input:focus{outline:none;border-color:var(--primary)}
-.pin-attempts{font-size:.75rem;color:var(--danger);margin-top:8px;min-height:18px}
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;border:none;border-radius:var(--rs);font-size:.88rem;
+    font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;
+    display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,139,168,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#1a7a4a}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#a83232}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-mid)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+.btn-block{width:100%;justify-content:center}
 
-/* ============================================================
-   VOID / TRANSFER
-============================================================ */
-.void-reasons{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.void-reason{
-    padding:12px 16px;background:var(--bg);border-radius:var(--rs);
-    cursor:pointer;font-size:.88rem;color:var(--text);font-weight:500;
-    border:1.5px solid var(--border);transition:.2s;text-align:left}
-.void-reason:hover{border-color:var(--danger);background:rgba(201,69,69,.05)}
-.transfer-tables{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
-    gap:8px;margin-top:12px}
-.transfer-table{
-    padding:14px;background:var(--bg);border-radius:var(--rs);
-    text-align:center;cursor:pointer;border:1.5px solid var(--border);
-    font-weight:700;font-size:1rem;color:var(--text);transition:.2s}
-.transfer-table:hover{border-color:var(--primary);background:rgba(26,139,168,.05)}
-.transfer-table.occupied{border-color:var(--gold);background:rgba(245,158,11,.05)}
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 14px;text-align:left;font-size:.75rem;
+    font-weight:700;color:var(--text-light);text-transform:uppercase;
+    letter-spacing:.5px;background:var(--bg);border-bottom:2px solid var(--border)}
+.data-table td{padding:10px 14px;font-size:.85rem;color:var(--text);
+    border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover{background:rgba(26,139,168,.02)}
+.actions{display:flex;gap:6px}
 
-/* ============================================================
-   CASHUP
-============================================================ */
-.cashup-screen{
-    position:fixed;inset:0;display:flex;flex-direction:column;
-    background:var(--bg);z-index:80}
-.cashup-content{
-    flex:1;overflow-y:auto;padding:16px;
-    max-width:500px;margin:0 auto;width:100%}
-.cashup-card{
-    background:var(--bg-card);border-radius:var(--r);padding:20px;
-    box-shadow:var(--shadow);margin-bottom:12px}
-.cashup-row{
-    display:flex;justify-content:space-between;padding:8px 0;
-    border-bottom:1px solid var(--border);font-size:.88rem}
-.cashup-row:last-child{border-bottom:none}
-.cashup-row span{color:var(--text-light)}
-.cashup-row strong{color:var(--text)}
-.cashup-total{
-    font-size:1.2rem;font-weight:900;padding:14px 0 4px;
-    display:flex;justify-content:space-between;
-    border-top:2px solid var(--border);margin-top:8px}
+/* ── COLOR/ICON PICKERS ── */
+.color-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.color-swatch{width:32px;height:32px;border-radius:8px;cursor:pointer;
+    border:2px solid transparent;transition:.2s;
+    display:flex;align-items:center;justify-content:center}
+.color-swatch:hover{transform:scale(1.1)}
+.color-swatch.selected{border-color:#0d4a5c;
+    box-shadow:0 0 0 2px #fff inset;transform:scale(1.1)}
 
-/* ============================================================
-   OPEN TABLES GRID
-============================================================ */
-.open-tables-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-    gap:10px;margin-top:16px}
-.open-table-card{
-    background:var(--bg-card);border-radius:var(--r);padding:16px;
-    box-shadow:var(--shadow);text-align:center;cursor:pointer;
-    transition:.2s;border:2px solid var(--border)}
-.open-table-card:active{transform:scale(.97)}
-.open-table-card.occupied{border-color:var(--gold);background:rgba(245,158,11,.03)}
-.open-table-card .table-num{font-size:1.5rem;font-weight:900;color:var(--text)}
-.open-table-card .table-info{font-size:.72rem;color:var(--text-light);margin-top:4px}
-.open-table-card .table-total{font-size:.88rem;font-weight:700;color:var(--primary);margin-top:6px}
-.open-table-card .table-alert{font-size:.68rem;color:var(--success);margin-top:3px;font-weight:600}
+/* ── BADGES ── */
+.badge{padding:3px 10px;border-radius:12px;
+    font-size:.7rem;font-weight:600;display:inline-block}
+.badge-green{background:rgba(46,168,113,.12);color:var(--success)}
+.badge-orange{background:rgba(245,158,11,.12);color:var(--gold)}
+.badge-red{background:rgba(201,69,69,.12);color:var(--danger)}
+.badge-blue{background:rgba(26,139,168,.12);color:var(--primary)}
 
-/* ============================================================
-   DISCOUNT MODAL
-============================================================ */
-.discount-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.discount-btn{
-    padding:14px;border:2px solid var(--border);border-radius:var(--rs);
-    text-align:center;cursor:pointer;font-family:inherit;background:var(--bg-card);
-    font-weight:700;font-size:.9rem;color:var(--text);transition:.2s}
-.discount-btn:hover{border-color:var(--warning);background:rgba(212,160,23,.08)}
-.discount-btn.selected{
-    border-color:var(--warning);background:rgba(212,160,23,.12);color:var(--warning)}
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-light)}
+.empty-state i{font-size:2.5rem;color:var(--primary);opacity:.3;
+    margin-bottom:14px;display:block}
+.empty-state h3{font-size:1rem;color:var(--text);margin-bottom:6px}
+.empty-state p{font-size:.85rem;margin-bottom:16px}
 
-/* ============================================================
-   QR CODE
-============================================================ */
-.qr-display{text-align:center;padding:20px}
-.qr-display img{border-radius:var(--rs);box-shadow:var(--shadow)}
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,74,92,.7);
+    backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;
+    justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg-card);border-radius:16px;width:100%;max-width:580px;
+    max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+    transform:translateY(20px);transition:.3s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;
+    position:sticky;top:0;background:var(--bg-card);z-index:1}
+.modal-header h3{font-size:1.1rem;font-weight:700;color:var(--text)}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg);
+    border:none;color:var(--text-light);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.9rem;transition:.2s}
+.modal-close:hover{background:var(--danger);color:#fff}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);
+    display:flex;gap:10px;justify-content:flex-end;
+    position:sticky;bottom:0;background:var(--bg-card)}
 
-/* ============================================================
-   TOAST
-============================================================ */
-.pos-toast-wrap{
-    position:fixed;top:60px;right:16px;z-index:500;
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:80px;right:20px;z-index:500;
     display:flex;flex-direction:column;gap:8px}
-.pos-toast{
-    padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);
+.toast{padding:12px 16px;border-radius:var(--rs);box-shadow:var(--shadow-lg);
     display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:500;
-    animation:slideIn .3s ease;min-width:260px;max-width:320px}
+    animation:slideIn .3s ease;min-width:280px;max-width:360px}
 @keyframes slideIn{
     from{transform:translateX(120px);opacity:0}
-    to{transform:translateX(0);opacity:1}}
-.pos-toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
-.pos-toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
-.pos-toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--info)}
-.pos-toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--warning)}
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-@media(max-width:768px){
-    .order-body{flex-direction:column}
-    .order-bill{width:100%;height:45%;border-top:1px solid var(--border);border-right:none}
-    .order-menu{height:55%}
-    .order-items-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
-    .dash-actions{grid-template-columns:1fr}
-    .dash-stats{grid-template-columns:1fr 1fr 1fr}
+    to{transform:translateX(0);opacity:1}
 }
-@media(min-width:1024px){
-    .order-items-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-    .order-bill{width:320px}
+.toast.success{background:#d1fae5;color:#065f46;border-left:3px solid var(--success)}
+.toast.error{background:#fee2e2;color:#991b1b;border-left:3px solid var(--danger)}
+.toast.info{background:#d4f0f7;color:#0d4a5c;border-left:3px solid var(--info)}
+.toast.warning{background:#fef3c7;color:#92400e;border-left:3px solid var(--warning)}
+
+/* ── PREVIEW ── */
+.menu-tab-preview{display:inline-flex;align-items:center;gap:6px;
+    padding:6px 14px;border-radius:20px;font-size:.8rem;
+    font-weight:600;color:#fff;margin:3px;cursor:default}
+.sub-cat-tag{display:inline-flex;align-items:center;gap:4px;
+    padding:4px 10px;border-radius:12px;font-size:.72rem;
+    font-weight:600;background:var(--bg);color:var(--text-mid);margin:2px}
+
+/* ── SECTION CARD ── */
+.section-card{background:var(--bg-card);border-radius:var(--r);padding:16px;
+    box-shadow:var(--shadow);margin-bottom:10px;display:flex;
+    align-items:center;gap:14px;border-left:4px solid var(--primary);transition:.2s}
+.section-card:hover{box-shadow:var(--shadow-lg)}
+.section-card-icon{width:42px;height:42px;border-radius:10px;
+    background:rgba(26,139,168,.1);display:flex;align-items:center;
+    justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0}
+.section-card-info{flex:1}
+.section-card-info h4{font-size:.9rem;font-weight:700;color:var(--text)}
+.section-card-info p{font-size:.75rem;color:var(--text-light);margin-top:2px}
+.section-card-actions{display:flex;gap:6px}
+
+/* ── PIN LOGIN SCREEN ── */
+.pin-login-overlay{position:fixed;inset:0;
+    background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;z-index:9999;transition:opacity .3s}
+.pin-login-card{background:#fff;border-radius:24px;padding:36px 28px;
+    width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+    text-align:center}
+.pin-login-card .pin-icon{width:64px;height:64px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    border-radius:16px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1.6rem;margin:0 auto 16px}
+.pin-login-card h2{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.pin-login-card .pin-sub{font-size:.82rem;color:var(--text-light);margin-bottom:24px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:24px;height:24px}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
+    background:var(--bg);transition:.2s}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary);
+    transform:scale(1.15)}
+.pin-dot.error{background:var(--danger);border-color:var(--danger);
+    animation:pinShake .4s ease}
+@keyframes pinShake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    50%{transform:translateX(8px)}
+    75%{transform:translateX(-4px)}
+}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+    max-width:260px;margin:0 auto}
+.pin-key{width:100%;aspect-ratio:1.3;border:none;border-radius:14px;
+    background:var(--bg);font-size:1.4rem;font-weight:700;color:var(--text);
+    cursor:pointer;font-family:inherit;transition:.15s;
+    display:flex;align-items:center;justify-content:center}
+.pin-key:hover{background:rgba(26,139,168,.1)}
+.pin-key:active{background:rgba(26,139,168,.2);transform:scale(.95)}
+.pin-key.pin-key-clear{font-size:.8rem;font-weight:600;color:var(--danger)}
+.pin-key.pin-key-back{font-size:1rem;color:var(--text-light)}
+.pin-key.pin-key-zero{grid-column:2}
+.pin-status{font-size:.78rem;margin-top:16px;min-height:20px;font-weight:600}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);
+        padding:8px;display:flex;overflow-x:auto;gap:4px}
+    .sidebar-title{display:none}
+    .sidebar-item{white-space:nowrap;padding:8px 14px;flex-shrink:0}
+    .main-content{max-height:none}
+    .form-row,.form-row-3{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     LOGIN SCREEN
-============================================================ -->
-<div class="pos-login" id="pos-login">
-    <div class="pos-login-card">
-        <div style="margin:0 auto 14px">
-            <img src="/logo.svg" alt="StockAI-Pro" style="height:60px;width:auto">
+<!-- HEADER -->
+<header class="header">
+    <a href="hub.html" class="logo">
+        <div class="logo-icon" 
+     style="background:none;width:auto;padding:0">
+    <img src="/logo.svg" 
+         alt="StockAI-Pro" 
+         style="height:32px;width:auto;
+                filter:brightness(0) invert(1)">
+</div>
+        <div>POS Setup
+            <div class="header-entity" id="header-entity">Loading…</div>
         </div>
-        <h2>StockAI-Pro POS</h2>
-        <p class="sub">Point of Sale System</p>
-        <form onsubmit="posLogin(event)">
-            <input type="email" class="pos-input" id="pos-email"
-                   placeholder="Email address"
-                   autocomplete="email" required>
-            <input type="password" class="pos-input" id="pos-password"
-                   placeholder="Password"
-                   autocomplete="current-password" required>
-            <button type="submit" class="pos-btn" id="pos-login-btn">
-                <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-        </form>
-        <a href="#" onclick="posForgotPw();return false"
-           style="color:var(--primary);font-size:.82rem;display:block;
-                  margin-top:12px;text-decoration:none">
-            <i class="fas fa-key"></i> Forgot password?
-        </a>
-        <button class="pos-install-btn" onclick="showPosInstallGuide()">
-            <i class="fas fa-mobile-alt"></i> Install POS on Tablet
-        </button>
-        <p style="font-size:.72rem;color:var(--text-muted);margin-top:6px">
-            Tap for installation instructions
-        </p>
+    </a>
+    <a href="hub.html?return=true" class="header-back">
+        <i class="fas fa-th"></i> Back to Hub
+    </a>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-title">POS Configuration</div>
+        <div class="sidebar-item active" data-page="kitchen-sections"
+             onclick="setupNav('kitchen-sections')">
+            <i class="fas fa-utensils"></i> Kitchen Sections
+            <span class="sidebar-badge" id="badge-sections">0</span>
+        </div>
+        <div class="sidebar-item" data-page="menu-tabs"
+             onclick="setupNav('menu-tabs')">
+            <i class="fas fa-folder"></i> Menu Tabs
+            <span class="sidebar-badge" id="badge-tabs">0</span>
+        </div>
+        <div class="sidebar-item" data-page="menu-items"
+             onclick="setupNav('menu-items')">
+            <i class="fas fa-hamburger"></i> Menu Items
+            <span class="sidebar-badge" id="badge-items">0</span>
+        </div>
+        <div class="sidebar-item" data-page="tables"
+             onclick="setupNav('tables')">
+            <i class="fas fa-th-large"></i> Tables & QR
+            <span class="sidebar-badge" id="badge-tables">0</span>
+        </div>
+        <div class="sidebar-item" data-page="happy-hour"
+             onclick="setupNav('happy-hour')">
+            <i class="fas fa-cocktail"></i> Happy Hour
+        </div>
+        <div class="sidebar-item" data-page="specials"
+             onclick="setupNav('specials')">
+            <i class="fas fa-tag"></i> Specials
+        </div>
+        <div class="sidebar-item" data-page="preview"
+             onclick="setupNav('preview')">
+            <i class="fas fa-eye"></i> Preview Menu
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="main-content">
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <h3>Loading POS Setup…</h3>
+        </div>
     </div>
 </div>
 
-<!-- ============================================================
-     MAIN APP
-============================================================ -->
-<div class="pos-app hidden" id="pos-app">
-    <header class="pos-header">
-        <a href="hub.html?return=true"
-           style="color:#fff;font-size:.85rem;text-decoration:none;
-                  display:flex;align-items:center;gap:4px;margin-right:4px"
-           title="Back to Hub">
-            <i class="fas fa-th"></i>
-        </a>
-        <img src="/logo.svg" alt="StockAI-Pro"
-             style="height:28px;width:auto;filter:brightness(0) invert(1)">
-        <div class="pos-header-info">
-            <span id="pos-waiter-name">Waiter</span>
-            <small id="pos-entity-name">Entity</small>
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Modal</h3>
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div id="pos-shift-time"
-             style="font-size:.72rem;color:rgba(255,255,255,.7)">00:00:00</div>
-        <button class="pos-header-btn" onclick="showWaiterCashup()">
-            <i class="fas fa-calculator"></i> Cash Up
-        </button>
-        <button class="pos-header-btn" onclick="posLogout()" title="Sign Out">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
-    </header>
-    <div class="waiter-dash" id="waiter-dash"></div>
+        <div class="modal-body"  id="modal-body"></div>
+        <div class="modal-footer" id="modal-footer"></div>
+    </div>
 </div>
 
-<!-- Toast Container -->
-<div class="pos-toast-wrap" id="pos-toast-wrap"></div>
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- ============================================================
-     FIREBASE
-============================================================ -->
+<!-- PIN LOGIN -->
+<div class="pin-login-overlay" id="pin-login-overlay">
+    <div class="pin-login-card">
+        <div class="pin-icon">
+            <i class="fas fa-cash-register"></i>
+        </div>
+        <h2>POS Login</h2>
+        <p class="pin-sub">Enter your PIN code to continue</p>
+
+        <!-- PIN dots -->
+        <div class="pin-dots" id="pin-dots">
+            <div class="pin-dot" id="dot-0"></div>
+            <div class="pin-dot" id="dot-1"></div>
+            <div class="pin-dot" id="dot-2"></div>
+            <div class="pin-dot" id="dot-3"></div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="pin-keypad">
+            <button class="pin-key" onclick="pinPress('1')">1</button>
+            <button class="pin-key" onclick="pinPress('2')">2</button>
+            <button class="pin-key" onclick="pinPress('3')">3</button>
+            <button class="pin-key" onclick="pinPress('4')">4</button>
+            <button class="pin-key" onclick="pinPress('5')">5</button>
+            <button class="pin-key" onclick="pinPress('6')">6</button>
+            <button class="pin-key" onclick="pinPress('7')">7</button>
+            <button class="pin-key" onclick="pinPress('8')">8</button>
+            <button class="pin-key" onclick="pinPress('9')">9</button>
+            <button class="pin-key pin-key-clear" onclick="pinClear()">CLEAR</button>
+            <button class="pin-key pin-key-zero" onclick="pinPress('0')">0</button>
+            <button class="pin-key pin-key-back" onclick="pinBack()">
+                <i class="fas fa-backspace"></i>
+            </button>
+        </div>
+
+        <div class="pin-status" id="pin-status"></div>
+    </div>
+</div>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-/* ============================================================
-   FIREBASE INIT
-============================================================ */
+
+/* ═══════════════════════════════════════════
+   FIREBASE
+═══════════════════════════════════════════ */
 var firebaseConfig = {
-    apiKey:            'AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0',
-    authDomain:        'stockai-pro-b232e.firebaseapp.com',
-    projectId:         'stockai-pro-b232e',
-    storageBucket:     'stockai-pro-b232e.firebasestorage.app',
-    messagingSenderId: '424200946359',
-    appId:             '1:424200946359:web:4c638eccd4e422ccc94332'
+    apiKey:            "AIzaSyBRwGda3Q-ibT8CgAo0tJXNJ4EOzy4gEs0",
+    authDomain:        "stockai-pro-b232e.firebaseapp.com",
+    projectId:         "stockai-pro-b232e",
+    storageBucket:     "stockai-pro-b232e.firebasestorage.app",
+    messagingSenderId: "424200946359",
+    appId:             "1:424200946359:web:4c638eccd4e422ccc94332"
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db   = firebase.firestore();
 
-/* ============================================================
-   APP STATE
-============================================================ */
-var POS = {
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+var PS = {
     user:            null,
     accountId:       null,
     entityId:        null,
@@ -518,138 +403,351 @@ var POS = {
     entity:          null,
     accountData:     null,
     inventory:       [],
-    menuTabs:        [],
     menuItems:       [],
+    currentPage:     'kitchen-sections',
+    _filterTab:      null,
+    _dataLoaded:     false,
     kitchenSections: [],
+    menuTabs:        [],
+    posMenuItems:    [],
     tables:          [],
-    happyHour:       { active: false },
-    orders:          {},
-    currentTable:    null,
-    currentOrder:    [],
-    clockInTime:     null,
-    syncListener:    null,
-    shiftTimer:      null,
-    stockSaveTimer:  null,
-    _activeOrderTab: null,
-    _pinCallback:    null,
-    _pinAttempts:    0,
-    _pendingCashup:  null
+    happyHour:       {
+        active:false, startTime:'16:00',
+        endTime:'18:00', manualOverride:false
+    },
+    specials:   [],
+    takeawayQR: null
 };
 
-/* ============================================================
-   SSO — READ HUB SESSION
-   Allows hub to open POS without re-login
-============================================================ */
-(function checkHubSSO() {
-    try {
-        var raw = sessionStorage.getItem('sso_session');
-        if (!raw) return;
-        var s = JSON.parse(raw);
-        if (!s || !s.valid || !s.accountId) return;
-        localStorage.setItem('pos_account_id', s.accountId);
-        console.log('✅ SSO: Account restored from hub session');
-    } catch(e) {}
-})();
+var TAB_COLORS = [
+    '#1a8ba8','#0d4a5c','#2ea871','#1a7a4a',
+    '#f59e0b','#d97706','#c94545','#a83232',
+    '#6366f1','#4f46e5','#ec4899','#be185d',
+    '#14b8a6','#0d9488','#f97316','#ea580c',
+    '#8b5cf6','#7c3aed','#64748b','#475569'
+];
 
-/* ============================================================
-   AUTH
-============================================================ */
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .then(function() {
-        auth.onAuthStateChanged(function(u) {
-            if (u) {
-                findPosAccount(u.email, function(found) {
-                    if (found) {
-                        document.getElementById('pos-login')
-                            .classList.add('hidden');
-                        enterPOS();
-                    } else {
-                        document.getElementById('pos-login')
-                            .classList.remove('hidden');
-                    }
-                });
-            } else {
-                document.getElementById('pos-login')
-                    .classList.remove('hidden');
-            }
-        });
-    });
+/* Master technician PIN */
+var MASTER_PIN = '1173';
 
-function posLogin(e) {
-    e.preventDefault();
-    var email = (document.getElementById('pos-email').value    || '')
-                    .trim().toLowerCase();
-    var pw    = (document.getElementById('pos-password').value || '').trim();
-    if (!email || !pw) {
-        posToast('error', 'Enter email and password');
+/* Current PIN entry */
+var pinCode = '';
+
+/* ═══════════════════════════════════════════
+   PIN LOGIN — ALWAYS SHOWS FIRST
+═══════════════════════════════════════════ */
+function showPinLogin() {
+    pinCode = '';
+    updatePinDots();
+    document.getElementById('pin-status').textContent = '';
+    document.getElementById('pin-status').style.color = '';
+    document.getElementById('pin-login-overlay').style.display = 'flex';
+}
+
+function hidePinLogin() {
+    document.getElementById('pin-login-overlay').style.display = 'none';
+}
+
+function pinPress(digit) {
+    if (pinCode.length >= 4) return;
+    pinCode += digit;
+    updatePinDots();
+
+    if (pinCode.length === 4) {
+        setTimeout(function() { validatePin(); }, 200);
+    }
+}
+
+function pinBack() {
+    if (pinCode.length === 0) return;
+    pinCode = pinCode.slice(0, -1);
+    updatePinDots();
+    document.getElementById('pin-status').textContent = '';
+}
+
+function pinClear() {
+    pinCode = '';
+    updatePinDots();
+    document.getElementById('pin-status').textContent = '';
+    document.getElementById('pin-status').style.color = '';
+}
+
+function updatePinDots() {
+    for (var i = 0; i < 4; i++) {
+        var dot = document.getElementById('dot-' + i);
+        if (!dot) continue;
+        dot.classList.remove('filled', 'error');
+        if (i < pinCode.length) {
+            dot.classList.add('filled');
+        }
+    }
+}
+
+function showPinError(msg) {
+    var status = document.getElementById('pin-status');
+    status.textContent = msg;
+    status.style.color = 'var(--danger)';
+
+    for (var i = 0; i < 4; i++) {
+        var dot = document.getElementById('dot-' + i);
+        if (dot) {
+            dot.classList.remove('filled');
+            dot.classList.add('error');
+        }
+    }
+
+    setTimeout(function() {
+        pinClear();
+    }, 800);
+}
+
+function showPinSuccess(name) {
+    var status = document.getElementById('pin-status');
+    status.textContent = '✅ Welcome, ' + name + '!';
+    status.style.color = 'var(--success)';
+
+    setTimeout(function() {
+        hidePinLogin();
+    }, 600);
+}
+
+function validatePin() {
+    /* ── Master technician code ── */
+    if (pinCode === MASTER_PIN) {
+        PS.user = { name: 'Technician', role: 'Technician', pin: MASTER_PIN };
+        showPinSuccess('Technician');
+        firebaseAuthThenLoad();
         return;
     }
-    var btn = document.getElementById('pos-login-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
 
-    auth.signInWithEmailAndPassword(email, pw)
-        .then(function() {
-            return findPosAccount(email, function(found) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                if (found) {
-                    document.getElementById('pos-login')
-                        .classList.add('hidden');
-                    enterPOS();
-                } else {
-                    posToast('error', 'No POS account found for this email.');
-                    auth.signOut();
+    /* ── Check waiter PINs from account data ── */
+    if (PS.accountData) {
+        var users = PS.accountData.users || {};
+        var found = false;
+
+        Object.keys(users).forEach(function(eid) {
+            if (found) return;
+            (users[eid] || []).forEach(function(u) {
+                if (found) return;
+                if (u.pin && u.pin === pinCode) {
+                    PS.user = { name: u.name || 'Staff', role: u.role || 'Waiter', pin: pinCode };
+                    if (u.entityId) {
+                        var ents = PS.accountData.entities || [];
+                        var ent = ents.find(function(e) { return e.id === u.entityId; }) || ents.find(function(e) { return e.id === eid; });
+                        if (ent) {
+                            PS.entity = ent;
+                            PS.entityId = ent.id;
+                            PS.entityName = ent.name;
+                        }
+                    }
+                    found = true;
                 }
             });
-        })
-        .catch(function(err) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-            posToast('error',
-                err.code === 'auth/invalid-credential' ||
-                err.code === 'auth/wrong-password'
-                    ? 'Incorrect email or password'
-                    : err.message);
         });
+
+        /* Also check posPins array if stored separately */
+        var posPins = (PS.accountData.posPins || {})[PS.entityId] || [];
+        if (!found) {
+            posPins.forEach(function(p) {
+                if (found) return;
+                if (p.pin === pinCode) {
+                    PS.user = { name: p.name || 'Staff', role: p.role || 'Waiter', pin: pinCode };
+                    found = true;
+                }
+            });
+        }
+
+        if (found) {
+            showPinSuccess(PS.user.name);
+            loadPOSData();
+            return;
+        }
+    }
+
+    /* ── PIN not found ── */
+    showPinError('Invalid PIN code');
 }
 
-function findPosAccount(email, cb) {
-    var cachedId = localStorage.getItem('pos_account_id');
-    if (cachedId) {
-        db.collection('accounts').doc(cachedId).get()
+/* Firebase auth in background for master code */
+function firebaseAuthThenLoad() {
+    /* Try SSO session first */
+    var sso = null;
+    try {
+        var raw = sessionStorage.getItem('sso_session');
+        if (raw) sso = JSON.parse(raw);
+    } catch(e) {}
+
+    if (auth.currentUser) {
+        /* Already authenticated */
+        findSetupAccount(auth.currentUser.email, function(found) {
+            if (found) loadPOSData();
+            else showToast('warning', 'Signed in but no account found.');
+        });
+    } else if (sso && sso.valid && sso.accountId) {
+        /* Use SSO data to restore account without re-auth */
+        localStorage.setItem('pos_account_id', sso.accountId);
+        db.collection('accounts').doc(sso.accountId).get()
             .then(function(doc) {
-                if (doc.exists && matchAccount(doc, email)) {
-                    if (cb) cb(true);
-                } else {
-                    localStorage.removeItem('pos_account_id');
-                    scanAllAccounts(email, cb);
+                if (doc.exists) {
+                    var data = doc.data();
+                    PS.accountId = sso.accountId;
+                    PS.accountData = data;
+                    var ents = data.entities || [];
+                    PS.entity = ents[0] || null;
+                    PS.entityId = PS.entity ? PS.entity.id : null;
+                    PS.entityName = PS.entity ? PS.entity.name : '';
+                    PS.inventory = (data.inventory || {})[PS.entityId] || [];
+                    PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
+                    loadPOSData();
                 }
-            })
-            .catch(function() { scanAllAccounts(email, cb); });
+            });
     } else {
-        scanAllAccounts(email, cb);
+        showToast('info', 'Master access granted. Data will load when account is found.');
+        /* Try cached account ID */
+        var cached = localStorage.getItem('pos_account_id');
+        if (cached) {
+            db.collection('accounts').doc(cached).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        var data = doc.data();
+                        PS.accountId = cached;
+                        PS.accountData = data;
+                        var ents = data.entities || [];
+                        PS.entity = ents[0] || null;
+                        PS.entityId = PS.entity ? PS.entity.id : null;
+                        PS.entityName = PS.entity ? PS.entity.name : '';
+                        PS.inventory = (data.inventory || {})[PS.entityId] || [];
+                        PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
+                        loadPOSData();
+                    }
+                });
+        }
     }
 }
 
-function scanAllAccounts(email, cb) {
+/* ═══════════════════════════════════════════
+   AUTH — Background Firebase auth
+   (no longer controls login screen)
+═══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+    /* ALWAYS show PIN login first */
+    showPinLogin();
+
+    /* Silently authenticate Firebase in background */
+    auth.onAuthStateChanged(function(u) {
+        if (u) {
+            findSetupAccount(u.email, function(found) {
+                if (found) {
+                    console.log('✅ Firebase auth ready, account found');
+                    /* Pre-load account data so PIN validation can check waiter PINs */
+                    if (!PS._dataLoaded) {
+                        preloadAccountData();
+                    }
+                }
+            });
+        } else {
+            /* Try SSO for background data loading */
+            try {
+                var raw = sessionStorage.getItem('sso_session');
+                if (raw) {
+                    var sso = JSON.parse(raw);
+                    if (sso && sso.valid && sso.accountId) {
+                        localStorage.setItem('pos_account_id', sso.accountId);
+                        preloadFromAccountId(sso.accountId);
+                    }
+                }
+            } catch(e) {}
+
+            /* Also try cached account ID */
+            var cached = localStorage.getItem('pos_account_id');
+            if (cached) {
+                preloadFromAccountId(cached);
+            }
+        }
+    });
+
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+});
+
+/* Pre-load account data so PIN validation works */
+function preloadAccountData() {
+    if (!PS.accountId) return;
+    db.collection('accounts').doc(PS.accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                PS.accountData = doc.data();
+                var ents = PS.accountData.entities || [];
+                if (!PS.entity) {
+                    PS.entity = ents[0] || null;
+                    PS.entityId = PS.entity ? PS.entity.id : null;
+                    PS.entityName = PS.entity ? PS.entity.name : '';
+                }
+                console.log('✅ Account data pre-loaded for PIN validation');
+            }
+        })
+        .catch(function(err) {
+            console.warn('Pre-load error:', err);
+        });
+}
+
+function preloadFromAccountId(accountId) {
+    db.collection('accounts').doc(accountId).get()
+        .then(function(doc) {
+            if (doc.exists) {
+                var data = doc.data();
+                PS.accountId = accountId;
+                PS.accountData = data;
+                var ents = data.entities || [];
+                if (!PS.entity) {
+                    PS.entity = ents[0] || null;
+                    PS.entityId = PS.entity ? PS.entity.id : null;
+                    PS.entityName = PS.entity ? PS.entity.name : '';
+                }
+                PS.inventory = (data.inventory || {})[PS.entityId] || [];
+                PS.menuItems = (data.menuItems || {})[PS.entityId] || [];
+                console.log('✅ Account pre-loaded from ID: ' + accountId);
+            }
+        })
+        .catch(function(err) {
+            console.warn('Pre-load from ID error:', err);
+        });
+}
+
+function findSetupAccount(email, cb) {
+    var cached = localStorage.getItem('pos_account_id');
+    if (cached) {
+        db.collection('accounts').doc(cached).get()
+            .then(function(doc) {
+                if (doc.exists && matchSetup(doc, email)) { if(cb) cb(true); }
+                else { localStorage.removeItem('pos_account_id'); scanAccounts(email,cb); }
+            })
+            .catch(function() { scanAccounts(email, cb); });
+    } else {
+        scanAccounts(email, cb);
+    }
+}
+
+function scanAccounts(email, cb) {
     db.collection('accounts').get()
         .then(function(snap) {
             var found = false;
             snap.forEach(function(doc) {
                 if (found) return;
-                if (matchAccount(doc, email)) found = true;
+                if (matchSetup(doc, email)) found = true;
             });
             if (cb) cb(found);
         })
-        .catch(function() { if (cb) cb(false); });
+        .catch(function() { if(cb) cb(false); });
 }
 
-function matchAccount(doc, email) {
+function matchSetup(doc, email) {
     var data = doc.data();
     if (data.owner && data.owner.email &&
         data.owner.email.toLowerCase() === email) {
-        setPosAccount(doc.id, data, email, 'owner', null, null);
+        applySetupState(doc.id, data,
+            data.owner.name || email, 'Owner', null);
         return true;
     }
     var users = data.users || {};
@@ -658,8 +756,11 @@ function matchAccount(doc, email) {
         if (found) return;
         (users[eid] || []).forEach(function(u) {
             if (found) return;
-            if (u.email && u.email.toLowerCase() === email) {
-                setPosAccount(doc.id, data, email, 'user', eid, u);
+            if (u.email && u.email.toLowerCase() === email &&
+                (u.role === 'Manager' ||
+                 u.role === 'General Manager' ||
+                 u.role === 'Owner')) {
+                applySetupState(doc.id, data, u.name || email, u.role, eid);
                 found = true;
             }
         });
@@ -667,1735 +768,1191 @@ function matchAccount(doc, email) {
     return found;
 }
 
-function setPosAccount(docId, data, email, type, eid, userObj) {
+function applySetupState(docId, data, name, role, eid) {
     localStorage.setItem('pos_account_id', docId);
-    POS.accountId   = docId;
-    POS.accountData = data;
-    var ents = data.entities || [];
-
-    if (type === 'owner') {
-        POS.user = {
-            name:  data.owner.name || email,
-            email: email,
-            role:  'Owner',
-            uid:   auth.currentUser ? auth.currentUser.uid : ''
-        };
-        POS.entity     = ents[0] || null;
-        POS.entityId   = POS.entity ? POS.entity.id   : null;
-        POS.entityName = POS.entity ? POS.entity.name : '';
-    } else {
-        POS.user = {
-            name:  userObj.name || email,
-            email: email,
-            role:  userObj.role || 'Waiter',
-            uid:   auth.currentUser ? auth.currentUser.uid : '',
-            pin:   userObj.pin  || null
-        };
-        POS.entityId   = eid;
-        POS.entity     = ents.find(function(e) {
-            return e.id === eid;
-        }) || ents[0] || null;
-        POS.entityName = POS.entity ? POS.entity.name : '';
+    PS.accountId   = docId;
+    PS.accountData = data;
+    /* Don't override user if already set by PIN login */
+    if (!PS.user) {
+        PS.user = { name: name, role: role };
     }
+    var ents       = data.entities || [];
+    PS.entity      = eid
+        ? (ents.find(function(e) { return e.id === eid; }) || ents[0] || null)
+        : (ents[0] || null);
+    PS.entityId    = PS.entity ? PS.entity.id   : null;
+    PS.entityName  = PS.entity ? PS.entity.name : '';
+    PS.inventory   = (data.inventory  || {})[PS.entityId] || [];
+    PS.menuItems   = (data.menuItems  || {})[PS.entityId] || [];
 }
 
-function posLogout() {
-    stopSync();
-    auth.signOut().then(function() {
-        POS.user         = null;
-        POS.accountId    = null;
-        POS.currentTable = null;
-        POS.currentOrder = [];
-        document.getElementById('pos-app').classList.add('hidden');
-        document.getElementById('pos-login').classList.remove('hidden');
-        [
-            'order-screen','cashup-screen','pin-modal',
-            'notes-modal','vt-modal','void-modal','transfer-modal',
-            'new-table-modal','install-modal','discount-modal',
-            'qr-modal','promo-modal'
-        ].forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.remove();
-        });
-    });
-}
-
-function posForgotPw() {
-    var e = prompt('Enter your email address:');
-    if (!e) return;
-    auth.sendPasswordResetEmail(e.trim())
-        .then(function() { posToast('success', 'Password reset link sent!'); })
-        .catch(function(err) { posToast('error', err.message); });
-}
-
-function stopSync() {
-    if (POS.syncListener)   { POS.syncListener();  POS.syncListener   = null; }
-    if (POS.shiftTimer)     { clearInterval(POS.shiftTimer); POS.shiftTimer = null; }
-    if (POS.stockSaveTimer) { clearTimeout(POS.stockSaveTimer); POS.stockSaveTimer = null; }
-}
-
-/* ============================================================
-   ENTER POS
-============================================================ */
-function enterPOS() {
-    document.getElementById('pos-app').classList.remove('hidden');
-    document.getElementById('pos-waiter-name').textContent =
-        POS.user ? POS.user.name : 'Waiter';
-    document.getElementById('pos-entity-name').textContent =
-        POS.entityName || 'Entity';
-    POS.clockInTime = new Date();
-    startShiftTimer();
-    loadPOSData();
-    startPOSSync();
-}
-
+/* ═══════════════════════════════════════════
+   LOAD / SAVE
+═══════════════════════════════════════════ */
 function loadPOSData() {
-    if (!POS.accountId) return;
-    db.collection('accounts').doc(POS.accountId).get()
+    if (!PS.accountId) return;
+    document.getElementById('header-entity').textContent =
+        PS.entityName || 'Your Entity';
+
+    db.collection('accounts').doc(PS.accountId).get()
         .then(function(doc) {
             if (!doc.exists) return;
             var d = doc.data();
-            POS.menuTabs        = (d.posMenuTabs        || {})[POS.entityId] || [];
-            POS.kitchenSections = (d.posKitchenSections || {})[POS.entityId] || [];
-            POS.tables          = (d.posTables          || {})[POS.entityId] || [];
-            POS.happyHour       = (d.posHappyHour       || {})[POS.entityId] ||
-                                  { active: false };
-        });
-}
-
-function startPOSSync() {
-    if (!POS.accountId) return;
-    stopSync();
-    POS.syncListener = db.collection('accounts').doc(POS.accountId)
-        .onSnapshot(function(doc) {
-            if (!doc.exists) return;
-            var d = doc.data();
-            POS.accountData = d;
-            POS.orders      = (d.posOrders   || {})[POS.entityId] || {};
-            POS.menuItems   = (d.posMenuItems || {})[POS.entityId] || [];
-            POS.inventory   = (d.inventory    || {})[POS.entityId] || [];
-            POS.menuTabs    = (d.posMenuTabs  || {})[POS.entityId] || [];
-            POS.happyHour   = (d.posHappyHour || {})[POS.entityId] ||
-                              { active: false };
-            calculatePortions();
-            renderDashboard();
-            if (POS.currentTable && document.getElementById('order-screen')) {
-                POS.currentOrder =
-                    (POS.orders[POS.currentTable] || {}).items || [];
-                renderBill();
-                renderOrderItems(POS._activeOrderTab);
-            }
-        }, function(err) {
-            console.error('Sync error:', err);
-            posToast('error', 'Connection lost. Reconnecting…');
-        });
-}
-
-function posSave(fields) {
-    if (!POS.accountId) return Promise.resolve();
-    var data = {
-        lastUpdated:       firebase.firestore.FieldValue.serverTimestamp(),
-        lastUpdatedBy:     POS.user ? POS.user.name : 'POS',
-        lastUpdatedDevice: 'POS'
-    };
-    Object.keys(fields).forEach(function(k) { data[k] = fields[k]; });
-    return db.collection('accounts').doc(POS.accountId)
-        .set(data, { merge: true })
-        .catch(function(e) { console.warn('Save error:', e); });
-}
-
-/* ============================================================
-   SHIFT TIMER
-============================================================ */
-function startShiftTimer() {
-    if (POS.shiftTimer) clearInterval(POS.shiftTimer);
-    POS.shiftTimer = setInterval(function() {
-        if (!POS.clockInTime) return;
-        var diff = Date.now() - POS.clockInTime.getTime();
-        var h = Math.floor(diff / 3600000);
-        var m = Math.floor((diff % 3600000) / 60000);
-        var s = Math.floor((diff % 60000) / 1000);
-        var el = document.getElementById('pos-shift-time');
-        if (el) el.textContent =
-            ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
-    }, 1000);
-}
-
-function formatShiftTime() {
-    if (!POS.clockInTime) return '00:00';
-    var diff = Date.now() - POS.clockInTime.getTime();
-    var h = Math.floor(diff / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    return ('0'+h).slice(-2)+':'+('0'+m).slice(-2);
-}
-
-/* ============================================================
-   PRICING
-============================================================ */
-function getItemPrice(item) {
-    if (item.specialActive && item.specialPrice)  return item.specialPrice;
-    if (isHappyHourActive() && item.happyHourPrice) return item.happyHourPrice;
-    return item.price || 0;
-}
-
-function isHappyHourActive() {
-    var hh = POS.happyHour;
-    if (!hh) return false;
-    if (hh.manualOverride) return hh.active;
-    if (!hh.startTime || !hh.endTime) return false;
-    var now  = new Date();
-    var hhmm = ('0'+now.getHours()).slice(-2)+':'+
-               ('0'+now.getMinutes()).slice(-2);
-    return hhmm >= hh.startTime && hhmm <= hh.endTime;
-}
-
-/* ============================================================
-   STOCK MANAGEMENT
-============================================================ */
-function calculatePortions() {
-    POS.menuItems.forEach(function(mi) {
-        if (!mi.linkedInventoryItems || !mi.linkedInventoryItems.length) {
-            mi.portionsAvailable = 999;
-            return;
-        }
-        var min = 999;
-        mi.linkedInventoryItems.forEach(function(invId) {
-            var inv = POS.inventory.find(function(i) { return i.id === invId; });
-            if (inv) {
-                var p = Math.floor((inv.quantity||0) * (mi.portionsPerUnit||1));
-                if (p < min) min = p;
-            }
-        });
-        mi.portionsAvailable = min;
-        mi.status = min <= 0 ? 'outofstock' : 'active';
-    });
-}
-
-function deductStock(menuItem) {
-    if (!menuItem.linkedInventoryItems || !menuItem.linkedInventoryItems.length)
-        return;
-    menuItem.linkedInventoryItems.forEach(function(invId) {
-        var inv = POS.inventory.find(function(i) { return i.id === invId; });
-        if (!inv) return;
-        var deduct = 1 / (menuItem.portionsPerUnit || 1);
-        inv.quantity = Math.max(0,
-            parseFloat(((inv.quantity||0) - deduct).toFixed(4)));
-        inv.value  = (inv.quantity||0) * (inv.cost||0);
-        inv.status = inv.quantity === 0 ? 'out-of-stock'
-                   : inv.quantity <= (inv.reorder||0) ? 'low-stock' : 'in-stock';
-    });
-    calculatePortions();
-    scheduleStockSave();
-}
-
-function reverseStockDeduction(orderItem) {
-    var mi = POS.menuItems.find(function(m) {
-        return m.id === orderItem.menuItemId;
-    });
-    if (!mi || !mi.linkedInventoryItems) return;
-    mi.linkedInventoryItems.forEach(function(invId) {
-        var inv = POS.inventory.find(function(i) { return i.id === invId; });
-        if (!inv) return;
-        var add = 1 / (mi.portionsPerUnit || 1);
-        inv.quantity = parseFloat(((inv.quantity||0) + add).toFixed(4));
-        inv.value    = (inv.quantity||0) * (inv.cost||0);
-        inv.status   = inv.quantity === 0 ? 'out-of-stock'
-                     : inv.quantity <= (inv.reorder||0) ? 'low-stock' : 'in-stock';
-    });
-    calculatePortions();
-    scheduleStockSave();
-}
-
-function scheduleStockSave() {
-    if (POS.stockSaveTimer) clearTimeout(POS.stockSaveTimer);
-    POS.stockSaveTimer = setTimeout(function() {
-        var update = {};
-        update['inventory.' + POS.entityId] = POS.inventory;
-        posSave(update);
-    }, 2000);
-}
-
-/* ============================================================
-   DASHBOARD
-============================================================ */
-function renderDashboard() {
-    POS.happyHour.active = isHappyHourActive();
-
-    var openOrders = Object.keys(POS.orders).filter(function(k) {
-        return POS.orders[k] && POS.orders[k].status === 'open';
-    });
-
-    var shiftStart = POS.clockInTime ? POS.clockInTime.toISOString() : null;
-    var totalSales = Object.values(POS.orders).reduce(function(sum, o) {
-        if (o.status === 'closed' && o.closedAt &&
-            (!shiftStart || o.closedAt >= shiftStart)) {
-            sum += o.total || 0;
-        }
-        return sum;
-    }, 0);
-
-    var html =
-        '<div class="dash-welcome">' +
-        '<div class="dash-avatar">' +
-        (POS.user ? POS.user.name.charAt(0).toUpperCase() : 'W') +
-        '</div><div>' +
-        '<div style="font-size:1rem;font-weight:700">Welcome, ' +
-        escHtml(POS.user ? POS.user.name : 'Waiter') + '</div>' +
-        '<div style="font-size:.78rem;color:var(--text-light)">' +
-        escHtml(POS.user ? POS.user.role : '') + ' • ' +
-        escHtml(POS.entityName || '') + '</div>' +
-        (isHappyHourActive()
-            ? '<div style="font-size:.75rem;color:var(--gold);' +
-              'margin-top:4px;font-weight:600">' +
-              '<i class="fas fa-star"></i> Happy Hour Active!</div>'
-            : '') +
-        '</div></div>';
-
-    html +=
-        '<div class="dash-stats">' +
-        '<div class="dash-stat"><small>Shift Time</small>' +
-        '<strong>' + formatShiftTime() + '</strong></div>' +
-        '<div class="dash-stat gold"><small>Total Sales</small>' +
-        '<strong>R' + totalSales.toFixed(0) + '</strong></div>' +
-        '<div class="dash-stat green"><small>Open Tables</small>' +
-        '<strong>' + openOrders.length + '</strong></div>' +
-        '</div>';
-
-    html +=
-        '<div class="dash-actions">' +
-        '<div class="dash-action" onclick="openNewTable()" ' +
-        'style="border-left:4px solid var(--primary)">' +
-        '<i class="fas fa-plus-circle" style="color:var(--primary)"></i>' +
-        '<h3>Open Table</h3><p>Start a new table order</p></div>' +
-        '<div class="dash-action" onclick="openTakeaway()" ' +
-        'style="border-left:4px solid var(--gold)">' +
-        '<i class="fas fa-shopping-bag" style="color:var(--gold)"></i>' +
-        '<h3>Takeaway</h3><p>Process a takeaway order</p></div>' +
-        '</div>';
-
-    if (openOrders.length > 0) {
-        html +=
-            '<div style="font-size:.82rem;font-weight:700;' +
-            'color:var(--text-light);text-transform:uppercase;' +
-            'letter-spacing:1px;margin:16px 0 8px">' +
-            '<i class="fas fa-chair"></i> Open Tables</div>' +
-            '<div class="open-tables-grid">';
-
-        openOrders.forEach(function(tableKey) {
-            var order = POS.orders[tableKey];
-            if (!order) return;
-            var items = (order.items || []).filter(function(i) {
-                return !i.voided;
-            });
-            var total = items.reduce(function(s, i) {
-                return s + ((i.price||0) * (i.qty||1));
-            }, 0);
-            var elapsed = order.openedAt
-                ? Math.floor(
-                    (Date.now()-new Date(order.openedAt).getTime()) / 60000)
-                : 0;
-            var hasReady = items.some(function(i) {
-                return i.status === 'ready';
-            });
-            html +=
-                '<div class="open-table-card occupied" ' +
-                'onclick="resumeTable(\'' + tableKey + '\')">' +
-                '<div class="table-num">' +
-                escHtml(String(order.tableNumber || tableKey)) + '</div>' +
-                '<div class="table-info">' +
-                escHtml(order.customerName || 'Guest') +
-                ' • ' + (order.pax||1) + ' pax</div>' +
-                '<div class="table-info">' + elapsed + ' min</div>' +
-                '<div class="table-total">R' + total.toFixed(2) + '</div>' +
-                (hasReady
-                    ? '<div class="table-alert">' +
-                      '<i class="fas fa-bell"></i> Items Ready</div>'
-                    : '') +
-                '</div>';
-        });
-        html += '</div>';
-    }
-
-    document.getElementById('waiter-dash').innerHTML = html;
-}
-
-/* ============================================================
-   OPEN TABLE / TAKEAWAY
-============================================================ */
-function openNewTable() {
-    var availableOpts = '';
-    if (POS.tables.length > 0) {
-        var avail = POS.tables.filter(function(t) {
-            var o = POS.orders['table-' + t.number];
-            return !o || o.status !== 'open';
-        });
-        if (avail.length === 0) {
-            posToast('warning', 'All configured tables are currently open.');
-            return;
-        }
-        avail.forEach(function(t) {
-            availableOpts +=
-                '<option value="' + t.number + '">Table ' + t.number + '</option>';
-        });
-    } else {
-        for (var n = 1; n <= 30; n++) {
-            var o = POS.orders['table-' + n];
-            if (!o || o.status !== 'open') {
-                availableOpts +=
-                    '<option value="' + n + '">Table ' + n + '</option>';
-            }
-        }
-        if (!availableOpts) {
-            posToast('warning', 'All tables are currently open.');
-            return;
-        }
-    }
-
-    removeModal('new-table-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'new-table-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card" style="max-width:420px">' +
-        '<h3><i class="fas fa-plus-circle" style="color:var(--primary)"></i>' +
-        ' Open New Table</h3>' +
-        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);' +
-        'display:block;margin-bottom:4px">Table Number *</label>' +
-        '<select class="pos-input" id="nt-table" style="margin-bottom:12px">' +
-        availableOpts + '</select>' +
-        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);' +
-        'display:block;margin-bottom:4px">Number of Guests *</label>' +
-        '<input type="number" class="pos-input" id="nt-pax" ' +
-        'value="2" min="1" max="50" style="margin-bottom:12px">' +
-        '<label style="font-size:.82rem;font-weight:600;color:var(--text-light);' +
-        'display:block;margin-bottom:4px">Customer Name</label>' +
-        '<input type="text" class="pos-input" id="nt-name" ' +
-        'placeholder="Optional" style="margin-bottom:0">' +
-        '<div class="notes-actions">' +
-        '<button style="background:var(--bg);color:var(--text-light)" ' +
-        'onclick="removeModal(\'new-table-modal\')">Cancel</button>' +
-        '<button style="background:var(--primary);color:#fff" ' +
-        'onclick="confirmNewTable()">Open Table</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-}
-
-function confirmNewTable() {
-    var tableNum = document.getElementById('nt-table').value;
-    var pax      = parseInt(document.getElementById('nt-pax').value) || 2;
-    var name     = (document.getElementById('nt-name').value || '').trim() || 'Guest';
-
-    if (!tableNum) { posToast('error', 'Please select a table'); return; }
-    var tableKey = 'table-' + tableNum;
-    if (POS.orders[tableKey] && POS.orders[tableKey].status === 'open') {
-        posToast('error', 'Table ' + tableNum + ' is already open');
-        return;
-    }
-
-    removeModal('new-table-modal');
-
-    var order = {
-        id:              'ORD-' + Date.now(),
-        tableNumber:     parseInt(tableNum),
-        orderType:       'dine-in',
-        waiterName:      POS.user ? POS.user.name : 'Waiter',
-        waiterId:        POS.user ? POS.user.uid  : '',
-        pax:             pax,
-        customerName:    name,
-        items:           [],
-        subtotal:        0,
-        gratuity:        0,
-        discount:        0,
-        total:           0,
-        paymentMethod:   null,
-        status:          'open',
-        openedAt:        new Date().toISOString(),
-        closedAt:        null,
-        isPromotion:     false,
-        promotionReason: null
-    };
-    POS.orders[tableKey] = order;
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' + tableKey] = order;
-    posSave(update)
-        .then(function() { openOrderScreen(tableKey); })
-        .catch(function() {
-            posToast('error', 'Failed to open table. Please try again.');
-            delete POS.orders[tableKey];
-        });
-}
-
-function openTakeaway() {
-    var tableKey = 'takeaway-' + Date.now() + '-' +
-                   Math.random().toString(36).substr(2, 5);
-    var order = {
-        id:              'ORD-TK-' + Date.now(),
-        tableNumber:     'Takeaway',
-        orderType:       'takeaway',
-        waiterName:      POS.user ? POS.user.name : 'Waiter',
-        waiterId:        POS.user ? POS.user.uid  : '',
-        pax:             1,
-        customerName:    'Takeaway',
-        items:           [],
-        subtotal:        0,
-        gratuity:        0,
-        discount:        0,
-        total:           0,
-        paymentMethod:   null,
-        status:          'open',
-        openedAt:        new Date().toISOString(),
-        closedAt:        null,
-        isTakeaway:      true,
-        isPromotion:     false,
-        promotionReason: null
-    };
-    POS.orders[tableKey] = order;
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' + tableKey] = order;
-    posSave(update)
-        .then(function() { openOrderScreen(tableKey); })
-        .catch(function() {
-            posToast('error', 'Failed to create takeaway.');
-            delete POS.orders[tableKey];
-        });
-}
-
-function resumeTable(tableKey) { openOrderScreen(tableKey); }
-
-/* ============================================================
-   ORDER SCREEN
-============================================================ */
-function openOrderScreen(tableKey) {
-    removeModal('order-screen');
-    POS.currentTable    = tableKey;
-    POS.currentOrder    = (POS.orders[tableKey] || {}).items || [];
-    var order           = POS.orders[tableKey] || {};
-    var activeTab       = POS.menuTabs.length > 0 ? POS.menuTabs[0].id : null;
-    POS._activeOrderTab = activeTab;
-
-    var screen = document.createElement('div');
-    screen.className = 'order-screen';
-    screen.id        = 'order-screen';
-    screen.innerHTML =
-        '<div class="order-header">' +
-        '<button class="pos-header-btn" onclick="closeOrderScreen()">' +
-        '<i class="fas fa-arrow-left"></i></button>' +
-        '<h3>' +
-        (order.isTakeaway
-            ? '<i class="fas fa-shopping-bag"></i> Takeaway'
-            : 'Table ' + escHtml(String(order.tableNumber || ''))) +
-        (order.customerName && !order.isTakeaway
-            ? ' — ' + escHtml(order.customerName) : '') +
-        '</h3>' +
-        '<span style="font-size:.72rem;opacity:.7">' +
-        (order.pax||1) + ' pax</span>' +
-        '<button class="pos-header-btn" ' +
-        'onclick="showQRCode(\'' + tableKey + '\')" title="Show QR">' +
-        '<i class="fas fa-qrcode"></i></button>' +
-        '</div>' +
-        '<div class="order-body">' +
-        '<div class="order-menu">' +
-        '<div class="order-tabs" id="order-tabs"></div>' +
-        '<div class="order-items-grid" id="order-items"></div>' +
-        '</div>' +
-        '<div class="order-bill">' +
-        '<div class="bill-header">' +
-        '<span>Current Order</span>' +
-        '<span id="bill-count">0 items</span>' +
-        '</div>' +
-        '<div class="bill-items" id="bill-items"></div>' +
-        '<div class="bill-total-area" id="bill-totals"></div>' +
-        '</div></div>';
-
-    document.body.appendChild(screen);
-    renderOrderTabs();
-    renderOrderItems(activeTab);
-    renderBill();
-}
-
-function closeOrderScreen() {
-    removeModal('order-screen');
-    POS.currentTable = null;
-    POS.currentOrder = [];
-    renderDashboard();
-}
-
-/* ============================================================
-   MENU TABS + ITEMS
-============================================================ */
-function renderOrderTabs() {
-    var el = document.getElementById('order-tabs');
-    if (!el) return;
-    el.innerHTML = POS.menuTabs.map(function(tab) {
-        return '<button class="order-tab' +
-               (POS._activeOrderTab === tab.id ? ' active' : '') + '" ' +
-               'style="background:' + (tab.color||'#1a8ba8') + '" ' +
-               'onclick="selectOrderTab(\'' + tab.id + '\')">' +
-               '<i class="fas fa-' + (tab.icon||'tag') + '"></i> ' +
-               escHtml(tab.name) + '</button>';
-    }).join('');
-}
-
-function selectOrderTab(tabId) {
-    POS._activeOrderTab = tabId;
-    renderOrderTabs();
-    renderOrderItems(tabId);
-}
-
-function renderOrderItems(tabId) {
-    var el = document.getElementById('order-items');
-    if (!el) return;
-    var items = POS.menuItems.filter(function(i) { return i.tabId === tabId; });
-    if (items.length === 0) {
-        el.innerHTML =
-            '<div style="grid-column:1/-1;text-align:center;' +
-            'padding:40px;color:var(--text-muted)">' +
-            '<i class="fas fa-utensils" style="font-size:2rem;' +
-            'opacity:.3;display:block;margin-bottom:8px"></i>' +
-            'No items in this category</div>';
-        return;
-    }
-    el.innerHTML = items.map(function(item) {
-        var price = getItemPrice(item);
-        var oos   = item.status === 'outofstock' || item.portionsAvailable <= 0;
-        return '<div class="order-item-card' + (oos ? ' out-of-stock' : '') + '" ' +
-               'data-item-id="' + escHtml(item.id) + '" ' +
-               (oos ? '' : 'onclick="addItemToOrder(this.dataset.itemId)"') + '>' +
-               (item.specialActive ? '<div class="item-special">SPECIAL</div>' : '') +
-               '<div class="item-name">' + escHtml(item.name) + '</div>' +
-               '<div class="item-price">R' + price.toFixed(2) + '</div>' +
-               '<div class="item-portions">' +
-               (oos ? 'OUT OF STOCK'
-                   : item.portionsAvailable >= 999 ? '✓ Available'
-                   : item.portionsAvailable + ' left') +
-               '</div>' +
-               (oos ? '<div class="item-oos">SOLD OUT</div>' : '') +
-               '</div>';
-    }).join('');
-}
-
-/* ============================================================
-   ADD ITEM TO ORDER
-============================================================ */
-function addItemToOrder(itemId) {
-    var item = POS.menuItems.find(function(i) { return i.id === itemId; });
-    if (!item || item.status === 'outofstock') return;
-    var tab     = POS.menuTabs.find(function(t) { return t.id === item.tabId; });
-    var subCats = (tab && tab.subCategories && tab.subCategories.length > 0)
-                ? tab.subCategories : null;
-    if (subCats) {
-        showNotesModal(item, subCats);
-    } else {
-        confirmAddItem(item, '', null);
-    }
-}
-
-function showNotesModal(item, subCats) {
-    removeModal('notes-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'notes-modal';
-    var subHtml = '';
-    if (subCats && subCats.length > 0) {
-        subHtml =
-            '<div style="font-size:.82rem;font-weight:600;' +
-            'color:var(--text);margin-bottom:6px">Options:</div>' +
-            '<div class="notes-subcats">' +
-            subCats.map(function(sc) {
-                return '<div class="notes-subcat" ' +
-                       'onclick="this.classList.toggle(\'selected\')" ' +
-                       'data-val="' + escHtml(sc) + '">' +
-                       escHtml(sc) + '</div>';
-            }).join('') + '</div>';
-    }
-    modal.innerHTML =
-        '<div class="notes-modal-card">' +
-        '<h3>' + escHtml(item.name) + ' — R' +
-        getItemPrice(item).toFixed(2) + '</h3>' +
-        subHtml +
-        '<div style="font-size:.82rem;font-weight:600;' +
-        'color:var(--text);margin-bottom:6px">Special Instructions:</div>' +
-        '<textarea class="notes-textarea" id="item-notes" ' +
-        'placeholder="e.g. No onions, extra sauce…"></textarea>' +
-        '<div class="notes-actions">' +
-        '<button style="background:var(--bg);color:var(--text-light)" ' +
-        'onclick="removeModal(\'notes-modal\')">Cancel</button>' +
-        '<button style="background:var(--primary);color:#fff" ' +
-        'data-item-id="' + escHtml(item.id) + '" ' +
-        'onclick="confirmAddFromModal(this.dataset.itemId)">' +
-        'Add to Order</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-    setTimeout(function() {
-        var ta = document.getElementById('item-notes');
-        if (ta) ta.focus();
-    }, 200);
-}
-
-function confirmAddFromModal(itemId) {
-    var item = POS.menuItems.find(function(i) { return i.id === itemId; });
-    if (!item) return;
-    var notes = (document.getElementById('item-notes').value || '').trim();
-    var selectedSubs = [];
-    document.querySelectorAll('.notes-subcat.selected').forEach(function(el) {
-        selectedSubs.push(el.dataset.val);
-    });
-    var fullNote = [selectedSubs.join(', '), notes]
-        .filter(function(n) { return n; }).join(' — ');
-    removeModal('notes-modal');
-    confirmAddItem(item, fullNote, selectedSubs);
-}
-
-function confirmAddItem(item, notes, subSelections) {
-    var price   = getItemPrice(item);
-    var tab     = POS.menuTabs.find(function(t) { return t.id === item.tabId; });
-    var section = item.sectionId || (tab ? tab.sectionId : null);
-
-    var existing = POS.currentOrder.find(function(i) {
-        return i.menuItemId === item.id &&
-               i.notes      === (notes || '') &&
-               i.status     === 'ordered' &&
-               !i.voided;
-    });
-
-    if (existing) {
-        existing.qty   = (existing.qty || 1) + 1;
-        existing.total = price * existing.qty;
-    } else {
-        POS.currentOrder.push({
-            id:              'OI-' + Date.now() + '-' +
-                             Math.random().toString(36).slice(2, 6),
-            menuItemId:      item.id,
-            name:            item.name,
-            price:           price,
-            qty:             1,
-            total:           price,
-            notes:           notes || '',
-            subSelections:   subSelections || [],
-            section:         section,
-            status:          'ordered',
-            orderedAt:       new Date().toISOString(),
-            sentAt:          null,
-            readyAt:         null,
-            voided:          false,
-            voidReason:      null,
-            voidBy:          null,
-            voidedAt:        null,
-            transferredFrom: null,
-            transferredAt:   null
-        });
-    }
-
-    if (POS.orders[POS.currentTable]) {
-        POS.orders[POS.currentTable].items = POS.currentOrder;
-        recalcOrderTotal();
-    }
-    deductStock(item);
-    renderBill();
-    renderOrderItems(POS._activeOrderTab);
-    posToast('success', '✓ ' + item.name + ' added');
-}
-
-/* ============================================================
-   RENDER BILL
-============================================================ */
-function renderBill() {
-    var billEl   = document.getElementById('bill-items');
-    var countEl  = document.getElementById('bill-count');
-    var totalsEl = document.getElementById('bill-totals');
-    if (!billEl) return;
-
-    var items    = POS.currentOrder.filter(function(i) { return !i.voided; });
-    var unsentCt = items.filter(function(i) {
-        return i.status === 'ordered';
-    }).length;
-
-    if (countEl) countEl.textContent =
-        items.length + ' item' + (items.length !== 1 ? 's' : '');
-
-    if (items.length === 0) {
-        billEl.innerHTML =
-            '<div style="text-align:center;padding:30px;' +
-            'color:var(--text-muted);font-size:.82rem">' +
-            '<i class="fas fa-receipt" style="font-size:1.5rem;' +
-            'display:block;margin-bottom:8px;opacity:.3"></i>' +
-            'No items added yet</div>';
-    } else {
-        billEl.innerHTML = items.map(function(item) {
-            var qty       = item.qty || 1;
-            var linePrice = (item.price||0) * qty;
-            var isSent    = item.status === 'sent';
-            var isReady   = item.status === 'ready';
-            var statusIcon = isReady
-                ? '<i class="fas fa-bell" style="color:var(--gold)"></i>'
-                : isSent
-                    ? '<i class="fas fa-check" style="color:var(--success)"></i>'
-                    : '';
-            return '<div class="bill-item' +
-                   (isSent ? ' sent' : '') +
-                   (isReady ? ' ready' : '') + '">' +
-                   '<div class="bill-item-info">' +
-                   '<div class="bill-item-name">' +
-                   statusIcon + ' ' + escHtml(item.name) + '</div>' +
-                   (qty > 1
-                       ? '<div class="bill-item-meta">×' + qty +
-                         ' @ R' + item.price.toFixed(2) + '</div>'
-                       : '') +
-                   (item.notes
-                       ? '<div class="bill-item-note">' +
-                         escHtml(item.notes) + '</div>'
-                       : '') +
-                   '<div class="bill-item-actions">' +
-                   '<button class="bill-item-btn void" ' +
-                   'data-item-id="' + item.id + '" ' +
-                   'onclick="showVoidTransfer(this.dataset.itemId)">' +
-                   '<i class="fas fa-ellipsis-h"></i> Options</button>' +
-                   '</div></div>' +
-                   '<div class="bill-item-price">R' +
-                   linePrice.toFixed(2) + '</div>' +
-                   '</div>';
-        }).join('');
-    }
-
-    recalcOrderTotal();
-
-    if (totalsEl) {
-        var order    = POS.orders[POS.currentTable] || {};
-        var subtotal = items.reduce(function(s, i) {
-            return s + ((i.price||0) * (i.qty||1));
-        }, 0);
-        var discount = order.discount  || 0;
-        var gratuity = order.gratuity  || 0;
-        var total    = subtotal - discount + gratuity;
-
-        totalsEl.innerHTML =
-            '<div class="bill-total-row"><span>Subtotal</span>' +
-            '<strong>R' + subtotal.toFixed(2) + '</strong></div>' +
-            (discount > 0
-                ? '<div class="bill-total-row"><span>Discount</span>' +
-                  '<strong style="color:var(--danger)">-R' +
-                  discount.toFixed(2) + '</strong></div>' : '') +
-            (gratuity > 0
-                ? '<div class="bill-total-row"><span>Gratuity</span>' +
-                  '<strong style="color:var(--success)">+R' +
-                  gratuity.toFixed(2) + '</strong></div>' : '') +
-            '<div class="bill-total-row total"><span>TOTAL</span>' +
-            '<strong>R' + total.toFixed(2) + '</strong></div>' +
-            '<div class="bill-action-btns">' +
-            '<button class="bill-send-btn" onclick="sendToKitchen()"' +
-            (unsentCt === 0 ? ' disabled' : '') + '>' +
-            '<i class="fas fa-paper-plane"></i> Send to Kitchen' +
-            (unsentCt > 0 ? ' (' + unsentCt + ')' : '') + '</button>' +
-            '<button class="bill-pay-btn bill-pay-cash" ' +
-            'onclick="closeTable(\'cash\')">' +
-            '<i class="fas fa-money-bill-wave"></i> Cash</button>' +
-            '<button class="bill-pay-btn bill-pay-card" ' +
-            'onclick="closeTable(\'card\')">' +
-            '<i class="fas fa-credit-card"></i> Card</button>' +
-            '<button class="bill-pay-btn bill-pay-discount" ' +
-            'onclick="showDiscountModal()">' +
-            '<i class="fas fa-tag"></i> Discount' +
-            '<span style="font-size:.65rem;display:block;font-weight:400">' +
-            'Manager PIN</span></button>' +
-            '<button class="bill-pay-btn" ' +
-            'style="background:linear-gradient(135deg,var(--success),#1a7a4a);' +
-            'color:#fff;grid-column:1/-1" onclick="showPromotionClose()">' +
-            '<i class="fas fa-gift"></i> Promotion / Complimentary' +
-            '<span style="font-size:.65rem;display:block;' +
-            'font-weight:400;opacity:.8">Manager PIN required</span>' +
-            '</button></div>';
-    }
-}
-
-function recalcOrderTotal() {
-    if (!POS.orders[POS.currentTable]) return;
-    var items = POS.currentOrder.filter(function(i) { return !i.voided; });
-    var subtotal = items.reduce(function(s, i) {
-        return s + ((i.price||0) * (i.qty||1));
-    }, 0);
-    var order      = POS.orders[POS.currentTable];
-    order.subtotal = subtotal;
-    order.total    = subtotal - (order.discount||0) + (order.gratuity||0);
-    order.items    = POS.currentOrder;
-}
-
-/* ============================================================
-   SEND TO KITCHEN
-============================================================ */
-function sendToKitchen() {
-    var newItems = POS.currentOrder.filter(function(i) {
-        return i.status === 'ordered' && !i.voided;
-    });
-    if (newItems.length === 0) {
-        posToast('info', 'No new items to send');
-        return;
-    }
-    var kitchenItems = newItems.filter(function(i) {
-        return i.section !== 'bar';
-    });
-    var barItems = newItems.filter(function(i) {
-        return i.section === 'bar';
-    });
-
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' + POS.currentTable] =
-        POS.orders[POS.currentTable];
-    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedDevice'] = 'POS';
-
-    posSave(update).then(function() {
-        newItems.forEach(function(i) {
-            i.status = 'sent';
-            i.sentAt = new Date().toISOString();
-        });
-        var parts = [];
-        if (kitchenItems.length > 0)
-            parts.push(kitchenItems.length + ' to Kitchen');
-        if (barItems.length > 0)
-            parts.push(barItems.length + ' to Bar');
-        posToast('success', '✅ Sent: ' + parts.join(' + '));
-        renderBill();
-    }).catch(function() {
-        posToast('error', 'Failed to send. Please try again.');
-    });
-}
-
-/* ============================================================
-   CLOSE TABLE / PAYMENT
-============================================================ */
-function closeTable(method) {
-    var order = POS.orders[POS.currentTable];
-    if (!order) return;
-    var items    = (order.items || []).filter(function(i) { return !i.voided; });
-    var unsentCt = items.filter(function(i) {
-        return i.status === 'ordered';
-    }).length;
-    if (unsentCt > 0) {
-        if (!confirm('There are ' + unsentCt +
-                     ' unsent item(s). Close table anyway?')) return;
-    }
-    var total = order.total || 0;
-    if (total <= 0) {
-        posToast('warning', 'Order total is R0. Please check the order.');
-        return;
-    }
-    if (!confirm('Close table — ' + method.toUpperCase() +
-                 ' payment of R' + total.toFixed(2) + '?')) return;
-
-    order.status        = 'closed';
-    order.paymentMethod = method;
-    order.closedAt      = new Date().toISOString();
-    order.closedBy      = POS.user ? POS.user.name : 'Waiter';
-
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' + POS.currentTable] = order;
-    posSave(update).then(function() {
-        posToast('success',
-            '✅ Table closed — ' + method + ' R' + total.toFixed(2));
-        closeOrderScreen();
-    }).catch(function() {
-        posToast('error', 'Failed to close table. Please try again.');
-        order.status = 'open';
-    });
-}
-
-/* ============================================================
-   PROMOTION / COMPLIMENTARY
-============================================================ */
-function showPromotionClose() {
-    showManagerPin(function() {
-        removeModal('promo-modal');
-        var modal = document.createElement('div');
-        modal.className = 'notes-modal';
-        modal.id        = 'promo-modal';
-        modal.innerHTML =
-            '<div class="notes-modal-card">' +
-            '<h3><i class="fas fa-gift" style="color:var(--success)"></i> ' +
-            'Promotion / Complimentary</h3>' +
-            '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">' +
-            'Select a reason:</p>' +
-            '<div class="void-reasons">' +
-            ['VIP / Regular Customer',
-             'Management Complimentary',
-             'Birthday / Special Occasion',
-             'Quality Complaint Resolution',
-             'Staff Meal',
-             'Other'].map(function(reason) {
-                return '<div class="void-reason" ' +
-                       'data-reason="' + reason + '" ' +
-                       'onclick="confirmPromotionClose(this.dataset.reason)">' +
-                       reason + '</div>';
-            }).join('') +
-            '</div>' +
-            '<div class="notes-actions" style="margin-top:14px">' +
-            '<button style="background:var(--bg);color:var(--text-light)" ' +
-            'onclick="removeModal(\'promo-modal\')">Cancel</button>' +
-            '</div></div>';
-        document.body.appendChild(modal);
-    });
-}
-
-function confirmPromotionClose(reason) {
-    removeModal('promo-modal');
-    var order = POS.orders[POS.currentTable];
-    if (!order) return;
-    var total = order.total || 0;
-    if (!confirm('Close as COMPLIMENTARY?\nReason: ' + reason +
-                 '\nAmount: R' + total.toFixed(2))) return;
-
-    order.status          = 'closed';
-    order.paymentMethod   = 'promotion';
-    order.isPromotion     = true;
-    order.promotionReason = reason;
-    order.discount        = total;
-    order.total           = 0;
-    order.closedAt        = new Date().toISOString();
-    order.closedBy        = POS.user ? POS.user.name : 'Waiter';
-
-    logManagerAction('discount',
-        { name: 'Promotion/Complimentary', price: total, qty: 1 }, reason);
-
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' + POS.currentTable] = order;
-    posSave(update)
-        .then(function() {
-            posToast('success',
-                '✅ Table closed — Complimentary (' + reason + ')');
-            closeOrderScreen();
+            PS.kitchenSections = (d.posKitchenSections || {})[PS.entityId] || [];
+            PS.menuTabs        = (d.posMenuTabs        || {})[PS.entityId] || [];
+            PS.posMenuItems    = (d.posMenuItems       || {})[PS.entityId] || [];
+            PS.tables          = (d.posTables          || {})[PS.entityId] || [];
+            PS.happyHour       = (d.posHappyHour       || {})[PS.entityId] || PS.happyHour;
+            PS.specials        = (d.posSpecials        || {})[PS.entityId] || [];
+            PS.takeawayQR      = (d.posTakeawayQR      || {})[PS.entityId] || null;
+            PS.inventory       = (d.inventory          || {})[PS.entityId] || [];
+            PS.menuItems       = (d.menuItems          || {})[PS.entityId] || [];
+            updateBadges();
+            PS._dataLoaded = true;
+            setupNav('kitchen-sections');
         })
-        .catch(function() {
-            posToast('error', 'Failed to close. Please try again.');
-            order.status      = 'open';
-            order.paymentMethod = null;
-            order.isPromotion = false;
+        .catch(function(err) {
+            console.warn('loadPOSData error:', err);
+            showToast('error', 'Failed to load data. Please refresh.');
         });
 }
 
-/* ============================================================
-   DISCOUNT MODAL
-============================================================ */
-function showDiscountModal() {
-    removeModal('discount-modal');
-    var order    = POS.orders[POS.currentTable] || {};
-    var items    = POS.currentOrder.filter(function(i) { return !i.voided; });
-    var subtotal = items.reduce(function(s, i) {
-        return s + ((i.price||0) * (i.qty||1));
-    }, 0);
-
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'discount-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card">' +
-        '<h3><i class="fas fa-tag" style="color:var(--warning)"></i>' +
-        ' Apply Discount</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">' +
-        'Subtotal: R' + subtotal.toFixed(2) + '</p>' +
-        '<div class="discount-options">' +
-        [10, 20, 50, 100].map(function(pct) {
-            var amt = parseFloat((subtotal * pct / 100).toFixed(2));
-            return '<button class="discount-btn" ' +
-                   'onclick="applyDiscount(' + amt + ',' + pct + ')">' +
-                   pct + '%<br><span style="font-size:.75rem;' +
-                   'font-weight:400;color:var(--text-light)">-R' +
-                   amt.toFixed(2) + '</span></button>';
-        }).join('') +
-        '</div>' +
-        '<label style="font-size:.82rem;font-weight:600;' +
-        'color:var(--text-light);display:block;margin:12px 0 4px">' +
-        'Custom Amount (R):</label>' +
-        '<div style="display:flex;gap:8px">' +
-        '<input type="number" class="pos-input" id="discount-custom" ' +
-        'placeholder="0.00" min="0" max="' + subtotal + '" step="0.01" ' +
-        'style="margin-bottom:0;flex:1">' +
-        '<button style="padding:12px 16px;background:var(--warning);' +
-        'color:#fff;border:none;border-radius:var(--rs);font-weight:700;' +
-        'cursor:pointer;font-family:inherit" ' +
-        'onclick="applyCustomDiscount(' + subtotal + ')">Apply</button>' +
-        '</div>' +
-        '<div class="notes-actions" style="margin-top:14px">' +
-        (order.discount > 0
-            ? '<button style="background:rgba(201,69,69,.1);' +
-              'color:var(--danger)" onclick="applyDiscount(0,0)">' +
-              '<i class="fas fa-times"></i> Remove Discount</button>'
-            : '') +
-        '<button style="background:var(--bg);color:var(--text-light)" ' +
-        'onclick="removeModal(\'discount-modal\')">Cancel</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-
-    showManagerPin(function() {
-        /* PIN verified — discount buttons now active */
-    });
-}
-
-function applyDiscount(amount, pct) {
-    removeModal('discount-modal');
-    var order = POS.orders[POS.currentTable];
-    if (!order) return;
-    order.discount        = amount;
-    order.isPromotion     = amount > 0;
-    order.promotionReason = pct > 0
-        ? pct + '% discount' : 'Discount removed';
-    recalcOrderTotal();
-    renderBill();
-    if (amount > 0) {
-        logManagerAction('discount',
-            { name: 'Discount', price: amount, qty: 1 },
-            (pct > 0 ? pct + '%' : 'R' + amount.toFixed(2)) + ' applied');
-        posToast('success', 'Discount of R' + amount.toFixed(2) + ' applied');
-    } else {
-        posToast('info', 'Discount removed');
-    }
-}
-
-function applyCustomDiscount(subtotal) {
-    var amt = parseFloat(
-        document.getElementById('discount-custom').value || 0);
-    if (isNaN(amt) || amt < 0) {
-        posToast('error', 'Enter a valid amount'); return;
-    }
-    if (amt > subtotal) {
-        posToast('error', 'Discount cannot exceed subtotal'); return;
-    }
-    applyDiscount(parseFloat(amt.toFixed(2)), 0);
-}
-
-/* ============================================================
-   VOID / TRANSFER
-============================================================ */
-function showVoidTransfer(itemId) {
-    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
-    if (!item) return;
-    removeModal('vt-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'vt-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card" style="max-width:380px">' +
-        '<h3>' + escHtml(item.name) + '</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">' +
-        'What would you like to do?</p>' +
-        '<div class="notes-actions" style="flex-direction:column;gap:8px">' +
-        '<button style="background:var(--danger);color:#fff;padding:14px" ' +
-        'data-item-id="' + item.id + '" ' +
-        'onclick="startVoid(this.dataset.itemId)">' +
-        '<i class="fas fa-times-circle"></i> Void Item</button>' +
-        '<button style="background:var(--info);color:#fff;padding:14px" ' +
-        'data-item-id="' + item.id + '" ' +
-        'onclick="startTransfer(this.dataset.itemId)">' +
-        '<i class="fas fa-exchange-alt"></i> Transfer to Another Table</button>' +
-        '<button style="background:var(--bg);color:var(--text-light);padding:14px" ' +
-        'onclick="removeModal(\'vt-modal\')">Cancel</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-}
-
-function startVoid(itemId) {
-    removeModal('vt-modal');
-    showManagerPin(function() { showVoidReasons(itemId); });
-}
-
-function startTransfer(itemId) {
-    removeModal('vt-modal');
-    showManagerPin(function() { showTransferTables(itemId); });
-}
-
-function showVoidReasons(itemId) {
-    var reasons = [
-        'Customer changed mind','Wrong item ordered',
-        'Kitchen error','Quality issue','Manager discretion','Other'
-    ];
-    removeModal('void-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'void-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card">' +
-        '<h3><i class="fas fa-times-circle" style="color:var(--danger)"></i>' +
-        ' Void Reason</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">' +
-        'Select a reason:</p>' +
-        '<div class="void-reasons">' +
-        reasons.map(function(r) {
-            return '<div class="void-reason" ' +
-                   'data-item-id="' + itemId + '" ' +
-                   'data-reason="' + escHtml(r) + '" ' +
-                   'onclick="confirmVoid(this.dataset.itemId,' +
-                   'this.dataset.reason)">' +
-                   escHtml(r) + '</div>';
-        }).join('') +
-        '</div></div>';
-    document.body.appendChild(modal);
-}
-
-function confirmVoid(itemId, reason) {
-    removeModal('void-modal');
-    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
-    if (!item) return;
-    item.voided     = true;
-    item.voidReason = reason;
-    item.voidBy     = POS.user ? POS.user.name : 'Manager';
-    item.voidedAt   = new Date().toISOString();
-    reverseStockDeduction(item);
-    logManagerAction('void', item, reason);
+function savePOSData(field, value) {
+    if (!PS.accountId || !PS.entityId) return Promise.resolve();
     var update = {};
-    update['posOrders.' + POS.entityId + '.' + POS.currentTable + '.items'] =
-        POS.currentOrder;
-    posSave(update);
-    recalcOrderTotal();
-    renderBill();
-    renderOrderItems(POS._activeOrderTab);
-    posToast('info', 'Voided: ' + item.name);
+    update[field + '.' + PS.entityId] = value;
+    update.lastUpdated       = firebase.firestore.FieldValue.serverTimestamp();
+    update.lastUpdatedBy     = PS.user ? PS.user.name : 'POS Setup';
+    update.lastUpdatedDevice = 'POS Setup';
+    return db.collection('accounts').doc(PS.accountId)
+        .set(update, { merge: true })
+        .catch(function(err) { console.warn('Save error:', err); throw err; });
 }
 
-function showTransferTables(itemId) {
-    var openTables = Object.keys(POS.orders).filter(function(k) {
-        return POS.orders[k] &&
-               POS.orders[k].status === 'open' &&
-               k !== POS.currentTable;
+/* ═══════════════════════════════════════════
+   NAVIGATION & BADGES
+═══════════════════════════════════════════ */
+function updateBadges() {
+    [
+        ['badge-sections', PS.kitchenSections.length],
+        ['badge-tabs',     PS.menuTabs.length],
+        ['badge-items',    PS.posMenuItems.length],
+        ['badge-tables',   PS.tables.length]
+    ].forEach(function(pair) {
+        var el = document.getElementById(pair[0]);
+        if (el) el.textContent = pair[1];
     });
-    removeModal('transfer-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'transfer-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card">' +
-        '<h3><i class="fas fa-exchange-alt" style="color:var(--info)"></i>' +
-        ' Transfer Item</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:12px">' +
-        'Select destination table:</p>' +
-        (openTables.length === 0
-            ? '<p style="color:var(--text-muted);text-align:center;' +
-              'padding:16px">No other open tables.</p>'
-            : '<div class="transfer-tables">' +
-              openTables.map(function(k) {
-                  var o = POS.orders[k];
-                  return '<div class="transfer-table occupied" ' +
-                         'data-item-id="' + itemId + '" ' +
-                         'data-target-key="' + k + '" ' +
-                         'onclick="confirmTransfer(' +
-                         'this.dataset.itemId,this.dataset.targetKey)">' +
-                         escHtml(String(o.tableNumber || k)) +
-                         '<br><span style="font-size:.65rem;font-weight:400;' +
-                         'color:var(--text-light)">' +
-                         escHtml(o.customerName || 'Guest') +
-                         '</span></div>';
-              }).join('') + '</div>') +
-        '<div class="notes-actions" style="margin-top:12px">' +
-        '<button style="background:var(--bg);color:var(--text-light)" ' +
-        'onclick="removeModal(\'transfer-modal\')">Cancel</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
 }
 
-function confirmTransfer(itemId, targetKey) {
-    removeModal('transfer-modal');
-    var item = POS.currentOrder.find(function(i) { return i.id === itemId; });
-    if (!item || !POS.orders[targetKey]) return;
-
-    POS.currentOrder = POS.currentOrder.filter(function(i) {
-        return i.id !== itemId;
+function setupNav(page) {
+    PS.currentPage = page;
+    document.querySelectorAll('.sidebar-item').forEach(function(item) {
+        item.classList.toggle('active', item.dataset.page === page);
     });
-    POS.orders[POS.currentTable].items = POS.currentOrder;
-    item.transferredFrom = POS.currentTable;
-    item.transferredAt   = new Date().toISOString();
-    item.status          = 'ordered';
-    POS.orders[targetKey].items =
-        (POS.orders[targetKey].items || []).concat([item]);
-
-    logManagerAction('transfer', item,
-        'Transferred to table ' +
-        (POS.orders[targetKey].tableNumber || targetKey));
-
-    var update = {};
-    update['posOrders.' + POS.entityId + '.' +
-           POS.currentTable + '.items'] = POS.currentOrder;
-    update['posOrders.' + POS.entityId + '.' +
-           targetKey + '.items']         = POS.orders[targetKey].items;
-    posSave(update);
-    recalcOrderTotal();
-    renderBill();
-    posToast('success',
-        'Item transferred to table ' +
-        (POS.orders[targetKey].tableNumber || targetKey));
-}
-
-/* ============================================================
-   MANAGER PIN
-============================================================ */
-function showManagerPin(callback) {
-    removeModal('pin-modal');
-    POS._pinCallback = callback;
-    POS._pinAttempts = 0;
-
-    var modal = document.createElement('div');
-    modal.className = 'pin-modal';
-    modal.id        = 'pin-modal';
-    modal.innerHTML =
-        '<div class="pin-card">' +
-        '<h3><i class="fas fa-lock" style="color:var(--primary)"></i>' +
-        ' Manager Authorisation</h3>' +
-        '<p>Enter manager PIN to proceed</p>' +
-        '<input type="password" class="pin-input" id="mgr-pin" ' +
-        'maxlength="6" placeholder="••••" ' +
-        'autocomplete="off" inputmode="numeric">' +
-        '<div class="pin-attempts" id="pin-attempts"></div>' +
-        '<div class="notes-actions" style="margin-top:16px">' +
-        '<button style="background:var(--bg);color:var(--text-light);' +
-        'flex:1;padding:12px;border:none;border-radius:var(--rs);' +
-        'cursor:pointer;font-family:inherit" ' +
-        'onclick="removeModal(\'pin-modal\')">Cancel</button>' +
-        '<button style="background:var(--primary);color:#fff;flex:1;' +
-        'padding:12px;border:none;border-radius:var(--rs);cursor:pointer;' +
-        'font-family:inherit;font-weight:700" ' +
-        'onclick="verifyPin()">Verify</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-
-    setTimeout(function() {
-        var inp = document.getElementById('mgr-pin');
-        if (inp) {
-            inp.focus();
-            inp.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') verifyPin();
-            });
-        }
-    }, 300);
-}
-
-function verifyPin() {
-    var pin        = (document.getElementById('mgr-pin').value || '').trim();
-    var attemptsEl = document.getElementById('pin-attempts');
-    if (!pin) { posToast('error', 'Please enter a PIN'); return; }
-
-    POS._pinAttempts++;
-    if (POS._pinAttempts > 3) {
-        removeModal('pin-modal');
-        posToast('error', 'Too many incorrect attempts.');
-        POS._pinAttempts = 0;
-        return;
-    }
-
-    var users       = POS.accountData ? (POS.accountData.users || {}) : {};
-    var entityUsers = users[POS.entityId] || [];
-    var managers    = entityUsers.filter(function(u) {
-        return u.role === 'Manager' ||
-               u.role === 'General Manager' ||
-               u.role === 'Owner';
-    });
-    if (POS.accountData && POS.accountData.owner &&
-        POS.accountData.owner.pin) {
-        managers.push(POS.accountData.owner);
-    }
-
-    var validPin    = false;
-    var managerName = 'Manager';
-    managers.forEach(function(m) {
-        if (m.pin && m.pin === pin) {
-            validPin    = true;
-            managerName = m.name || 'Manager';
-        }
-    });
-
-    if (validPin) {
-        POS._pinAttempts = 0;
-        removeModal('pin-modal');
-        posToast('success', '✅ Authorised by ' + managerName);
-        if (POS._pinCallback) POS._pinCallback();
-        POS._pinCallback = null;
-    } else {
-        var remaining = 3 - POS._pinAttempts;
-        if (attemptsEl) attemptsEl.textContent =
-            'Incorrect PIN. ' + remaining + ' attempt' +
-            (remaining !== 1 ? 's' : '') + ' remaining.';
-        var inp = document.getElementById('mgr-pin');
-        if (inp) { inp.value = ''; inp.focus(); }
+    var content = document.getElementById('main-content');
+    try {
+        var map = {
+            'kitchen-sections': pageKitchenSections,
+            'menu-tabs':        pageMenuTabs,
+            'menu-items':       pageMenuItems,
+            'tables':           pageTables,
+            'happy-hour':       pageHappyHour,
+            'specials':         pageSpecials,
+            'preview':          pagePreview
+        };
+        var fn = map[page];
+        content.innerHTML = fn ? fn()
+            : '<div class="empty-state"><i class="fas fa-question-circle"></i>' +
+              '<h3>Page not found</h3></div>';
+    } catch(err) {
+        console.error('Page error:', err);
+        content.innerHTML =
+            '<div class="empty-state"><i class="fas fa-exclamation-circle"></i>' +
+            '<h3>Error loading page</h3><p>' + escHtml(err.message) + '</p></div>';
     }
 }
 
-/* ============================================================
-   LOG MANAGER ACTION
-============================================================ */
-function logManagerAction(action, item, reason) {
-    var fieldMap = {
-        void:     'posVoids',
-        transfer: 'posTransfers',
-        discount: 'posDiscounts',
-        cashup:   'posCashups'
-    };
-    var field = fieldMap[action] || ('pos' + action + 's');
-    var logEntry = {
-        action:    action,
-        itemName:  item.name   || '',
-        itemPrice: (item.price||0) * (item.qty||1),
-        itemQty:   item.qty    || 1,
-        reason:    reason      || '',
-        by:        POS.user    ? POS.user.name : 'Manager',
-        table:     POS.currentTable
-                 ? (POS.orders[POS.currentTable] || {}).tableNumber ||
-                   POS.currentTable
-                 : '',
-        tableKey:  POS.currentTable || '',
-        entityId:  POS.entityId     || '',
-        date:      new Date().toISOString()
-    };
-    var update = {};
-    update[field + '.' + POS.entityId] =
-        firebase.firestore.FieldValue.arrayUnion(logEntry);
-    posSave(update).catch(function(err) {
-        console.warn('Failed to log manager action:', err);
-    });
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function openModal(title, bodyHtml, footerHtml) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML    = bodyHtml;
+    document.getElementById('modal-footer').innerHTML  = footerHtml || '';
+    document.getElementById('modal-overlay').classList.add('open');
+    var modal = document.querySelector('.modal');
+    if (modal) modal.scrollTop = 0;
+}
+function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
 }
 
-/* ============================================================
-   QR CODE
-============================================================ */
-function showQRCode(tableKey) {
-    var order = POS.orders[tableKey];
-    if (!order) return;
-    var tNum    = order.tableNumber || tableKey;
-    var billUrl = window.location.origin +
-                  '/tablebill.html?a=' + POS.accountId +
-                  '&e=' + POS.entityId +
-                  '&t=' + (order.isTakeaway ? 'takeaway' : tNum);
-    var qrSrc   = 'https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' +
-                  encodeURIComponent(billUrl) + '&choe=UTF-8';
-
-    removeModal('qr-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'qr-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card" style="text-align:center">' +
-        '<h3><i class="fas fa-qrcode" style="color:var(--primary)"></i>' +
-        ' Table QR Code</h3>' +
-        '<p style="font-size:.82rem;color:var(--text-light);margin-bottom:16px">' +
-        'Customer scans this to view their live bill</p>' +
-        '<div class="qr-display">' +
-        '<img src="' + qrSrc + '" width="200" height="200" alt="QR Code" ' +
-        'style="border-radius:8px;box-shadow:var(--shadow)">' +
-        '</div>' +
-        '<p style="font-size:.72rem;color:var(--text-muted);' +
-        'margin-top:12px;word-break:break-all">' +
-        escHtml(billUrl) + '</p>' +
-        '<div class="notes-actions" style="margin-top:16px">' +
-        '<button style="background:var(--bg);color:var(--text-light)" ' +
-        'onclick="removeModal(\'qr-modal\')">Close</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-}
-
-/* ============================================================
-   CASHUP
-============================================================ */
-function showWaiterCashup() {
-    var shiftStart   = POS.clockInTime ? POS.clockInTime.toISOString() : null;
-    var waiterName   = POS.user ? POS.user.name : '';
-
-    var closedOrders = Object.values(POS.orders).filter(function(o) {
-        return o.status     === 'closed' &&
-               o.waiterName === waiterName &&
-               (!shiftStart || (o.closedAt && o.closedAt >= shiftStart));
-    });
-
-    var cashTotal  = closedOrders
-        .filter(function(o) { return o.paymentMethod === 'cash'; })
-        .reduce(function(s, o) { return s + (o.total||0); }, 0);
-    var cardTotal  = closedOrders
-        .filter(function(o) { return o.paymentMethod === 'card'; })
-        .reduce(function(s, o) { return s + (o.total||0); }, 0);
-    var promoTotal = closedOrders
-        .filter(function(o) { return o.isPromotion; })
-        .reduce(function(s, o) { return s + (o.total||0); }, 0);
-    var tipTotal   = closedOrders
-        .reduce(function(s, o) { return s + (o.gratuity||0); }, 0);
-    var totalSales = cashTotal + cardTotal;
-
-    var voidedItems = [];
-    Object.values(POS.orders).forEach(function(o) {
-        (o.items || []).forEach(function(i) {
-            if (i.voided && i.voidBy === waiterName &&
-                (!shiftStart || (i.voidedAt && i.voidedAt >= shiftStart))) {
-                voidedItems.push({
-                    name:     i.name,
-                    price:    (i.price||0) * (i.qty||1),
-                    reason:   i.voidReason,
-                    voidedAt: i.voidedAt,
-                    table:    o.tableNumber
-                });
-            }
-        });
-    });
-
-    POS._pendingCashup = {
-        waiterName:    waiterName,
-        waiterId:      POS.user ? POS.user.uid : '',
-        shiftStart:    shiftStart,
-        submittedAt:   new Date().toISOString(),
-        entityId:      POS.entityId,
-        status:        'pending',
-        tablesServed:  closedOrders.length,
-        totalSales:    totalSales,
-        cashTotal:     cashTotal,
-        cardTotal:     cardTotal,
-        promoTotal:    promoTotal,
-        gratuityTotal: tipTotal,
-        cashToHandIn:  cashTotal,
-        voids:         voidedItems,
-        orders: closedOrders.map(function(o) {
-            return {
-                tableNumber:   o.tableNumber,
-                total:         o.total,
-                paymentMethod: o.paymentMethod,
-                gratuity:      o.gratuity || 0,
-                closedAt:      o.closedAt
-            };
-        })
-    };
-
-    var screen = document.createElement('div');
-    screen.className = 'cashup-screen';
-    screen.id        = 'cashup-screen';
-    screen.innerHTML =
-        '<div class="order-header">' +
-        '<button class="pos-header-btn" onclick="removeModal(\'cashup-screen\')">' +
-        '<i class="fas fa-arrow-left"></i></button>' +
-        '<h3><i class="fas fa-calculator"></i> My Cash Up</h3>' +
-        '</div>' +
-        '<div class="cashup-content">' +
-        '<div class="cashup-card">' +
-        '<h3 style="font-size:1rem;font-weight:700;margin-bottom:12px">' +
-        '<i class="fas fa-chart-bar" style="color:var(--primary)"></i>' +
-        ' Shift Summary</h3>' +
-        '<div class="cashup-row"><span>Waiter</span>' +
-        '<strong>' + escHtml(waiterName) + '</strong></div>' +
-        '<div class="cashup-row"><span>Tables Served</span>' +
-        '<strong>' + closedOrders.length + '</strong></div>' +
-        '<div class="cashup-row"><span>Total Sales</span>' +
-        '<strong>R' + totalSales.toFixed(2) + '</strong></div>' +
-        '<div class="cashup-row"><span>Card Payments</span>' +
-        '<strong>R' + cardTotal.toFixed(2) + '</strong></div>' +
-        '<div class="cashup-row"><span>Cash Payments</span>' +
-        '<strong>R' + cashTotal.toFixed(2) + '</strong></div>' +
-        '<div class="cashup-row"><span>Tips / Gratuity</span>' +
-        '<strong style="color:var(--success)">R' + tipTotal.toFixed(2) +
-        '</strong></div>' +
-        (promoTotal > 0
-            ? '<div class="cashup-row"><span>Promotions</span>' +
-              '<strong>R' + promoTotal.toFixed(2) + '</strong></div>'
-            : '') +
-        (voidedItems.length > 0
-            ? '<div class="cashup-row"><span>Voids</span>' +
-              '<strong style="color:var(--danger)">' +
-              voidedItems.length + ' item(s)</strong></div>'
-            : '') +
-        '<div class="cashup-total"><span>Cash to Hand In</span>' +
-        '<strong style="color:var(--danger)">R' +
-        cashTotal.toFixed(2) + '</strong></div>' +
-        '</div>' +
-
-        (voidedItems.length > 0
-            ? '<div class="cashup-card">' +
-              '<h3 style="font-size:.88rem;font-weight:700;margin-bottom:10px">' +
-              '<i class="fas fa-times-circle" style="color:var(--danger)"></i>' +
-              ' Voided Items</h3>' +
-              voidedItems.map(function(v) {
-                  return '<div class="cashup-row">' +
-                         '<span>' + escHtml(v.name) +
-                         ' (Table ' + escHtml(String(v.table||'-')) + ')</span>' +
-                         '<strong style="color:var(--danger)">R' +
-                         (v.price||0).toFixed(2) + '</strong></div>';
-              }).join('') + '</div>'
-            : '') +
-
-        '<button class="bill-send-btn" onclick="submitWaiterCashup()" ' +
-        'style="max-width:100%;margin:0 0 24px">' +
-        '<i class="fas fa-check"></i> Submit Cash Up</button>' +
-        '</div>';
-
-    document.body.appendChild(screen);
-}
-
-function submitWaiterCashup() {
-    if (!POS._pendingCashup) return;
-    if (!confirm('Submit your cash up? ' +
-                 'This will be sent to your manager for review.')) return;
-
-    var uid  = POS.user ? POS.user.uid : 'unknown';
-    var data = POS._pendingCashup;
-    data.submittedAt = new Date().toISOString();
-
-    var update = {};
-    update['posCashups.' + POS.entityId + '.' + uid] = data;
-
-    posSave(update).then(function() {
-        removeModal('cashup-screen');
-        posToast('success', '✅ Cash up submitted for manager review');
-        sendCashupEmail(data);
-        POS._pendingCashup = null;
-    }).catch(function() {
-        posToast('error', 'Failed to submit. Please try again.');
-    });
-}
-
-function sendCashupEmail(data) {
-    var managerEmail = POS.accountData && POS.accountData.owner
-                     ? POS.accountData.owner.email : null;
-    if (!managerEmail) return;
-
-    var rs = 'padding:8px 0;border-bottom:1px solid #e4f1f5;' +
-             'display:flex;justify-content:space-between;font-size:.88rem';
-    var html =
-        '<div style="font-family:Poppins,sans-serif;' +
-        'max-width:520px;margin:0 auto">' +
-        '<div style="background:linear-gradient(135deg,#0d4a5c,#1a8ba8);' +
-        'padding:24px;border-radius:12px 12px 0 0;color:#fff;text-align:center">' +
-        '<h1 style="font-size:1.1rem;margin:0">Cash Up Report</h1>' +
-        '<p style="font-size:.82rem;opacity:.8;margin-top:4px">' +
-        escHtml(data.waiterName) + ' — ' + escHtml(POS.entityName||'') + '</p>' +
-        '<p style="font-size:.75rem;opacity:.7;margin-top:2px">' +
-        new Date(data.submittedAt).toLocaleString('en-ZA') + '</p>' +
-        '</div>' +
-        '<div style="background:#fff;padding:24px;border:1px solid #e4f1f5;' +
-        'border-radius:0 0 12px 12px">' +
-        '<div style="' + rs + '"><span>Tables Served</span>' +
-        '<strong>' + data.tablesServed + '</strong></div>' +
-        '<div style="' + rs + '"><span>Total Sales</span>' +
-        '<strong>R' + data.totalSales.toFixed(2) + '</strong></div>' +
-        '<div style="' + rs + '"><span>Card Payments</span>' +
-        '<strong>R' + data.cardTotal.toFixed(2) + '</strong></div>' +
-        '<div style="' + rs + '"><span>Cash Payments</span>' +
-        '<strong>R' + data.cashTotal.toFixed(2) + '</strong></div>' +
-        '<div style="' + rs + '"><span>Tips</span>' +
-        '<strong style="color:#2ea871">R' +
-        data.gratuityTotal.toFixed(2) + '</strong></div>' +
-        '<div style="' + rs + 'border-bottom:none"><span>Voids</span>' +
-        '<strong style="color:#c94545">' +
-        (data.voids ? data.voids.length : 0) + ' item(s)</strong></div>' +
-        '<div style="' + rs + 'border-top:2px solid #c4dde4;' +
-        'margin-top:8px;font-size:1rem;font-weight:900">' +
-        '<span>Cash to Hand In</span>' +
-        '<strong style="color:#c94545">R' +
-        data.cashToHandIn.toFixed(2) + '</strong></div>' +
-        '<p style="text-align:center;color:#8aabb5;' +
-        'font-size:.75rem;margin-top:20px">Powered by StockAI-Pro</p>' +
-        '</div></div>';
-
-    /* Route through Cloudflare Worker — keeps API key off client */
-    fetch('https://bold-dust-c51b.cidraism.workers.dev/email', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            from:    'StockAI-Pro POS <noreply@stockai-pro.co.za>',
-            to:      [managerEmail],
-            subject: 'Cash Up — ' + data.waiterName + ' (' +
-                     new Date(data.submittedAt).toLocaleDateString('en-ZA') + ')',
-            html:    html
-        })
-    }).catch(function(err) {
-        console.warn('Cash up email failed:', err);
-    });
-}
-
-/* ============================================================
+/* ═══════════════════════════════════════════
    TOAST
-============================================================ */
-function posToast(type, msg) {
+═══════════════════════════════════════════ */
+function showToast(type, msg) {
     var icons = {
         success:'check-circle', error:'times-circle',
         info:'info-circle',     warning:'exclamation-triangle'
     };
     var t = document.createElement('div');
-    t.className = 'pos-toast ' + type;
-    t.innerHTML =
-        '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i>' +
-        '<span>' + escHtml(msg) + '</span>';
-    var wrap = document.getElementById('pos-toast-wrap');
-    if (wrap) wrap.appendChild(t);
-    setTimeout(function() { if (t.parentElement) t.remove(); }, 3500);
+    t.className = 'toast ' + type;
+    t.innerHTML = '<i class="fas fa-' + (icons[type]||'info-circle') + '"></i>' +
+                  '<span>' + escHtml(msg) + '</span>';
+    document.getElementById('toast-wrap').appendChild(t);
+    setTimeout(function() { if (t.parentElement) t.remove(); }, 4000);
 }
 
-/* ============================================================
-   INSTALL GUIDE
-============================================================ */
-var _deferredPosInstall = null;
-
-window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    _deferredPosInstall = e;
-    console.log('✅ POS install prompt captured');
-});
-
-function showPosInstallGuide() {
-    if (_deferredPosInstall) {
-        _deferredPosInstall.prompt();
-        _deferredPosInstall.userChoice.then(function(result) {
-            if (result.outcome === 'accepted') {
-                posToast('success', '✅ POS app installed!');
-            }
-            _deferredPosInstall = null;
-        });
-        return;
-    }
-
-    var ua    = navigator.userAgent || '';
-    var isIOS = /iPad|iPhone|iPod/.test(ua);
-    var steps = isIOS
-        ? '<p>1. Open in <strong>Safari</strong></p>' +
-          '<p>2. Tap the <strong>Share ⬆️</strong> button</p>' +
-          '<p>3. Tap <strong>"Add to Home Screen"</strong></p>' +
-          '<p>4. Tap <strong>"Add"</strong></p>'
-        : '<p>1. Tap the <strong>⋮ menu</strong> in Chrome</p>' +
-          '<p>2. Tap <strong>"Install App"</strong> or ' +
-          '<strong>"Add to Home screen"</strong></p>' +
-          '<p>3. Tap <strong>"Install"</strong></p>';
-
-    removeModal('install-modal');
-    var modal = document.createElement('div');
-    modal.className = 'notes-modal';
-    modal.id        = 'install-modal';
-    modal.innerHTML =
-        '<div class="notes-modal-card">' +
-        '<h3><i class="fas fa-mobile-alt" style="color:var(--primary)"></i>' +
-        ' Install POS App</h3>' +
-        '<div style="font-size:.85rem;color:var(--text-mid);' +
-        'line-height:1.8;margin-bottom:16px">' + steps + '</div>' +
-        '<button style="width:100%;padding:12px;background:var(--bg);' +
-        'color:var(--text-light);border:none;border-radius:var(--rs);' +
-        'cursor:pointer;font-family:inherit" ' +
-        'onclick="removeModal(\'install-modal\')">Close</button>' +
-        '</div>';
-    document.body.appendChild(modal);
+/* ═══════════════════════════════════════════
+   PICKERS
+═══════════════════════════════════════════ */
+function selectColor(el) {
+    el.closest('.color-grid').querySelectorAll('.color-swatch')
+        .forEach(function(s) { s.classList.remove('selected'); });
+    el.classList.add('selected');
+    var inp = document.getElementById('tab-color');
+    if (inp) inp.value = el.dataset.color;
 }
 
-/* ============================================================
-   HELPERS
-============================================================ */
-function removeModal(id) {
-    var el = document.getElementById(id);
-    if (el) el.remove();
+function selectIcon(el, inputId) {
+    el.closest('.color-grid').querySelectorAll('.color-swatch')
+        .forEach(function(s) { s.classList.remove('selected'); });
+    el.classList.add('selected');
+    var inp = document.getElementById(inputId);
+    if (inp) inp.value = el.dataset.icon;
 }
 
 function escHtml(str) {
     return String(str)
-        .replace(/&/g,  '&amp;')
-        .replace(/</g,  '&lt;')
-        .replace(/>/g,  '&gt;')
-        .replace(/"/g,  '&quot;')
-        .replace(/'/g,  '&#39;');
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
 }
 
-/* ============================================================
-   SERVICE WORKER
-============================================================ */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').catch(function() {});
+/* ═══════════════════════════════════════════
+   PAGE — KITCHEN SECTIONS
+═══════════════════════════════════════════ */
+var SECTION_ICONS = [
+    'utensils','fire-alt','ice-cream','wine-glass-alt',
+    'bread-slice','fish','drumstick-bite','pepper-hot',
+    'pizza-slice','blender'
+];
+
+function buildIconPicker(selected, inputId) {
+    return '<div class="color-grid">' +
+        SECTION_ICONS.map(function(icon) {
+            return '<div class="color-swatch' +
+                   (selected === icon ? ' selected' : '') +
+                   '" style="background:var(--primary)" ' +
+                   'data-icon="' + icon + '" ' +
+                   'onclick="selectIcon(this,\'' + inputId + '\')">' +
+                   '<i class="fas fa-' + icon +
+                   '" style="color:#fff;font-size:.85rem"></i></div>';
+        }).join('') +
+        '</div>' +
+        '<input type="hidden" id="' + inputId +
+        '" value="' + escHtml(selected || 'utensils') + '">';
+}
+
+function pageKitchenSections() {
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-utensils" style="color:var(--primary)"></i> ' +
+        'Kitchen Sections</h1>' +
+        '<p>Set up preparation areas in your kitchen. Each section can have its own ' +
+        'display tablet showing orders.</p></div>' +
+        '<div class="card">' +
+        '<div class="card-header">' +
+        '<h3><i class="fas fa-list"></i> Sections (' +
+        PS.kitchenSections.length + '/10)</h3>' +
+        '<button class="btn btn-primary btn-sm" onclick="addKitchenSection()"' +
+        (PS.kitchenSections.length >= 10 ? ' disabled' : '') + '>' +
+        '<i class="fas fa-plus"></i> Add Section</button></div>';
+
+    if (PS.kitchenSections.length === 0) {
+        html +=
+            '<div class="empty-state"><i class="fas fa-utensils"></i>' +
+            '<h3>No Kitchen Sections Yet</h3>' +
+            '<p>Add your first kitchen section to configure your POS.</p>' +
+            '<button class="btn btn-primary" onclick="addKitchenSection()">' +
+            '<i class="fas fa-plus"></i> Add First Section</button></div>';
+    } else {
+        PS.kitchenSections.forEach(function(s) {
+            html +=
+                '<div class="section-card">' +
+                '<div class="section-card-icon">' +
+                '<i class="fas fa-' + escHtml(s.icon || 'utensils') + '"></i></div>' +
+                '<div class="section-card-info"><h4>' + escHtml(s.name) + '</h4>' +
+                '<p>Avg prep: ' + (s.prepTime || 15) + ' min' +
+                (s.description ? ' — ' + escHtml(s.description) : '') + '</p></div>' +
+                '<div class="section-card-actions">' +
+                '<button class="btn btn-outline btn-sm" data-id="' + s.id + '" ' +
+                'onclick="editKitchenSection(this.dataset.id)">' +
+                '<i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + s.id + '" ' +
+                'onclick="deleteKitchenSection(this.dataset.id)">' +
+                '<i class="fas fa-trash"></i></button>' +
+                '</div></div>';
+        });
+    }
+    return html + '</div>';
+}
+
+function addKitchenSection() {
+    if (PS.kitchenSections.length >= 10) {
+        showToast('warning', 'Maximum 10 sections'); return;
+    }
+    openModal('Add Kitchen Section',
+        '<div class="form-group"><label>Section Name *</label>' +
+        '<input type="text" class="form-input" id="sec-name" ' +
+        'placeholder="e.g. Main Kitchen, Bar, Dessert"></div>' +
+        '<div class="form-group"><label>Avg Prep Time (minutes) *</label>' +
+        '<input type="number" class="form-input" id="sec-preptime" ' +
+        'value="15" min="1" max="120">' +
+        '<div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
+        '<div class="form-group"><label>Description</label>' +
+        '<input type="text" class="form-input" id="sec-desc" ' +
+        'placeholder="Optional"></div>' +
+        '<div class="form-group"><label>Icon</label>' +
+        buildIconPicker('utensils','sec-icon') + '</div>',
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn btn-primary" onclick="saveKitchenSection(null)">' +
+        '<i class="fas fa-save"></i> Save</button>');
+}
+
+function editKitchenSection(id) {
+    var s = PS.kitchenSections.find(function(x) { return x.id === id; });
+    if (!s) return;
+    openModal('Edit Kitchen Section',
+        '<div class="form-group"><label>Section Name *</label>' +
+        '<input type="text" class="form-input" id="sec-name" ' +
+        'value="' + escHtml(s.name) + '"></div>' +
+        '<div class="form-group"><label>Avg Prep Time (minutes) *</label>' +
+        '<input type="number" class="form-input" id="sec-preptime" ' +
+        'value="' + (s.prepTime || 15) + '" min="1" max="120">' +
+        '<div class="form-hint">Green → Orange at 75% → Red at 100%</div></div>' +
+        '<div class="form-group"><label>Description</label>' +
+        '<input type="text" class="form-input" id="sec-desc" ' +
+        'value="' + escHtml(s.description || '') + '"></div>' +
+        '<div class="form-group"><label>Icon</label>' +
+        buildIconPicker(s.icon || 'utensils','sec-icon') + '</div>',
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn btn-primary" data-id="' + id + '" ' +
+        'onclick="saveKitchenSection(this.dataset.id)">' +
+        '<i class="fas fa-save"></i> Update</button>');
+}
+
+function saveKitchenSection(id) {
+    var name     = (document.getElementById('sec-name').value     || '').trim();
+    var prepTime = parseInt(document.getElementById('sec-preptime').value) || 15;
+    var desc     = (document.getElementById('sec-desc').value     || '').trim();
+    var icon     = document.getElementById('sec-icon').value      || 'utensils';
+
+    if (!name) { showToast('error','Enter a section name'); return; }
+    if (prepTime < 1 || prepTime > 120) {
+        showToast('error','Prep time must be 1–120 min'); return;
+    }
+
+    var now      = new Date().toISOString();
+    var isEdit   = !!id;
+    var existing = isEdit
+        ? PS.kitchenSections.find(function(s) { return s.id === id; }) : null;
+
+    var section = {
+        id:          isEdit ? id : 'SEC-' + Date.now(),
+        name:        name, prepTime: prepTime,
+        description: desc, icon: icon,
+        createdAt:   existing ? existing.createdAt : now,
+        updatedAt:   now
+    };
+
+    var backup = PS.kitchenSections.slice();
+    PS.kitchenSections = isEdit
+        ? PS.kitchenSections.map(function(s) { return s.id===id ? section : s; })
+        : PS.kitchenSections.concat([section]);
+
+    savePOSData('posKitchenSections', PS.kitchenSections)
+        .then(function() {
+            closeModal(); updateBadges();
+            setupNav('kitchen-sections');
+            showToast('success','✅ Section ' + (isEdit?'updated':'added'));
+        })
+        .catch(function() {
+            PS.kitchenSections = backup;
+            showToast('error','Failed to save. Please try again.');
+        });
+}
+
+function deleteKitchenSection(id) {
+    var s = PS.kitchenSections.find(function(x) { return x.id === id; });
+    if (!s) return;
+    var linked    = PS.posMenuItems.filter(function(i) { return i.sectionId === id; });
+    var tabLinked = PS.menuTabs.filter(function(t)     { return t.sectionId === id; });
+    var msg = 'Delete section "' + s.name + '"?';
+    if (linked.length || tabLinked.length) {
+        msg += '\n\n⚠️ ' +
+            (linked.length    ? linked.length    + ' item(s) '  : '') +
+            (tabLinked.length ? tabLinked.length + ' tab(s) '   : '') +
+            'will become unassigned.';
+    }
+    if (!confirm(msg)) return;
+    var backup = PS.kitchenSections.slice();
+    PS.kitchenSections = PS.kitchenSections.filter(function(x) { return x.id !== id; });
+    savePOSData('posKitchenSections', PS.kitchenSections)
+        .then(function() {
+            updateBadges(); setupNav('kitchen-sections');
+            showToast('info','Section deleted');
+        })
+        .catch(function() {
+            PS.kitchenSections = backup;
+            showToast('error','Failed to delete.');
+        });
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — MENU TABS
+═══════════════════════════════════════════ */
+var TAB_ICONS = [
+    'tag','utensils','drumstick-bite','fish','hamburger','pizza-slice',
+    'wine-glass-alt','beer','cocktail','coffee','ice-cream',
+    'bread-slice','cheese','leaf','fire-alt','glass-whiskey'
+];
+
+function pageMenuTabs() {
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-folder" style="color:var(--primary)"></i> Menu Tabs</h1>' +
+        '<p>Create colour-coded categories for your POS menu with optional sub-categories.</p></div>' +
+        '<div class="card"><div class="card-header">' +
+        '<h3><i class="fas fa-palette"></i> Menu Tabs</h3>' +
+        '<button class="btn btn-primary btn-sm" onclick="addMenuTab()">' +
+        '<i class="fas fa-plus"></i> Add Tab</button></div>';
+
+    if (PS.menuTabs.length === 0) {
+        html +=
+            '<div class="empty-state"><i class="fas fa-folder"></i>' +
+            '<h3>No Menu Tabs Yet</h3>' +
+            '<button class="btn btn-primary" onclick="addMenuTab()">' +
+            '<i class="fas fa-plus"></i> Add First Tab</button></div>';
+    } else {
+        html +=
+            '<div style="padding:14px;background:var(--bg);border-radius:var(--rs);' +
+            'margin-bottom:14px"><div style="font-size:.72rem;font-weight:700;' +
+            'color:var(--text-muted);margin-bottom:8px">PREVIEW:</div>';
+        PS.menuTabs.forEach(function(tab) {
+            html += '<div class="menu-tab-preview" style="background:' +
+                    escHtml(tab.color||'#1a8ba8') + '">' +
+                    '<i class="fas fa-' + escHtml(tab.icon||'tag') + '"></i> ' +
+                    escHtml(tab.name) + '</div>';
+        });
+        html += '</div>';
+
+        html +=
+            '<table class="data-table"><thead><tr>' +
+            '<th>Tab</th><th>Section</th>' +
+            '<th>Sub-Cats</th><th>Items</th><th>Actions</th>' +
+            '</tr></thead><tbody>';
+
+        PS.menuTabs.forEach(function(tab) {
+            var cnt  = PS.posMenuItems.filter(function(i) { return i.tabId===tab.id; }).length;
+            var sec  = PS.kitchenSections.find(function(s) { return s.id===tab.sectionId; });
+            var subs = (tab.subCategories||[]).map(function(sc) {
+                return '<span class="sub-cat-tag">' + escHtml(sc) + '</span>';
+            }).join('') || '<span style="color:var(--text-muted);font-size:.78rem">None</span>';
+
+            html +=
+                '<tr><td><div style="display:flex;align-items:center;gap:8px">' +
+                '<div style="width:12px;height:12px;border-radius:3px;background:' +
+                escHtml(tab.color||'#1a8ba8') + '"></div>' +
+                '<strong>' + escHtml(tab.name) + '</strong></div></td>' +
+                '<td>' + (sec ? escHtml(sec.name) :
+                    '<span style="color:var(--text-muted)">Not set</span>') + '</td>' +
+                '<td>' + subs + '</td>' +
+                '<td><span class="badge badge-blue">' + cnt + '</span></td>' +
+                '<td><div class="actions">' +
+                '<button class="btn btn-outline btn-sm" data-id="' + tab.id + '" ' +
+                'onclick="editMenuTab(this.dataset.id)">' +
+                '<i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + tab.id + '" ' +
+                'onclick="deleteMenuTab(this.dataset.id)">' +
+                '<i class="fas fa-trash"></i></button>' +
+                '</div></td></tr>';
+        });
+        html += '</tbody></table>';
+    }
+    return html + '</div>';
+}
+
+function addMenuTab()        { showMenuTabModal(null); }
+function editMenuTab(tabId)  { showMenuTabModal(tabId); }
+
+function showMenuTabModal(tabId) {
+    var tab    = tabId ? PS.menuTabs.find(function(t) { return t.id===tabId; }) : null;
+    var isEdit = !!tab;
+
+    var secOpts =
+        '<option value="">No specific section</option>' +
+        PS.kitchenSections.map(function(s) {
+            return '<option value="' + s.id + '"' +
+                   (tab && tab.sectionId===s.id ? ' selected' : '') + '>' +
+                   escHtml(s.name) + '</option>';
+        }).join('');
+
+    var colorPicker =
+        '<div class="color-grid">' +
+        TAB_COLORS.map(function(c) {
+            var sel = tab ? tab.color===c : c==='#1a8ba8';
+            return '<div class="color-swatch' + (sel?' selected':'') + '" ' +
+                   'style="background:' + c + '" data-color="' + c + '" ' +
+                   'onclick="selectColor(this)"></div>';
+        }).join('') +
+        '</div><input type="hidden" id="tab-color" value="' +
+        escHtml(tab ? tab.color : '#1a8ba8') + '">';
+
+    var iconPicker =
+        '<div class="color-grid">' +
+        TAB_ICONS.map(function(icon) {
+            var sel = tab ? tab.icon===icon : icon==='tag';
+            return '<div class="color-swatch' + (sel?' selected':'') + '" ' +
+                   'style="background:var(--bg);border:1.5px solid var(--border)" ' +
+                   'data-icon="' + icon + '" ' +
+                   'onclick="selectIcon(this,\'tab-icon\')">' +
+                   '<i class="fas fa-' + icon +
+                   '" style="color:var(--primary);font-size:.85rem"></i></div>';
+        }).join('') +
+        '</div><input type="hidden" id="tab-icon" value="' +
+        escHtml(tab ? (tab.icon||'tag') : 'tag') + '">';
+
+    openModal((isEdit?'Edit':'Add') + ' Menu Tab',
+        '<div class="form-group"><label>Tab Name *</label>' +
+        '<input type="text" class="form-input" id="tab-name" ' +
+        'value="' + escHtml(tab?tab.name:'') + '" ' +
+        'placeholder="e.g. Starters, Mains, Drinks"></div>' +
+
+        '<div class="form-group"><label>Kitchen Section</label>' +
+        '<select class="form-input" id="tab-section">' + secOpts + '</select>' +
+        '<div class="form-hint">Orders in this tab route to this section</div></div>' +
+
+        '<div class="form-group"><label>Colour *</label>' + colorPicker + '</div>' +
+
+        '<div class="form-group"><label>Sub-Categories (optional)</label>' +
+        '<input type="text" class="form-input" id="tab-subcats" ' +
+        'value="' + escHtml(tab&&tab.subCategories?tab.subCategories.join(', '):'') + '" ' +
+        'placeholder="e.g. Mild, Medium, Hot">' +
+        '<div class="form-hint">Comma-separated options per item</div></div>' +
+
+        '<div class="form-group"><label>Icon</label>' + iconPicker + '</div>',
+
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn btn-primary" data-id="' + (tabId||'') + '" ' +
+        'onclick="saveMenuTab(this.dataset.id)">' +
+        '<i class="fas fa-save"></i> ' + (isEdit?'Update':'Save') + '</button>');
+}
+
+function saveMenuTab(tabId) {
+    var name      = (document.getElementById('tab-name').value    ||'').trim();
+    var sectionId = document.getElementById('tab-section').value;
+    var color     = document.getElementById('tab-color').value    ||'#1a8ba8';
+    var icon      = document.getElementById('tab-icon').value     ||'tag';
+    var subRaw    = (document.getElementById('tab-subcats').value ||'').trim();
+
+    if (!name) { showToast('error','Enter a tab name'); return; }
+
+    var subs = subRaw
+        ? subRaw.split(',').map(function(s){return s.trim();})
+                .filter(function(s){return s;})
+        : [];
+    if (subs.length > 15) { showToast('error','Max 15 sub-categories'); return; }
+
+    var isEdit   = !!(tabId && tabId.length);
+    var existing = isEdit ? PS.menuTabs.find(function(t){return t.id===tabId;}) : null;
+    var now      = new Date().toISOString();
+    var tab = {
+        id:            isEdit ? tabId : 'TAB-'+Date.now(),
+        name:          name, sectionId: sectionId||null,
+        color:         color, icon: icon, subCategories: subs,
+        createdAt:     existing ? existing.createdAt : now, updatedAt: now
+    };
+
+    var backup = PS.menuTabs.slice();
+    PS.menuTabs = isEdit
+        ? PS.menuTabs.map(function(t){return t.id===tabId?tab:t;})
+        : PS.menuTabs.concat([tab]);
+
+    savePOSData('posMenuTabs', PS.menuTabs)
+        .then(function() {
+            closeModal(); updateBadges(); setupNav('menu-tabs');
+            showToast('success','✅ Tab '+(isEdit?'updated':'added'));
+        })
+        .catch(function() {
+            PS.menuTabs = backup;
+            showToast('error','Failed to save tab.');
+        });
+}
+
+function deleteMenuTab(tabId) {
+    var tab = PS.menuTabs.find(function(t){return t.id===tabId;});
+    if (!tab) return;
+    var linked = PS.posMenuItems.filter(function(i){return i.tabId===tabId;});
+    var msg = 'Delete tab "'+tab.name+'"?';
+    if (linked.length) msg += '\n\n⚠️ '+linked.length+' item(s) will become unlinked.';
+    if (!confirm(msg)) return;
+    var backup = PS.menuTabs.slice();
+    PS.menuTabs = PS.menuTabs.filter(function(t){return t.id!==tabId;});
+    savePOSData('posMenuTabs', PS.menuTabs)
+        .then(function() {
+            updateBadges(); setupNav('menu-tabs');
+            showToast('info','Tab deleted');
+        })
+        .catch(function() {
+            PS.menuTabs = backup;
+            showToast('error','Failed to delete tab.');
+        });
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — MENU ITEMS
+═══════════════════════════════════════════ */
+function pageMenuItems() {
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-hamburger" style="color:var(--primary)"></i> Menu Items</h1>' +
+        '<p>Create POS items with prices, inventory links, specials and happy hour pricing.</p></div>' +
+        '<div class="card"><div class="card-header">' +
+        '<h3><i class="fas fa-list"></i> Menu Items (' + PS.posMenuItems.length + ')</h3>' +
+        '<button class="btn btn-primary btn-sm" onclick="addMenuItem()">' +
+        '<i class="fas fa-plus"></i> Add Item</button></div>';
+
+    if (PS.posMenuItems.length === 0) {
+        html +=
+            '<div class="empty-state"><i class="fas fa-hamburger"></i>' +
+            '<h3>No Menu Items Yet</h3>' +
+            '<button class="btn btn-primary" onclick="addMenuItem()">' +
+            '<i class="fas fa-plus"></i> Add First Item</button></div>';
+    } else {
+        html +=
+            '<div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">' +
+            '<button class="btn btn-sm ' + (!PS._filterTab?'btn-primary':'btn-outline') + '" ' +
+            'onclick="PS._filterTab=null;setupNav(\'menu-items\')">All</button>';
+        PS.menuTabs.forEach(function(tab) {
+            html +=
+                '<button class="btn btn-sm" ' +
+                'style="background:' + escHtml(tab.color||'var(--primary)') +
+                ';color:#fff;border:none;opacity:' +
+                (PS._filterTab===tab.id?'1':'.65') + '" ' +
+                'data-id="' + tab.id + '" ' +
+                'onclick="PS._filterTab=this.dataset.id;setupNav(\'menu-items\')">' +
+                escHtml(tab.name) + '</button>';
+        });
+        html += '</div>';
+
+        var list = PS._filterTab
+            ? PS.posMenuItems.filter(function(i){return i.tabId===PS._filterTab;})
+            : PS.posMenuItems;
+
+        html +=
+            '<table class="data-table"><thead><tr>' +
+            '<th>Item</th><th>Tab</th><th>Price</th>' +
+            '<th>Special</th><th>Happy Hr</th><th>Status</th><th>Actions</th>' +
+            '</tr></thead><tbody>';
+
+        list.forEach(function(item) {
+            var tab = PS.menuTabs.find(function(t){return t.id===item.tabId;});
+            html +=
+                '<tr><td><strong>' + escHtml(item.name) + '</strong></td>' +
+                '<td>' + (tab
+                    ? '<span class="menu-tab-preview" style="background:' +
+                      escHtml(tab.color||'#1a8ba8') +
+                      ';padding:3px 10px;font-size:.68rem">' +
+                      escHtml(tab.name) + '</span>'
+                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+                '<td><strong>R' + (item.price||0).toFixed(2) + '</strong></td>' +
+                '<td>' + (item.specialActive
+                    ? '<span class="badge badge-orange">-'+item.specialPercent+'%</span>'
+                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+                '<td>' + (item.happyHourPrice
+                    ? '<span class="badge badge-blue">R'+item.happyHourPrice.toFixed(0)+'</span>'
+                    : '<span style="color:var(--text-muted)">—</span>') + '</td>' +
+                '<td>' + (item.status==='active'
+                    ? '<span class="badge badge-green">Active</span>'
+                    : '<span class="badge badge-red">Out of Stock</span>') + '</td>' +
+                '<td><div class="actions">' +
+                '<button class="btn btn-outline btn-sm" data-id="' + item.id + '" ' +
+                'onclick="editMenuItem(this.dataset.id)">' +
+                '<i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-danger btn-sm" data-id="' + item.id + '" ' +
+                'onclick="deleteMenuItem(this.dataset.id)">' +
+                '<i class="fas fa-trash"></i></button>' +
+                '</div></td></tr>';
+        });
+        html += '</tbody></table>';
+    }
+    return html + '</div>';
+}
+
+function addMenuItem()        { showMenuItemModal(null); }
+function editMenuItem(itemId) { showMenuItemModal(itemId); }
+
+function showMenuItemModal(itemId) {
+    var item   = itemId ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
+    var isEdit = !!item;
+
+    var tabOpts =
+        '<option value="">Select a tab…</option>' +
+        PS.menuTabs.map(function(t) {
+            return '<option value="'+t.id+'"'+(item&&item.tabId===t.id?' selected':'')+'>'+
+                   escHtml(t.name)+'</option>';
+        }).join('');
+
+    var invOpts =
+        '<option value="">None — manual item</option>' +
+        PS.inventory.map(function(inv) {
+            return '<option value="'+inv.id+'"'+
+                   (item&&item.linkedInventoryItems&&
+                    item.linkedInventoryItems.indexOf(inv.id)!==-1?' selected':'')+'>'+
+                   escHtml(inv.name)+' ('+
+                   (inv.quantity||0)+' '+(inv.unit||'')+' in stock)</option>';
+        }).join('');
+
+    var secOpts =
+        '<option value="">Uses tab default</option>' +
+        PS.kitchenSections.map(function(s) {
+            return '<option value="'+s.id+'"'+(item&&item.sectionId===s.id?' selected':'')+'>'+
+                   escHtml(s.name)+' ('+s.prepTime+' min)</option>';
+        }).join('');
+
+    openModal((isEdit?'Edit':'Add')+' Menu Item',
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Item Name *</label>' +
+        '<input type="text" class="form-input" id="mi-name" ' +
+        'value="'+escHtml(item?item.name:'')+'" placeholder="e.g. Grilled Chicken Burger"></div>' +
+        '<div class="form-group"><label>Selling Price (R) *</label>' +
+        '<input type="number" class="form-input" id="mi-price" ' +
+        'value="'+(item?item.price:'')+'" placeholder="95.00" min="0.01" step="0.01"></div></div>' +
+
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Menu Tab *</label>' +
+        '<select class="form-input" id="mi-tab">'+tabOpts+'</select></div>' +
+        '<div class="form-group"><label>Kitchen Section Override</label>' +
+        '<select class="form-input" id="mi-section">'+secOpts+'</select>' +
+        '<div class="form-hint">Leave empty to use tab default</div></div></div>' +
+
+        '<div class="form-group"><label>Linked Inventory Item</label>' +
+        '<select class="form-input" id="mi-inventory">'+invOpts+'</select>' +
+        '<div class="form-hint">Enables auto stock deduction when sold</div></div>' +
+
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Portions per Stock Unit</label>' +
+        '<input type="number" class="form-input" id="mi-portions" ' +
+        'value="'+(item?item.portionsPerUnit||1:1)+'" min="0.1" step="0.1"></div>' +
+        '<div class="form-group"><label>Prep Time Override (min)</label>' +
+        '<input type="number" class="form-input" id="mi-preptime" ' +
+        'value="'+(item&&item.prepTime?item.prepTime:'')+'" placeholder="Uses section default" min="1">' +
+        '</div></div>' +
+
+        '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">' +
+        '<h4 style="font-size:.88rem;margin-bottom:10px">' +
+        '<i class="fas fa-tag" style="color:var(--gold)"></i> Special Price</h4>' +
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Special Active?</label>' +
+        '<select class="form-input" id="mi-special-active">' +
+        '<option value="false"'+(item&&item.specialActive?'':' selected')+'>No</option>' +
+        '<option value="true"'+(item&&item.specialActive?' selected':'')+'>Yes</option>' +
+        '</select></div>' +
+        '<div class="form-group"><label>Markdown %</label>' +
+        '<input type="number" class="form-input" id="mi-special-pct" ' +
+        'value="'+(item?item.specialPercent||'':'')+'" placeholder="e.g. 20" min="1" max="90">' +
+        '</div></div>' +
+
+        '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">' +
+        '<h4 style="font-size:.88rem;margin-bottom:10px">' +
+        '<i class="fas fa-cocktail" style="color:var(--info)"></i> Happy Hour Price</h4>' +
+        '<div class="form-group"><label>Happy Hour Price (R)</label>' +
+        '<input type="number" class="form-input" id="mi-hh-price" ' +
+        'value="'+(item&&item.happyHourPrice?item.happyHourPrice:'')+'" ' +
+        'placeholder="Leave empty if not applicable" min="0" step="0.01">' +
+        '<div class="form-hint">Price shown during happy hour</div></div>',
+
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>' +
+        '<button class="btn btn-primary" data-id="'+(itemId||'')+'" ' +
+        'onclick="saveMenuItem(this.dataset.id)">' +
+        '<i class="fas fa-save"></i> '+(isEdit?'Update':'Save')+'</button>');
+}
+
+function saveMenuItem(itemId) {
+    var name     = (document.getElementById('mi-name').value    ||'').trim();
+    var price    = parseFloat(document.getElementById('mi-price').value)    ||0;
+    var tabId    = document.getElementById('mi-tab').value;
+    var secId    = document.getElementById('mi-section').value;
+    var invId    = document.getElementById('mi-inventory').value;
+    var portions = parseFloat(document.getElementById('mi-portions').value) ||1;
+    var prepTime = parseInt(document.getElementById('mi-preptime').value)   ||null;
+    var spActive = document.getElementById('mi-special-active').value==='true';
+    var spPct    = parseInt(document.getElementById('mi-special-pct').value)||0;
+    var hhPrice  = parseFloat(document.getElementById('mi-hh-price').value)||null;
+
+    if (!name)     { showToast('error','Enter an item name');  return; }
+    if (price<=0)  { showToast('error','Enter a valid price'); return; }
+    if (!tabId)    { showToast('error','Select a menu tab');   return; }
+    if (spActive && spPct<=0) {
+        showToast('error','Enter a discount % for the special'); return;
+    }
+    if (hhPrice !== null && hhPrice >= price) {
+        showToast('error','Happy hour price must be less than normal price'); return;
+    }
+
+    var spPrice = spActive && spPct>0
+        ? parseFloat((price*(1-spPct/100)).toFixed(2)) : null;
+
+    var isEdit   = !!(itemId && itemId.length);
+    var existing = isEdit
+        ? PS.posMenuItems.find(function(i){return i.id===itemId;}) : null;
+    var now = new Date().toISOString();
+
+    var item = {
+        id:                   isEdit ? itemId : 'MI-'+Date.now(),
+        name:                 name, price: price, tabId: tabId,
+        sectionId:            secId||null,
+        linkedInventoryItems: invId ? [invId] : [],
+        portionsPerUnit:      portions, prepTime: prepTime,
+        specialActive:        spActive, specialPercent: spPct, specialPrice: spPrice,
+        happyHourPrice:       hhPrice,
+        status:               existing ? (existing.status||'active') : 'active',
+        createdAt:            existing ? existing.createdAt : now, updatedAt: now
+    };
+
+    var backup = PS.posMenuItems.slice();
+    PS.posMenuItems = isEdit
+        ? PS.posMenuItems.map(function(i){return i.id===itemId?item:i;})
+        : PS.posMenuItems.concat([item]);
+
+    savePOSData('posMenuItems', PS.posMenuItems)
+        .then(function() {
+            closeModal(); updateBadges(); setupNav('menu-items');
+            showToast('success','✅ Item '+(isEdit?'updated':'added'));
+        })
+        .catch(function() {
+            PS.posMenuItems = backup;
+            showToast('error','Failed to save item.');
+        });
+}
+
+function deleteMenuItem(itemId) {
+    var item = PS.posMenuItems.find(function(i){return i.id===itemId;});
+    if (!item) return;
+    if (!confirm('Delete "'+item.name+'" from the POS menu?')) return;
+    var backup = PS.posMenuItems.slice();
+    PS.posMenuItems = PS.posMenuItems.filter(function(i){return i.id!==itemId;});
+    savePOSData('posMenuItems', PS.posMenuItems)
+        .then(function() {
+            updateBadges(); setupNav('menu-items');
+            showToast('info','Item deleted');
+        })
+        .catch(function() {
+            PS.posMenuItems = backup;
+            showToast('error','Failed to delete.');
+        });
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — TABLES & QR
+═══════════════════════════════════════════ */
+var BASE_URL = 'https://www.stockai-pro.co.za/tablebill.html';
+
+function buildBillUrl(n) {
+    return BASE_URL+'?t='+n+'&e='+PS.entityId+'&a='+PS.accountId;
+}
+function buildQRUrl(billUrl, size) {
+    return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+
+           '&data='+encodeURIComponent(billUrl)+'&ecc=M';
+}
+
+function pageTables() {
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-th-large" style="color:var(--primary)"></i> Tables & QR Codes</h1>' +
+        '<p>Generate QR codes for each table. Customers scan to view their live bill.</p></div>' +
+
+        '<div class="card"><div class="card-header">' +
+        '<h3><i class="fas fa-plus-circle"></i> Configure Tables</h3></div>' +
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Number of Tables</label>' +
+        '<input type="number" class="form-input" id="table-count" ' +
+        'value="'+PS.tables.length+'" min="1" max="100" placeholder="e.g. 20"></div>' +
+        '<div class="form-group"><label>&nbsp;</label>' +
+        '<button class="btn btn-primary btn-block" onclick="generateTables()">' +
+        '<i class="fas fa-sync"></i> Generate Tables & QR Codes</button></div></div>' +
+
+        '<div class="form-group" style="margin-top:8px"><label>Takeaway QR Code</label>' +
+        '<button class="btn btn-outline btn-sm" onclick="generateTakeawayQR()" ' +
+        'style="margin-top:6px">' +
+        '<i class="fas fa-shopping-bag"></i> Generate Takeaway QR</button>' +
+        '<div class="form-hint">A permanent QR for takeaway orders at reception</div>' +
+        '</div></div>';
+
+    if (PS.tables.length > 0) {
+        html +=
+            '<div class="card"><div class="card-header">' +
+            '<h3><i class="fas fa-qrcode"></i> Your Tables ('+PS.tables.length+')</h3>' +
+            '<button class="btn btn-success btn-sm" onclick="printAllQR()">' +
+            '<i class="fas fa-print"></i> Print All</button></div>' +
+            '<div style="display:grid;grid-template-columns:' +
+            'repeat(auto-fill,minmax(130px,1fr));gap:12px">';
+
+        PS.tables.forEach(function(t) {
+            var url = buildBillUrl(t.number);
+            html +=
+                '<div style="background:var(--bg);border-radius:var(--rs);' +
+                'padding:12px;text-align:center;border:1px solid var(--border)">' +
+                '<div style="font-size:.68rem;color:var(--text-muted);font-weight:700;' +
+                'text-transform:uppercase;margin-bottom:4px">Table</div>' +
+                '<div style="font-size:1.6rem;font-weight:900;color:var(--text);' +
+                'margin-bottom:8px">'+t.number+'</div>' +
+                '<img src="'+buildQRUrl(url,120)+'" width="80" height="80" ' +
+                'style="border-radius:4px" alt="Table '+t.number+' QR">' +
+                '<div style="margin-top:8px">' +
+                '<button class="btn btn-outline btn-sm" style="width:100%;font-size:.7rem" ' +
+                'data-num="'+t.number+'" onclick="downloadQR(this.dataset.num)">' +
+                '<i class="fas fa-download"></i> Download</button></div></div>';
+        });
+        html += '</div></div>';
+    }
+
+    if (PS.takeawayQR) {
+        var tUrl = buildBillUrl('takeaway');
+        html +=
+            '<div class="card"><div class="card-header">' +
+            '<h3><i class="fas fa-shopping-bag"></i> Takeaway QR Code</h3></div>' +
+            '<div style="text-align:center;padding:16px">' +
+            '<img src="'+buildQRUrl(tUrl,150)+'" width="130" height="130" ' +
+            'style="border-radius:8px;box-shadow:var(--shadow)" alt="Takeaway QR">' +
+            '<p style="font-size:.82rem;color:var(--text-light);margin-top:10px">' +
+            'Place at reception for takeaway orders</p>' +
+            '<button class="btn btn-outline btn-sm" style="margin-top:10px" ' +
+            'onclick="downloadQR(\'takeaway\')">' +
+            '<i class="fas fa-download"></i> Download</button></div></div>';
+    }
+
+    return html;
+}
+
+function generateTables() {
+    var count = parseInt(document.getElementById('table-count').value)||0;
+    if (count<1||count>100) { showToast('error','Enter 1–100'); return; }
+    var msg = PS.tables.length>0
+        ? 'Regenerate tables 1–'+count+'?\nExisting tables preserved where possible.'
+        : 'Generate '+count+' tables?';
+    if (!confirm(msg)) return;
+
+    var newTables = [];
+    for (var i=1; i<=count; i++) {
+        var ex = PS.tables.find(function(t){return t.number===i;});
+        newTables.push(ex || {
+            id:'TBL-'+i, number:i,
+            qrCode:buildBillUrl(i), status:'closed'
+        });
+    }
+    PS.tables = newTables;
+    var backup = PS.tables.slice();
+
+    savePOSData('posTables', PS.tables)
+        .then(function() {
+            updateBadges(); setupNav('tables');
+            showToast('success','✅ '+count+' tables ready');
+        })
+        .catch(function() {
+            PS.tables = backup;
+            showToast('error','Failed to save tables.');
+        });
+}
+
+function generateTakeawayQR() {
+    PS.takeawayQR = {
+        id:'TBL-TAKEAWAY', number:'takeaway',
+        qrCode:buildBillUrl('takeaway'), status:'active'
+    };
+    savePOSData('posTakeawayQR', PS.takeawayQR)
+        .then(function() {
+            setupNav('tables');
+            showToast('success','✅ Takeaway QR generated');
+        });
+}
+
+function downloadQR(num) {
+    var url = buildQRUrl(buildBillUrl(num), 400);
+    fetch(url).then(function(r){return r.blob();})
+        .then(function(blob) {
+            var bUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href=bUrl; a.download='Table-'+num+'-QR.png';
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            setTimeout(function(){URL.revokeObjectURL(bUrl);},1000);
+        })
+        .catch(function(){showToast('error','Download failed. Right-click to save.');});
+}
+
+function printAllQR() {
+    var win = window.open('','_blank');
+    var rows = PS.tables.map(function(t) {
+        return '<div class="card"><h3>Table '+t.number+'</h3>' +
+               '<img src="'+buildQRUrl(buildBillUrl(t.number),200)+
+               '" width="140" height="140">' +
+               '<p>Scan to view your bill</p></div>';
+    }).join('');
+    win.document.write(
+        '<!DOCTYPE html><html><head><title>Table QR Codes</title>' +
+        '<style>body{font-family:sans-serif;padding:20px}' +
+        'h1{text-align:center;margin-bottom:20px}' +
+        '.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}' +
+        '.card{text-align:center;padding:14px;border:1px solid #ddd;' +
+        'border-radius:8px;page-break-inside:avoid}' +
+        '.card h3{margin-bottom:8px}.card p{font-size:.72rem;color:#888;margin-top:6px}' +
+        '.pb{display:block;margin:0 auto 20px;padding:10px 24px;' +
+        'background:#1a8ba8;color:#fff;border:none;border-radius:8px;cursor:pointer}' +
+        '@media print{.pb{display:none}}</style></head><body>' +
+        '<h1>'+escHtml(PS.entityName)+' — Table QR Codes</h1>' +
+        '<button class="pb" onclick="window.print()">🖨️ Print All</button>' +
+        '<div class="grid">'+rows+'</div></body></html>'
+    );
+    win.document.close();
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — HAPPY HOUR
+═══════════════════════════════════════════ */
+function pageHappyHour() {
+    var hh = PS.happyHour;
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-cocktail" style="color:var(--primary)"></i> Happy Hour</h1>' +
+        '<p>Set automatic happy hour pricing. Items with a happy hour price show ' +
+        'discounted pricing on the POS during active hours.</p></div>' +
+
+        '<div class="card"><div class="card-header">' +
+        '<h3><i class="fas fa-clock"></i> Happy Hour Settings</h3></div>' +
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Control Mode</label>' +
+        '<select class="form-input" id="hh-active" onchange="toggleHHTimePicker()">' +
+        '<option value="auto"'+(!hh.manualOverride?' selected':'')+'>Automatic (by time)</option>' +
+        '<option value="on"'+(hh.manualOverride&&hh.active?' selected':'')+'>Manually ON</option>' +
+        '<option value="off"'+(hh.manualOverride&&!hh.active?' selected':'')+'>Manually OFF</option>' +
+        '</select></div>' +
+        '<div class="form-group"><label>Current Status</label>' +
+        '<div style="padding:10px 14px;border-radius:var(--rs);font-weight:700;'+
+        (hh.active
+            ? 'background:rgba(46,168,113,.1);color:var(--success)'
+            : 'background:rgba(201,69,69,.08);color:var(--danger)') +'">' +
+        (hh.active ? '🟢 Happy Hour ACTIVE' : '🔴 Happy Hour OFF') +
+        '</div></div></div>' +
+
+        '<div class="form-row" id="hh-times" style="'+(hh.manualOverride?'display:none':'')+'">' +
+        '<div class="form-group"><label>Start Time</label>' +
+        '<input type="time" class="form-input" id="hh-start" ' +
+        'value="'+(hh.startTime||'16:00')+'"></div>' +
+        '<div class="form-group"><label>End Time</label>' +
+        '<input type="time" class="form-input" id="hh-end" ' +
+        'value="'+(hh.endTime||'18:00')+'"></div></div>' +
+
+        '<button class="btn btn-primary" onclick="saveHappyHour()" style="margin-top:8px">' +
+        '<i class="fas fa-save"></i> Save Happy Hour Settings</button></div>';
+
+    var hhItems = PS.posMenuItems.filter(function(i){return i.happyHourPrice;});
+    if (hhItems.length > 0) {
+        html +=
+            '<div class="card"><div class="card-header">' +
+            '<h3><i class="fas fa-tag"></i> Happy Hour Items ('+hhItems.length+')</h3></div>' +
+            '<table class="data-table"><thead><tr>' +
+            '<th>Item</th><th>Normal</th><th>Happy Hour</th><th>Saving</th>' +
+            '</tr></thead><tbody>';
+        hhItems.forEach(function(item) {
+            var saving = (item.price||0)-(item.happyHourPrice||0);
+            html +=
+                '<tr><td>'+escHtml(item.name)+'</td>' +
+                '<td>R'+item.price.toFixed(2)+'</td>' +
+                '<td style="color:var(--success);font-weight:700">' +
+                'R'+item.happyHourPrice.toFixed(2)+'</td>' +
+                '<td style="color:var(--danger)">-R'+saving.toFixed(2)+'</td></tr>';
+        });
+        html += '</tbody></table></div>';
+    } else {
+        html +=
+            '<div class="card"><div class="empty-state">' +
+            '<i class="fas fa-cocktail"></i><h3>No Happy Hour Prices Set</h3>' +
+            '<p>Edit menu items to set happy hour prices.</p>' +
+            '<button class="btn btn-outline" onclick="setupNav(\'menu-items\')">' +
+            '<i class="fas fa-edit"></i> Go to Menu Items</button>' +
+            '</div></div>';
+    }
+    return html;
+}
+
+function toggleHHTimePicker() {
+    var mode  = document.getElementById('hh-active').value;
+    var times = document.getElementById('hh-times');
+    if (times) times.style.display = mode==='auto' ? '' : 'none';
+}
+
+function saveHappyHour() {
+    var mode  = document.getElementById('hh-active').value;
+    var start = (document.getElementById('hh-start')||{}).value||'16:00';
+    var end   = (document.getElementById('hh-end')  ||{}).value||'18:00';
+
+    if (mode==='auto' && start>=end) {
+        showToast('error','Start time must be before end time'); return;
+    }
+
+    PS.happyHour = {
+        active:         mode==='on' ? true : mode==='off' ? false
+                        : isWithinHH(start,end),
+        startTime:      start, endTime: end,
+        manualOverride: mode!=='auto'
+    };
+
+    savePOSData('posHappyHour', PS.happyHour)
+        .then(function() {
+            setupNav('happy-hour');
+            showToast('success','✅ Happy hour settings saved');
+        })
+        .catch(function() { showToast('error','Failed to save.'); });
+}
+
+function isWithinHH(start, end) {
+    var now  = new Date();
+    var hhmm = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+    return hhmm>=start && hhmm<=end;
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — SPECIALS
+═══════════════════════════════════════════ */
+function pageSpecials() {
+    var specials = PS.posMenuItems.filter(function(i){return i.specialActive;});
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-tag" style="color:var(--gold)"></i> Specials</h1>' +
+        '<p>Items currently on special. Edit any menu item to toggle special pricing.</p></div>' +
+        '<div class="card"><div class="card-header">' +
+        '<h3><i class="fas fa-tag"></i> Active Specials ('+specials.length+')</h3>' +
+        '<button class="btn btn-outline btn-sm" onclick="setupNav(\'menu-items\')">' +
+        '<i class="fas fa-edit"></i> Edit Items</button></div>';
+
+    if (specials.length === 0) {
+        html +=
+            '<div class="empty-state"><i class="fas fa-tag"></i>' +
+            '<h3>No Active Specials</h3>' +
+            '<p>Edit a menu item and enable Special to add it here.</p></div>';
+    } else {
+        html +=
+            '<table class="data-table"><thead><tr>' +
+            '<th>Item</th><th>Normal</th><th>Markdown</th>' +
+            '<th>Special Price</th><th>Actions</th>' +
+            '</tr></thead><tbody>';
+        specials.forEach(function(item) {
+            html +=
+                '<tr><td><strong>'+escHtml(item.name)+'</strong></td>' +
+                '<td style="text-decoration:line-through;color:var(--text-muted)">' +
+                'R'+(item.price||0).toFixed(2)+'</td>' +
+                '<td><span class="badge badge-orange">-'+(item.specialPercent||0)+'%</span></td>' +
+                '<td style="color:var(--success);font-weight:700">' +
+                'R'+(item.specialPrice||0).toFixed(2)+'</td>' +
+                '<td><button class="btn btn-outline btn-sm" data-id="'+item.id+'" ' +
+                'onclick="removeSpecial(this.dataset.id)">' +
+                '<i class="fas fa-times"></i> Remove</button></td></tr>';
+        });
+        html += '</tbody></table>';
+    }
+    return html + '</div>';
+}
+
+function removeSpecial(itemId) {
+    var item = PS.posMenuItems.find(function(i){return i.id===itemId;});
+    if (!item) return;
+    if (!confirm('Remove special from "'+item.name+'"?')) return;
+    item.specialActive=false; item.specialPercent=0; item.specialPrice=null;
+    savePOSData('posMenuItems', PS.posMenuItems)
+        .then(function() {
+            setupNav('specials');
+            showToast('info','Special removed from '+item.name);
+        })
+        .catch(function(){showToast('error','Failed to remove special.');});
+}
+
+/* ═══════════════════════════════════════════
+   PAGE — PREVIEW
+═══════════════════════════════════════════ */
+function pagePreview() {
+    var html =
+        '<div class="page-header">' +
+        '<h1><i class="fas fa-eye" style="color:var(--primary)"></i> Menu Preview</h1>' +
+        '<p>How your menu appears on the POS waiter interface.</p></div>';
+
+    if (PS.menuTabs.length === 0) {
+        return html +
+            '<div class="empty-state"><i class="fas fa-eye"></i>' +
+            '<h3>Nothing to Preview</h3>' +
+            '<p>Add menu tabs and items first.</p></div>';
+    }
+
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px">';
+    PS.menuTabs.forEach(function(tab) {
+        html += '<div class="menu-tab-preview" style="background:'+
+                escHtml(tab.color||'#1a8ba8')+'">' +
+                '<i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+
+                escHtml(tab.name)+'</div>';
     });
+    html += '</div>';
+
+    PS.menuTabs.forEach(function(tab) {
+        var items = PS.posMenuItems.filter(function(i){return i.tabId===tab.id;});
+        html +=
+            '<div class="card" style="border-left:4px solid '+
+            escHtml(tab.color||'#1a8ba8')+'">' +
+            '<div class="card-header">' +
+            '<h3 style="color:'+escHtml(tab.color||'#1a8ba8')+'">' +
+            '<i class="fas fa-'+escHtml(tab.icon||'tag')+'"></i> '+
+            escHtml(tab.name)+'</h3>' +
+            '<span class="badge badge-blue">'+items.length+' item'+
+            (items.length!==1?'s':'')+'</span></div>';
+
+        if (items.length===0) {
+            html += '<p style="color:var(--text-muted);font-size:.85rem;' +
+                    'text-align:center;padding:16px">No items yet</p>';
+        } else {
+            html += '<div style="display:grid;grid-template-columns:' +
+                    'repeat(auto-fill,minmax(160px,1fr));gap:10px">';
+            items.forEach(function(item) {
+                var dp   = item.specialActive&&item.specialPrice ? item.specialPrice : item.price;
+                var isOOS = item.status!=='active';
+                html +=
+                    '<div style="background:var(--bg);border-radius:var(--rs);' +
+                    'padding:12px;border:1px solid var(--border);position:relative;'+
+                    (isOOS?'opacity:.5;':'')+'">' +
+                    (item.specialActive?
+                        '<div style="position:absolute;top:6px;right:6px;background:var(--gold);'+
+                        'color:#fff;padding:2px 6px;border-radius:4px;'+
+                        'font-size:.58rem;font-weight:700">SPECIAL</div>':'')+
+                    '<div style="font-size:.85rem;font-weight:600;color:var(--text);'+
+                    'margin-bottom:4px">'+escHtml(item.name)+'</div>'+
+                    (item.specialActive?
+                        '<div style="font-size:.7rem;text-decoration:line-through;'+
+                        'color:var(--text-muted)">R'+item.price.toFixed(2)+'</div>':'')+
+                    '<div style="font-size:1rem;font-weight:800;color:'+
+                    (item.specialActive?'var(--success)':'var(--primary)')+'">'+
+                    'R'+dp.toFixed(2)+'</div>'+
+                    (isOOS?'<div style="font-size:.7rem;color:var(--danger);'+
+                    'font-weight:600;margin-top:4px">OUT OF STOCK</div>':'')+
+                    '</div>';
+            });
+            html += '</div>';
+        }
+        html += '</div>';
+    });
+
+    return html;
 }
 
-console.log('✅ StockAI-Pro POS loaded');
+console.log('✅ POS Setup — All pages loaded');
 </script>
 </body>
 </html>
