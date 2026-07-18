@@ -845,37 +845,28 @@ function flashPinError(step) {
 function submitRegistration() {
     hideMsg();
 
-    // Check PINs match
     if (REG.pin1 !== REG.pin2) {
         showMsg('PINs do not match. Please try again.');
         flashPinError(2);
-        document.getElementById('pin-hint-2').textContent = '❌ PINs do not match — try again';
         setTimeout(function() {
             REG.pin2 = '';
             clearPinDisplay(2);
-            document.getElementById('pin-hint-2').textContent = 'Re-enter your 4-digit PIN';
         }, 800);
         return;
     }
 
-    // Check PIN length
     if (REG.pin1.length !== 4) {
         showMsg('PIN must be exactly 4 digits.');
         return;
     }
 
-    // Check PIN uniqueness in entity
-    checkPINUnique(REG.pin1, function(isUnique) {
-        if (!isUnique) {
-            showMsg('This PIN is already in use. Please go back and choose a different PIN.');
-            flashPinError(2);
-            REG.pin1 = '';
-            REG.pin2 = '';
-            setTimeout(function() { goToStep2(); }, 800);
-            return;
-        }
-        createAccount();
-    });
+    if (!/^\d{4}$/.test(REG.pin1)) {
+        showMsg('PIN must be 4 numbers only.');
+        return;
+    }
+
+    // Go straight to creating account
+    createAccount();
 }
 
 function checkPINUnique(pin, callback) {
@@ -928,47 +919,54 @@ function createAccount() {
 }
 
 function updateUserInFirestore() {
+    var now = new Date().toISOString();
+
+    // First get the current account document
     return db.collection('accounts').doc(REG.accountId).get()
-        .then(function(doc){
-            if (!doc.exists) throw new Error('Account not found');
-
-            var data  = doc.data();
-            var users = [];
-
-            if (data.users && data.users[REG.entityId]) {
-                users = data.users[REG.entityId].slice();
+        .then(function(doc) {
+            if (!doc.exists) {
+                throw new Error('Account document not found for ID: ' + REG.accountId);
             }
 
-            var now         = new Date().toISOString();
-            var existingIdx = -1;
+            var data       = doc.data();
+            var entityId   = REG.entityId;
+            var allUsers   = data.users || {};
+            var entityUsers= (allUsers[entityId] || []).slice();
 
-            // Find user by userId or email
-            users.forEach(function(u, i){
+            console.log('Found account. Entity users count:', entityUsers.length);
+            console.log('Looking for userId:', REG.userId, 'or email:', REG.email);
+
+            // Try to find the user
+            var foundIndex = -1;
+            for (var i = 0; i < entityUsers.length; i++) {
+                var u = entityUsers[i];
                 if (REG.userId && u.id === REG.userId) {
-                    existingIdx = i;
-                } else if (existingIdx === -1 && u.email &&
-                    u.email.toLowerCase() === REG.email.toLowerCase()) {
-                    existingIdx = i;
+                    foundIndex = i;
+                    console.log('Found user by ID at index', i);
+                    break;
                 }
-            });
+                if (u.email && u.email.toLowerCase() === REG.email.toLowerCase()) {
+                    foundIndex = i;
+                    console.log('Found user by email at index', i);
+                }
+            }
 
-            if (existingIdx !== -1) {
-                // User found — update their PIN only
-                // Do NOT change their role or other admin settings
-                users[existingIdx].loginPin      = REG.pin1;
-                users[existingIdx].registeredAt  = now;
-                users[existingIdx].accountActive = true;
-                // Only fill in blank fields
-                if (!users[existingIdx].name)
-                    users[existingIdx].name  = REG.name;
-                if (!users[existingIdx].phone)
-                    users[existingIdx].phone = REG.phone || '';
+            if (foundIndex !== -1) {
+                // Update existing user
+                entityUsers[foundIndex].loginPin      = REG.pin1;
+                entityUsers[foundIndex].registeredAt  = now;
+                entityUsers[foundIndex].accountActive = true;
+                if (REG.name && REG.name.trim() !== '') {
+                    entityUsers[foundIndex].name = REG.name.trim();
+                }
+                console.log('Updated user PIN at index', foundIndex);
             } else {
-                // User not found — create new record
-                users.push({
-                    id:            REG.userId || ('USR-' + Date.now()),
-                    name:          REG.name,
-                    email:         REG.email,
+                // Create new user record
+                console.log('User not found — creating new record');
+                entityUsers.push({
+                    id:            REG.userId || ('USR-REG-' + Date.now()),
+                    name:          REG.name   || '',
+                    email:         REG.email  || '',
                     phone:         REG.phone  || '',
                     role:          REG.role   || 'Staff',
                     loginPin:      REG.pin1,
@@ -980,16 +978,21 @@ function updateUserInFirestore() {
                 });
             }
 
-            // Save back to Firestore
-            var update = {};
-            update['users.' + REG.entityId] = users;
-            update['lastUpdated'] =
-                firebase.firestore.FieldValue.serverTimestamp();
-            update['lastUpdatedBy']     = REG.name;
-            update['lastUpdatedDevice'] = 'Registration';
+            // Write back to Firestore
+            var updateObj = {};
+            updateObj['users.' + entityId]  = entityUsers;
+            updateObj['lastUpdated']         = firebase.firestore.FieldValue.serverTimestamp();
+            updateObj['lastUpdatedBy']       = REG.name || 'Registration';
+            updateObj['lastUpdatedDevice']   = 'Registration';
 
-            return db.collection('accounts').doc(REG.accountId)
-                .set(update, { merge:true });
+            console.log('Writing to Firestore...');
+
+            return db.collection('accounts')
+                .doc(REG.accountId)
+                .set(updateObj, { merge: true });
+        })
+        .then(function() {
+            console.log('✅ User saved to Firestore successfully');
         });
 }
 
