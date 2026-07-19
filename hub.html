@@ -3089,22 +3089,24 @@ function loadAllAccountsForPin() {
                         entityUsers.forEach(function (u) {
                             var userPin = u.loginPin || u.pin || '';
                             if (userPin.length >= 4) {
-                                                                HUB_PIN.allAccounts.push({
-                                    accountId:   doc.id,
-                                    entityId:    ent.id,
-                                    entityName:  ent.name || 'Store',
-                                    entityObj:   ent,
-                                    allEntities: entities,
-                                    accountData: data,
-                                    userName:    u.name || 'Staff',
-                                    userEmail:   u.email || '',
-                                    userRole:    u.role || 'Staff',
-                                    userId:      u.id || u.email || '',
-                                    userPin:     userPin,
-                                    appAccess:   u.appAccess || null,
-                                    pin:         u.pin || null,
-                                    ownerName:   owner.name || '',
-                                    ownerEmail:  owner.email || ''
+                               HUB_PIN.allAccounts.push({
+                                  accountId:   doc.id,
+                                  entityId:    ent.id,
+                                  entityName:  ent.name || 'Store',
+                                  entityObj:   ent,
+                                  allEntities: entities,
+                                  accountData: data,
+
+                                  userName:    u.name || 'Staff',
+                                  userEmail:   u.email || '',
+                                  userRole:    u.role || 'Staff',
+                                  userId:      u.id || u.email || '',
+                                  userPin:     userPin,
+                                  appAccess:   u.appAccess || null,
+                                  pin:         u.pin || null,
+
+                                  ownerName:   owner.name || '',
+                                  ownerEmail:  owner.email || ''
                                 });
                             }
                         });
@@ -3121,22 +3123,24 @@ function loadAllAccountsForPin() {
                                 });
                             if (!ownerExists) {
                                                                 HUB_PIN.allAccounts.push({
-                                    accountId:   doc.id,
-                                    entityId:    ent.id,
-                                    entityName:  ent.name || 'Store',
-                                    entityObj:   ent,
-                                    allEntities: entities,
-                                    accountData: data,
-                                    userName:    owner.name || 'Owner',
-                                    userEmail:   owner.email || '',
-                                    userRole:    'Owner',
-                                    userId:      'OWNER-' + doc.id,
-                                    userPin:     ownerPin,
-                                    appAccess:   null,
-                                    pin:         owner.pin || null,
-                                    ownerName:   owner.name || '',
-                                    ownerEmail:  owner.email || ''
-                                });
+    accountId:   doc.id,
+    entityId:    ent.id,
+    entityName:  ent.name || 'Store',
+    entityObj:   ent,
+    allEntities: entities,
+    accountData: data,
+
+    userName:    owner.name || 'Owner',
+    userEmail:   owner.email || '',
+    userRole:    'Owner',
+    userId:      'OWNER-' + doc.id,
+    userPin:     ownerPin,
+    appAccess:   null,
+    pin:         owner.pin || null,
+
+    ownerName:   owner.name || '',
+    ownerEmail:  owner.email || ''
+});
                             }
                         }
                     });
@@ -3257,19 +3261,11 @@ function verifyHubPin() {
         });
 
         if (masterMatch) {
-            setTimeout(function () {
-                pinLoginSuccess({
-                    id:       masterMatch.userId,
-                    name:     masterMatch.userName,
-                    email:    masterMatch.userEmail,
-                    role:     'Owner',
-                    loginPin: MASTER_PIN,
-                    pin:      masterMatch.pin
-                }, masterMatch.accountId, masterMatch.entityId,
-                   masterMatch.entityName);
-            }, 500);
-            return;
-        }
+    setTimeout(function () {
+        pinLoginFromMatch(masterMatch);
+    }, 500);
+    return;
+}
 
         /* Master not in preloaded list — scan directly */
         db.collection('accounts').get()
@@ -3335,17 +3331,8 @@ function verifyHubPin() {
         hideLoginError();
         setPinStore(match.entityName);
 
-        setTimeout(function () {
-            pinLoginSuccess({
-                id:        match.userId,
-                name:      match.userName,
-                email:     match.userEmail,
-                role:      match.userRole,
-                loginPin:  match.userPin,
-                pin:       match.pin,
-                appAccess: match.appAccess
-            }, match.accountId, match.entityId,
-               match.entityName);
+                setTimeout(function () {
+            pinLoginFromMatch(match);
         }, 500);
         return;
     }
@@ -3407,6 +3394,92 @@ function showPinUserChooser(matches) {
     window._pinMatches = matches;
 }
 
+function pinLoginFromMatch(match) {
+    if (!match) {
+        showLoginError('PIN match not found.');
+        return;
+    }
+
+    var MASTER_EMAIL = 'cidraism@gmail.com';
+
+    if (typeof HUB !== 'undefined') {
+        if (!HUB.user) HUB.user = {};
+
+        HUB.user.name  = match.userName;
+        HUB.user.email = match.userEmail || '';
+        HUB.user.role  = match.userRole || 'Staff';
+        HUB.user.uid   = match.userId   || '';
+        HUB.user.pin   = match.pin      || null;
+
+        HUB.accountId   = match.accountId;
+        HUB.entityId    = match.entityId;
+        HUB.entityName  = match.entityName || '';
+        HUB.accountData = match.accountData || {};
+        HUB.entities    = match.allEntities || [];
+        HUB.entity      = match.entityObj || null;
+
+        HUB.isMaster = (match.userEmail &&
+            match.userEmail.toLowerCase() === MASTER_EMAIL) ||
+            match.userId === 'MASTER';
+
+        if (typeof getEntityFeatures === 'function') {
+            HUB.features = getEntityFeatures(
+                HUB.accountData, HUB.entityId
+            );
+        } else {
+            HUB.features = [];
+        }
+
+        if (match.appAccess && Array.isArray(match.appAccess)) {
+            HUB.allowedApps = match.appAccess.slice();
+        } else {
+            var userRole = match.userRole || 'Staff';
+            if (typeof ROLE_DEFAULTS !== 'undefined' &&
+                ROLE_DEFAULTS[userRole]) {
+                HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
+            } else {
+                HUB.allowedApps = ['boh'];
+            }
+        }
+
+        /* Always include free core apps if entity has features */
+        ['mobile','procure'].forEach(function(freeApp) {
+            if (HUB.allowedApps.indexOf(freeApp) === -1 &&
+                HUB.features &&
+                HUB.features.length > 0) {
+                HUB.allowedApps.push(freeApp);
+            }
+        });
+    }
+
+    sessionStorage.setItem('hub_account_id',    match.accountId);
+    sessionStorage.setItem('hub_entity_id',     match.entityId);
+    sessionStorage.setItem('hub_entity_name',   match.entityName || '');
+    sessionStorage.setItem('hub_user_name',     match.userName);
+    sessionStorage.setItem('hub_user_email',    match.userEmail || '');
+    sessionStorage.setItem('hub_user_role',     match.userRole || 'Staff');
+    sessionStorage.setItem('hub_authenticated', 'true');
+
+    localStorage.setItem('stockai_remember',    'yes');
+    localStorage.setItem('stockai_email',       match.userEmail || '');
+    localStorage.setItem('stockai_pin_userId',  match.userId || '');
+    localStorage.setItem('stockai_pin_entity',  match.entityId);
+    localStorage.setItem('stockai_pin_account', match.accountId);
+
+    var ls = document.getElementById('login-screen');
+    if (ls) ls.classList.add('hidden');
+
+    if (typeof saveSessionCache === 'function')   saveSessionCache();
+    if (typeof writeSharedSession === 'function') writeSharedSession();
+    if (typeof startHubSync === 'function')       startHubSync();
+    if (typeof hubLoadBranding === 'function')    hubLoadBranding();
+    if (typeof hubLoadWeather === 'function')     hubLoadWeather();
+    if (typeof routeAfterLogin === 'function')    routeAfterLogin();
+
+    console.log('✅ PIN login from cache —',
+        match.userName, match.userRole, match.entityName);
+}
+
 function pinSelectFromMultiple(idx) {
     var matches = window._pinMatches;
     if (!matches || !matches[idx]) return;
@@ -3415,22 +3488,12 @@ function pinSelectFromMultiple(idx) {
 
     setPinStore(match.entityName);
 
-    pinLoginSuccess({
-        id:        match.userId,
-        name:      match.userName,
-        email:     match.userEmail,
-        role:      match.userRole,
-        loginPin:  match.userPin,
-        pin:       match.pin,
-        appAccess: match.appAccess
-    }, match.accountId, match.entityId, match.entityName);
+        pinLoginFromMatch(match);
 }
 
 /* ── PIN Login Success ── */
 function pinLoginSuccess(user, accountId, entityId, entityName) {
-    var MASTER_EMAIL = 'cidraism@gmail.com';
-
-    /* Try to find the cached account/user match from HUB_PIN preload */
+    /* Fallback wrapper — if we already have a cached match, use it */
     var cachedMatch = HUB_PIN.allAccounts.find(function(a) {
         var sameAccount = a.accountId === accountId;
         var sameEntity  = a.entityId  === entityId;
@@ -3440,196 +3503,38 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
         return sameAccount && sameEntity && (sameUserId || sameEmail);
     });
 
-    if (typeof HUB !== 'undefined') {
-        if (!HUB.user) HUB.user = {};
-        HUB.user.name  = user.name;
-        HUB.user.email = user.email || '';
-        HUB.user.role  = user.role  || 'Staff';
-        HUB.user.uid   = user.id    || '';
-        HUB.user.pin   = user.pin   || null;
-
-        HUB.accountId  = accountId;
-        HUB.entityId   = entityId;
-        HUB.entityName = entityName || '';
-        HUB.isMaster   = (user.email &&
-            user.email.toLowerCase() === MASTER_EMAIL) ||
-            user.id === 'MASTER';
-    }
-
-    sessionStorage.setItem('hub_account_id',    accountId);
-    sessionStorage.setItem('hub_entity_id',     entityId);
-    sessionStorage.setItem('hub_entity_name',   entityName || '');
-    sessionStorage.setItem('hub_user_name',     user.name);
-    sessionStorage.setItem('hub_user_email',    user.email || '');
-    sessionStorage.setItem('hub_user_role',     user.role || 'Staff');
-    sessionStorage.setItem('hub_authenticated', 'true');
-
-    localStorage.setItem('stockai_remember',    'yes');
-    localStorage.setItem('stockai_email',       user.email || '');
-    localStorage.setItem('stockai_pin_userId',  user.id || '');
-    localStorage.setItem('stockai_pin_entity',  entityId);
-    localStorage.setItem('stockai_pin_account', accountId);
-
-    var ls = document.getElementById('login-screen');
-    if (ls) ls.classList.add('hidden');
-
-    /* ── USE CACHED ACCOUNT DATA IF AVAILABLE ── */
-    if (cachedMatch && cachedMatch.accountData) {
-        var data = cachedMatch.accountData;
-
-        if (typeof HUB !== 'undefined') {
-            HUB.accountData = data;
-            HUB.entities    = cachedMatch.allEntities ||
-                              data.entities || [];
-
-            /* Set current entity */
-            HUB.entity = cachedMatch.entityObj ||
-                HUB.entities.find(function(e) {
-                    return e.id === entityId;
-                }) ||
-                HUB.entities[0] || null;
-
-            if (HUB.entity) {
-                HUB.entityId   = HUB.entity.id;
-                HUB.entityName = HUB.entity.name;
-
-                if (typeof getEntityFeatures === 'function') {
-                    HUB.features = getEntityFeatures(data, HUB.entityId);
-                } else {
-                    HUB.features = [];
-                }
-            }
-
-            /* Determine allowed apps */
-            var userAppAccess = user.appAccess || cachedMatch.appAccess || null;
-
-            if (!userAppAccess) {
-                var entityUsers = [];
-                if (data.users && data.users[entityId] &&
-                    Array.isArray(data.users[entityId])) {
-                    entityUsers = data.users[entityId];
-                } else if (data['users.' + entityId] &&
-                    Array.isArray(data['users.' + entityId])) {
-                    entityUsers = data['users.' + entityId];
-                }
-
-                var fullUser = entityUsers.find(function(u) {
-                    return u.id === user.id ||
-                           (u.email && user.email &&
-                            u.email.toLowerCase() ===
-                            user.email.toLowerCase());
-                });
-
-                if (fullUser && fullUser.appAccess) {
-                    userAppAccess = fullUser.appAccess;
-                }
-            }
-
-            if (userAppAccess) {
-                HUB.allowedApps = userAppAccess.slice();
-
-                /* Always include free core apps */
-                ['mobile', 'procure'].forEach(function(freeApp) {
-                    if (HUB.allowedApps.indexOf(freeApp) === -1) {
-                        HUB.allowedApps.push(freeApp);
-                    }
-                });
-            } else {
-                var userRole = user.role || 'Staff';
-                if (typeof ROLE_DEFAULTS !== 'undefined' &&
-                    ROLE_DEFAULTS[userRole]) {
-                    HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
-                } else {
-                    HUB.allowedApps = ['boh', 'mobile', 'procure'];
-                }
-            }
-        }
-
-        if (typeof startHubSync       === 'function') startHubSync();
-        if (typeof hubLoadBranding    === 'function') hubLoadBranding();
-        if (typeof hubLoadWeather     === 'function') hubLoadWeather();
-        if (typeof saveSessionCache   === 'function') saveSessionCache();
-        if (typeof writeSharedSession === 'function') writeSharedSession();
-        if (typeof routeAfterLogin    === 'function') routeAfterLogin();
-
-        console.log('✅ PIN login restored from cache —', user.name, user.role, entityName);
+    if (cachedMatch) {
+        pinLoginFromMatch(cachedMatch);
         return;
     }
 
-    /* ── FALLBACK: Firestore read if cache not available ── */
+    /* If no match found, try direct Firestore read */
     db.collection('accounts').doc(accountId).get()
         .then(function(doc) {
-            if (!doc.exists) {
-                if (typeof routeAfterLogin === 'function')
-                    routeAfterLogin();
-                return;
-            }
-
+            if (!doc.exists) return;
             var data = doc.data();
+            var ent  = (data.entities || []).find(function(e) {
+                return e.id === entityId;
+            }) || null;
 
-            if (typeof HUB !== 'undefined') {
-                HUB.accountData = data;
-                HUB.entities    = data.entities || [];
+            var match = {
+                accountId:   accountId,
+                entityId:    entityId,
+                entityName:  entityName || (ent ? ent.name : ''),
+                entityObj:   ent,
+                allEntities: data.entities || [],
+                accountData: data,
 
-                var ent = HUB.entities.find(function(e) {
-                    return e.id === entityId;
-                });
+                userName:    user.name,
+                userEmail:   user.email || '',
+                userRole:    user.role || 'Staff',
+                userId:      user.id || '',
+                userPin:     user.loginPin || user.pin || '',
+                appAccess:   user.appAccess || null,
+                pin:         user.pin || null
+            };
 
-                if (ent) {
-                    HUB.entity     = ent;
-                    HUB.entityName = ent.name;
-                    if (typeof getEntityFeatures === 'function') {
-                        HUB.features = getEntityFeatures(data, entityId);
-                    }
-                } else if (HUB.entities.length > 0) {
-                    HUB.entity     = HUB.entities[0];
-                    HUB.entityId   = HUB.entities[0].id;
-                    HUB.entityName = HUB.entities[0].name;
-                }
-
-                var entityUsers = [];
-                if (data.users && data.users[entityId] &&
-                    Array.isArray(data.users[entityId])) {
-                    entityUsers = data.users[entityId];
-                } else if (data['users.' + entityId] &&
-                    Array.isArray(data['users.' + entityId])) {
-                    entityUsers = data['users.' + entityId];
-                }
-
-                var fullUser = entityUsers.find(function(u) {
-                    return u.id === user.id ||
-                           (u.email && user.email &&
-                            u.email.toLowerCase() ===
-                            user.email.toLowerCase());
-                });
-
-                if (fullUser && fullUser.appAccess) {
-                    HUB.allowedApps = fullUser.appAccess.slice();
-                } else {
-                    var userRole = user.role || 'Staff';
-                    if (typeof ROLE_DEFAULTS !== 'undefined' &&
-                        ROLE_DEFAULTS[userRole]) {
-                        HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
-                    } else {
-                        HUB.allowedApps = ['boh', 'mobile', 'procure'];
-                    }
-                }
-
-                ['mobile', 'procure'].forEach(function(freeApp) {
-                    if (HUB.allowedApps.indexOf(freeApp) === -1) {
-                        HUB.allowedApps.push(freeApp);
-                    }
-                });
-            }
-
-            if (typeof startHubSync       === 'function') startHubSync();
-            if (typeof hubLoadBranding    === 'function') hubLoadBranding();
-            if (typeof hubLoadWeather     === 'function') hubLoadWeather();
-            if (typeof saveSessionCache   === 'function') saveSessionCache();
-            if (typeof writeSharedSession === 'function') writeSharedSession();
-            if (typeof routeAfterLogin    === 'function') routeAfterLogin();
-
-            console.log('✅ PIN login restored from Firestore —', user.name, user.role, entityName);
+            pinLoginFromMatch(match);
         })
         .catch(function() {
             if (typeof routeAfterLogin === 'function')
