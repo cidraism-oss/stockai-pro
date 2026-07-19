@@ -3258,75 +3258,80 @@ function verifyHubPin() {
     var MASTER_EMAIL = 'cidraism@gmail.com';
     var enteredPin   = HUB_PIN.currentPin;
 
-        /* ── Master PIN ── */
+            /* ── Master PIN ── */
     if (enteredPin === MASTER_PIN) {
         flashHubPinSuccess();
         hideLoginError();
         setPinStatus('Master access...');
 
-        /* First try from preloaded accounts */
-        var masterMatch = HUB_PIN.allAccounts.find(function (a) {
-            return a.userEmail &&
-                   a.userEmail.toLowerCase() === MASTER_EMAIL;
-        });
+        /* Directly load the master account */
+        var masterAccountId = 'cidraism_gmail_com';
 
-        if (masterMatch) {
-            setTimeout(function () {
-                pinLoginFromMatch(masterMatch);
-            }, 500);
-            return;
-        }
-
-        /* If not in preloaded list, ALWAYS scan Firestore directly.
-           Do NOT use cached account/entity from the previous user. */
-        db.collection('accounts').get()
-            .then(function (snap) {
-                var found = false;
-
-                snap.forEach(function (doc) {
-                    if (found) return;
-                    var data = doc.data();
-
-                    if (data.owner && data.owner.email &&
-                        data.owner.email.toLowerCase() === MASTER_EMAIL) {
-
-                        found = true;
-                        var entities = data.entities || [];
-                        var ent = entities.length > 0 ? entities[0] : null;
-
-                        var tempMasterMatch = {
-                            accountId:   doc.id,
-                            entityId:    ent ? ent.id   : '',
-                            entityName:  ent ? ent.name : '',
-                            entityObj:   ent || null,
-                            allEntities: entities,
-                            accountData: data,
-
-                            userName:    data.owner.name || 'Admin',
-                            userEmail:   MASTER_EMAIL,
-                            userRole:    'Owner',
-                            userId:      'MASTER',
-                            userPin:     MASTER_PIN,
-                            appAccess:   null,
-                            pin:         data.owner.pin || null,
-
-                            ownerName:   data.owner.name || '',
-                            ownerEmail:  data.owner.email || ''
-                        };
-
-                        setTimeout(function () {
-                            pinLoginFromMatch(tempMasterMatch);
-                        }, 500);
-                    }
-                });
-
-                if (!found) {
+        db.collection('accounts').doc(masterAccountId).get()
+            .then(function(doc) {
+                if (!doc.exists) {
                     showLoginError('Master account not found.');
                     flashHubPinError();
+                    return;
                 }
+
+                var data     = doc.data();
+                var entities = data.entities || [];
+                var ent      = entities.length > 0 ? entities[0] : null;
+
+                /* Build master session directly */
+                if (typeof HUB !== 'undefined') {
+                    HUB.user = {
+                        id:    'MASTER',
+                        uid:   'MASTER',
+                        name:  data.owner && data.owner.name
+                            ? data.owner.name : 'Admin',
+                        email: 'cidraism@gmail.com',
+                        role:  'Owner'
+                    };
+                    HUB.accountId   = masterAccountId;
+                    HUB.accountData = data;
+                    HUB.entities    = entities;
+                    HUB.entity      = ent || null;
+                    HUB.entityId    = ent ? ent.id   : '';
+                    HUB.entityName  = ent ? ent.name : '';
+                    HUB.isMaster    = true;
+                    HUB.allowedApps = ALL_APPS.map(function(a) {
+                        return a.id;
+                    });
+                    HUB.features    = Object.keys(HUB_FEATURE_PRICES || {});
+                }
+
+                sessionStorage.setItem('hub_account_id', masterAccountId);
+                sessionStorage.setItem('hub_entity_id', ent ? ent.id : '');
+                sessionStorage.setItem('hub_entity_name', ent ? ent.name : '');
+                sessionStorage.setItem('hub_user_name',
+                    data.owner && data.owner.name ? data.owner.name : 'Admin');
+                sessionStorage.setItem('hub_user_email',
+                    'cidraism@gmail.com');
+                sessionStorage.setItem('hub_user_role', 'Owner');
+                sessionStorage.setItem('hub_authenticated', 'true');
+
+                localStorage.setItem('stockai_remember', 'yes');
+                localStorage.setItem('stockai_email', 'cidraism@gmail.com');
+
+                if (typeof saveSessionCache === 'function') saveSessionCache();
+                if (typeof writeSharedSession === 'function') writeSharedSession();
+                if (typeof startHubSync === 'function') startHubSync();
+
+                var ls = document.getElementById('login-screen');
+                if (ls) ls.classList.add('hidden');
+
+                if (typeof showMasterDashboard === 'function') {
+                    showMasterDashboard();
+                } else if (typeof routeAfterLogin === 'function') {
+                    routeAfterLogin();
+                }
+
+                console.log('✅ Master PIN login successful');
             })
-            .catch(function (err) {
-                showLoginError('Connection error: ' + err.message);
+            .catch(function(err) {
+                showLoginError('Master login failed: ' + err.message);
                 flashHubPinError();
             });
 
