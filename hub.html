@@ -3089,19 +3089,22 @@ function loadAllAccountsForPin() {
                         entityUsers.forEach(function (u) {
                             var userPin = u.loginPin || u.pin || '';
                             if (userPin.length >= 4) {
-                                HUB_PIN.allAccounts.push({
-                                    accountId:  doc.id,
-                                    entityId:   ent.id,
-                                    entityName: ent.name || 'Store',
-                                    userName:   u.name || 'Staff',
-                                    userEmail:  u.email || '',
-                                    userRole:   u.role || 'Staff',
-                                    userId:     u.id || u.email || '',
-                                    userPin:    userPin,
-                                    appAccess:  u.appAccess || null,
-                                    pin:        u.pin || null,
-                                    ownerName:  owner.name || '',
-                                    ownerEmail: owner.email || ''
+                                                                HUB_PIN.allAccounts.push({
+                                    accountId:   doc.id,
+                                    entityId:    ent.id,
+                                    entityName:  ent.name || 'Store',
+                                    entityObj:   ent,
+                                    allEntities: entities,
+                                    accountData: data,
+                                    userName:    u.name || 'Staff',
+                                    userEmail:   u.email || '',
+                                    userRole:    u.role || 'Staff',
+                                    userId:      u.id || u.email || '',
+                                    userPin:     userPin,
+                                    appAccess:   u.appAccess || null,
+                                    pin:         u.pin || null,
+                                    ownerName:   owner.name || '',
+                                    ownerEmail:  owner.email || ''
                                 });
                             }
                         });
@@ -3117,19 +3120,22 @@ function loadAllAccountsForPin() {
                                         a.entityId === ent.id;
                                 });
                             if (!ownerExists) {
-                                HUB_PIN.allAccounts.push({
-                                    accountId:  doc.id,
-                                    entityId:   ent.id,
-                                    entityName: ent.name || 'Store',
-                                    userName:   owner.name || 'Owner',
-                                    userEmail:  owner.email || '',
-                                    userRole:   'Owner',
-                                    userId:     'OWNER-' + doc.id,
-                                    userPin:    ownerPin,
-                                    appAccess:  null,
-                                    pin:        owner.pin || null,
-                                    ownerName:  owner.name || '',
-                                    ownerEmail: owner.email || ''
+                                                                HUB_PIN.allAccounts.push({
+                                    accountId:   doc.id,
+                                    entityId:    ent.id,
+                                    entityName:  ent.name || 'Store',
+                                    entityObj:   ent,
+                                    allEntities: entities,
+                                    accountData: data,
+                                    userName:    owner.name || 'Owner',
+                                    userEmail:   owner.email || '',
+                                    userRole:    'Owner',
+                                    userId:      'OWNER-' + doc.id,
+                                    userPin:     ownerPin,
+                                    appAccess:   null,
+                                    pin:         owner.pin || null,
+                                    ownerName:   owner.name || '',
+                                    ownerEmail:  owner.email || ''
                                 });
                             }
                         }
@@ -3424,6 +3430,16 @@ function pinSelectFromMultiple(idx) {
 function pinLoginSuccess(user, accountId, entityId, entityName) {
     var MASTER_EMAIL = 'cidraism@gmail.com';
 
+    /* Try to find the cached account/user match from HUB_PIN preload */
+    var cachedMatch = HUB_PIN.allAccounts.find(function(a) {
+        var sameAccount = a.accountId === accountId;
+        var sameEntity  = a.entityId  === entityId;
+        var sameUserId  = user.id && a.userId === user.id;
+        var sameEmail   = user.email && a.userEmail &&
+            a.userEmail.toLowerCase() === user.email.toLowerCase();
+        return sameAccount && sameEntity && (sameUserId || sameEmail);
+    });
+
     if (typeof HUB !== 'undefined') {
         if (!HUB.user) HUB.user = {};
         HUB.user.name  = user.name;
@@ -3431,6 +3447,7 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
         HUB.user.role  = user.role  || 'Staff';
         HUB.user.uid   = user.id    || '';
         HUB.user.pin   = user.pin   || null;
+
         HUB.accountId  = accountId;
         HUB.entityId   = entityId;
         HUB.entityName = entityName || '';
@@ -3456,28 +3473,113 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
     var ls = document.getElementById('login-screen');
     if (ls) ls.classList.add('hidden');
 
+    /* ── USE CACHED ACCOUNT DATA IF AVAILABLE ── */
+    if (cachedMatch && cachedMatch.accountData) {
+        var data = cachedMatch.accountData;
+
+        if (typeof HUB !== 'undefined') {
+            HUB.accountData = data;
+            HUB.entities    = cachedMatch.allEntities ||
+                              data.entities || [];
+
+            /* Set current entity */
+            HUB.entity = cachedMatch.entityObj ||
+                HUB.entities.find(function(e) {
+                    return e.id === entityId;
+                }) ||
+                HUB.entities[0] || null;
+
+            if (HUB.entity) {
+                HUB.entityId   = HUB.entity.id;
+                HUB.entityName = HUB.entity.name;
+
+                if (typeof getEntityFeatures === 'function') {
+                    HUB.features = getEntityFeatures(data, HUB.entityId);
+                } else {
+                    HUB.features = [];
+                }
+            }
+
+            /* Determine allowed apps */
+            var userAppAccess = user.appAccess || cachedMatch.appAccess || null;
+
+            if (!userAppAccess) {
+                var entityUsers = [];
+                if (data.users && data.users[entityId] &&
+                    Array.isArray(data.users[entityId])) {
+                    entityUsers = data.users[entityId];
+                } else if (data['users.' + entityId] &&
+                    Array.isArray(data['users.' + entityId])) {
+                    entityUsers = data['users.' + entityId];
+                }
+
+                var fullUser = entityUsers.find(function(u) {
+                    return u.id === user.id ||
+                           (u.email && user.email &&
+                            u.email.toLowerCase() ===
+                            user.email.toLowerCase());
+                });
+
+                if (fullUser && fullUser.appAccess) {
+                    userAppAccess = fullUser.appAccess;
+                }
+            }
+
+            if (userAppAccess) {
+                HUB.allowedApps = userAppAccess.slice();
+
+                /* Always include free core apps */
+                ['mobile', 'procure'].forEach(function(freeApp) {
+                    if (HUB.allowedApps.indexOf(freeApp) === -1) {
+                        HUB.allowedApps.push(freeApp);
+                    }
+                });
+            } else {
+                var userRole = user.role || 'Staff';
+                if (typeof ROLE_DEFAULTS !== 'undefined' &&
+                    ROLE_DEFAULTS[userRole]) {
+                    HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
+                } else {
+                    HUB.allowedApps = ['boh', 'mobile', 'procure'];
+                }
+            }
+        }
+
+        if (typeof startHubSync       === 'function') startHubSync();
+        if (typeof hubLoadBranding    === 'function') hubLoadBranding();
+        if (typeof hubLoadWeather     === 'function') hubLoadWeather();
+        if (typeof saveSessionCache   === 'function') saveSessionCache();
+        if (typeof writeSharedSession === 'function') writeSharedSession();
+        if (typeof routeAfterLogin    === 'function') routeAfterLogin();
+
+        console.log('✅ PIN login restored from cache —', user.name, user.role, entityName);
+        return;
+    }
+
+    /* ── FALLBACK: Firestore read if cache not available ── */
     db.collection('accounts').doc(accountId).get()
-        .then(function (doc) {
+        .then(function(doc) {
             if (!doc.exists) {
                 if (typeof routeAfterLogin === 'function')
                     routeAfterLogin();
                 return;
             }
+
             var data = doc.data();
 
             if (typeof HUB !== 'undefined') {
                 HUB.accountData = data;
                 HUB.entities    = data.entities || [];
 
-                var ent = HUB.entities.find(function (e) {
+                var ent = HUB.entities.find(function(e) {
                     return e.id === entityId;
                 });
+
                 if (ent) {
                     HUB.entity     = ent;
                     HUB.entityName = ent.name;
                     if (typeof getEntityFeatures === 'function') {
-                        HUB.features = getEntityFeatures(
-                            data, entityId);
+                        HUB.features = getEntityFeatures(data, entityId);
                     }
                 } else if (HUB.entities.length > 0) {
                     HUB.entity     = HUB.entities[0];
@@ -3485,50 +3587,26 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
                     HUB.entityName = HUB.entities[0].name;
                 }
 
-                                /* Determine allowed apps correctly */
-                var userAppAccess = null;
-
-                /* First check if appAccess already came with the user */
-                if (user.appAccess) {
-                    userAppAccess = user.appAccess;
-                } else {
-                    /* Otherwise, reload the full user from Firestore */
-                    var entityUsers = [];
-
-                    if (data.users &&
-                        data.users[HUB_PIN.entityId] &&
-                        Array.isArray(data.users[HUB_PIN.entityId])) {
-                        entityUsers = data.users[HUB_PIN.entityId];
-                    } else if (data['users.' + HUB_PIN.entityId] &&
-                        Array.isArray(data['users.' + HUB_PIN.entityId])) {
-                        entityUsers = data['users.' + HUB_PIN.entityId];
-                    }
-
-                    var fullUser = entityUsers.find(function (u) {
-                        return u.id === user.id ||
-                               (u.email && user.email &&
-                                u.email.toLowerCase() ===
-                                user.email.toLowerCase());
-                    });
-
-                    if (fullUser && fullUser.appAccess) {
-                        userAppAccess = fullUser.appAccess;
-                    }
+                var entityUsers = [];
+                if (data.users && data.users[entityId] &&
+                    Array.isArray(data.users[entityId])) {
+                    entityUsers = data.users[entityId];
+                } else if (data['users.' + entityId] &&
+                    Array.isArray(data['users.' + entityId])) {
+                    entityUsers = data['users.' + entityId];
                 }
 
-                if (userAppAccess) {
-                    HUB.allowedApps = userAppAccess.slice();
+                var fullUser = entityUsers.find(function(u) {
+                    return u.id === user.id ||
+                           (u.email && user.email &&
+                            u.email.toLowerCase() ===
+                            user.email.toLowerCase());
+                });
 
-                    /* Always include the free core apps */
-                    ['mobile', 'procure'].forEach(function (freeApp) {
-                        if (HUB.allowedApps.indexOf(freeApp) === -1) {
-                            HUB.allowedApps.push(freeApp);
-                        }
-                    });
+                if (fullUser && fullUser.appAccess) {
+                    HUB.allowedApps = fullUser.appAccess.slice();
                 } else {
-                    /* Fall back to role defaults */
                     var userRole = user.role || 'Staff';
-
                     if (typeof ROLE_DEFAULTS !== 'undefined' &&
                         ROLE_DEFAULTS[userRole]) {
                         HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
@@ -3536,25 +3614,24 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
                         HUB.allowedApps = ['boh', 'mobile', 'procure'];
                     }
                 }
+
+                ['mobile', 'procure'].forEach(function(freeApp) {
+                    if (HUB.allowedApps.indexOf(freeApp) === -1) {
+                        HUB.allowedApps.push(freeApp);
+                    }
+                });
             }
 
-            if (typeof startHubSync       === 'function')
-                startHubSync();
-            if (typeof hubLoadBranding    === 'function')
-                hubLoadBranding();
-            if (typeof hubLoadWeather     === 'function')
-                hubLoadWeather();
-            if (typeof saveSessionCache   === 'function')
-                saveSessionCache();
-            if (typeof writeSharedSession === 'function')
-                writeSharedSession();
-            if (typeof routeAfterLogin    === 'function')
-                routeAfterLogin();
+            if (typeof startHubSync       === 'function') startHubSync();
+            if (typeof hubLoadBranding    === 'function') hubLoadBranding();
+            if (typeof hubLoadWeather     === 'function') hubLoadWeather();
+            if (typeof saveSessionCache   === 'function') saveSessionCache();
+            if (typeof writeSharedSession === 'function') writeSharedSession();
+            if (typeof routeAfterLogin    === 'function') routeAfterLogin();
 
-            console.log('✅ PIN login —', user.name,
-                user.role, '—', entityName);
+            console.log('✅ PIN login restored from Firestore —', user.name, user.role, entityName);
         })
-        .catch(function () {
+        .catch(function() {
             if (typeof routeAfterLogin === 'function')
                 routeAfterLogin();
         });
