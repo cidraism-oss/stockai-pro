@@ -2069,7 +2069,8 @@ function checkHubAuth() {
                         .then(function(doc) {
                             if (!doc.exists) { showLoginScreen(); return; }
                             var data  = doc.data();
-                            var users = (data.users || {})[pinEntity] || [];
+                                                        var users = (data.users || {})[pinEntity] || 
+                                        data['users.' + pinEntity] || [];
                             var user  = users.find(function(u) {
                                 return u.id === pinUserId;
                             });
@@ -2593,11 +2594,26 @@ function matchAccount(doc, email) {
     }
 
     // ── Check entity users ──
-    var users = data.users || {};
+       var users = data.users || {};
     var found = false;
-    Object.keys(users).forEach(function(eid) {
+
+    /* Build combined users from both nested and dot-notation */
+    var allEntityIds = Object.keys(users);
+    Object.keys(data).forEach(function(key) {
+        if (key.startsWith('users.')) {
+            var eid = key.substring(6);
+            if (allEntityIds.indexOf(eid) === -1) {
+                allEntityIds.push(eid);
+                users[eid] = data[key];
+            }
+        }
+    });
+
+    allEntityIds.forEach(function(eid) {
         if (found) return;
-        (users[eid] || []).forEach(function(u) {
+        var entityUsers = users[eid] || data['users.' + eid] || [];
+        if (!Array.isArray(entityUsers)) return;
+        entityUsers.forEach(function(u) {
             if (found) return;
             if (u.email && u.email.toLowerCase() === email.toLowerCase()) {
                 applyAccountState(doc.id, data, email, 'user', eid, u);
@@ -3036,14 +3052,35 @@ function loadAllAccountsForPin() {
 
                 snap.forEach(function (doc) {
                     var data     = doc.data();
-                    var entities = data.entities || [];
+                                        var entities = data.entities || [];
                     var owner    = data.owner    || {};
                     var users    = data.users    || {};
+
+                    /* Merge dot-notation user fields */
+                    Object.keys(data).forEach(function(key) {
+                        if (key.startsWith('users.') && 
+                            key !== 'users') {
+                            var eid = key.substring(6);
+                            if (!users[eid]) {
+                                users[eid] = data[key];
+                            }
+                        }
+                    });
 
                     entities.forEach(function (ent) {
                         if (ent.status === 'inactive') return;
 
-                        var entityUsers = users[ent.id] || [];
+                    /* Firestore stores users in dot-notation
+                           e.g. "users.ENT-123" as a top-level field
+                           Try both access methods */
+                    /* Read users — Firestore stores as
+                           dot-notation key "users.ENT-123" */
+                        var entityUsers =
+                            (data.users && Array.isArray(data.users[ent.id])
+                                ? data.users[ent.id] : null) ||
+                            (Array.isArray(data['users.' + ent.id])
+                                ? data['users.' + ent.id] : null) ||
+                            [];
 
                         /* Collect all users with any PIN */
                         entityUsers.forEach(function (u) {
@@ -3458,8 +3495,17 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
                 if (user.appAccess) {
                     HUB.allowedApps = user.appAccess;
                 } else {
-                    var entityUsers =
-                        (data.users || {})[entityId] || [];
+                                    var entityUsers = [];
+                if (data.users && data.users[entityId] &&
+                    Array.isArray(data.users[entityId])) {
+                    entityUsers = data.users[entityId];
+                } else {
+                    var euDotKey = 'users.' + entityId;
+                    if (data[euDotKey] && 
+                        Array.isArray(data[euDotKey])) {
+                        entityUsers = data[euDotKey];
+                    }
+                }
                     var fullUser = entityUsers.find(function (u) {
                         return u.id === user.id ||
                                (u.email && user.email &&
@@ -11008,12 +11054,20 @@ function rposPinSubmit() {
         return;
     }
 
-    var users     = HUB.accountData
-        ? (HUB.accountData.users || {})[HUB.entityId] || [] : [];
+        var _ud = HUB.accountData || {};
+    var users =
+        (_ud.users && Array.isArray(_ud.users[HUB.entityId])
+            ? _ud.users[HUB.entityId] : null) ||
+        (Array.isArray(_ud['users.' + HUB.entityId])
+            ? _ud['users.' + HUB.entityId] : null) ||
+        [];
     var validUser = null;
 
     users.forEach(function(u) {
-        if (u.pin && u.pin === pin) validUser = u;
+        if ((u.pin && u.pin === pin) ||
+            (u.loginPin && u.loginPin === pin)) {
+            validUser = u;
+        }
     });
 
     if (!validUser && HUB.accountData && HUB.accountData.owner) {
@@ -11892,8 +11946,9 @@ function rposApplyQty(itemId) {
    MANAGER PIN
 ============================================================ */
 function rposRequestManagerPin(callback) {
-    var users    = HUB.accountData ? (HUB.accountData.users || {}) : {};
-    var entUsers = users[RPOS.entityId] || [];
+        var users    = HUB.accountData ? (HUB.accountData.users || {}) : {};
+    var entUsers = users[RPOS.entityId] || 
+                   (HUB.accountData ? HUB.accountData['users.' + RPOS.entityId] : null) || [];
     var managers = entUsers.filter(function(u) {
         return u.role === 'Manager' || u.role === 'General Manager' || u.role === 'Owner';
     });
