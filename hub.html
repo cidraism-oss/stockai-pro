@@ -2735,6 +2735,9 @@ function getEntityFeatures(accountData, entityId) {
    Returns null if OK, or reason string if blocked
 ============================================================ */
 function checkAccountAccess(accountData, entity) {
+    /* Guard — if no account data loaded yet, allow through */
+    if (!accountData) return null;
+
     // Check account suspended
     if (accountData.accountStatus === 'suspended') {
         return 'Your account has been suspended: ' +
@@ -2743,7 +2746,7 @@ function checkAccountAccess(accountData, entity) {
     // Master accounts always pass
     if (accountData.isMasterAccount) return null;
     // Check entity
-    if (!entity) return null; // No entity selected yet — show selector
+    if (!entity) return null;
     if (entity.status === 'inactive') {
         return 'This entity is not yet activated. ' +
                'Please contact your administrator.';
@@ -2752,7 +2755,7 @@ function checkAccountAccess(accountData, entity) {
         return 'Payment is required to access this entity. ' +
                'Please settle your account and try again.';
     }
-    return null; // All good
+    return null;
 }
 
 /* ============================================================
@@ -3482,38 +3485,55 @@ function pinLoginSuccess(user, accountId, entityId, entityName) {
                     HUB.entityName = HUB.entities[0].name;
                 }
 
-                /* Set allowed apps */
-                var userRole = user.role || 'Staff';
-                if (typeof ROLE_DEFAULTS !== 'undefined' &&
-                    ROLE_DEFAULTS[userRole]) {
-                    HUB.allowedApps = ROLE_DEFAULTS[userRole];
-                } else {
-                    HUB.allowedApps = ['mobile'];
-                }
+                                /* Determine allowed apps correctly */
+                var userAppAccess = null;
 
-                /* User-specific app access */
+                /* First check if appAccess already came with the user */
                 if (user.appAccess) {
-                    HUB.allowedApps = user.appAccess;
+                    userAppAccess = user.appAccess;
                 } else {
-                                    var entityUsers = [];
-                if (data.users && data.users[entityId] &&
-                    Array.isArray(data.users[entityId])) {
-                    entityUsers = data.users[entityId];
-                } else {
-                    var euDotKey = 'users.' + entityId;
-                    if (data[euDotKey] && 
-                        Array.isArray(data[euDotKey])) {
-                        entityUsers = data[euDotKey];
+                    /* Otherwise, reload the full user from Firestore */
+                    var entityUsers = [];
+
+                    if (data.users &&
+                        data.users[HUB_PIN.entityId] &&
+                        Array.isArray(data.users[HUB_PIN.entityId])) {
+                        entityUsers = data.users[HUB_PIN.entityId];
+                    } else if (data['users.' + HUB_PIN.entityId] &&
+                        Array.isArray(data['users.' + HUB_PIN.entityId])) {
+                        entityUsers = data['users.' + HUB_PIN.entityId];
                     }
-                }
+
                     var fullUser = entityUsers.find(function (u) {
                         return u.id === user.id ||
                                (u.email && user.email &&
                                 u.email.toLowerCase() ===
                                 user.email.toLowerCase());
                     });
+
                     if (fullUser && fullUser.appAccess) {
-                        HUB.allowedApps = fullUser.appAccess;
+                        userAppAccess = fullUser.appAccess;
+                    }
+                }
+
+                if (userAppAccess) {
+                    HUB.allowedApps = userAppAccess.slice();
+
+                    /* Always include the free core apps */
+                    ['mobile', 'procure'].forEach(function (freeApp) {
+                        if (HUB.allowedApps.indexOf(freeApp) === -1) {
+                            HUB.allowedApps.push(freeApp);
+                        }
+                    });
+                } else {
+                    /* Fall back to role defaults */
+                    var userRole = user.role || 'Staff';
+
+                    if (typeof ROLE_DEFAULTS !== 'undefined' &&
+                        ROLE_DEFAULTS[userRole]) {
+                        HUB.allowedApps = ROLE_DEFAULTS[userRole].slice();
+                    } else {
+                        HUB.allowedApps = ['boh', 'mobile', 'procure'];
                     }
                 }
             }
