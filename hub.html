@@ -2832,6 +2832,15 @@ function hubLogout() {
         HUB.syncListener = null;
     }
 
+    /* Clear PIN session state */
+    HUB_PIN.currentPin = '';
+    HUB_PIN.accountId  = '';
+    HUB_PIN.entityId   = '';
+    HUB_PIN.entityName = '';
+    HUB_PIN.loaded     = false;
+    clearHubPinDisplay();
+    hideLoginError();
+
     // Clear storage
     localStorage.removeItem('stockai_remember');
     localStorage.removeItem('stockai_email');
@@ -3249,60 +3258,78 @@ function verifyHubPin() {
     var MASTER_EMAIL = 'cidraism@gmail.com';
     var enteredPin   = HUB_PIN.currentPin;
 
-    /* ── Master PIN ── */
+        /* ── Master PIN ── */
     if (enteredPin === MASTER_PIN) {
         flashHubPinSuccess();
         hideLoginError();
         setPinStatus('Master access...');
 
-        /* Find master account */
+        /* First try from preloaded accounts */
         var masterMatch = HUB_PIN.allAccounts.find(function (a) {
-            return a.userEmail.toLowerCase() === MASTER_EMAIL;
+            return a.userEmail &&
+                   a.userEmail.toLowerCase() === MASTER_EMAIL;
         });
 
         if (masterMatch) {
-    setTimeout(function () {
-        pinLoginFromMatch(masterMatch);
-    }, 500);
-    return;
-}
+            setTimeout(function () {
+                pinLoginFromMatch(masterMatch);
+            }, 500);
+            return;
+        }
 
-        /* Master not in preloaded list — scan directly */
+        /* If not in preloaded list, ALWAYS scan Firestore directly.
+           Do NOT use cached account/entity from the previous user. */
         db.collection('accounts').get()
             .then(function (snap) {
                 var found = false;
+
                 snap.forEach(function (doc) {
                     if (found) return;
                     var data = doc.data();
+
                     if (data.owner && data.owner.email &&
-                        data.owner.email.toLowerCase() ===
-                            MASTER_EMAIL) {
+                        data.owner.email.toLowerCase() === MASTER_EMAIL) {
+
                         found = true;
                         var entities = data.entities || [];
-                        var entId = entities.length > 0
-                            ? entities[0].id : '';
-                        var entName = entities.length > 0
-                            ? entities[0].name : '';
+                        var ent = entities.length > 0 ? entities[0] : null;
+
+                        var tempMasterMatch = {
+                            accountId:   doc.id,
+                            entityId:    ent ? ent.id   : '',
+                            entityName:  ent ? ent.name : '',
+                            entityObj:   ent || null,
+                            allEntities: entities,
+                            accountData: data,
+
+                            userName:    data.owner.name || 'Admin',
+                            userEmail:   MASTER_EMAIL,
+                            userRole:    'Owner',
+                            userId:      'MASTER',
+                            userPin:     MASTER_PIN,
+                            appAccess:   null,
+                            pin:         data.owner.pin || null,
+
+                            ownerName:   data.owner.name || '',
+                            ownerEmail:  data.owner.email || ''
+                        };
+
                         setTimeout(function () {
-                            pinLoginSuccess({
-                                id:       'MASTER',
-                                name:     data.owner.name || 'Admin',
-                                email:    MASTER_EMAIL,
-                                role:     'Owner',
-                                loginPin: MASTER_PIN
-                            }, doc.id, entId, entName);
+                            pinLoginFromMatch(tempMasterMatch);
                         }, 500);
                     }
                 });
+
                 if (!found) {
                     showLoginError('Master account not found.');
                     flashHubPinError();
                 }
             })
-            .catch(function () {
-                showLoginError('Connection error.');
+            .catch(function (err) {
+                showLoginError('Connection error: ' + err.message);
                 flashHubPinError();
             });
+
         return;
     }
 
