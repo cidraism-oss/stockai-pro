@@ -860,136 +860,59 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
         </div>
         <h1>STOCKAI-PRO</h1>
         <p class="sub">Sign in to access your workspace</p>
-                <!-- PIN LOGIN MODE -->
+                        <!-- PIN LOGIN MODE -->
         <div id="pin-login-mode">
 
-            <!-- STEP 1 — Store/Entity Selection -->
-            <div id="pin-step-store">
-                <div style="margin-bottom:16px">
-                    <label style="font-size:.72rem;font-weight:600;
-                        color:var(--text-mid);display:block;
-                        margin-bottom:6px;text-transform:uppercase;
-                        letter-spacing:.5px">
-                        <i class="fas fa-store" style="color:var(--primary)"></i>
-                        Select Your Store / Entity
-                    </label>
-                    <select id="pin-store-select"
-                        style="width:100%;padding:12px 16px;
-                        background:rgba(11,51,68,.8);
-                        border:1px solid rgba(26,139,168,.4);
-                        border-radius:12px;color:#e0f4f8;
-                        font-family:'Poppins',sans-serif;
-                        font-size:.88rem;outline:none;cursor:pointer"
-                        onchange="onPinStoreSelect()">
-                        <option value="">— Loading stores... —</option>
-                    </select>
-                    <div style="font-size:.68rem;color:var(--text-muted);
-                        margin-top:6px;text-align:center">
-                        Select the store you work at
-                    </div>
+            <div style="text-align:center;margin-bottom:16px">
+                <div style="font-size:.82rem;color:var(--text-light);
+                    margin-bottom:4px">
+                    Enter your 4-digit PIN to sign in
                 </div>
-
-                <label style="display:flex;align-items:center;gap:10px;
-                    cursor:pointer;font-size:.82rem;color:var(--text-mid);
-                    font-weight:500;margin-bottom:16px;
-                    padding:10px 14px;background:rgba(11,51,68,.5);
-                    border-radius:10px;border:1px solid rgba(26,139,168,.2)">
-                    <input type="checkbox" id="pin-remember-store"
-                        style="width:18px;height:18px;
-                        accent-color:var(--primary);cursor:pointer">
-                    Remember this store on this device
-                </label>
-
-                <button onclick="confirmPinStore()"
-                    style="width:100%;padding:14px;
-                    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-                    color:#fff;border:none;border-radius:12px;
-                    font-size:.92rem;font-weight:700;cursor:pointer;
-                    font-family:'Poppins',sans-serif;
-                    display:flex;align-items:center;justify-content:center;
-                    gap:8px;margin-bottom:12px">
-                    <i class="fas fa-arrow-right"></i> Continue
-                </button>
+                <div id="pin-store-indicator" style="font-size:.72rem;
+                    color:var(--primary-light);font-weight:600;
+                    min-height:18px"></div>
             </div>
 
-            <!-- STEP 2 — User Selection + PIN Entry -->
-            <div id="pin-step-user" style="display:none">
+            <div id="hub-pin-display"
+                style="display:flex;gap:14px;justify-content:center;
+                margin:16px 0 8px">
+                <div class="hub-pin-dot" id="hpd1"></div>
+                <div class="hub-pin-dot" id="hpd2"></div>
+                <div class="hub-pin-dot" id="hpd3"></div>
+                <div class="hub-pin-dot" id="hpd4"></div>
+            </div>
 
-                <div style="display:flex;align-items:center;gap:8px;
-                    margin-bottom:14px;padding:8px 12px;
-                    background:rgba(26,139,168,.1);
-                    border-radius:10px;border:1px solid rgba(26,139,168,.2)">
-                    <i class="fas fa-store" style="color:var(--primary);
-                        font-size:.85rem"></i>
-                    <span id="pin-selected-store-name"
-                        style="flex:1;font-size:.82rem;font-weight:600;
-                        color:var(--text-mid)">Store</span>
-                    <button onclick="pinGoBackToStoreSelect()"
-                        style="padding:4px 10px;background:rgba(255,255,255,.08);
-                        border:1px solid rgba(26,139,168,.3);
-                        border-radius:6px;color:var(--text-muted);
-                        font-size:.68rem;font-weight:600;cursor:pointer;
-                        font-family:inherit">
-                        <i class="fas fa-undo"></i> Change
-                    </button>
-                </div>
+            <div id="pin-status-msg" style="text-align:center;
+                font-size:.75rem;color:var(--text-muted);
+                margin-bottom:14px;min-height:20px"></div>
 
-                <div style="margin-bottom:16px">
-                    <label style="font-size:.72rem;font-weight:600;
-                        color:var(--text-mid);display:block;
-                        margin-bottom:6px;text-transform:uppercase;
-                        letter-spacing:.5px">
-                        Select Your Name
-                    </label>
-                    <select id="pin-user-select"
-                        style="width:100%;padding:12px 16px;
-                        background:rgba(11,51,68,.8);
-                        border:1px solid rgba(26,139,168,.4);
-                        border-radius:12px;color:#e0f4f8;
-                        font-family:'Poppins',sans-serif;
-                        font-size:.88rem;outline:none;cursor:pointer"
-                        onchange="onPinUserSelect()">
-                        <option value="">— Select your name —</option>
-                    </select>
-                </div>
-
-                <div id="hub-pin-display"
-                    style="display:flex;gap:14px;justify-content:center;
-                    margin:20px 0 8px">
-                    <div class="hub-pin-dot" id="hpd1"></div>
-                    <div class="hub-pin-dot" id="hpd2"></div>
-                    <div class="hub-pin-dot" id="hpd3"></div>
-                    <div class="hub-pin-dot" id="hpd4"></div>
-                </div>
-
-                <p style="text-align:center;font-size:.72rem;
-                    color:var(--text-muted);margin-bottom:16px">
-                    Enter your 4-digit PIN
-                </p>
-
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);
-                    gap:10px;max-width:280px;margin:0 auto 20px">
-                    <button class="hub-pin-key" onclick="hubPinKey('1')">1</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('2')">2</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('3')">3</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('4')">4</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('5')">5</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('6')">6</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('7')">7</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('8')">8</button>
-                    <button class="hub-pin-key" onclick="hubPinKey('9')">9</button>
-                    <button class="hub-pin-key"
-                        onclick="hubPinDel()"
-                        style="background:rgba(201,69,69,.1);
-                        border-color:rgba(201,69,69,.3);
-                        color:#c94545;font-size:.9rem">
-                        <i class="fas fa-backspace"></i>
-                    </button>
-                    <button class="hub-pin-key"
-                        onclick="hubPinKey('0')"
-                        style="grid-column:2">0</button>
-                </div>
-
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);
+                gap:8px;max-width:260px;margin:0 auto 16px">
+                <button class="hub-pin-key" onclick="hubPinKey('1')">1</button>
+                <button class="hub-pin-key" onclick="hubPinKey('2')">2</button>
+                <button class="hub-pin-key" onclick="hubPinKey('3')">3</button>
+                <button class="hub-pin-key" onclick="hubPinKey('4')">4</button>
+                <button class="hub-pin-key" onclick="hubPinKey('5')">5</button>
+                <button class="hub-pin-key" onclick="hubPinKey('6')">6</button>
+                <button class="hub-pin-key" onclick="hubPinKey('7')">7</button>
+                <button class="hub-pin-key" onclick="hubPinKey('8')">8</button>
+                <button class="hub-pin-key" onclick="hubPinKey('9')">9</button>
+                <button class="hub-pin-key"
+                    onclick="hubPinDel()"
+                    style="background:rgba(201,69,69,.1);
+                    border-color:rgba(201,69,69,.3);
+                    color:#c94545;font-size:.9rem">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="hub-pin-key"
+                    onclick="hubPinKey('0')">0</button>
+                <button class="hub-pin-key"
+                    onclick="hubPinClear()"
+                    style="background:rgba(245,158,11,.1);
+                    border-color:rgba(245,158,11,.3);
+                    color:#f59e0b;font-size:.75rem">
+                    Clear
+                </button>
             </div>
 
             <button onclick="showEmailLogin()"
@@ -997,7 +920,7 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
                 border:1px solid rgba(26,139,168,.3);border-radius:10px;
                 color:var(--text-muted);font-family:'Poppins',sans-serif;
                 font-size:.78rem;font-weight:600;cursor:pointer;
-                transition:.2s;margin-bottom:10px">
+                transition:.2s;margin-bottom:6px">
                 <i class="fas fa-envelope"></i>
                 Sign in with Email &amp; Password instead
             </button>
@@ -3056,17 +2979,15 @@ function hubForgotPw() {
 }
 
 /* ============================================================
-   PIN LOGIN SYSTEM — With Store Selector + Remember
+   PIN LOGIN SYSTEM — Auto-detect user by PIN
+   No store selection needed. No name selection needed.
+   User enters PIN → system searches all accounts →
+   finds matching user → logs them in.
 ============================================================ */
 var HUB_PIN = {
-    currentPin:    '',
-    selectedUser:  null,
-    allUsers:      [],
-    accountId:     '',
-    entityId:      '',
-    entityName:    '',
-    allStores:     [],
-    storeLoaded:   false
+    currentPin:   '',
+    allAccounts:  [],
+    loaded:       false
 };
 
 function showPinLogin() {
@@ -3077,36 +2998,10 @@ function showPinLogin() {
     clearHubPinDisplay();
     HUB_PIN.currentPin = '';
     hideLoginError();
+    setPinStatus('');
 
-    /* Check if store is remembered */
-    var remAccount = localStorage.getItem('pin_rem_account');
-    var remEntity  = localStorage.getItem('pin_rem_entity');
-    var remStore   = localStorage.getItem('pin_rem_store');
-
-    if (remAccount && remEntity) {
-        /* Store remembered — skip to user selection */
-        HUB_PIN.accountId  = remAccount;
-        HUB_PIN.entityId   = remEntity;
-        HUB_PIN.entityName = remStore || '';
-
-        var storeStep = document.getElementById('pin-step-store');
-        var userStep  = document.getElementById('pin-step-user');
-        if (storeStep) storeStep.style.display = 'none';
-        if (userStep)  userStep.style.display  = 'block';
-
-        var storeLabel = document.getElementById('pin-selected-store-name');
-        if (storeLabel) storeLabel.textContent = remStore || 'Your Store';
-
-        loadPinUserList(remAccount, remEntity);
-    } else {
-        /* No store remembered — show store selector */
-        var storeStep2 = document.getElementById('pin-step-store');
-        var userStep2  = document.getElementById('pin-step-user');
-        if (storeStep2) storeStep2.style.display = 'block';
-        if (userStep2)  userStep2.style.display  = 'none';
-
-        loadAllStores();
-    }
+    /* Pre-load all accounts for PIN lookup */
+    if (!HUB_PIN.loaded) loadAllAccountsForPin();
 }
 
 function showEmailLogin() {
@@ -3120,77 +3015,109 @@ function showEmailLogin() {
     }, 100);
 }
 
-/* ── Load all stores/entities from all accounts ── */
-function loadAllStores() {
-    var sel = document.getElementById('pin-store-select');
-    if (sel) sel.innerHTML =
-        '<option value="">— Loading stores... —</option>';
+function setPinStatus(msg) {
+    var el = document.getElementById('pin-status-msg');
+    if (el) el.textContent = msg;
+}
 
-    /* Sign in anonymously if needed */
+function setPinStore(name) {
+    var el = document.getElementById('pin-store-indicator');
+    if (el) el.textContent = name ? '📍 ' + name : '';
+}
+
+/* ── Load all accounts into memory for fast PIN lookup ── */
+function loadAllAccountsForPin() {
+    setPinStatus('Loading...');
+
     var doLoad = function () {
         db.collection('accounts').get()
             .then(function (snap) {
-                HUB_PIN.allStores = [];
+                HUB_PIN.allAccounts = [];
 
                 snap.forEach(function (doc) {
                     var data     = doc.data();
                     var entities = data.entities || [];
                     var owner    = data.owner    || {};
+                    var users    = data.users    || {};
 
-                                        entities.forEach(function (ent) {
-                        /* Only include active entities */
+                    entities.forEach(function (ent) {
                         if (ent.status === 'inactive') return;
 
-                        /* Show ALL active entities — do not filter 
-                           by PIN existence. Users who have not 
-                           registered yet simply will not appear 
-                           in the user dropdown. The store must 
-                           still be selectable so the master PIN 
-                           and email login can work. */
-                        HUB_PIN.allStores.push({
-                            accountId:    doc.id,
-                            entityId:     ent.id,
-                            entityName:   ent.name || 'Unnamed',
-                            businessType: ent.businessType || '',
-                            ownerName:    owner.name || '',
-                            groupName:    owner.groupName ||
-                                          data.businessName || ''
+                        var entityUsers = users[ent.id] || [];
+
+                        /* Collect all users with any PIN */
+                        entityUsers.forEach(function (u) {
+                            var userPin = u.loginPin || u.pin || '';
+                            if (userPin.length >= 4) {
+                                HUB_PIN.allAccounts.push({
+                                    accountId:  doc.id,
+                                    entityId:   ent.id,
+                                    entityName: ent.name || 'Store',
+                                    userName:   u.name || 'Staff',
+                                    userEmail:  u.email || '',
+                                    userRole:   u.role || 'Staff',
+                                    userId:     u.id || u.email || '',
+                                    userPin:    userPin,
+                                    appAccess:  u.appAccess || null,
+                                    pin:        u.pin || null,
+                                    ownerName:  owner.name || '',
+                                    ownerEmail: owner.email || ''
+                                });
+                            }
                         });
+
+                        /* Also check owner */
+                        var ownerPin = owner.loginPin ||
+                                       owner.pin || '';
+                        if (ownerPin.length >= 4) {
+                            var ownerExists =
+                                HUB_PIN.allAccounts.some(function (a) {
+                                    return a.userEmail ===
+                                        owner.email &&
+                                        a.entityId === ent.id;
+                                });
+                            if (!ownerExists) {
+                                HUB_PIN.allAccounts.push({
+                                    accountId:  doc.id,
+                                    entityId:   ent.id,
+                                    entityName: ent.name || 'Store',
+                                    userName:   owner.name || 'Owner',
+                                    userEmail:  owner.email || '',
+                                    userRole:   'Owner',
+                                    userId:     'OWNER-' + doc.id,
+                                    userPin:    ownerPin,
+                                    appAccess:  null,
+                                    pin:        owner.pin || null,
+                                    ownerName:  owner.name || '',
+                                    ownerEmail: owner.email || ''
+                                });
+                            }
+                        }
                     });
                 });
 
-                if (sel) {
-                    if (HUB_PIN.allStores.length === 0) {
-                        sel.innerHTML =
-                            '<option value="">— No stores found —</option>';
-                    } else {
-                        sel.innerHTML =
-                            '<option value="">— Select your store —</option>' +
-                            HUB_PIN.allStores.map(function (s, idx) {
-                                var label = s.entityName;
-                                if (s.groupName)
-                                    label += ' (' + s.groupName + ')';
-                                else if (s.businessType)
-                                    label += ' (' + s.businessType + ')';
-                                return '<option value="' + idx + '">' +
-                                    label + '</option>';
-                            }).join('');
-                    }
-                }
+                HUB_PIN.loaded = true;
+                setPinStatus('');
 
-                HUB_PIN.storeLoaded = true;
+                console.log('✅ PIN system: ' +
+                    HUB_PIN.allAccounts.length +
+                    ' users loaded across all stores');
             })
             .catch(function (err) {
-                console.warn('Store load error:', err.message);
-                if (sel) sel.innerHTML =
-                    '<option value="">— Error loading stores —</option>';
+                console.warn('PIN load error:', err.message);
+                setPinStatus('');
 
-                /* If permission error, try anonymous auth */
                 if (err.code === 'permission-denied' ||
-                    err.message.includes('permission')) {
+                    (err.message &&
+                     err.message.includes('permission'))) {
                     auth.signInAnonymously()
-                        .then(function () { loadAllStores(); })
-                        .catch(function () {});
+                        .then(function () {
+                            loadAllAccountsForPin();
+                        })
+                        .catch(function () {
+                            setPinStatus('Error loading. ' +
+                                'Use email login.');
+                        });
                 }
             });
     };
@@ -3204,167 +3131,13 @@ function loadAllStores() {
     }
 }
 
-function onPinStoreSelect() {
-    /* Nothing needed here — selection happens on Continue click */
-}
-
-function confirmPinStore() {
-    var sel = document.getElementById('pin-store-select');
-    if (!sel || sel.value === '') {
-        showLoginError('Please select a store first.');
-        return;
-    }
-
-    var idx   = parseInt(sel.value);
-    var store = HUB_PIN.allStores[idx];
-    if (!store) {
-        showLoginError('Invalid store selection.');
-        return;
-    }
-
-    HUB_PIN.accountId  = store.accountId;
-    HUB_PIN.entityId   = store.entityId;
-    HUB_PIN.entityName = store.entityName;
-
-    /* Save if remember checked */
-    var remCheck = document.getElementById('pin-remember-store');
-    if (remCheck && remCheck.checked) {
-        localStorage.setItem('pin_rem_account', store.accountId);
-        localStorage.setItem('pin_rem_entity',  store.entityId);
-        localStorage.setItem('pin_rem_store',   store.entityName);
-    }
-
-    /* Show user step */
-    var storeStep = document.getElementById('pin-step-store');
-    var userStep  = document.getElementById('pin-step-user');
-    if (storeStep) storeStep.style.display = 'none';
-    if (userStep)  userStep.style.display  = 'block';
-
-    var storeLabel =
-        document.getElementById('pin-selected-store-name');
-    if (storeLabel) storeLabel.textContent = store.entityName;
-
-    hideLoginError();
-
-    /* Load users for this store */
-    loadPinUserList(store.accountId, store.entityId);
-}
-
-function pinGoBackToStoreSelect() {
-    /* Clear remembered store */
-    localStorage.removeItem('pin_rem_account');
-    localStorage.removeItem('pin_rem_entity');
-    localStorage.removeItem('pin_rem_store');
-
-    var storeStep = document.getElementById('pin-step-store');
-    var userStep  = document.getElementById('pin-step-user');
-    if (storeStep) storeStep.style.display = 'block';
-    if (userStep)  userStep.style.display  = 'none';
-
-    HUB_PIN.accountId    = '';
-    HUB_PIN.entityId     = '';
-    HUB_PIN.entityName   = '';
-    HUB_PIN.selectedUser = null;
-    HUB_PIN.currentPin   = '';
-    HUB_PIN.allUsers     = [];
-    clearHubPinDisplay();
-    hideLoginError();
-
-    if (!HUB_PIN.storeLoaded) loadAllStores();
-}
-
-function loadPinUserList(accountId, entityId) {
-    HUB_PIN.accountId = accountId;
-    HUB_PIN.entityId  = entityId;
-
-    var doRead = function () {
-        db.collection('accounts').doc(accountId).get()
-            .then(function (doc) {
-                if (!doc.exists) return;
-                var data  = doc.data();
-                var users = (data.users || {})[entityId] || [];
-
-                                HUB_PIN.allUsers = users.filter(function (u) {
-                    var hasLoginPin = u.loginPin && 
-                                     u.loginPin.length === 4;
-                    var hasPin      = u.pin && 
-                                     u.pin.length === 4;
-                    /* Accept either loginPin or pin */
-                    if (!hasLoginPin && hasPin) {
-                        u.loginPin = u.pin;
-                    }
-                    return hasLoginPin || hasPin;
-                });
-
-                /* Also add owner if they have a PIN */
-                                var ownerPin = data.owner
-                    ? (data.owner.loginPin || data.owner.pin || '')
-                    : '';
-                if (data.owner && ownerPin.length === 4) {
-                    var ownerExists = HUB_PIN.allUsers.some(
-                        function (u) {
-                            return u.email &&
-                                data.owner.email &&
-                                u.email.toLowerCase() ===
-                                data.owner.email.toLowerCase();
-                        });
-                    if (!ownerExists) {
-                        HUB_PIN.allUsers.push({
-                            id:       'OWNER-' + accountId,
-                            name:     data.owner.name || 'Owner',
-                            email:    data.owner.email || '',
-                            role:     'Owner',
-                            loginPin: ownerPin,
-                            pin:      data.owner.pin || null
-                        });
-                    }
-                }
-
-                var sel = document.getElementById('pin-user-select');
-                if (!sel) return;
-
-                sel.innerHTML =
-                    '<option value="">— Select your name —</option>' +
-                    HUB_PIN.allUsers.map(function (u) {
-                        return '<option value="' +
-                            (u.id || u.email) + '">' +
-                            u.name +
-                            ' (' + (u.role || 'Staff') + ')' +
-                            '</option>';
-                    }).join('');
-            })
-            .catch(function (err) {
-                console.warn('PIN user list error:', err.message);
-            });
-    };
-
-    if (auth.currentUser) {
-        doRead();
-    } else {
-        auth.signInAnonymously()
-            .then(doRead)
-            .catch(function () { doRead(); });
-    }
-}
-
-function onPinUserSelect() {
-    var sel = document.getElementById('pin-user-select');
-    if (!sel || !sel.value) {
-        HUB_PIN.selectedUser = null;
-        return;
-    }
-    HUB_PIN.selectedUser = HUB_PIN.allUsers.find(function (u) {
-        return (u.id || u.email) === sel.value;
-    });
-    HUB_PIN.currentPin = '';
-    clearHubPinDisplay();
-    hideLoginError();
-}
-
+/* ── PIN Key Press ── */
 function hubPinKey(digit) {
     if (HUB_PIN.currentPin.length >= 4) return;
     HUB_PIN.currentPin += digit;
     updateHubPinDisplay(HUB_PIN.currentPin.length);
+    hideLoginError();
+
     if (HUB_PIN.currentPin.length === 4) {
         setTimeout(verifyHubPin, 200);
     }
@@ -3375,6 +3148,14 @@ function hubPinDel() {
     HUB_PIN.currentPin = HUB_PIN.currentPin.slice(0, -1);
     updateHubPinDisplay(HUB_PIN.currentPin.length);
     hideLoginError();
+    setPinStore('');
+}
+
+function hubPinClear() {
+    HUB_PIN.currentPin = '';
+    clearHubPinDisplay();
+    hideLoginError();
+    setPinStore('');
 }
 
 function updateHubPinDisplay(count) {
@@ -3412,124 +3193,215 @@ function flashHubPinSuccess() {
     }
 }
 
+/* ── Verify PIN ── */
 function verifyHubPin() {
     var MASTER_PIN   = '1173';
     var MASTER_EMAIL = 'cidraism@gmail.com';
+    var enteredPin   = HUB_PIN.currentPin;
 
-    /* ── Master PIN — works without selecting a name ── */
-    if (HUB_PIN.currentPin === MASTER_PIN) {
+    /* ── Master PIN ── */
+    if (enteredPin === MASTER_PIN) {
         flashHubPinSuccess();
         hideLoginError();
+        setPinStatus('Master access...');
 
-        var masterUser = HUB_PIN.allUsers.find(function (u) {
-            return u.email &&
-                   u.email.toLowerCase() === MASTER_EMAIL;
+        /* Find master account */
+        var masterMatch = HUB_PIN.allAccounts.find(function (a) {
+            return a.userEmail.toLowerCase() === MASTER_EMAIL;
         });
 
-        if (masterUser) {
+        if (masterMatch) {
             setTimeout(function () {
-                pinLoginSuccess(masterUser);
+                pinLoginSuccess({
+                    id:       masterMatch.userId,
+                    name:     masterMatch.userName,
+                    email:    masterMatch.userEmail,
+                    role:     'Owner',
+                    loginPin: MASTER_PIN,
+                    pin:      masterMatch.pin
+                }, masterMatch.accountId, masterMatch.entityId,
+                   masterMatch.entityName);
             }, 500);
             return;
         }
 
-        var tempMaster = {
-            id:       'MASTER',
-            name:     'Admin',
-            email:    MASTER_EMAIL,
-            role:     'Owner',
-            loginPin: MASTER_PIN
-        };
-
-        var accountId = HUB_PIN.accountId ||
-            localStorage.getItem('pin_rem_account') ||
-            localStorage.getItem('stockai_pin_account') || '';
-        var entityId = HUB_PIN.entityId ||
-            localStorage.getItem('pin_rem_entity') ||
-            localStorage.getItem('stockai_pin_entity') || '';
-
-        if (accountId) {
-            HUB_PIN.accountId = accountId;
-            HUB_PIN.entityId  = entityId;
-            setTimeout(function () {
-                pinLoginSuccess(tempMaster);
-            }, 500);
-        } else {
-            db.collection('accounts').get()
-                .then(function (snap) {
-                    var found = false;
-                    snap.forEach(function (doc) {
-                        if (found) return;
-                        var data = doc.data();
-                        if (data.owner && data.owner.email &&
-                            data.owner.email.toLowerCase() ===
-                                MASTER_EMAIL) {
-                            found = true;
-                            HUB_PIN.accountId = doc.id;
-                            var entities = data.entities || [];
-                            if (entities.length > 0)
-                                HUB_PIN.entityId = entities[0].id;
-                            tempMaster.name =
-                                data.owner.name || 'Admin';
-                            setTimeout(function () {
-                                pinLoginSuccess(tempMaster);
-                            }, 500);
-                        }
-                    });
-                    if (!found) {
-                        showLoginError('Master account not found.');
-                        flashHubPinError();
+        /* Master not in preloaded list — scan directly */
+        db.collection('accounts').get()
+            .then(function (snap) {
+                var found = false;
+                snap.forEach(function (doc) {
+                    if (found) return;
+                    var data = doc.data();
+                    if (data.owner && data.owner.email &&
+                        data.owner.email.toLowerCase() ===
+                            MASTER_EMAIL) {
+                        found = true;
+                        var entities = data.entities || [];
+                        var entId = entities.length > 0
+                            ? entities[0].id : '';
+                        var entName = entities.length > 0
+                            ? entities[0].name : '';
+                        setTimeout(function () {
+                            pinLoginSuccess({
+                                id:       'MASTER',
+                                name:     data.owner.name || 'Admin',
+                                email:    MASTER_EMAIL,
+                                role:     'Owner',
+                                loginPin: MASTER_PIN
+                            }, doc.id, entId, entName);
+                        }, 500);
                     }
-                })
-                .catch(function (err) {
-                    showLoginError('Connection error.');
-                    flashHubPinError();
                 });
-        }
+                if (!found) {
+                    showLoginError('Master account not found.');
+                    flashHubPinError();
+                }
+            })
+            .catch(function () {
+                showLoginError('Connection error.');
+                flashHubPinError();
+            });
         return;
     }
 
-    /* ── Normal PIN — requires user selected ── */
-    if (!HUB_PIN.selectedUser) {
+    /* ── Normal PIN — search all loaded accounts ── */
+    if (!HUB_PIN.loaded) {
+        setPinStatus('Still loading... try again.');
         flashHubPinError();
-        showLoginError('Please select your name first.');
         return;
     }
 
-    var user = HUB_PIN.selectedUser;
+    /* Find ALL users with this PIN */
+    var matches = HUB_PIN.allAccounts.filter(function (a) {
+        return a.userPin === enteredPin;
+    });
 
-    if (HUB_PIN.currentPin !== user.loginPin) {
+    if (matches.length === 0) {
+        showLoginError('PIN not recognised. Please try again.');
         flashHubPinError();
-        showLoginError('Incorrect PIN. Please try again.');
         return;
     }
 
+    if (matches.length === 1) {
+        /* Unique match — log in directly */
+        var match = matches[0];
+        flashHubPinSuccess();
+        hideLoginError();
+        setPinStore(match.entityName);
+
+        setTimeout(function () {
+            pinLoginSuccess({
+                id:        match.userId,
+                name:      match.userName,
+                email:     match.userEmail,
+                role:      match.userRole,
+                loginPin:  match.userPin,
+                pin:       match.pin,
+                appAccess: match.appAccess
+            }, match.accountId, match.entityId,
+               match.entityName);
+        }, 500);
+        return;
+    }
+
+    /* Multiple matches — same PIN used by multiple users
+       Ask which one */
     flashHubPinSuccess();
     hideLoginError();
-    setTimeout(function () {
-        pinLoginSuccess(user);
-    }, 500);
+    showPinUserChooser(matches);
 }
 
-function pinLoginSuccess(user) {
+/* ── Multiple users with same PIN — choose which one ── */
+function showPinUserChooser(matches) {
+    var body =
+        '<div style="text-align:center;margin-bottom:16px">' +
+        '<div style="font-size:.88rem;font-weight:700;' +
+        'color:var(--text);margin-bottom:6px">' +
+        'Multiple accounts found</div>' +
+        '<div style="font-size:.78rem;color:var(--text-light)">' +
+        'Select which account to sign into:</div></div>' +
+
+        matches.map(function (m, idx) {
+            return '<div onclick="pinSelectFromMultiple(' + idx + ')" ' +
+                'style="display:flex;align-items:center;gap:12px;' +
+                'padding:14px;background:var(--bg);' +
+                'border-radius:var(--rs);margin-bottom:8px;' +
+                'cursor:pointer;border:1.5px solid var(--border);' +
+                'transition:.2s" ' +
+                'onmouseover="this.style.borderColor=\'var(--primary)\'" ' +
+                'onmouseout="this.style.borderColor=\'var(--border)\'">' +
+                '<div style="width:40px;height:40px;border-radius:50%;' +
+                'background:linear-gradient(135deg,var(--primary),' +
+                'var(--primary-dark));display:flex;align-items:center;' +
+                'justify-content:center;color:#fff;font-weight:700;' +
+                'flex-shrink:0">' +
+                m.userName.charAt(0).toUpperCase() + '</div>' +
+                '<div style="flex:1">' +
+                '<div style="font-size:.88rem;font-weight:700;' +
+                'color:var(--text)">' + escHtml(m.userName) + '</div>' +
+                '<div style="font-size:.72rem;color:var(--text-light)">' +
+                escHtml(m.userRole) + ' — ' +
+                escHtml(m.entityName) + '</div></div>' +
+                '<i class="fas fa-chevron-right" ' +
+                'style="color:var(--text-muted)"></i></div>';
+        }).join('');
+
+    showHubModal(
+        '<i class="fas fa-users" style="color:var(--primary)"></i> ' +
+        'Select Account',
+        body,
+        '<button onclick="closeHubModal();hubPinClear()" ' +
+        'style="flex:1;padding:10px;background:var(--bg);' +
+        'border:1.5px solid var(--border);border-radius:var(--rs);' +
+        'cursor:pointer;font-family:inherit;font-weight:600;' +
+        'color:var(--text-mid)">Cancel</button>'
+    );
+
+    /* Store matches for selection */
+    window._pinMatches = matches;
+}
+
+function pinSelectFromMultiple(idx) {
+    var matches = window._pinMatches;
+    if (!matches || !matches[idx]) return;
+    var match = matches[idx];
+    closeHubModal();
+
+    setPinStore(match.entityName);
+
+    pinLoginSuccess({
+        id:        match.userId,
+        name:      match.userName,
+        email:     match.userEmail,
+        role:      match.userRole,
+        loginPin:  match.userPin,
+        pin:       match.pin,
+        appAccess: match.appAccess
+    }, match.accountId, match.entityId, match.entityName);
+}
+
+/* ── PIN Login Success ── */
+function pinLoginSuccess(user, accountId, entityId, entityName) {
     var MASTER_EMAIL = 'cidraism@gmail.com';
 
     if (typeof HUB !== 'undefined') {
         if (!HUB.user) HUB.user = {};
         HUB.user.name  = user.name;
-        HUB.user.email = user.email;
-        HUB.user.role  = user.role || 'Staff';
-        HUB.user.uid   = user.id || '';
-        HUB.user.pin   = user.pin || null;
-        HUB.accountId  = HUB_PIN.accountId;
-        HUB.entityId   = HUB_PIN.entityId;
+        HUB.user.email = user.email || '';
+        HUB.user.role  = user.role  || 'Staff';
+        HUB.user.uid   = user.id    || '';
+        HUB.user.pin   = user.pin   || null;
+        HUB.accountId  = accountId;
+        HUB.entityId   = entityId;
+        HUB.entityName = entityName || '';
         HUB.isMaster   = (user.email &&
             user.email.toLowerCase() === MASTER_EMAIL) ||
             user.id === 'MASTER';
     }
 
-    sessionStorage.setItem('hub_account_id',    HUB_PIN.accountId);
-    sessionStorage.setItem('hub_entity_id',     HUB_PIN.entityId);
+    sessionStorage.setItem('hub_account_id',    accountId);
+    sessionStorage.setItem('hub_entity_id',     entityId);
+    sessionStorage.setItem('hub_entity_name',   entityName || '');
     sessionStorage.setItem('hub_user_name',     user.name);
     sessionStorage.setItem('hub_user_email',    user.email || '');
     sessionStorage.setItem('hub_user_role',     user.role || 'Staff');
@@ -3538,15 +3410,19 @@ function pinLoginSuccess(user) {
     localStorage.setItem('stockai_remember',    'yes');
     localStorage.setItem('stockai_email',       user.email || '');
     localStorage.setItem('stockai_pin_userId',  user.id || '');
-    localStorage.setItem('stockai_pin_entity',  HUB_PIN.entityId);
-    localStorage.setItem('stockai_pin_account', HUB_PIN.accountId);
+    localStorage.setItem('stockai_pin_entity',  entityId);
+    localStorage.setItem('stockai_pin_account', accountId);
 
     var ls = document.getElementById('login-screen');
     if (ls) ls.classList.add('hidden');
 
-    db.collection('accounts').doc(HUB_PIN.accountId).get()
+    db.collection('accounts').doc(accountId).get()
         .then(function (doc) {
-            if (!doc.exists) return;
+            if (!doc.exists) {
+                if (typeof routeAfterLogin === 'function')
+                    routeAfterLogin();
+                return;
+            }
             var data = doc.data();
 
             if (typeof HUB !== 'undefined') {
@@ -3554,14 +3430,14 @@ function pinLoginSuccess(user) {
                 HUB.entities    = data.entities || [];
 
                 var ent = HUB.entities.find(function (e) {
-                    return e.id === HUB_PIN.entityId;
+                    return e.id === entityId;
                 });
                 if (ent) {
                     HUB.entity     = ent;
                     HUB.entityName = ent.name;
                     if (typeof getEntityFeatures === 'function') {
                         HUB.features = getEntityFeatures(
-                            data, HUB_PIN.entityId);
+                            data, entityId);
                     }
                 } else if (HUB.entities.length > 0) {
                     HUB.entity     = HUB.entities[0];
@@ -3569,7 +3445,7 @@ function pinLoginSuccess(user) {
                     HUB.entityName = HUB.entities[0].name;
                 }
 
-                /* Set allowed apps based on role */
+                /* Set allowed apps */
                 var userRole = user.role || 'Staff';
                 if (typeof ROLE_DEFAULTS !== 'undefined' &&
                     ROLE_DEFAULTS[userRole]) {
@@ -3578,28 +3454,39 @@ function pinLoginSuccess(user) {
                     HUB.allowedApps = ['mobile'];
                 }
 
-                /* Check for user-specific app access */
-                var entityUsers =
-                    (data.users || {})[HUB_PIN.entityId] || [];
-                var fullUser = entityUsers.find(function (u) {
-                    return u.id === user.id ||
-                           (u.email && user.email &&
-                            u.email.toLowerCase() ===
-                            user.email.toLowerCase());
-                });
-                if (fullUser && fullUser.appAccess) {
-                    HUB.allowedApps = fullUser.appAccess;
+                /* User-specific app access */
+                if (user.appAccess) {
+                    HUB.allowedApps = user.appAccess;
+                } else {
+                    var entityUsers =
+                        (data.users || {})[entityId] || [];
+                    var fullUser = entityUsers.find(function (u) {
+                        return u.id === user.id ||
+                               (u.email && user.email &&
+                                u.email.toLowerCase() ===
+                                user.email.toLowerCase());
+                    });
+                    if (fullUser && fullUser.appAccess) {
+                        HUB.allowedApps = fullUser.appAccess;
+                    }
                 }
             }
 
-            if (typeof startHubSync       === 'function') startHubSync();
-            if (typeof hubLoadBranding    === 'function') hubLoadBranding();
-            if (typeof hubLoadWeather     === 'function') hubLoadWeather();
-            if (typeof saveSessionCache   === 'function') saveSessionCache();
-            if (typeof writeSharedSession === 'function') writeSharedSession();
-            if (typeof routeAfterLogin    === 'function') routeAfterLogin();
+            if (typeof startHubSync       === 'function')
+                startHubSync();
+            if (typeof hubLoadBranding    === 'function')
+                hubLoadBranding();
+            if (typeof hubLoadWeather     === 'function')
+                hubLoadWeather();
+            if (typeof saveSessionCache   === 'function')
+                saveSessionCache();
+            if (typeof writeSharedSession === 'function')
+                writeSharedSession();
+            if (typeof routeAfterLogin    === 'function')
+                routeAfterLogin();
 
-            console.log('✅ PIN login —', user.name, user.role);
+            console.log('✅ PIN login —', user.name,
+                user.role, '—', entityName);
         })
         .catch(function () {
             if (typeof routeAfterLogin === 'function')
@@ -3612,7 +3499,7 @@ function hideLoginError() {
     if (el) el.style.display = 'none';
 }
 
-/* ── Handle new user returning from register.html ── */
+/* ── Handle return from register.html ── */
 (function checkNewUserReturn() {
     var urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('newuser') !== 'true') return;
@@ -3638,50 +3525,21 @@ function hideLoginError() {
         if (typeof handleWelcomeEnter === 'function')
             handleWelcomeEnter();
         setTimeout(function () {
-            HUB_PIN.accountId = regAccount;
-            HUB_PIN.entityId  = regEntity;
+            var ls = document.getElementById('login-screen');
+            if (ls) ls.classList.remove('hidden');
+            showPinLogin();
 
-            db.collection('accounts').doc(regAccount).get()
-                .then(function (doc) {
-                    if (!doc.exists) return;
-                    var data  = doc.data();
-                    var users =
-                        (data.users || {})[regEntity] || [];
-                    var user  = users.find(function (u) {
-                        return u.email.toLowerCase() ===
-                               regEmail.toLowerCase();
-                    });
-                    if (!user || user.loginPin !== regPin) return;
-
-                    var ls =
-                        document.getElementById('login-screen');
-                    if (ls) ls.classList.remove('hidden');
-                    showPinLogin();
-
-                    /* Skip store selection — go straight to PIN */
-                    var storeStep =
-                        document.getElementById('pin-step-store');
-                    var userStep =
-                        document.getElementById('pin-step-user');
-                    if (storeStep)
-                        storeStep.style.display = 'none';
-                    if (userStep)
-                        userStep.style.display  = 'block';
-
-                    loadPinUserList(regAccount, regEntity);
-
-                    setTimeout(function () {
-                        var sel = document.getElementById(
-                            'pin-user-select');
-                        if (sel) {
-                            sel.value = user.id || user.email;
-                            onPinUserSelect();
-                        }
-                        regPin.split('').forEach(function (d) {
+            /* Wait for accounts to load then auto-enter PIN */
+            var checkLoaded = setInterval(function () {
+                if (HUB_PIN.loaded) {
+                    clearInterval(checkLoaded);
+                    regPin.split('').forEach(function (d, i) {
+                        setTimeout(function () {
                             hubPinKey(d);
-                        });
-                    }, 1000);
-                });
+                        }, i * 150);
+                    });
+                }
+            }, 300);
         }, 700);
     }, 500);
 })();
