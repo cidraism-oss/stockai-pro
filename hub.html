@@ -3137,32 +3137,25 @@ function loadAllStores() {
                     var entities = data.entities || [];
                     var owner    = data.owner    || {};
 
-                    entities.forEach(function (ent) {
+                                        entities.forEach(function (ent) {
                         /* Only include active entities */
                         if (ent.status === 'inactive') return;
 
-                        /* Check if entity has any users with PINs */
-                        var users = (data.users || {})[ent.id] || [];
-                        var hasPinUsers = users.some(function (u) {
-                            return u.loginPin &&
-                                   u.loginPin.length === 4;
+                        /* Show ALL active entities — do not filter 
+                           by PIN existence. Users who have not 
+                           registered yet simply will not appear 
+                           in the user dropdown. The store must 
+                           still be selectable so the master PIN 
+                           and email login can work. */
+                        HUB_PIN.allStores.push({
+                            accountId:    doc.id,
+                            entityId:     ent.id,
+                            entityName:   ent.name || 'Unnamed',
+                            businessType: ent.businessType || '',
+                            ownerName:    owner.name || '',
+                            groupName:    owner.groupName ||
+                                          data.businessName || ''
                         });
-
-                        /* Also check owner PIN */
-                        var ownerHasPin = owner.loginPin &&
-                            owner.loginPin.length === 4;
-
-                        if (hasPinUsers || ownerHasPin) {
-                            HUB_PIN.allStores.push({
-                                accountId:    doc.id,
-                                entityId:     ent.id,
-                                entityName:   ent.name || 'Unnamed',
-                                businessType: ent.businessType || '',
-                                ownerName:    owner.name || '',
-                                groupName:    owner.groupName ||
-                                              data.businessName || ''
-                            });
-                        }
                     });
                 });
 
@@ -3291,13 +3284,23 @@ function loadPinUserList(accountId, entityId) {
                 var data  = doc.data();
                 var users = (data.users || {})[entityId] || [];
 
-                HUB_PIN.allUsers = users.filter(function (u) {
-                    return u.loginPin && u.loginPin.length === 4;
+                                HUB_PIN.allUsers = users.filter(function (u) {
+                    var hasLoginPin = u.loginPin && 
+                                     u.loginPin.length === 4;
+                    var hasPin      = u.pin && 
+                                     u.pin.length === 4;
+                    /* Accept either loginPin or pin */
+                    if (!hasLoginPin && hasPin) {
+                        u.loginPin = u.pin;
+                    }
+                    return hasLoginPin || hasPin;
                 });
 
                 /* Also add owner if they have a PIN */
-                if (data.owner && data.owner.loginPin &&
-                    data.owner.loginPin.length === 4) {
+                                var ownerPin = data.owner
+                    ? (data.owner.loginPin || data.owner.pin || '')
+                    : '';
+                if (data.owner && ownerPin.length === 4) {
                     var ownerExists = HUB_PIN.allUsers.some(
                         function (u) {
                             return u.email &&
@@ -3311,7 +3314,7 @@ function loadPinUserList(accountId, entityId) {
                             name:     data.owner.name || 'Owner',
                             email:    data.owner.email || '',
                             role:     'Owner',
-                            loginPin: data.owner.loginPin,
+                            loginPin: ownerPin,
                             pin:      data.owner.pin || null
                         });
                     }
