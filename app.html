@@ -2411,6 +2411,22 @@ function initAppFeatureAccess() {
     if (typeof initFeatureAccess === 'function') initFeatureAccess();
 }
 
+function loadEntityFeatures() {
+    var ent = S.entities[S.activeEntity];
+    if (!ent) return ['web_boh'];
+    var features = ent.features || ['web_boh'];
+    // Always include base feature
+    if (features.indexOf('web_boh') === -1) {
+        features.unshift('web_boh');
+    }
+    // Cache for feature-access.js
+    try {
+        localStorage.setItem('stockai_user_features',
+            JSON.stringify(features));
+    } catch(e) {}
+    return features;
+}
+
 function applyAppFeatureAccess(features) {
     if (typeof applyFeatureAccess === 'function') applyFeatureAccess(features);
     document.querySelectorAll('[data-requires-feature]').forEach(function(el) {
@@ -2430,7 +2446,8 @@ function applyAppFeatureAccess(features) {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     startClock();
-    initAppFeatureAccess();
+    var entityFeatures = loadEntityFeatures();
+applyAppFeatureAccess(entityFeatures);
 
     // ── Try Hub SSO first ──
     var hubAccount   = sessionStorage.getItem('hub_account_id');
@@ -2667,51 +2684,63 @@ function loadUserAccount(email, callback) {
 // LOAD ALL DATA
 // ============================================================
 function loadAllData(data) {
+    // Helper to read both nested AND dot-notation from Firestore
+    function getField(fieldName, entityId, defaultVal) {
+        // Try nested first: data.fieldName[entityId]
+        var nested = (data[fieldName] || {})[entityId];
+        if (nested !== undefined) return nested;
+        // Try dot-notation: data['fieldName.entityId']
+        var dotKey = data[fieldName + '.' + entityId];
+        if (dotKey !== undefined) return dotKey;
+        // Return default
+        return defaultVal;
+    }
+
     S.entities          = data.entities          || [];
-    S.inventory         = data.inventory         || {};
-    S.purchases         = data.purchases         || {};
-    S.wastage           = data.wastage           || {};
-    S.suppliers         = data.suppliers         || {};
-    S.users = data.users || {};
-// Ensure all entity buckets are initialized
-if (eid()) {
-    if (!S.users[eid()]) S.users[eid()] = [];
-}
-    S.menuItems         = data.menuItems         || {};
-    S.cashups           = data.cashups           || {};
-    S.activities        = data.activities        || {};
-    S.pendingPOs        = data.pendingPOs        || {};
-    S.userLogs          = data.userLogs          || {};
-    S.dayEnds           = data.dayEnds           || {};
-    S.invoices          = data.invoices          || {};
     S.internalTransfers = data.internalTransfers || [];
     S.notifs            = data.notifs            || [];
     S.billing           = data.billing           || null;
-    S.grvQueue          = data.grvQueue          || {};
-    S.departments       = data.departments       || {};
-    S.categories        = data.categories        || {};
-    S.clientInvoices    = data.clientInvoices    || {};
-    S.posDepartments    = data.posDepartments    || {};
-    S.posSellingItems   = data.posSellingItems   || {};
-    S.monthEndState     = data.monthEndState     || {};
-    S.customRoles       = data.customRoles       || {};
-    S.shifts            = data.shifts            || {};
-    S.productions       = data.productions       || {};
-    S.retailSales       = data.retailSales       || {};
-    S.retailCashups     = data.retailCashups     || {};
-    S.cashDrops         = data.cashDrops         || {};
-    S.payslips          = data.payslips          || {};
-    S.grvHistory        = data.grvHistory        || {};
-    S.skus              = data.skus              || {};
-    S.salesOrders       = data.salesOrders       || {};
-    S.salesClients      = data.salesClients      || {};
-    S.salesProspects    = data.salesProspects    || {};
-    S.salesTargets      = data.salesTargets      || {};
-    S.salesNotices      = data.salesNotices      || {};
-    S.salesActivities   = data.salesActivities   || {};
-    S.customers         = data.customers         || {};
-    S.dispatches        = data.dispatches        || {};
-    S.hrData            = data.hrData            || {};
+    S.owner             = data.owner             || null;
+
+    // Load per-entity data for ALL entities
+    // so switching entities works correctly
+    S.entities.forEach(function(ent) {
+        var eId = ent.id;
+        if (!eId) return;
+
+        S.inventory[eId]         = getField('inventory',      eId, []);
+        S.purchases[eId]         = getField('purchases',      eId, []);
+        S.wastage[eId]           = getField('wastage',        eId, []);
+        S.suppliers[eId]         = getField('suppliers',      eId, []);
+        S.users[eId]             = getField('users',          eId, []);
+        S.menuItems[eId]         = getField('menuItems',      eId, []);
+        S.cashups[eId]           = getField('cashups',        eId, {});
+        S.activities[eId]        = getField('activities',     eId, []);
+        S.pendingPOs[eId]        = getField('pendingPOs',     eId, []);
+        S.userLogs[eId]          = getField('userLogs',       eId, []);
+        S.dayEnds[eId]           = getField('dayEnds',        eId, {});
+        S.departments[eId]       = getField('departments',    eId, []);
+        S.categories[eId]        = getField('categories',     eId, []);
+        S.clientInvoices[eId]    = getField('clientInvoices', eId, []);
+        S.posDepartments[eId]    = getField('posDepartments', eId, []);
+        S.posSellingItems[eId]   = getField('posSellingItems',eId, []);
+        S.monthEndState[eId]     = getField('monthEndState',  eId, {});
+        S.customRoles[eId]       = getField('customRoles',    eId, []);
+        S.shifts[eId]            = getField('shifts',         eId, {});
+        S.productions[eId]       = getField('productions',    eId, []);
+        S.payslips[eId]          = getField('payslips',       eId, []);
+        S.skus[eId]              = getField('skus',           eId, []);
+        S.grvHistory[eId]        = getField('grvHistory',     eId, []);
+        S.retailSales[eId]       = getField('retailSales',    eId, []);
+        S.retailCashups[eId]     = getField('retailCashups',  eId, []);
+        S.cashDrops[eId]         = getField('cashDrops',      eId, []);
+        S.hrData[eId]            = getField('hrData',         eId, {});
+        S.salesOrders[eId]       = getField('salesOrders',    eId, []);
+        S.salesClients[eId]      = getField('salesClients',   eId, []);
+        S.customers[eId]         = getField('customers',      eId, []);
+        S.salesNotices[eId]      = getField('salesNotices',   eId, {});
+        S.dispatches[eId]        = getField('dispatches',     eId, []);
+    });
 }
 
 // ============================================================
@@ -2721,14 +2750,14 @@ function saveToCloud(extraFields) {
     if (!S._accountId) return Promise.resolve();
     var update = {};
     var e = eid();
+
     if (e) {
+        // Write using dot-notation keys
+        // This matches how Firestore actually stores the data
         update['inventory.'      + e] = S.inventory[e]      || [];
         update['purchases.'      + e] = S.purchases[e]      || [];
         update['wastage.'        + e] = S.wastage[e]        || [];
         update['suppliers.'      + e] = S.suppliers[e]      || [];
-        if (S.users[e] && S.users[e].length > 0) {
-    update['users.' + e] = S.users[e];
-}
         update['menuItems.'      + e] = S.menuItems[e]      || [];
         update['cashups.'        + e] = S.cashups[e]        || {};
         update['activities.'     + e] = S.activities[e]     || [];
@@ -2747,29 +2776,47 @@ function saveToCloud(extraFields) {
         update['payslips.'       + e] = S.payslips[e]       || [];
         update['skus.'           + e] = S.skus[e]           || [];
         update['grvHistory.'     + e] = S.grvHistory[e]     || [];
-        update['salesOrders.'    + e] = S.salesOrders[e]    || [];
-        update['salesClients.'   + e] = S.salesClients[e]   || [];
-        update['customers.'      + e] = S.customers[e]      || [];
-        update['salesNotices.'   + e] = S.salesNotices[e]   || {};
         update['retailSales.'    + e] = S.retailSales[e]    || [];
         update['retailCashups.'  + e] = S.retailCashups[e]  || [];
         update['cashDrops.'      + e] = S.cashDrops[e]      || [];
         update['hrData.'         + e] = S.hrData[e]         || {};
+        update['salesOrders.'    + e] = S.salesOrders[e]    || [];
+        update['salesClients.'   + e] = S.salesClients[e]   || [];
+        update['customers.'      + e] = S.customers[e]      || [];
+        update['salesNotices.'   + e] = S.salesNotices[e]   || {};
+        update['dispatches.'     + e] = S.dispatches[e]     || [];
+
+        // Only save users if there are users to save
+        // This prevents overwriting with empty array
+        if (S.users[e] && S.users[e].length > 0) {
+            update['users.' + e] = S.users[e];
+        }
     }
-    update['internalTransfers']  = S.internalTransfers || [];
-    update['notifs']             = S.notifs            || [];
-    update['entities']           = S.entities          || [];
-    update['owner']              = S.owner             || null;
-    update['billing']            = S.billing           || null;
-    update['accountStatus']      = 'active';
-    update['lastUpdated']        = firebase.firestore.FieldValue.serverTimestamp();
-    update['lastUpdatedBy']      = S.user ? S.user.name : 'Web App';
-    update['lastUpdatedDevice']  = 'Web App';
-    if (extraFields) Object.keys(extraFields).forEach(function(k){ update[k] = extraFields[k]; });
+
+    update['internalTransfers'] = S.internalTransfers || [];
+    update['notifs']            = S.notifs            || [];
+    update['entities']          = S.entities          || [];
+    update['owner']             = S.owner             || null;
+    update['billing']           = S.billing           || null;
+    update['accountStatus']     = 'active';
+    update['lastUpdated']       = firebase.firestore.FieldValue.serverTimestamp();
+    update['lastUpdatedBy']     = S.user ? S.user.name : 'Web App';
+    update['lastUpdatedDevice'] = 'Web App';
+
+    if (extraFields) {
+        Object.keys(extraFields).forEach(function(k) {
+            update[k] = extraFields[k];
+        });
+    }
+
     return db.collection('accounts').doc(S._accountId)
         .set(update, { merge: true })
-        .then(function(){ console.log('☁️ Saved'); })
-        .catch(function(err){ console.warn('Save error:', err); });
+        .then(function() {
+            console.log('☁️ Saved to Firestore');
+        })
+        .catch(function(err) {
+            console.warn('Save error:', err);
+        });
 }
 
 var _saveTimer = null;
@@ -2997,7 +3044,11 @@ function enterApp() {
         }
     }
 
-    // Render sidebar immediately
+// Load entity features based on current entity
+var currentFeatures = loadEntityFeatures();
+applyAppFeatureAccess(currentFeatures);    
+
+// Render sidebar immediately
     renderSidebar();
 
     // Show skeleton while waiting for fresh data
