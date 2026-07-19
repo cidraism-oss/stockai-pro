@@ -860,62 +860,136 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
         </div>
         <h1>STOCKAI-PRO</h1>
         <p class="sub">Sign in to access your workspace</p>
-        <!-- PIN LOGIN MODE -->
+                <!-- PIN LOGIN MODE -->
         <div id="pin-login-mode">
-            <div style="margin-bottom:16px">
-                <label style="font-size:.72rem;font-weight:600;
-                    color:var(--text-mid);display:block;
-                    margin-bottom:6px;text-transform:uppercase;
-                    letter-spacing:.5px">
-                    Select Your Name
+
+            <!-- STEP 1 — Store/Entity Selection -->
+            <div id="pin-step-store">
+                <div style="margin-bottom:16px">
+                    <label style="font-size:.72rem;font-weight:600;
+                        color:var(--text-mid);display:block;
+                        margin-bottom:6px;text-transform:uppercase;
+                        letter-spacing:.5px">
+                        <i class="fas fa-store" style="color:var(--primary)"></i>
+                        Select Your Store / Entity
+                    </label>
+                    <select id="pin-store-select"
+                        style="width:100%;padding:12px 16px;
+                        background:rgba(11,51,68,.8);
+                        border:1px solid rgba(26,139,168,.4);
+                        border-radius:12px;color:#e0f4f8;
+                        font-family:'Poppins',sans-serif;
+                        font-size:.88rem;outline:none;cursor:pointer"
+                        onchange="onPinStoreSelect()">
+                        <option value="">— Loading stores... —</option>
+                    </select>
+                    <div style="font-size:.68rem;color:var(--text-muted);
+                        margin-top:6px;text-align:center">
+                        Select the store you work at
+                    </div>
+                </div>
+
+                <label style="display:flex;align-items:center;gap:10px;
+                    cursor:pointer;font-size:.82rem;color:var(--text-mid);
+                    font-weight:500;margin-bottom:16px;
+                    padding:10px 14px;background:rgba(11,51,68,.5);
+                    border-radius:10px;border:1px solid rgba(26,139,168,.2)">
+                    <input type="checkbox" id="pin-remember-store"
+                        style="width:18px;height:18px;
+                        accent-color:var(--primary);cursor:pointer">
+                    Remember this store on this device
                 </label>
-                <select id="pin-user-select"
-                    style="width:100%;padding:12px 16px;
-                    background:rgba(11,51,68,.8);
-                    border:1px solid rgba(26,139,168,.4);
-                    border-radius:12px;color:#e0f4f8;
+
+                <button onclick="confirmPinStore()"
+                    style="width:100%;padding:14px;
+                    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+                    color:#fff;border:none;border-radius:12px;
+                    font-size:.92rem;font-weight:700;cursor:pointer;
                     font-family:'Poppins',sans-serif;
-                    font-size:.88rem;outline:none;cursor:pointer"
-                    onchange="onPinUserSelect()">
-                    <option value="">— Select your name —</option>
-                </select>
-            </div>
-
-            <div id="hub-pin-display"
-                style="display:flex;gap:14px;justify-content:center;
-                margin:20px 0 8px">
-                <div class="hub-pin-dot" id="hpd1"></div>
-                <div class="hub-pin-dot" id="hpd2"></div>
-                <div class="hub-pin-dot" id="hpd3"></div>
-                <div class="hub-pin-dot" id="hpd4"></div>
-            </div>
-
-            <p style="text-align:center;font-size:.72rem;
-                color:var(--text-muted);margin-bottom:16px">
-                Enter your 4-digit PIN
-            </p>
-
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);
-                gap:10px;max-width:280px;margin:0 auto 20px">
-                <button class="hub-pin-key" onclick="hubPinKey('1')">1</button>
-                <button class="hub-pin-key" onclick="hubPinKey('2')">2</button>
-                <button class="hub-pin-key" onclick="hubPinKey('3')">3</button>
-                <button class="hub-pin-key" onclick="hubPinKey('4')">4</button>
-                <button class="hub-pin-key" onclick="hubPinKey('5')">5</button>
-                <button class="hub-pin-key" onclick="hubPinKey('6')">6</button>
-                <button class="hub-pin-key" onclick="hubPinKey('7')">7</button>
-                <button class="hub-pin-key" onclick="hubPinKey('8')">8</button>
-                <button class="hub-pin-key" onclick="hubPinKey('9')">9</button>
-                <button class="hub-pin-key"
-                    onclick="hubPinDel()"
-                    style="background:rgba(201,69,69,.1);
-                    border-color:rgba(201,69,69,.3);
-                    color:#c94545;font-size:.9rem">
-                    <i class="fas fa-backspace"></i>
+                    display:flex;align-items:center;justify-content:center;
+                    gap:8px;margin-bottom:12px">
+                    <i class="fas fa-arrow-right"></i> Continue
                 </button>
-                <button class="hub-pin-key"
-                    onclick="hubPinKey('0')"
-                    style="grid-column:2">0</button>
+            </div>
+
+            <!-- STEP 2 — User Selection + PIN Entry -->
+            <div id="pin-step-user" style="display:none">
+
+                <div style="display:flex;align-items:center;gap:8px;
+                    margin-bottom:14px;padding:8px 12px;
+                    background:rgba(26,139,168,.1);
+                    border-radius:10px;border:1px solid rgba(26,139,168,.2)">
+                    <i class="fas fa-store" style="color:var(--primary);
+                        font-size:.85rem"></i>
+                    <span id="pin-selected-store-name"
+                        style="flex:1;font-size:.82rem;font-weight:600;
+                        color:var(--text-mid)">Store</span>
+                    <button onclick="pinGoBackToStoreSelect()"
+                        style="padding:4px 10px;background:rgba(255,255,255,.08);
+                        border:1px solid rgba(26,139,168,.3);
+                        border-radius:6px;color:var(--text-muted);
+                        font-size:.68rem;font-weight:600;cursor:pointer;
+                        font-family:inherit">
+                        <i class="fas fa-undo"></i> Change
+                    </button>
+                </div>
+
+                <div style="margin-bottom:16px">
+                    <label style="font-size:.72rem;font-weight:600;
+                        color:var(--text-mid);display:block;
+                        margin-bottom:6px;text-transform:uppercase;
+                        letter-spacing:.5px">
+                        Select Your Name
+                    </label>
+                    <select id="pin-user-select"
+                        style="width:100%;padding:12px 16px;
+                        background:rgba(11,51,68,.8);
+                        border:1px solid rgba(26,139,168,.4);
+                        border-radius:12px;color:#e0f4f8;
+                        font-family:'Poppins',sans-serif;
+                        font-size:.88rem;outline:none;cursor:pointer"
+                        onchange="onPinUserSelect()">
+                        <option value="">— Select your name —</option>
+                    </select>
+                </div>
+
+                <div id="hub-pin-display"
+                    style="display:flex;gap:14px;justify-content:center;
+                    margin:20px 0 8px">
+                    <div class="hub-pin-dot" id="hpd1"></div>
+                    <div class="hub-pin-dot" id="hpd2"></div>
+                    <div class="hub-pin-dot" id="hpd3"></div>
+                    <div class="hub-pin-dot" id="hpd4"></div>
+                </div>
+
+                <p style="text-align:center;font-size:.72rem;
+                    color:var(--text-muted);margin-bottom:16px">
+                    Enter your 4-digit PIN
+                </p>
+
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);
+                    gap:10px;max-width:280px;margin:0 auto 20px">
+                    <button class="hub-pin-key" onclick="hubPinKey('1')">1</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('2')">2</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('3')">3</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('4')">4</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('5')">5</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('6')">6</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('7')">7</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('8')">8</button>
+                    <button class="hub-pin-key" onclick="hubPinKey('9')">9</button>
+                    <button class="hub-pin-key"
+                        onclick="hubPinDel()"
+                        style="background:rgba(201,69,69,.1);
+                        border-color:rgba(201,69,69,.3);
+                        color:#c94545;font-size:.9rem">
+                        <i class="fas fa-backspace"></i>
+                    </button>
+                    <button class="hub-pin-key"
+                        onclick="hubPinKey('0')"
+                        style="grid-column:2">0</button>
+                </div>
+
             </div>
 
             <button onclick="showEmailLogin()"
@@ -927,6 +1001,7 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
                 <i class="fas fa-envelope"></i>
                 Sign in with Email &amp; Password instead
             </button>
+
         </div>
         <!-- END PIN LOGIN MODE -->
 
@@ -2981,14 +3056,17 @@ function hubForgotPw() {
 }
 
 /* ============================================================
-   PIN LOGIN SYSTEM
+   PIN LOGIN SYSTEM — With Store Selector + Remember
 ============================================================ */
 var HUB_PIN = {
-    currentPin:   '',
-    selectedUser: null,
-    allUsers:     [],
-    accountId:    '',
-    entityId:     ''
+    currentPin:    '',
+    selectedUser:  null,
+    allUsers:      [],
+    accountId:     '',
+    entityId:      '',
+    entityName:    '',
+    allStores:     [],
+    storeLoaded:   false
 };
 
 function showPinLogin() {
@@ -2999,6 +3077,36 @@ function showPinLogin() {
     clearHubPinDisplay();
     HUB_PIN.currentPin = '';
     hideLoginError();
+
+    /* Check if store is remembered */
+    var remAccount = localStorage.getItem('pin_rem_account');
+    var remEntity  = localStorage.getItem('pin_rem_entity');
+    var remStore   = localStorage.getItem('pin_rem_store');
+
+    if (remAccount && remEntity) {
+        /* Store remembered — skip to user selection */
+        HUB_PIN.accountId  = remAccount;
+        HUB_PIN.entityId   = remEntity;
+        HUB_PIN.entityName = remStore || '';
+
+        var storeStep = document.getElementById('pin-step-store');
+        var userStep  = document.getElementById('pin-step-user');
+        if (storeStep) storeStep.style.display = 'none';
+        if (userStep)  userStep.style.display  = 'block';
+
+        var storeLabel = document.getElementById('pin-selected-store-name');
+        if (storeLabel) storeLabel.textContent = remStore || 'Your Store';
+
+        loadPinUserList(remAccount, remEntity);
+    } else {
+        /* No store remembered — show store selector */
+        var storeStep2 = document.getElementById('pin-step-store');
+        var userStep2  = document.getElementById('pin-step-user');
+        if (storeStep2) storeStep2.style.display = 'block';
+        if (userStep2)  userStep2.style.display  = 'none';
+
+        loadAllStores();
+    }
 }
 
 function showEmailLogin() {
@@ -3012,50 +3120,227 @@ function showEmailLogin() {
     }, 100);
 }
 
+/* ── Load all stores/entities from all accounts ── */
+function loadAllStores() {
+    var sel = document.getElementById('pin-store-select');
+    if (sel) sel.innerHTML =
+        '<option value="">— Loading stores... —</option>';
+
+    /* Sign in anonymously if needed */
+    var doLoad = function () {
+        db.collection('accounts').get()
+            .then(function (snap) {
+                HUB_PIN.allStores = [];
+
+                snap.forEach(function (doc) {
+                    var data     = doc.data();
+                    var entities = data.entities || [];
+                    var owner    = data.owner    || {};
+
+                    entities.forEach(function (ent) {
+                        /* Only include active entities */
+                        if (ent.status === 'inactive') return;
+
+                        /* Check if entity has any users with PINs */
+                        var users = (data.users || {})[ent.id] || [];
+                        var hasPinUsers = users.some(function (u) {
+                            return u.loginPin &&
+                                   u.loginPin.length === 4;
+                        });
+
+                        /* Also check owner PIN */
+                        var ownerHasPin = owner.loginPin &&
+                            owner.loginPin.length === 4;
+
+                        if (hasPinUsers || ownerHasPin) {
+                            HUB_PIN.allStores.push({
+                                accountId:    doc.id,
+                                entityId:     ent.id,
+                                entityName:   ent.name || 'Unnamed',
+                                businessType: ent.businessType || '',
+                                ownerName:    owner.name || '',
+                                groupName:    owner.groupName ||
+                                              data.businessName || ''
+                            });
+                        }
+                    });
+                });
+
+                if (sel) {
+                    if (HUB_PIN.allStores.length === 0) {
+                        sel.innerHTML =
+                            '<option value="">— No stores found —</option>';
+                    } else {
+                        sel.innerHTML =
+                            '<option value="">— Select your store —</option>' +
+                            HUB_PIN.allStores.map(function (s, idx) {
+                                var label = s.entityName;
+                                if (s.groupName)
+                                    label += ' (' + s.groupName + ')';
+                                else if (s.businessType)
+                                    label += ' (' + s.businessType + ')';
+                                return '<option value="' + idx + '">' +
+                                    label + '</option>';
+                            }).join('');
+                    }
+                }
+
+                HUB_PIN.storeLoaded = true;
+            })
+            .catch(function (err) {
+                console.warn('Store load error:', err.message);
+                if (sel) sel.innerHTML =
+                    '<option value="">— Error loading stores —</option>';
+
+                /* If permission error, try anonymous auth */
+                if (err.code === 'permission-denied' ||
+                    err.message.includes('permission')) {
+                    auth.signInAnonymously()
+                        .then(function () { loadAllStores(); })
+                        .catch(function () {});
+                }
+            });
+    };
+
+    if (auth.currentUser) {
+        doLoad();
+    } else {
+        auth.signInAnonymously()
+            .then(doLoad)
+            .catch(function () { doLoad(); });
+    }
+}
+
+function onPinStoreSelect() {
+    /* Nothing needed here — selection happens on Continue click */
+}
+
+function confirmPinStore() {
+    var sel = document.getElementById('pin-store-select');
+    if (!sel || sel.value === '') {
+        showLoginError('Please select a store first.');
+        return;
+    }
+
+    var idx   = parseInt(sel.value);
+    var store = HUB_PIN.allStores[idx];
+    if (!store) {
+        showLoginError('Invalid store selection.');
+        return;
+    }
+
+    HUB_PIN.accountId  = store.accountId;
+    HUB_PIN.entityId   = store.entityId;
+    HUB_PIN.entityName = store.entityName;
+
+    /* Save if remember checked */
+    var remCheck = document.getElementById('pin-remember-store');
+    if (remCheck && remCheck.checked) {
+        localStorage.setItem('pin_rem_account', store.accountId);
+        localStorage.setItem('pin_rem_entity',  store.entityId);
+        localStorage.setItem('pin_rem_store',   store.entityName);
+    }
+
+    /* Show user step */
+    var storeStep = document.getElementById('pin-step-store');
+    var userStep  = document.getElementById('pin-step-user');
+    if (storeStep) storeStep.style.display = 'none';
+    if (userStep)  userStep.style.display  = 'block';
+
+    var storeLabel =
+        document.getElementById('pin-selected-store-name');
+    if (storeLabel) storeLabel.textContent = store.entityName;
+
+    hideLoginError();
+
+    /* Load users for this store */
+    loadPinUserList(store.accountId, store.entityId);
+}
+
+function pinGoBackToStoreSelect() {
+    /* Clear remembered store */
+    localStorage.removeItem('pin_rem_account');
+    localStorage.removeItem('pin_rem_entity');
+    localStorage.removeItem('pin_rem_store');
+
+    var storeStep = document.getElementById('pin-step-store');
+    var userStep  = document.getElementById('pin-step-user');
+    if (storeStep) storeStep.style.display = 'block';
+    if (userStep)  userStep.style.display  = 'none';
+
+    HUB_PIN.accountId    = '';
+    HUB_PIN.entityId     = '';
+    HUB_PIN.entityName   = '';
+    HUB_PIN.selectedUser = null;
+    HUB_PIN.currentPin   = '';
+    HUB_PIN.allUsers     = [];
+    clearHubPinDisplay();
+    hideLoginError();
+
+    if (!HUB_PIN.storeLoaded) loadAllStores();
+}
+
 function loadPinUserList(accountId, entityId) {
     HUB_PIN.accountId = accountId;
     HUB_PIN.entityId  = entityId;
 
-    /* Sign in anonymously so Firestore rules allow the read */
-    var doRead = function() {
+    var doRead = function () {
         db.collection('accounts').doc(accountId).get()
-            .then(function(doc) {
+            .then(function (doc) {
                 if (!doc.exists) return;
                 var data  = doc.data();
                 var users = (data.users || {})[entityId] || [];
 
-                HUB_PIN.allUsers = users.filter(function(u) {
+                HUB_PIN.allUsers = users.filter(function (u) {
                     return u.loginPin && u.loginPin.length === 4;
                 });
+
+                /* Also add owner if they have a PIN */
+                if (data.owner && data.owner.loginPin &&
+                    data.owner.loginPin.length === 4) {
+                    var ownerExists = HUB_PIN.allUsers.some(
+                        function (u) {
+                            return u.email &&
+                                data.owner.email &&
+                                u.email.toLowerCase() ===
+                                data.owner.email.toLowerCase();
+                        });
+                    if (!ownerExists) {
+                        HUB_PIN.allUsers.push({
+                            id:       'OWNER-' + accountId,
+                            name:     data.owner.name || 'Owner',
+                            email:    data.owner.email || '',
+                            role:     'Owner',
+                            loginPin: data.owner.loginPin,
+                            pin:      data.owner.pin || null
+                        });
+                    }
+                }
 
                 var sel = document.getElementById('pin-user-select');
                 if (!sel) return;
 
                 sel.innerHTML =
                     '<option value="">— Select your name —</option>' +
-                    HUB_PIN.allUsers.map(function(u) {
-                        return '<option value="' + u.id + '">' +
+                    HUB_PIN.allUsers.map(function (u) {
+                        return '<option value="' +
+                            (u.id || u.email) + '">' +
                             u.name +
                             ' (' + (u.role || 'Staff') + ')' +
                             '</option>';
                     }).join('');
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.warn('PIN user list error:', err.message);
             });
     };
 
-    /* Check if already authenticated */
     if (auth.currentUser) {
         doRead();
     } else {
-        /* Sign in anonymously just to read the user list */
         auth.signInAnonymously()
             .then(doRead)
-            .catch(function() {
-                /* Anonymous auth failed — try anyway */
-                doRead();
-            });
+            .catch(function () { doRead(); });
     }
 }
 
@@ -3066,7 +3351,7 @@ function onPinUserSelect() {
         return;
     }
     HUB_PIN.selectedUser = HUB_PIN.allUsers.find(function (u) {
-        return u.id === sel.value;
+        return (u.id || u.email) === sel.value;
     });
     HUB_PIN.currentPin = '';
     clearHubPinDisplay();
@@ -3074,10 +3359,6 @@ function onPinUserSelect() {
 }
 
 function hubPinKey(digit) {
-    if (!HUB_PIN.selectedUser &&
-        HUB_PIN.currentPin.length < 3) {
-        /* Allow typing without selection for master PIN */
-    }
     if (HUB_PIN.currentPin.length >= 4) return;
     HUB_PIN.currentPin += digit;
     updateHubPinDisplay(HUB_PIN.currentPin.length);
@@ -3158,10 +3439,10 @@ function verifyHubPin() {
         };
 
         var accountId = HUB_PIN.accountId ||
-            sessionStorage.getItem('hub_account_id') ||
+            localStorage.getItem('pin_rem_account') ||
             localStorage.getItem('stockai_pin_account') || '';
         var entityId = HUB_PIN.entityId ||
-            sessionStorage.getItem('hub_entity_id') ||
+            localStorage.getItem('pin_rem_entity') ||
             localStorage.getItem('stockai_pin_entity') || '';
 
         if (accountId) {
@@ -3183,9 +3464,8 @@ function verifyHubPin() {
                             found = true;
                             HUB_PIN.accountId = doc.id;
                             var entities = data.entities || [];
-                            if (entities.length > 0) {
+                            if (entities.length > 0)
                                 HUB_PIN.entityId = entities[0].id;
-                            }
                             tempMaster.name =
                                 data.owner.name || 'Admin';
                             setTimeout(function () {
@@ -3199,7 +3479,7 @@ function verifyHubPin() {
                     }
                 })
                 .catch(function (err) {
-                    showLoginError('Connection error: ' + err.message);
+                    showLoginError('Connection error.');
                     flashHubPinError();
                 });
         }
@@ -3236,6 +3516,8 @@ function pinLoginSuccess(user) {
         HUB.user.name  = user.name;
         HUB.user.email = user.email;
         HUB.user.role  = user.role || 'Staff';
+        HUB.user.uid   = user.id || '';
+        HUB.user.pin   = user.pin || null;
         HUB.accountId  = HUB_PIN.accountId;
         HUB.entityId   = HUB_PIN.entityId;
         HUB.isMaster   = (user.email &&
@@ -3246,13 +3528,13 @@ function pinLoginSuccess(user) {
     sessionStorage.setItem('hub_account_id',    HUB_PIN.accountId);
     sessionStorage.setItem('hub_entity_id',     HUB_PIN.entityId);
     sessionStorage.setItem('hub_user_name',     user.name);
-    sessionStorage.setItem('hub_user_email',    user.email);
+    sessionStorage.setItem('hub_user_email',    user.email || '');
     sessionStorage.setItem('hub_user_role',     user.role || 'Staff');
     sessionStorage.setItem('hub_authenticated', 'true');
 
     localStorage.setItem('stockai_remember',    'yes');
-    localStorage.setItem('stockai_email',       user.email);
-    localStorage.setItem('stockai_pin_userId',  user.id);
+    localStorage.setItem('stockai_email',       user.email || '');
+    localStorage.setItem('stockai_pin_userId',  user.id || '');
     localStorage.setItem('stockai_pin_entity',  HUB_PIN.entityId);
     localStorage.setItem('stockai_pin_account', HUB_PIN.accountId);
 
@@ -3298,7 +3580,7 @@ function pinLoginSuccess(user) {
                     (data.users || {})[HUB_PIN.entityId] || [];
                 var fullUser = entityUsers.find(function (u) {
                     return u.id === user.id ||
-                           (u.email &&
+                           (u.email && user.email &&
                             u.email.toLowerCase() ===
                             user.email.toLowerCase());
                 });
@@ -3307,13 +3589,12 @@ function pinLoginSuccess(user) {
                 }
             }
 
-            if (typeof startHubSync     === 'function') startHubSync();
-            if (typeof hubLoadBranding  === 'function') hubLoadBranding();
-            if (typeof hubLoadWeather   === 'function') hubLoadWeather();
-            if (typeof saveSessionCache === 'function') saveSessionCache();
-            if (typeof writeSharedSession === 'function')
-                writeSharedSession();
-            if (typeof routeAfterLogin  === 'function') routeAfterLogin();
+            if (typeof startHubSync       === 'function') startHubSync();
+            if (typeof hubLoadBranding    === 'function') hubLoadBranding();
+            if (typeof hubLoadWeather     === 'function') hubLoadWeather();
+            if (typeof saveSessionCache   === 'function') saveSessionCache();
+            if (typeof writeSharedSession === 'function') writeSharedSession();
+            if (typeof routeAfterLogin    === 'function') routeAfterLogin();
 
             console.log('✅ PIN login —', user.name, user.role);
         })
@@ -3369,16 +3650,28 @@ function hideLoginError() {
                     });
                     if (!user || user.loginPin !== regPin) return;
 
-                    var ls = document.getElementById('login-screen');
+                    var ls =
+                        document.getElementById('login-screen');
                     if (ls) ls.classList.remove('hidden');
                     showPinLogin();
+
+                    /* Skip store selection — go straight to PIN */
+                    var storeStep =
+                        document.getElementById('pin-step-store');
+                    var userStep =
+                        document.getElementById('pin-step-user');
+                    if (storeStep)
+                        storeStep.style.display = 'none';
+                    if (userStep)
+                        userStep.style.display  = 'block';
+
                     loadPinUserList(regAccount, regEntity);
 
                     setTimeout(function () {
-                        var sel =
-                            document.getElementById('pin-user-select');
+                        var sel = document.getElementById(
+                            'pin-user-select');
                         if (sel) {
-                            sel.value = user.id;
+                            sel.value = user.id || user.email;
                             onPinUserSelect();
                         }
                         regPin.split('').forEach(function (d) {
